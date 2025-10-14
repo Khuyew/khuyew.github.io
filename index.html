@@ -113,6 +113,7 @@
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
+            position: relative;
         }
 
         .messages-container {
@@ -123,6 +124,73 @@
             flex-direction: column;
             gap: 16px;
             scroll-behavior: smooth;
+            position: relative;
+        }
+
+        /* Кнопки навигации */
+        .scroll-to-top {
+            position: absolute;
+            left: 10px;
+            top: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #a0a0c0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .scroll-to-top.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .scroll-to-top:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .scroll-to-bottom {
+            position: absolute;
+            right: 20px;
+            bottom: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #a0a0c0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .scroll-to-bottom.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .scroll-to-bottom:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            transform: translateY(-1px);
         }
 
         .message {
@@ -433,7 +501,7 @@
         .input-wrapper {
             display: flex;
             gap: 8px;
-            align-items: center;
+            align-items: flex-end;
             max-width: 900px;
             margin: 0 auto;
             position: relative;
@@ -455,6 +523,13 @@
             max-height: 120px;
             overflow-y: auto;
             line-height: 1.4;
+            /* Скрываем стандартный скроллбар */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        #user-input::-webkit-scrollbar {
+            display: none;
         }
 
         #user-input::placeholder {
@@ -482,6 +557,7 @@
             flex-shrink: 0;
             position: absolute;
             right: 8px;
+            bottom: 0;
         }
 
         #send-button:hover {
@@ -497,6 +573,7 @@
         #voiceButton {
             position: absolute;
             right: 60px;
+            bottom: 7px;
             background: transparent;
             border: none;
             color: #a0a0c0;
@@ -518,6 +595,7 @@
         #imageUploadButton {
             position: absolute;
             right: 98px;
+            bottom: 7px;
             background: transparent;
             border: none;
             color: #a0a0c0;
@@ -678,22 +756,22 @@
             border: 1px solid #ff4444;
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
+        /* Scrollbar для messages container */
+        .messages-container::-webkit-scrollbar {
             width: 6px;
         }
 
-        ::-webkit-scrollbar-track {
+        .messages-container::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 3px;
         }
 
-        ::-webkit-scrollbar-thumb {
+        .messages-container::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.2);
             border-radius: 3px;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
+        .messages-container::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.3);
         }
 
@@ -856,6 +934,20 @@
                 gap: 12px;
             }
             
+            .scroll-to-top {
+                left: 5px;
+                top: 60px;
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+            
+            .scroll-to-bottom {
+                right: 15px;
+                bottom: 80px;
+                width: 32px;
+                height: 32px;
+            }
+            
             .message {
                 max-width: 85%;
                 padding: 14px 16px;
@@ -883,16 +975,19 @@
                 width: 42px;
                 height: 42px;
                 right: 6px;
+                bottom: 0;
             }
             
             #voiceButton {
                 right: 54px;
+                bottom: 5px;
                 width: 30px;
                 height: 30px;
             }
             
             #imageUploadButton {
                 right: 90px;
+                bottom: 5px;
                 width: 30px;
                 height: 30px;
             }
@@ -925,6 +1020,20 @@
             
             .logo {
                 font-size: 18px;
+            }
+            
+            .scroll-to-top {
+                left: 3px;
+                top: 50px;
+                padding: 5px 8px;
+                font-size: 9px;
+            }
+            
+            .scroll-to-bottom {
+                right: 10px;
+                bottom: 70px;
+                width: 28px;
+                height: 28px;
             }
             
             .action-buttons {
@@ -1032,11 +1141,11 @@
             color: #666;
         }
 
-        body.light-theme ::-webkit-scrollbar-track {
+        body.light-theme .messages-container::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.05);
         }
 
-        body.light-theme ::-webkit-scrollbar-thumb {
+        body.light-theme .messages-container::-webkit-scrollbar-thumb {
             background: rgba(0, 0, 0, 0.2);
         }
 
@@ -1085,6 +1194,19 @@
             background: rgba(0, 0, 0, 0.15);
             color: #2d3748;
         }
+
+        body.light-theme .scroll-to-top,
+        body.light-theme .scroll-to-bottom {
+            background: rgba(0, 0, 0, 0.1);
+            border-color: rgba(0, 0, 0, 0.2);
+            color: #666;
+        }
+
+        body.light-theme .scroll-to-top:hover,
+        body.light-theme .scroll-to-bottom:hover {
+            background: rgba(0, 0, 0, 0.15);
+            color: #2d3748;
+        }
     </style>
 </head>
 <body>
@@ -1105,6 +1227,16 @@
             <div class="messages-container" id="messagesContainer">
                 <!-- Сообщения будут добавляться здесь -->
             </div>
+            
+            <!-- Кнопки навигации -->
+            <button class="scroll-to-top" id="scrollToTop">
+                <i class="ti ti-arrow-bar-to-up"></i>
+                К началу
+            </button>
+            
+            <button class="scroll-to-bottom" id="scrollToBottom">
+                <i class="ti ti-arrow-down"></i>
+            </button>
             
             <div class="input-container">
                 <!-- Preview загруженного изображения -->
@@ -1198,6 +1330,8 @@
                 this.imagePreviewContainer = document.getElementById('imagePreviewContainer');
                 this.imagePreview = document.getElementById('imagePreview');
                 this.removeImageBtn = document.getElementById('removeImageBtn');
+                this.scrollToTop = document.getElementById('scrollToTop');
+                this.scrollToBottom = document.getElementById('scrollToBottom');
                 
                 this.introCompleted = false;
                 this.lastUserMessage = null;
@@ -1205,6 +1339,7 @@
                 this.currentStream = null;
                 this.currentTypingIndicator = null;
                 this.currentImage = null;
+                this.lastAIMessage = null;
                 
                 this.init();
             }
@@ -1227,6 +1362,7 @@
                 this.initImageModal();
                 this.setupEventListeners();
                 this.setupTextareaAutoResize();
+                this.setupScrollNavigation();
                 
                 // Фокус на поле ввода
                 this.userInput.focus();
@@ -1315,6 +1451,15 @@
                     this.removeCurrentImage();
                 });
 
+                // Навигация
+                this.scrollToTop.addEventListener('click', () => {
+                    this.scrollToLastAIMessage();
+                });
+
+                this.scrollToBottom.addEventListener('click', () => {
+                    this.scrollToBottomOfChat();
+                });
+
                 // Автофокус при клике в любое место чата
                 this.messagesContainer.addEventListener('click', () => {
                     this.userInput.focus();
@@ -1341,6 +1486,51 @@
                 this.userInput.addEventListener('input', () => {
                     this.userInput.style.height = 'auto';
                     this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+                });
+            }
+
+            setupScrollNavigation() {
+                // Отслеживание скролла для показа/скрытия кнопок навигации
+                this.messagesContainer.addEventListener('scroll', () => {
+                    this.updateNavigationButtons();
+                });
+
+                // Обновление при изменении размера контейнера
+                const resizeObserver = new ResizeObserver(() => {
+                    this.updateNavigationButtons();
+                });
+                resizeObserver.observe(this.messagesContainer);
+            }
+
+            updateNavigationButtons() {
+                const container = this.messagesContainer;
+                const scrollTop = container.scrollTop;
+                const scrollHeight = container.scrollHeight;
+                const clientHeight = container.clientHeight;
+                
+                // Показываем кнопку "вниз" если пользователь не в самом низу
+                const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
+                this.scrollToBottom.classList.toggle('show', !isAtBottom);
+                
+                // Показываем кнопку "к началу" если есть сообщения ИИ и пользователь прокрутил вниз
+                const hasAIMessages = this.lastAIMessage !== null;
+                const isScrolledDown = scrollTop > 200;
+                this.scrollToTop.classList.toggle('show', hasAIMessages && isScrolledDown);
+            }
+
+            scrollToLastAIMessage() {
+                if (this.lastAIMessage) {
+                    this.lastAIMessage.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+
+            scrollToBottomOfChat() {
+                this.messagesContainer.scrollTo({
+                    top: this.messagesContainer.scrollHeight,
+                    behavior: 'smooth'
                 });
             }
 
@@ -1406,7 +1596,10 @@
                 } finally {
                     this.isProcessing = false;
                     this.sendButton.disabled = false;
-                    setTimeout(() => this.userInput.focus(), 100);
+                    setTimeout(() => {
+                        this.userInput.focus();
+                        this.updateNavigationButtons();
+                    }, 100);
                 }
             }
 
@@ -1511,7 +1704,7 @@
                     "👋 Привет! Я **Khuyew AI** - полностью бесплатный ИИ-помощник.",
                     "✨ Я умею отвечать на вопросы, анализировать изображения и генерировать картинки!",
                     "💡 **Быстрый старт:** Напишите вопрос, загрузите изображение или скажите 'нарисуй кота'",
-                    "🎯 Используйте кнопки справа для голосового ввода и загрузки изображений",
+                    "🎯 Используйте кнопки навигации для быстрого перемещения по чату",
                     "🚀 **Начните общение прямо сейчас!** Я полностью бесплатен и готов помочь!"
                 ];
                 
@@ -1524,10 +1717,13 @@
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('message', 'ai-message');
                     this.messagesContainer.appendChild(messageElement);
+                    this.lastAIMessage = messageElement;
                     
                     await this.typeText(messageElement, message);
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
+                
+                this.updateNavigationButtons();
             }
 
             // Исправленный метод печати текста
@@ -1570,10 +1766,12 @@
             skipIntro() {
                 this.introCompleted = true;
                 document.querySelector('.skip-intro')?.remove();
-                this.addMessage(
+                const message = this.addMessage(
                     '🎉 Отлично! Теперь вы можете задавать вопросы, загружать изображения или генерировать картинки.', 
                     false
                 );
+                this.lastAIMessage = message;
+                this.updateNavigationButtons();
             }
 
             showHelp() {
@@ -1588,9 +1786,15 @@
 ### ⌨️ **Горячие клавиши:**
 • **Enter** - отправить сообщение
 • **Shift + Enter** - новая строка
-• **ESC** - закрыть модальное окно`;
+• **ESC** - закрыть модальное окно
 
-                this.addMessage(helpMessage, false);
+### 🧭 **Навигация:**
+• **К началу** - прокрутка к последнему сообщению ИИ
+• **Вниз** - прокрутка к самому низу чата`;
+
+                const message = this.addMessage(helpMessage, false);
+                this.lastAIMessage = message;
+                this.updateNavigationButtons();
             }
 
             exportChat() {
@@ -1624,6 +1828,7 @@
                 if (confirm('Очистить всю историю чата?')) {
                     this.messagesContainer.innerHTML = '';
                     this.lastUserMessage = null;
+                    this.lastAIMessage = null;
                     this.introCompleted = false;
                     this.isProcessing = false;
                     this.sendButton.disabled = false;
@@ -1643,6 +1848,8 @@
                     
                     localStorage.removeItem('khuyew-chat-history');
                     setTimeout(() => this.showIntro(), 500);
+                    
+                    this.updateNavigationButtons();
                 }
             }
 
@@ -1654,7 +1861,9 @@
 • Изображения обрабатываются локально
 • Для полной очистки используйте кнопку **"🗑️ Очистить"**`;
 
-                this.addMessage(privacyMessage, false);
+                const message = this.addMessage(privacyMessage, false);
+                this.lastAIMessage = message;
+                this.updateNavigationButtons();
             }
 
             // Утилиты
@@ -1668,6 +1877,7 @@
                 if (this.messagesContainer) {
                     setTimeout(() => {
                         this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                        this.updateNavigationButtons();
                     }, 50);
                 }
             }
@@ -1696,6 +1906,12 @@
                 
                 this.messagesContainer.appendChild(messageElement);
                 this.scrollToBottom();
+                
+                // Сохраняем ссылку на последнее сообщение ИИ
+                if (!isUser && !isError) {
+                    this.lastAIMessage = messageElement;
+                }
+                
                 return messageElement;
             }
 
@@ -1942,6 +2158,9 @@
                     aiMessageElement.classList.remove('ai-streaming');
                     this.currentStream = null;
                     
+                    // Сохраняем ссылку на последнее сообщение ИИ
+                    this.lastAIMessage = aiMessageElement;
+                    
                 } catch (error) {
                     console.error('Ошибка стриминга:', error);
                     // Удаляем индикатор печати при ошибке
@@ -1954,6 +2173,7 @@
                     throw error;
                 }
                 
+                this.updateNavigationButtons();
                 return aiMessageElement;
             }
 
@@ -2017,6 +2237,9 @@
                     this.applyCodeHighlighting(contentElement);
                     aiMessageElement.classList.remove('ai-streaming');
                     
+                    // Сохраняем ссылку на последнее сообщение ИИ
+                    this.lastAIMessage = aiMessageElement;
+                    
                 } catch (error) {
                     console.error('Ошибка анализа изображения:', error);
                     if (this.currentTypingIndicator) {
@@ -2028,6 +2251,8 @@
                         false, true
                     );
                 }
+                
+                this.updateNavigationButtons();
             }
 
             async generateImage(prompt) {
@@ -2091,6 +2316,9 @@
                     this.messagesContainer.appendChild(messageElement);
                     this.scrollToBottom();
                     
+                    // Сохраняем ссылку на последнее сообщение ИИ
+                    this.lastAIMessage = messageElement;
+                    
                 } catch (error) {
                     console.error('Ошибка генерации изображения:', error);
                     // Удаляем индикатор загрузки при ошибке
@@ -2103,6 +2331,8 @@
                         false, true
                     );
                 }
+                
+                this.updateNavigationButtons();
             }
         }
 
