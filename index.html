@@ -475,7 +475,7 @@
             background: linear-gradient(135deg, #0099ff, #0066ff);
             color: white;
             border: none;
-            border-radius: 14px;
+            border-radius: 18px; /* match input radius */
             width: 46px;
             height: 46px;
             cursor: pointer;
@@ -485,11 +485,13 @@
             transition: all 0.3s ease;
             flex-shrink: 0;
             position: absolute;
-            right: 8px;
+            right: 10px; /* remove visible right gap */
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         #send-button:hover {
-            transform: scale(1.05);
+            transform: translateY(-50%) scale(1.05);
         }
 
         #send-button:disabled {
@@ -1002,13 +1004,11 @@
 
         /* Scroll controls */
         .scroll-controls {
-            position: fixed;
-            left: 16px;
-            bottom: 100px; /* above input area and away from send button */
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            position: fixed; /* container remains fixed but children override their own position */
+            left: 0;
+            bottom: 0;
             z-index: 50;
+            pointer-events: none; /* avoid covering content; buttons re-enable */
         }
 
         .scroll-btn {
@@ -1024,11 +1024,38 @@
             justify-content: center;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            pointer-events: auto; /* clickable */
         }
 
         .scroll-btn:hover { 
             background: rgba(255, 255, 255, 0.15); 
             color: #ffffff; 
+        }
+
+        /* Up/Down buttons redesign */
+        #scrollUpBtn {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) rotate(180deg);
+            writing-mode: vertical-rl; /* vertical text */
+            width: 40px;
+            height: auto;
+            min-height: 110px;
+            padding: 10px 6px;
+            border-radius: 0 10px 10px 0;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            display: none; /* shown when scrolled */
+        }
+
+        #scrollDownBtn {
+            position: fixed;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: none; /* appears when not at bottom */
+            z-index: 60;
         }
 
         /* Light theme */
@@ -1269,9 +1296,7 @@
 
     <!-- Кнопки прокрутки -->
     <div class="scroll-controls">
-        <button id="scrollUpBtn" class="scroll-btn" title="К последнему сообщению ИИ">
-            <i class="ti ti-arrow-up"></i>
-        </button>
+        <button id="scrollUpBtn" class="scroll-btn" title="К последнему сообщению ИИ">Вверх</button>
         <button id="scrollDownBtn" class="scroll-btn" title="Вниз чата">
             <i class="ti ti-arrow-down"></i>
         </button>
@@ -1417,6 +1442,15 @@
                     }
                 });
 
+                // Keep caret padding symmetrical with send button alignment
+                const adjustInputPadding = () => {
+                    const send = this.sendButton;
+                    const rightPad = send ? (send.offsetWidth + 24 + 100) : 170; // icon buttons width
+                    this.userInput.style.paddingRight = rightPad + 'px';
+                };
+                window.addEventListener('resize', adjustInputPadding);
+                setTimeout(adjustInputPadding, 100);
+
                 // Загрузка изображений
                 this.imageUploadButton.addEventListener('click', () => {
                     this.fileInput.click();
@@ -1480,6 +1514,36 @@
                 if (this.scrollUpBtn) {
                     this.scrollUpBtn.addEventListener('click', () => this.scrollToLastAIMessage());
                 }
+
+                // Show/hide scroll controls contextually
+                const updateScrollControls = () => {
+                    const el = this.messagesContainer;
+                    if (!el) return;
+                    const atBottom = Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) < 4;
+                    const atTop = el.scrollTop <= 4;
+                    // Up button visible when not at top and there is at least one AI message
+                    const hasAI = !!el.querySelector('.ai-message, .ai-image-message');
+                    if (this.scrollUpBtn) {
+                        this.scrollUpBtn.style.display = (!atTop && hasAI) ? 'flex' : 'none';
+                    }
+                    // Down button appears above send button when not at bottom
+                    if (this.scrollDownBtn) {
+                        this.scrollDownBtn.style.display = atBottom ? 'none' : 'flex';
+                        if (!atBottom) {
+                            // position above send button
+                            const input = document.querySelector('.input-container');
+                            const rect = input?.getBoundingClientRect?.();
+                            const offsetBottom = rect ? (window.innerHeight - rect.top) + 72 : 120;
+                            this.scrollDownBtn.style.left = 'auto';
+                            this.scrollDownBtn.style.right = '26px';
+                            this.scrollDownBtn.style.bottom = offsetBottom + 'px';
+                        }
+                    }
+                };
+                this.messagesContainer.addEventListener('scroll', updateScrollControls);
+                window.addEventListener('resize', updateScrollControls);
+                setInterval(updateScrollControls, 800); // keep in sync during streaming
+                setTimeout(updateScrollControls, 100);
             }
 
             setupTextareaAutoResize() {
@@ -1581,6 +1645,10 @@
                 
                 // Добавляем изображение
                 const imgElement = document.createElement('img');
+                // Normalize possible whitespace/newlines that may appear in pasted data URLs
+                if (typeof imageData === 'string') {
+                    imageData = imageData.trim().replace(/\s+/g, '');
+                }
                 imgElement.src = imageData;
                 imgElement.classList.add('generated-image');
                 imgElement.style.maxWidth = '200px';
@@ -1911,13 +1979,54 @@
 
             // Преобразование data URL в File/Blob для корректной передачи изображений
             async dataURLToFile(dataURL, filename = 'image.png') {
-                const res = await fetch(dataURL);
-                const blob = await res.blob();
-                const type = blob.type || 'image/png';
+                // Handle possible newlines/spaces and validate the Data URL scheme
+                if (typeof dataURL === 'string') {
+                    dataURL = dataURL.trim().replace(/\s+/g, '');
+                }
+                const isDataUrl = typeof dataURL === 'string' && dataURL.startsWith('data:');
+
                 try {
-                    return new File([blob], filename, { type });
-                } catch (e) {
-                    return new Blob([blob], { type });
+                    if (isDataUrl) {
+                        // Prefer direct decode to avoid fetch() truncation issues on very long data URLs
+                        const commaIndex = dataURL.indexOf(',');
+                        if (commaIndex === -1) throw new Error('Invalid data URL');
+                        const meta = dataURL.substring(5, commaIndex); // after 'data:'
+                        const base64 = dataURL.substring(commaIndex + 1);
+                        const isBase64 = /;base64/i.test(meta);
+                        const mimeMatch = meta.match(/^([^;]+)/);
+                        const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+
+                        let binaryString;
+                        if (isBase64) {
+                            binaryString = atob(base64);
+                        } else {
+                            // URL-encoded data
+                            binaryString = decodeURIComponent(base64);
+                        }
+                        const len = binaryString.length;
+                        const bytes = new Uint8Array(len);
+                        for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
+                        const blob = new Blob([bytes], { type: mime });
+                        try {
+                            return new File([blob], filename, { type: mime });
+                        } catch {
+                            return blob;
+                        }
+                    } else {
+                        // Fallback for http(s) URLs
+                        const res = await fetch(dataURL);
+                        const blob = await res.blob();
+                        const type = blob.type || 'image/png';
+                        try {
+                            return new File([blob], filename, { type });
+                        } catch {
+                            return new Blob([blob], { type });
+                        }
+                    }
+                } catch (err) {
+                    console.error('dataURLToFile error:', err);
+                    // Last resort: return empty PNG blob to avoid crashes
+                    return new Blob([], { type: 'image/png' });
                 }
             }
 
@@ -2271,13 +2380,28 @@
                         });
                     } catch (mmErr) {
                         try {
+                            // In case File/Blob upload fails, pass the normalized data URL directly
+                            if (typeof imageData === 'string') {
+                                imageData = imageData.trim().replace(/\s+/g, '');
+                            }
                             response = await puter.ai.chat(prompt, {
                                 model: "gpt-5-vision",
                                 stream: true,
                                 images: [imageData]
                             });
                         } catch (innerErr) {
-                            const fallbackPrompt = `${prompt}\n\nВспомогательная ссылка на изображение (data URL, усечено): ${imageData.slice(0, 128)}...`;
+                            // Provide a safe short hash instead of a truncated data URL to avoid confusion
+                            const shortHash = (() => {
+                                try {
+                                    const str = String(imageData || '');
+                                    let h = 0;
+                                    for (let i = 0; i < str.length; i++) {
+                                        h = (h * 31 + str.charCodeAt(i)) >>> 0;
+                                    }
+                                    return h.toString(16);
+                                } catch { return 'na'; }
+                            })();
+                            const fallbackPrompt = `${prompt}\n\nИзображение приложено локально. Контрольный идентификатор: ${shortHash}`;
                             response = await puter.ai.chat(fallbackPrompt, { model: "gpt-5-nano", stream: true });
                         }
                     }
