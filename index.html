@@ -6,9 +6,9 @@
     <title>Khuyew AI - Бесплатный ИИ-помощник</title>
     <meta name="description" content="Khuyew AI - полностью бесплатный ИИ-помощник с генерацией изображений">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <!-- Иконки Tabler Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <style>
-        /* Существующие стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -31,77 +31,1059 @@
             background: rgba(255, 255, 255, 0.02);
         }
 
-        /* Остальные стили остаются прежними */
-        /* ... */
-
-        /* ДОБАВЛЕННЫЕ/ИСПРАВЛЕННЫЕ СТИЛИ */
-
-        /* Индикатор отключенного микрофона */
-        .voice-disabled {
-            opacity: 0.5;
-            cursor: not-allowed !important;
+        /* Header */
+        .header {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
         }
 
-        .voice-disabled:hover {
-            background: transparent !important;
-            transform: none !important;
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        /* Сообщение о неподдержке функций */
-        .unsupported-message {
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #0099ff, #00d4ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: #a0a0c0;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #a0a0c0;
+            padding: 6px 12px;
+            border-radius: 10px;
+            cursor: pointer;
             font-size: 11px;
-            color: #ff6b6b;
-            text-align: center;
-            margin-top: 5px;
-            display: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
         }
 
-        /* Индикатор загрузки для изображений */
-        .image-loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* Chat */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+
+        /* Исправленные сообщения пользователя */
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+            overflow: visible;
+            border: none;
+            margin-left: auto;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .user-message .message-content {
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            font-weight: 500;
+        }
+
+        .user-message.pending {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            }
+            50% { 
+                transform: scale(1.02);
+                box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+            }
+        }
+
+        /* Сообщения ИИ */
+        .ai-message {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            color: #e8e8ff;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            margin-right: auto;
+        }
+
+        .ai-streaming {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 153, 255, 0.4);
+        }
+
+        /* Статус генерации ИИ */
+        .ai-status {
+            font-size: 12px;
+            color: #a0a0c0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-style: italic;
+        }
+
+        .ai-status .typing-indicator {
+            display: flex;
+            gap: 3px;
+        }
+
+        .ai-status .typing-dot {
+            width: 4px;
+            height: 4px;
+            background: #0099ff;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .ai-status .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .ai-status .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { 
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Исправленный курсор */
+        .typing-cursor {
+            display: inline-block;
+            animation: blink 1.2s infinite;
+            color: #0099ff;
+            font-weight: bold;
+            margin-right: 2px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Markdown стили */
+        .ai-message h1, .ai-message h2, .ai-message h3 {
+            margin: 16px 0 12px 0;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .ai-message h1 {
+            font-size: 1.4em;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 6px;
+        }
+
+        .ai-message h2 {
+            font-size: 1.2em;
+        }
+
+        .ai-message h3 {
+            font-size: 1.1em;
+        }
+
+        .ai-message p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .ai-message ul, .ai-message ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .ai-message li {
+            margin: 4px 0;
+            line-height: 1.5;
+        }
+
+        .ai-message blockquote {
+            border-left: 3px solid #0099ff;
+            padding: 10px 16px;
+            margin: 12px 0;
+            background: rgba(0, 153, 255, 0.1);
+            border-radius: 0 6px 6px 0;
+            font-style: italic;
+        }
+
+        .ai-message code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.85em;
+            color: #ff6b6b;
+        }
+
+        .ai-message pre {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 14px;
+            margin: 12px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .ai-message pre code {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            color: #e8e8ff;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-language {
+            font-size: 0.75em;
+            color: #a0a0c0;
+            font-weight: 500;
+        }
+
+        .copy-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0c0;
+            padding: 4px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.75em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .copy-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+
+        .copy-button.copied {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            border-color: #00ff00;
+        }
+
+        /* Изображения */
+        .ai-image-message {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 16px;
+            border-radius: 18px;
+            backdrop-filter: blur(15px);
+            max-width: 80%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .generated-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .generated-image:hover {
+            transform: scale(1.02);
+        }
+
+        .image-prompt {
+            font-style: italic;
+            color: #a0a0c0;
+            margin-top: 10px;
+            font-size: 12px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            line-height: 1.4;
+        }
+
+        .skip-intro {
+            align-self: center;
+            background: rgba(255, 255, 255, 0.1);
+            color: #a0a0c0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .skip-intro:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+
+        /* Input */
+        .input-container {
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 14px 110px 14px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            resize: none;
+            min-height: 46px;
+            max-height: 120px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+
+        #user-input::placeholder {
+            color: #8888aa;
+        }
+
+        #user-input:focus {
+            border-color: #0099ff;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 2px rgba(0, 153, 255, 0.2);
+        }
+
+        #send-button {
+            background: linear-gradient(135deg, #0099ff, #0066ff);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            width: 46px;
+            height: 46px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            position: absolute;
+            right: 8px;
+        }
+
+        #send-button:hover {
+            transform: scale(1.05);
+        }
+
+        #send-button:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        #voiceButton {
+            position: absolute;
+            right: 60px;
+            background: transparent;
+            border: none;
+            color: #a0a0c0;
+            width: 32px;
+            height: 32px;
             border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
-        /* Улучшенный индикатор записи */
-        .voice-recording-indicator {
+        #voiceButton:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        #imageUploadButton {
+            position: absolute;
+            right: 98px;
+            background: transparent;
+            border: none;
+            color: #a0a0c0;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        #imageUploadButton:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .voice-recording {
+            background: linear-gradient(135deg, #ff4444, #ff6b6b) !important;
+            animation: voicePulse 1.5s ease-in-out infinite !important;
+            color: white !important;
+        }
+
+        @keyframes voicePulse {
+            0%, 100% { 
+                transform: scale(1);
+            }
+            50% { 
+                transform: scale(1.02);
+            }
+        }
+
+        /* Preview изображения */
+        .image-preview-container {
+            max-width: 900px;
+            margin: 12px auto 0 auto;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
             display: none;
-            text-align: center;
-            color: #ff6b6b;
-            font-size: 12px;
-            margin-top: 5px;
         }
 
-        .voice-recording-indicator.active {
+        .image-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .image-preview-title {
+            font-size: 12px;
+            color: #a0a0c0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .remove-image-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0c0;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .remove-image-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
             display: block;
         }
 
-        /* Сообщение о превышении размера файла */
-        .file-size-error {
-            color: #ff6b6b;
-            font-size: 12px;
-            text-align: center;
-            margin-top: 5px;
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            justify-content: center;
+            flex-wrap: nowrap;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .action-buttons::-webkit-scrollbar {
             display: none;
         }
 
-        /* Предупреждение о длительном запросе */
-        .long-request-warning {
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid rgba(255, 193, 7, 0.3);
-            color: #ffc107;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 12px;
+        .action-button {
+            background: rgba(255, 255, 255, 0.08);
+            color: #a0a0c0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-button:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: #0099ff;
+            transform: translateY(-1px);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .voice-level {
             display: none;
+            height: 3px;
+            background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000);
+            border-radius: 2px;
+            margin-top: 8px;
+            transition: width 0.1s ease;
+            max-width: 100%;
+        }
+
+        /* Error message */
+        .error-message {
+            align-self: flex-start;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: 1px solid #ff4444;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .image-loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #0099ff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Исправленный Footer */
+        .footer {
+            text-align: center;
+            padding: 10px 20px;
+            color: #666699;
+            font-size: 11px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .footer-separator {
+            color: #666699;
+            opacity: 0.5;
+        }
+
+        .footer a {
+            color: #666699;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .footer a:hover {
+            color: #0099ff;
+        }
+
+        .footer-icon {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        /* Белорусский флаг */
+        .belarus-flag {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .belarus-flag::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 6px;
+            background: linear-gradient(
+                to bottom,
+                #c8313e 0% 33%,
+                #0a6b3c 33% 66%,
+                #ffffff 66% 100%
+            );
+            border-radius: 1px;
+            border: 0.5px solid rgba(255,255,255,0.3);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            display: block;
+            margin: auto;
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: #fff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 1001;
+        }
+
+        .close:hover {
+            color: #ff6b6b;
+        }
+
+        #modalCaption {
+            text-align: center;
+            color: #fff;
+            padding: 15px;
+            font-size: 14px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+            }
+            
+            .header {
+                padding: 10px 15px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+            
+            .subtitle {
+                font-size: 11px;
+            }
+            
+            .header-controls {
+                justify-content: center;
+            }
+            
+            .messages-container {
+                padding: 15px;
+                gap: 12px;
+            }
+            
+            .message {
+                max-width: 85%;
+                padding: 14px 16px;
+                font-size: 13px;
+            }
+            
+            .ai-image-message {
+                max-width: 90%;
+            }
+            
+            .input-container {
+                padding: 12px 15px;
+            }
+            
+            .input-wrapper {
+                gap: 8px;
+            }
+            
+            #user-input {
+                padding: 12px 100px 12px 16px;
+                font-size: 13px;
+            }
+            
+            #send-button {
+                width: 42px;
+                height: 42px;
+                right: 6px;
+            }
+            
+            #voiceButton {
+                right: 54px;
+                width: 30px;
+                height: 30px;
+            }
+            
+            #imageUploadButton {
+                right: 90px;
+                width: 30px;
+                height: 30px;
+            }
+            
+            .action-buttons {
+                gap: 4px;
+            }
+            
+            .action-button {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+            
+            .footer {
+                padding: 8px 15px;
+                font-size: 10px;
+            }
+            
+            .footer-content {
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .message {
+                max-width: 90%;
+                font-size: 12px;
+                padding: 12px 14px;
+            }
+            
+            .logo {
+                font-size: 18px;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .action-button {
+                flex: 1;
+                min-width: 100px;
+                justify-content: center;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .footer-separator {
+                display: none;
+            }
+            
+            #user-input {
+                padding: 12px 85px 12px 12px;
+            }
+            
+            #imageUploadButton {
+                right: 80px;
+            }
+            
+            #voiceButton {
+                right: 48px;
+            }
+        }
+
+        /* Light theme */
+        body.light-theme {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2d3748;
+        }
+
+        body.light-theme .container {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        body.light-theme .header {
+            border-bottom-color: rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        body.light-theme .ai-message {
+            background: rgba(255, 255, 255, 0.9);
+            color: #2d3748;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme .ai-image-message {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme .input-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-top-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme #user-input {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(0, 0, 0, 0.2);
+            color: #2d3748;
+        }
+
+        body.light-theme #user-input::placeholder {
+            color: #666;
+        }
+
+        body.light-theme .action-button {
+            background: rgba(0, 0, 0, 0.05);
+            color: #666;
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        body.light-theme .action-button:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: #2d3748;
+        }
+
+        body.light-theme .control-btn {
+            background: rgba(0, 0, 0, 0.1);
+            color: #666;
+        }
+
+        body.light-theme .control-btn:hover {
+            background: rgba(0, 0, 0, 0.15);
+            color: #2d3748;
+        }
+
+        body.light-theme .footer {
+            color: #666;
+            border-top-color: rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        body.light-theme .footer a {
+            color: #666;
+        }
+
+        body.light-theme ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-theme ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        body.light-theme .skip-intro {
+            background: rgba(0, 0, 0, 0.1);
+            color: #666;
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+
+        body.light-theme .skip-intro:hover {
+            background: rgba(0, 0, 0, 0.15);
+            color: #2d3748;
+        }
+
+        body.light-theme .ai-message code {
+            background: rgba(0, 0, 0, 0.05);
+            color: #e53e3e;
+        }
+
+        body.light-theme .ai-message pre {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme .ai-message blockquote {
+            background: rgba(0, 153, 255, 0.05);
+            border-left-color: #0099ff;
+        }
+
+        body.light-theme .belarus-flag::before {
+            border-color: rgba(0,0,0,0.3);
+        }
+
+        body.light-theme .image-preview-container {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme .remove-image-btn {
+            background: rgba(0, 0, 0, 0.1);
+            border-color: rgba(0, 0, 0, 0.2);
+            color: #666;
+        }
+
+        body.light-theme .remove-image-btn:hover {
+            background: rgba(0, 0, 0, 0.15);
+            color: #2d3748;
         }
     </style>
 </head>
@@ -124,22 +1106,8 @@
                 <!-- Сообщения будут добавляться здесь -->
             </div>
             
-            <button class="scroll-to-top" id="scrollToTop">
-                <i class="ti ti-arrow-bar-to-up"></i>
-                К началу
-            </button>
-            
-            <button class="scroll-to-bottom" id="scrollToBottom">
-                <i class="ti ti-arrow-down"></i>
-            </button>
-            
             <div class="input-container">
-                <!-- Добавлено предупреждение о длительных запросах -->
-                <div class="long-request-warning" id="longRequestWarning">
-                    <i class="ti ti-clock"></i>
-                    Генерация изображения может занять несколько секунд...
-                </div>
-                
+                <!-- Preview загруженного изображения -->
                 <div class="image-preview-container" id="imagePreviewContainer">
                     <div class="image-preview-header">
                         <div class="image-preview-title">
@@ -151,16 +1119,11 @@
                             Удалить
                         </button>
                     </div>
-                    <div style="position: relative;">
-                        <img class="image-preview" id="imagePreview">
-                    </div>
+                    <img class="image-preview" id="imagePreview">
                 </div>
                 
                 <div class="input-wrapper">
                     <textarea id="user-input" placeholder="Задайте вопрос или опишите изображение..." autocomplete="off" rows="1"></textarea>
-                    <button id="clear-input">
-                        <i class="ti ti-x"></i>
-                    </button>
                     <button id="imageUploadButton">
                         <i class="ti ti-photo-up"></i>
                     </button>
@@ -170,19 +1133,6 @@
                     <button id="send-button">
                         <i class="ti ti-send"></i>
                     </button>
-                </div>
-                
-                <!-- Добавлены сообщения о неподдержке -->
-                <div class="unsupported-message" id="voiceUnsupported">
-                    Голосовой ввод не поддерживается в вашем браузере
-                </div>
-                
-                <div class="voice-recording-indicator" id="voiceRecordingIndicator">
-                    <i class="ti ti-microphone"></i> Идет запись... Говорите сейчас
-                </div>
-                
-                <div class="file-size-error" id="fileSizeError">
-                    Размер файла не должен превышать 5MB
                 </div>
                 
                 <div class="action-buttons">
@@ -222,47 +1172,39 @@
         </div>
     </div>
 
+    <!-- Модальное окно для изображений -->
     <div id="imageModal" class="modal">
         <span class="close">&times;</span>
         <img class="modal-content" id="modalImage">
         <div id="modalCaption"></div>
     </div>
 
+    <!-- Скрытый input для загрузки файлов -->
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
 
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script>
-        // ИСПРАВЛЕННАЯ ВЕРСИЯ КЛАССА
+        // Основное приложение
         class KhuyewAI {
             constructor() {
                 this.messagesContainer = document.getElementById('messagesContainer');
                 this.userInput = document.getElementById('user-input');
                 this.sendButton = document.getElementById('send-button');
-                this.clearInput = document.getElementById('clear-input');
                 this.voiceButton = document.getElementById('voiceButton');
                 this.imageUploadButton = document.getElementById('imageUploadButton');
                 this.fileInput = document.getElementById('fileInput');
                 this.imagePreviewContainer = document.getElementById('imagePreviewContainer');
                 this.imagePreview = document.getElementById('imagePreview');
                 this.removeImageBtn = document.getElementById('removeImageBtn');
-                this.scrollToTop = document.getElementById('scrollToTop');
-                this.scrollToBottom = document.getElementById('scrollToBottom');
-                this.voiceRecordingIndicator = document.getElementById('voiceRecordingIndicator');
-                this.fileSizeError = document.getElementById('fileSizeError');
-                this.longRequestWarning = document.getElementById('longRequestWarning');
                 
-                // ИСПРАВЛЕНО: Добавлены недостающие свойства
                 this.introCompleted = false;
                 this.lastUserMessage = null;
                 this.isProcessing = false;
                 this.currentStream = null;
                 this.currentTypingIndicator = null;
                 this.currentImage = null;
-                this.lastAIMessage = null;
-                this.recognition = null;
-                this.isVoiceSupported = false;
                 
                 this.init();
             }
@@ -273,12 +1215,11 @@
                     return;
                 }
 
-                // ИСПРАВЛЕНО: Добавлена обработка ошибок для marked
+                // Настройка Markdown
                 marked.setOptions({
                     breaks: true,
                     gfm: true,
-                    langPrefix: 'language-',
-                    silent: true // Подавляет предупреждения
+                    langPrefix: 'language-'
                 });
 
                 this.initVoiceRecognition();
@@ -286,16 +1227,18 @@
                 this.initImageModal();
                 this.setupEventListeners();
                 this.setupTextareaAutoResize();
-                this.setupScrollNavigation();
                 
+                // Фокус на поле ввода
                 this.userInput.focus();
 
+                // Запуск введения если нет истории
                 if (!this.messagesContainer.querySelector('.message')) {
                     setTimeout(() => this.showIntro(), 500);
                 }
             }
 
             setupEventListeners() {
+                // Обработчики событий для логотипа
                 const logo = document.querySelector('.logo');
                 if (logo) {
                     logo.addEventListener('click', (e) => {
@@ -304,6 +1247,7 @@
                     });
                 }
 
+                // Обработчики для кнопок управления
                 const themeToggle = document.getElementById('themeToggle');
                 if (themeToggle) {
                     themeToggle.addEventListener('click', (e) => {
@@ -356,19 +1300,6 @@
                         e.preventDefault();
                         this.sendMessage();
                     }
-                    
-                    // ИСПРАВЛЕНО: Добавлена обработка Escape для очистки
-                    if (e.key === 'Escape') {
-                        this.clearUserInput();
-                    }
-                });
-
-                this.userInput.addEventListener('input', () => {
-                    this.updateClearButton();
-                });
-
-                this.clearInput.addEventListener('click', () => {
-                    this.clearUserInput();
                 });
 
                 // Загрузка изображений
@@ -384,17 +1315,10 @@
                     this.removeCurrentImage();
                 });
 
-                // Навигация
-                this.scrollToTop.addEventListener('click', () => {
-                    this.scrollToLastAIMessage();
+                // Автофокус при клике в любое место чата
+                this.messagesContainer.addEventListener('click', () => {
+                    this.userInput.focus();
                 });
-
-                this.scrollToBottom.addEventListener('click', () => {
-                    this.scrollToBottomOfChat();
-                });
-
-                // ИСПРАВЛЕНО: Убрано автоматическое переключение фокуса при клике на сообщения
-                // это мешало взаимодействию с кнопками копирования кода
 
                 // Обработка ошибок изображений
                 document.addEventListener('error', (e) => {
@@ -411,113 +1335,27 @@
                         }
                     }
                 }, true);
-
-                // ИСПРАВЛЕНО: Добавлен обработчик для отмены запросов при закрытии страницы
-                window.addEventListener('beforeunload', () => {
-                    this.cancelCurrentRequest();
-                });
-            }
-
-            // ИСПРАВЛЕНО: Метод для отмены текущего запроса
-            cancelCurrentRequest() {
-                if (this.currentStream) {
-                    try {
-                        if (typeof this.currentStream.cancel === 'function') {
-                            this.currentStream.cancel();
-                        }
-                    } catch (error) {
-                        console.warn('Ошибка при отмене запроса:', error);
-                    }
-                    this.currentStream = null;
-                }
-                
-                if (this.recognition && this.isVoiceSupported) {
-                    try {
-                        this.recognition.stop();
-                    } catch (error) {
-                        console.warn('Ошибка при остановке распознавания:', error);
-                    }
-                }
             }
 
             setupTextareaAutoResize() {
                 this.userInput.addEventListener('input', () => {
                     this.userInput.style.height = 'auto';
                     this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
-                    this.updateClearButton();
-                });
-            }
-
-            setupScrollNavigation() {
-                this.messagesContainer.addEventListener('scroll', () => {
-                    this.updateNavigationButtons();
-                });
-
-                const resizeObserver = new ResizeObserver(() => {
-                    this.updateNavigationButtons();
-                });
-                resizeObserver.observe(this.messagesContainer);
-            }
-
-            updateClearButton() {
-                const hasText = this.userInput.value.trim().length > 0;
-                this.clearInput.classList.toggle('show', hasText);
-            }
-
-            clearUserInput() {
-                this.userInput.value = '';
-                this.userInput.style.height = 'auto';
-                this.updateClearButton();
-                this.userInput.focus();
-            }
-
-            updateNavigationButtons() {
-                const container = this.messagesContainer;
-                const scrollTop = container.scrollTop;
-                const scrollHeight = container.scrollHeight;
-                const clientHeight = container.clientHeight;
-                
-                const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
-                this.scrollToBottom.classList.toggle('show', !isAtBottom);
-                
-                const hasAIMessages = this.lastAIMessage !== null;
-                const isScrolledDown = scrollTop > 200;
-                this.scrollToTop.classList.toggle('show', hasAIMessages && isScrolledDown);
-            }
-
-            scrollToLastAIMessage() {
-                if (this.lastAIMessage) {
-                    this.lastAIMessage.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            }
-
-            scrollToBottomOfChat() {
-                this.messagesContainer.scrollTo({
-                    top: this.messagesContainer.scrollHeight,
-                    behavior: 'smooth'
                 });
             }
 
             async sendMessage() {
-                // ИСПРАВЛЕНО: Добавлена проверка на пустое сообщение с изображением
-                const message = this.userInput.value.trim();
-                const hasImage = this.currentImage !== null;
-                
-                if (message === '' && !hasImage) {
-                    this.userInput.focus();
-                    return;
-                }
-                
                 if (this.isProcessing) {
                     return;
                 }
 
+                const message = this.userInput.value.trim();
+                const hasImage = this.currentImage !== null;
+                
+                if (message === '' && !hasImage) return;
+                
                 this.isProcessing = true;
                 this.sendButton.disabled = true;
-                this.userInput.disabled = true;
                 
                 try {
                     if (!this.introCompleted) {
@@ -532,16 +1370,14 @@
                         this.addUserMessage(message);
                     }
                     
-                    this.clearUserInput();
+                    this.userInput.value = '';
+                    this.userInput.style.height = 'auto';
                     this.removeCurrentImage();
                     
                     const requestType = this.analyzeRequest(message);
                     
-                    // ИСПРАВЛЕНО: Показываем предупреждение для генерации изображений
                     if (requestType === 'generate' && !hasImage) {
-                        this.longRequestWarning.style.display = 'block';
                         await this.generateImage(message);
-                        this.longRequestWarning.style.display = 'none';
                         this.removePendingAnimation();
                     } else {
                         try {
@@ -555,15 +1391,10 @@
                             console.error('Ошибка получения ответа:', error);
                             this.removePendingAnimation();
                             
-                            // ИСПРАВЛЕНО: Более информативное сообщение об ошибке
-                            let errorMessage = "❌ Извините, произошла ошибка соединения. ";
-                            errorMessage += "Пожалуйста, проверьте интернет и попробуйте еще раз.";
-                            
-                            if (error.message?.includes('timeout')) {
-                                errorMessage = "⏰ Превышено время ожидания ответа. Попробуйте еще раз.";
-                            }
-                            
-                            this.addMessage(errorMessage, false, true);
+                            this.addMessage(
+                                "❌ Извините, произошла ошибка соединения. Пожалуйста, проверьте интернет и попробуйте еще раз.", 
+                                false, true
+                            );
                         }
                     }
                 } catch (error) {
@@ -572,15 +1403,10 @@
                         "❌ Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз.", 
                         false, true
                     );
-                    this.longRequestWarning.style.display = 'none';
                 } finally {
                     this.isProcessing = false;
                     this.sendButton.disabled = false;
-                    this.userInput.disabled = false;
-                    setTimeout(() => {
-                        this.userInput.focus();
-                        this.updateNavigationButtons();
-                    }, 100);
+                    setTimeout(() => this.userInput.focus(), 100);
                 }
             }
 
@@ -604,6 +1430,7 @@
                     contentElement.appendChild(textElement);
                 }
                 
+                // Добавляем изображение
                 const imgElement = document.createElement('img');
                 imgElement.src = imageData;
                 imgElement.classList.add('generated-image');
@@ -646,13 +1473,9 @@
                     return;
                 }
 
-                // ИСПРАВЛЕНО: Улучшена обработка размера файла
+                // Проверка размера файла (максимум 5MB)
                 if (file.size > 5 * 1024 * 1024) {
-                    this.fileSizeError.style.display = 'block';
-                    setTimeout(() => {
-                        this.fileSizeError.style.display = 'none';
-                    }, 3000);
-                    event.target.value = '';
+                    alert('Размер изображения не должен превышать 5MB');
                     return;
                 }
 
@@ -670,6 +1493,8 @@
                 };
                 
                 reader.readAsDataURL(file);
+                
+                // Сбрасываем input для возможности загрузки того же файла снова
                 event.target.value = '';
             }
 
@@ -680,59 +1505,39 @@
                 this.fileInput.value = '';
             }
 
-            // Введение бота - ИСПРАВЛЕНО: добавлена обработка прерывания
+            // Введение бота
             async showIntro() {
-                // Проверяем, не был ли чат очищен во время введения
-                if (this.messagesContainer.children.length > 0 && this.introCompleted) {
-                    return;
-                }
-
                 const introMessages = [
                     "👋 Привет! Я **Khuyew AI** - полностью бесплатный ИИ-помощник.",
                     "✨ Я умею отвечать на вопросы, анализировать изображения и генерировать картинки!",
                     "💡 **Быстрый старт:** Напишите вопрос, загрузите изображение или скажите 'нарисуй кота'",
-                    "🎯 Используйте кнопки навигации для быстрого перемещения по чату",
+                    "🎯 Используйте кнопки справа для голосового ввода и загрузки изображений",
                     "🚀 **Начните общение прямо сейчас!** Я полностью бесплатен и готов помочь!"
                 ];
                 
+                // Сразу показываем кнопку пропуска
                 this.createSkipButton();
                 
                 for (const message of introMessages) {
-                    // Проверяем, не прервано ли введение
-                    if (this.introCompleted || this.messagesContainer.children.length === 0) break;
+                    if (this.introCompleted) break;
                     
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('message', 'ai-message');
                     this.messagesContainer.appendChild(messageElement);
-                    this.lastAIMessage = messageElement;
                     
                     await this.typeText(messageElement, message);
-                    await new Promise(resolve => {
-                        if (!this.introCompleted) {
-                            setTimeout(resolve, 1000);
-                        } else {
-                            resolve();
-                        }
-                    });
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
-                
-                this.updateNavigationButtons();
             }
 
-            // ИСПРАВЛЕНО: Улучшенный метод печати текста с обработкой прерывания
+            // Исправленный метод печати текста
             async typeText(element, text, speed = 30) {
-                return new Promise((resolve) => {
+                return new Promise(resolve => {
                     let i = 0;
                     element.innerHTML = '<span class="typing-cursor"></span>';
                     element.classList.add('ai-streaming');
                     
                     const type = () => {
-                        // Проверяем, не был ли элемент удален
-                        if (!element.parentNode) {
-                            resolve();
-                            return;
-                        }
-                        
                         if (i < text.length) {
                             const char = text.charAt(i);
                             element.innerHTML = '<span class="typing-cursor"></span>' + this.sanitizeHTML(text.substring(0, i + 1));
@@ -742,14 +1547,9 @@
                             const delay = char === '.' || char === '!' || char === '?' ? speed * 3 : speed;
                             setTimeout(type, delay);
                         } else {
-                            try {
-                                element.innerHTML = marked.parse(text);
-                                element.classList.remove('ai-streaming');
-                                this.applyCodeHighlighting(element);
-                            } catch (error) {
-                                console.error('Ошибка рендеринга Markdown:', error);
-                                element.textContent = text;
-                            }
+                            element.innerHTML = marked.parse(text);
+                            element.classList.remove('ai-streaming');
+                            this.applyCodeHighlighting(element);
                             resolve();
                         }
                     };
@@ -759,9 +1559,6 @@
             }
 
             createSkipButton() {
-                // Удаляем существующую кнопку пропуска
-                document.querySelector('.skip-intro')?.remove();
-                
                 const skipButton = document.createElement('div');
                 skipButton.classList.add('skip-intro');
                 skipButton.innerHTML = '<i class="ti ti-player-skip-forward"></i>Пропустить введение';
@@ -773,25 +1570,10 @@
             skipIntro() {
                 this.introCompleted = true;
                 document.querySelector('.skip-intro')?.remove();
-                
-                // Удаляем все сообщения введения
-                const messages = this.messagesContainer.querySelectorAll('.ai-message');
-                messages.forEach(msg => {
-                    if (msg.textContent.includes('Привет! Я') || 
-                        msg.textContent.includes('Я умею отвечать') ||
-                        msg.textContent.includes('Быстрый старт') ||
-                        msg.textContent.includes('Используйте кнопки') ||
-                        msg.textContent.includes('Начните общение')) {
-                        msg.remove();
-                    }
-                });
-                
-                const message = this.addMessage(
+                this.addMessage(
                     '🎉 Отлично! Теперь вы можете задавать вопросы, загружать изображения или генерировать картинки.', 
                     false
                 );
-                this.lastAIMessage = message;
-                this.updateNavigationButtons();
             }
 
             showHelp() {
@@ -806,50 +1588,20 @@
 ### ⌨️ **Горячие клавиши:**
 • **Enter** - отправить сообщение
 • **Shift + Enter** - новая строка
-• **ESC** - очистить поле ввода
+• **ESC** - закрыть модальное окно`;
 
-### 🧭 **Навигация:**
-• **К началу** - прокрутка к последнему сообщению ИИ
-• **Вниз** - прокрутка к самому низу чата`;
-
-                const message = this.addMessage(helpMessage, false);
-                this.lastAIMessage = message;
-                this.updateNavigationButtons();
+                this.addMessage(helpMessage, false);
             }
 
             exportChat() {
                 try {
                     const messages = Array.from(this.messagesContainer.querySelectorAll('.message'));
-                    if (messages.length === 0) {
-                        this.addMessage('💭 Нет сообщений для экспорта', false);
-                        return;
-                    }
-                    
                     const chatText = messages.map(msg => {
                         const sender = msg.classList.contains('user-message') ? 'Вы' : 'ИИ';
-                        let content = '';
-                        
-                        if (msg.classList.contains('user-message')) {
-                            const textContent = msg.querySelector('.message-content');
-                            content = textContent ? textContent.textContent : msg.textContent;
-                        } else {
-                            // Для сообщений ИИ берем только текст, исключая элементы интерфейса
-                            const textContent = msg.querySelector('.message-content');
-                            content = textContent ? textContent.textContent : msg.textContent;
-                            
-                            // Удаляем текст индикаторов загрузки
-                            if (content.includes('ИИ печатает') || content.includes('ИИ анализирует') || content.includes('ИИ генерирует')) {
-                                return null;
-                            }
-                        }
-                        
-                        return content ? `${sender}: ${content}` : null;
-                    }).filter(Boolean).join('\n\n');
-                    
-                    if (!chatText.trim()) {
-                        this.addMessage('💭 Нет содержимого для экспорта', false);
-                        return;
-                    }
+                        const content = msg.querySelector('.message-content') ? 
+                            msg.querySelector('.message-content').textContent : msg.textContent;
+                        return `${sender}: ${content}`;
+                    }).join('\n\n');
                     
                     const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
                     const url = URL.createObjectURL(blob);
@@ -869,27 +1621,28 @@
             }
 
             clearChat() {
-                if (this.messagesContainer.children.length === 0) {
-                    return;
-                }
-                
                 if (confirm('Очистить всю историю чата?')) {
-                    this.cancelCurrentRequest();
-                    
                     this.messagesContainer.innerHTML = '';
                     this.lastUserMessage = null;
-                    this.lastAIMessage = null;
                     this.introCompleted = false;
                     this.isProcessing = false;
                     this.sendButton.disabled = false;
-                    this.userInput.disabled = false;
                     this.removeCurrentImage();
-                    this.clearUserInput();
+                    
+                    // Отмена текущего стрима
+                    if (this.currentStream) {
+                        this.currentStream.cancel?.();
+                        this.currentStream = null;
+                    }
+                    
+                    // Удаление индикатора печати
+                    if (this.currentTypingIndicator) {
+                        this.currentTypingIndicator.remove();
+                        this.currentTypingIndicator = null;
+                    }
                     
                     localStorage.removeItem('khuyew-chat-history');
                     setTimeout(() => this.showIntro(), 500);
-                    
-                    this.updateNavigationButtons();
                 }
             }
 
@@ -901,9 +1654,7 @@
 • Изображения обрабатываются локально
 • Для полной очистки используйте кнопку **"🗑️ Очистить"**`;
 
-                const message = this.addMessage(privacyMessage, false);
-                this.lastAIMessage = message;
-                this.updateNavigationButtons();
+                this.addMessage(privacyMessage, false);
             }
 
             // Утилиты
@@ -917,7 +1668,6 @@
                 if (this.messagesContainer) {
                     setTimeout(() => {
                         this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
-                        this.updateNavigationButtons();
                     }, 50);
                 }
             }
@@ -946,22 +1696,12 @@
                 
                 this.messagesContainer.appendChild(messageElement);
                 this.scrollToBottom();
-                
-                if (!isUser && !isError) {
-                    this.lastAIMessage = messageElement;
-                }
-                
                 return messageElement;
             }
 
             applyCodeHighlighting(element) {
                 try {
                     element.querySelectorAll('pre code').forEach((block) => {
-                        // ИСПРАВЛЕНО: Проверяем, не добавлен ли уже заголовок
-                        if (block.parentNode.querySelector('.code-header')) {
-                            return;
-                        }
-                        
                         const pre = block.closest('pre');
                         const language = block.className.replace('language-', '') || 'text';
                         
@@ -988,9 +1728,6 @@
                             }).catch(err => {
                                 console.error('Ошибка копирования:', err);
                                 copyButton.innerHTML = '<i class="ti ti-x"></i>Ошибка';
-                                setTimeout(() => {
-                                    copyButton.innerHTML = '<i class="ti ti-copy"></i>Копировать';
-                                }, 2000);
                             });
                         });
                         
@@ -998,15 +1735,10 @@
                         codeHeader.appendChild(copyButton);
                         
                         pre.insertBefore(codeHeader, block);
-                        
-                        try {
-                            hljs.highlightElement(block);
-                        } catch (error) {
-                            console.warn('Ошибка подсветки синтаксиса:', error);
-                        }
+                        hljs.highlightElement(block);
                     });
                 } catch (error) {
-                    console.error('Ошибка применения подсветки синтаксиса:', error);
+                    console.error('Ошибка подсветки синтаксиса:', error);
                 }
             }
 
@@ -1020,14 +1752,11 @@
                 return imageKeywords.some(keyword => lowerMessage.includes(keyword)) ? 'generate' : 'text';
             }
 
-            // Голосовой ввод - ИСПРАВЛЕНО: улучшена обработка состояний
+            // Голосовой ввод
             initVoiceRecognition() {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (!SpeechRecognition) {
-                    this.voiceButton.classList.add('voice-disabled');
-                    this.voiceButton.title = 'Голосовой ввод не поддерживается';
-                    document.getElementById('voiceUnsupported').style.display = 'block';
-                    this.isVoiceSupported = false;
+                    this.voiceButton.style.display = 'none';
                     return;
                 }
 
@@ -1036,38 +1765,24 @@
                     this.recognition.continuous = false;
                     this.recognition.lang = 'ru-RU';
                     this.recognition.interimResults = true;
-                    this.isVoiceSupported = true;
 
                     const voiceLevel = document.getElementById('voiceLevel');
 
                     this.recognition.onstart = () => {
                         this.voiceButton.classList.add('voice-recording');
                         this.voiceButton.innerHTML = '<i class="ti ti-square"></i>';
-                        this.voiceRecordingIndicator.classList.add('active');
                         voiceLevel.style.display = 'block';
                     };
 
                     this.recognition.onresult = (event) => {
-                        let finalTranscript = '';
-                        let interimTranscript = '';
-                        
+                        let transcript = '';
                         for (let i = event.resultIndex; i < event.results.length; i++) {
-                            const transcript = event.results[i][0].transcript;
                             if (event.results[i].isFinal) {
-                                finalTranscript += transcript;
-                            } else {
-                                interimTranscript += transcript;
+                                transcript += event.results[i][0].transcript;
                             }
                         }
-                        
-                        // ИСПРАВЛЕНО: Обновляем поле ввода в реальном времени
-                        if (interimTranscript !== '') {
-                            this.userInput.value = interimTranscript;
-                            this.userInput.dispatchEvent(new Event('input'));
-                        }
-                        
-                        if (finalTranscript !== '') {
-                            this.userInput.value = finalTranscript;
+                        if (transcript) {
+                            this.userInput.value = transcript;
                             this.userInput.dispatchEvent(new Event('input'));
                         }
                     };
@@ -1075,7 +1790,6 @@
                     this.recognition.onend = () => {
                         this.voiceButton.classList.remove('voice-recording');
                         this.voiceButton.innerHTML = '<i class="ti ti-microphone"></i>';
-                        this.voiceRecordingIndicator.classList.remove('active');
                         voiceLevel.style.display = 'none';
                     };
 
@@ -1083,18 +1797,10 @@
                         console.error('Ошибка распознавания:', event.error);
                         this.voiceButton.classList.remove('voice-recording');
                         this.voiceButton.innerHTML = '<i class="ti ti-microphone"></i>';
-                        this.voiceRecordingIndicator.classList.remove('active');
                         voiceLevel.style.display = 'none';
-                        
-                        // ИСПРАВЛЕНО: Показываем сообщение об ошибке
-                        if (event.error === 'not-allowed') {
-                            this.addMessage('❌ Разрешите доступ к микрофону для использования голосового ввода', false, true);
-                        }
                     };
 
                     this.voiceButton.addEventListener('click', () => {
-                        if (!this.isVoiceSupported) return;
-                        
                         if (this.voiceButton.classList.contains('voice-recording')) {
                             this.recognition.stop();
                         } else {
@@ -1107,9 +1813,7 @@
                     });
                 } catch (error) {
                     console.error('Ошибка инициализации голосового ввода:', error);
-                    this.voiceButton.classList.add('voice-disabled');
-                    this.isVoiceSupported = false;
-                    document.getElementById('voiceUnsupported').style.display = 'block';
+                    this.voiceButton.style.display = 'none';
                 }
             }
 
@@ -1117,6 +1821,7 @@
             initTheme() {
                 const savedTheme = localStorage.getItem('khuyew-theme');
                 const themeToggle = document.getElementById('themeToggle');
+                // По умолчанию темная тема
                 if (savedTheme === 'light') {
                     document.body.classList.add('light-theme');
                     themeToggle.innerHTML = '<i class="ti ti-sun"></i>';
@@ -1155,12 +1860,14 @@
                     }
                 });
 
+                // ESC для закрытия
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape' && modal.style.display === 'block') {
                         modal.style.display = 'none';
                     }
                 });
 
+                // Обработчики для изображений
                 document.addEventListener('click', (e) => {
                     if (e.target.classList.contains('generated-image')) {
                         modal.style.display = 'block';
@@ -1173,10 +1880,13 @@
                 });
             }
 
-            // AI функции - ИСПРАВЛЕНО: использование корректных моделей и обработка ошибок
+            // AI функции
             async streamTextResponse(prompt) {
-                this.cancelCurrentRequest();
+                if (this.currentStream) {
+                    this.currentStream.cancel?.();
+                }
 
+                // Создаем индикатор печати
                 const typingIndicator = document.createElement('div');
                 typingIndicator.classList.add('message', 'ai-message');
                 typingIndicator.innerHTML = `
@@ -1204,15 +1914,15 @@
                 aiMessageElement.appendChild(contentElement);
 
                 try {
-                    // ИСПРАВЛЕНО: Используем существующие модели Puter AI
                     const response = await puter.ai.chat(prompt, { 
-                        model: "gpt-3.5-turbo", // Исправлено: реально существующая модель
+                        model: "gpt-5-nano", 
                         stream: true 
                     });
                     
                     this.currentStream = response;
                     let fullText = '';
                     
+                    // Удаляем индикатор печати когда начинается реальный ответ
                     if (this.currentTypingIndicator) {
                         this.currentTypingIndicator.remove();
                         this.currentTypingIndicator = null;
@@ -1220,9 +1930,6 @@
                     }
                     
                     for await (const part of response) {
-                        // ИСПРАВЛЕНО: Проверяем, не отменен ли запрос
-                        if (!this.currentStream) break;
-                        
                         if (part?.text) {
                             fullText += part.text;
                             contentElement.innerHTML = '<span class="typing-cursor"></span>' + this.sanitizeHTML(fullText);
@@ -1230,33 +1937,28 @@
                         }
                     }
                     
-                    // ИСПРАВЛЕНО: Проверяем, не был ли запрос отменен
-                    if (this.currentStream) {
-                        contentElement.innerHTML = marked.parse(fullText);
-                        this.applyCodeHighlighting(contentElement);
-                        aiMessageElement.classList.remove('ai-streaming');
-                        this.lastAIMessage = aiMessageElement;
-                    }
+                    contentElement.innerHTML = marked.parse(fullText);
+                    this.applyCodeHighlighting(contentElement);
+                    aiMessageElement.classList.remove('ai-streaming');
+                    this.currentStream = null;
                     
                 } catch (error) {
                     console.error('Ошибка стриминга:', error);
+                    // Удаляем индикатор печати при ошибке
                     if (this.currentTypingIndicator) {
                         this.currentTypingIndicator.remove();
                         this.currentTypingIndicator = null;
                     }
-                    if (aiMessageElement.parentNode) {
-                        aiMessageElement.remove();
-                    }
-                    throw error;
-                } finally {
+                    aiMessageElement.remove();
                     this.currentStream = null;
+                    throw error;
                 }
                 
-                this.updateNavigationButtons();
                 return aiMessageElement;
             }
 
             async analyzeImageWithText(text, imageData) {
+                // Создаем индикатор анализа
                 const analyzingIndicator = document.createElement('div');
                 analyzingIndicator.classList.add('message', 'ai-message');
                 analyzingIndicator.innerHTML = `
@@ -1284,17 +1986,20 @@
                 aiMessageElement.appendChild(contentElement);
 
                 try {
+                    // Эмулируем задержку анализа
                     await new Promise(resolve => setTimeout(resolve, 1500));
                     
+                    // Удаляем индикатор анализа
                     if (this.currentTypingIndicator) {
                         this.currentTypingIndicator.remove();
                         this.currentTypingIndicator = null;
                         this.messagesContainer.appendChild(aiMessageElement);
                     }
                     
+                    // Эмулируем ответ ИИ об изображении
                     const prompt = text ? `по изображению: "${text}"` : "по загруженному изображению";
                     const response = await puter.ai.chat(`Проанализируй изображение и ответь ${prompt}. Опиши что на изображении и ответь на вопрос пользователя.`, { 
-                        model: "gpt-3.5-turbo",
+                        model: "gpt-5-nano", 
                         stream: true 
                     });
                     
@@ -1311,7 +2016,6 @@
                     contentElement.innerHTML = marked.parse(fullText);
                     this.applyCodeHighlighting(contentElement);
                     aiMessageElement.classList.remove('ai-streaming');
-                    this.lastAIMessage = aiMessageElement;
                     
                 } catch (error) {
                     console.error('Ошибка анализа изображения:', error);
@@ -1324,12 +2028,11 @@
                         false, true
                     );
                 }
-                
-                this.updateNavigationButtons();
             }
 
             async generateImage(prompt) {
                 try {
+                    // Показываем индикатор генерации
                     const loadingElement = document.createElement('div');
                     loadingElement.classList.add('message', 'ai-message');
                     loadingElement.innerHTML = `
@@ -1347,9 +2050,9 @@
                     this.currentTypingIndicator = loadingElement;
                     this.scrollToBottom();
                     
-                    // ИСПРАВЛЕНО: Правильная обработка ответа от Puter AI
-                    const image = await puter.ai.txt2img(prompt);
+                    const image = await puter.ai.txt2img(prompt, { testMode: true });
                     
+                    // Удаляем индикатор загрузки
                     if (this.currentTypingIndicator) {
                         this.currentTypingIndicator.remove();
                         this.currentTypingIndicator = null;
@@ -1363,8 +2066,11 @@
                     messageElement.appendChild(textElement);
                     
                     const img = document.createElement('img');
-                    // ИСПРАВЛЕНО: Упрощенная обработка URL изображения
-                    img.src = typeof image === 'string' ? image : (image.url || image.src || '');
+                    if (image instanceof HTMLElement) {
+                        img.src = image.src;
+                    } else {
+                        img.src = image;
+                    }
                     img.classList.add('generated-image');
                     img.alt = `Изображение по запросу: ${prompt}`;
                     img.onerror = () => {
@@ -1384,10 +2090,10 @@
                     
                     this.messagesContainer.appendChild(messageElement);
                     this.scrollToBottom();
-                    this.lastAIMessage = messageElement;
                     
                 } catch (error) {
                     console.error('Ошибка генерации изображения:', error);
+                    // Удаляем индикатор загрузки при ошибке
                     if (this.currentTypingIndicator) {
                         this.currentTypingIndicator.remove();
                         this.currentTypingIndicator = null;
@@ -1397,28 +2103,12 @@
                         false, true
                     );
                 }
-                
-                this.updateNavigationButtons();
             }
         }
 
         // Инициализация приложения
         document.addEventListener('DOMContentLoaded', function() {
             try {
-                // ИСПРАВЛЕНО: Проверяем доступность Puter AI
-                if (typeof puter === 'undefined' || !puter.ai) {
-                    console.error('Puter AI не доступен');
-                    // Можно показать сообщение об ошибке
-                    const errorDiv = document.createElement('div');
-                    errorDiv.style.background = '#ff6b6b';
-                    errorDiv.style.color = 'white';
-                    errorDiv.style.padding = '10px';
-                    errorDiv.style.textAlign = 'center';
-                    errorDiv.textContent = 'Ошибка: Puter AI не доступен. Проверьте подключение к интернету.';
-                    document.body.prepend(errorDiv);
-                    return;
-                }
-                
                 window.khuyewAI = new KhuyewAI();
             } catch (error) {
                 console.error('Ошибка инициализации приложения:', error);
