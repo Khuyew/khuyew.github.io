@@ -30,30 +30,36 @@
         
         /* Header */
         .header {
-            padding: 15px 20px;
+            padding: 20px;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+        
+        .header:hover {
             background: rgba(255, 255, 255, 0.05);
         }
         
         .logo {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 700;
             background: linear-gradient(135deg, #00d4ff, #0099ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
         }
         
         .subtitle {
-            font-size: 12px;
+            font-size: 14px;
             color: #a0a0c0;
             opacity: 0.8;
-            margin-top: 2px;
         }
         
         .github-link {
             position: absolute;
-            top: 15px;
+            top: 20px;
             right: 20px;
             color: #a0a0c0;
             text-decoration: none;
@@ -64,32 +70,25 @@
         .github-link:hover {
             color: #0099ff;
         }
-        
-        /* Tabs */
-        .tabs-container {
-            display: flex;
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0 10px;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s;
-            font-size: 14px;
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
             color: #a0a0c0;
+            padding: 8px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
         }
-        
-        .tab.active {
-            color: #0099ff;
-            border-bottom-color: #0099ff;
-            background: rgba(0, 153, 255, 0.1);
-        }
-        
-        .tab:hover {
-            background: rgba(255, 255, 255, 0.05);
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
         }
         
         /* Chat */
@@ -129,50 +128,43 @@
             background: linear-gradient(135deg, #0099ff, #0066ff);
             color: white;
             position: relative;
-            border: 3px solid transparent;
         }
         
-        /* Улучшенная анимированная градиентная рамка */
+        /* Анимированная градиентная рамка для сообщения пользователя */
         .user-message.pending::before {
             content: '';
             position: absolute;
-            top: -4px;
-            left: -4px;
-            right: -4px;
-            bottom: -4px;
-            background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #20b2aa, #ff0080, #ff8c00);
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #20b2aa, #ff0080);
             background-size: 400% 400%;
-            border-radius: 24px;
+            border-radius: 22px;
             z-index: -1;
-            animation: gradientBorder 2s linear infinite;
-            filter: blur(2px);
+            animation: gradientBorder 3s ease infinite;
+            filter: blur(1px);
         }
         
         @keyframes gradientBorder {
-            0% {
+            0%, 100% {
                 background-position: 0% 50%;
-                transform: scale(1);
             }
             50% {
                 background-position: 100% 50%;
-                transform: scale(1.02);
-            }
-            100% {
-                background-position: 0% 50%;
-                transform: scale(1);
             }
         }
         
         .user-message.pending {
-            animation: pulseGlow 1.5s ease-in-out infinite alternate;
+            animation: pulseGlow 2s ease-in-out infinite alternate;
         }
         
         @keyframes pulseGlow {
             from {
-                box-shadow: 0 0 15px rgba(0, 102, 255, 0.4);
+                box-shadow: 0 0 10px rgba(0, 102, 255, 0.3);
             }
             to {
-                box-shadow: 0 0 25px rgba(0, 102, 255, 0.8);
+                box-shadow: 0 0 20px rgba(0, 102, 255, 0.6);
             }
         }
         
@@ -222,10 +214,10 @@
             background: rgba(255, 255, 255, 0.05);
             color: #a0a0c0;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             margin-top: 10px;
             transition: all 0.3s;
         }
@@ -246,7 +238,7 @@
         .input-wrapper {
             display: flex;
             gap: 10px;
-            align-items: flex-end;
+            align-items: center;
         }
         
         #user-input {
@@ -259,9 +251,6 @@
             font-size: 16px;
             outline: none;
             transition: all 0.3s;
-            resize: none;
-            min-height: 50px;
-            max-height: 120px;
         }
         
         #user-input::placeholder {
@@ -285,7 +274,6 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            flex-shrink: 0;
         }
         
         #send-button:hover {
@@ -300,7 +288,7 @@
         
         .action-buttons {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             margin-top: 10px;
             justify-content: center;
             flex-wrap: wrap;
@@ -310,10 +298,10 @@
             background: rgba(255, 255, 255, 0.1);
             color: #a0a0c0;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 6px 12px;
-            border-radius: 15px;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 12px;
             transition: all 0.3s;
         }
         
@@ -321,6 +309,11 @@
             background: rgba(255, 255, 255, 0.15);
             color: #ffffff;
             border-color: #0099ff;
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         .file-input-wrapper {
@@ -337,25 +330,6 @@
             width: 100%;
             height: 100%;
             cursor: pointer;
-        }
-        
-        .upload-description {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            font-size: 14px;
-            resize: vertical;
-            min-height: 40px;
-            max-height: 80px;
-            display: none;
-        }
-        
-        .upload-description::placeholder {
-            color: #8888aa;
         }
         
         .typing-indicator {
@@ -394,11 +368,10 @@
         /* Footer */
         .footer {
             text-align: center;
-            padding: 10px;
+            padding: 15px;
             color: #666699;
-            font-size: 11px;
+            font-size: 12px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(255, 255, 255, 0.03);
         }
         
         /* Responsive */
@@ -412,7 +385,7 @@
             }
             
             .header {
-                padding: 10px 15px;
+                padding: 15px;
             }
             
             .messages-container {
@@ -422,15 +395,32 @@
             .input-container {
                 padding: 15px;
             }
-            
-            .tabs-container {
-                padding: 0 5px;
+
+            .theme-toggle {
+                position: static;
+                margin-bottom: 10px;
             }
-            
-            .tab {
-                padding: 8px 12px;
-                font-size: 12px;
+
+            .github-link {
+                position: static;
+                display: block;
+                margin-top: 5px;
             }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus improvements for accessibility */
+        button:focus, input:focus {
+            outline: 2px solid #0099ff;
+            outline-offset: 2px;
         }
         
         /* Scrollbar */
@@ -481,7 +471,7 @@
             color: white;
         }
         
-        /* Стиль для live typing ИИ */
+        /* Стиль для постепенной печати ИИ */
         .ai-streaming {
             position: relative;
         }
@@ -493,194 +483,157 @@
             font-weight: bold;
             margin-left: 2px;
         }
-        
-        .chat-tab {
-            display: none;
+
+        /* Voice recording animation */
+        .voice-recording {
+            background: linear-gradient(135deg, #ff4444, #ff6b6b) !important;
+            animation: pulse 1.5s ease-in-out infinite;
         }
-        
-        .chat-tab.active {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Error message */
+        .error-message {
+            align-self: flex-start;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="https://github.com/Khuyew" class="github-link" target="_blank">@Khuyew</a>
+        <button class="theme-toggle" id="themeToggle">🌙 Тема</button>
+        <a href="https://github.com/Khuyew" class="github-link" target="_blank">⭐ GitHub</a>
         
-        <div class="header">
+        <div class="header" id="header">
             <div class="logo">Khuyew AI</div>
             <div class="subtitle">Бесплатный ИИ-помощник с генерацией и редактированием изображений</div>
         </div>
         
-        <div class="tabs-container">
-            <div class="tab active" data-tab="main">💬 Основной чат</div>
-            <div class="tab" data-tab="images">🖼️ Работа с изображениями</div>
-            <div class="tab" data-tab="help">❓ Помощь</div>
-        </div>
-        
         <div class="chat-container">
-            <!-- Основной чат -->
-            <div class="chat-tab active" id="main-tab">
-                <div class="messages-container" id="messagesContainer">
-                    <!-- Сообщения будут добавляться здесь -->
-                </div>
-                
-                <div class="typing-indicator" id="typingIndicator">
-                    ИИ печатает<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>
-                </div>
-                
-                <div class="input-container">
-                    <div class="input-wrapper">
-                        <textarea id="user-input" placeholder="Задайте вопрос..." autocomplete="off"></textarea>
-                        <button id="send-button">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+            <div class="messages-container" id="messagesContainer">
+                <!-- Сообщения будут добавляться здесь -->
             </div>
             
-            <!-- Работа с изображениями -->
-            <div class="chat-tab" id="images-tab">
-                <div class="messages-container" id="imagesContainer">
-                    <div class="message ai-message">
-                        <strong>🖼️ Работа с изображениями</strong><br><br>
-                        • Загрузите фото и добавьте описание для редактирования<br>
-                        • Или создайте новое изображение с нуля<br>
-                        • Используйте поле ниже для описания
-                    </div>
-                </div>
-                
-                <div class="input-container">
-                    <div class="input-wrapper">
-                        <textarea id="image-input" placeholder="Опишите что нужно сделать с изображением..." autocomplete="off"></textarea>
-                        <button id="image-send-button">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="action-buttons">
-                        <div class="file-input-wrapper">
-                            <button class="action-button" id="upload-trigger">
-                                📁 Загрузить фото
-                            </button>
-                            <input type="file" id="file-input" accept="image/*">
-                        </div>
-                        <button class="action-button" onclick="generateExample()">🎨 Пример генерации</button>
-                    </div>
-                    <textarea class="upload-description" id="upload-description" placeholder="Добавьте описание к загружаемому фото (что нужно сделать с изображением)..."></textarea>
-                </div>
+            <div class="typing-indicator" id="typingIndicator">
+                ИИ печатает<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>
             </div>
             
-            <!-- Помощь -->
-            <div class="chat-tab" id="help-tab">
-                <div class="messages-container">
-                    <div class="message ai-message">
-                        <strong>📖 Справка по использованию</strong><br><br>
-                        <strong>💬 Основной чат:</strong><br>
-                        • Задавайте любые вопросы<br>
-                        • Получайте текстовые ответы<br>
-                        • Поддержка длинных диалогов<br><br>
-                        
-                        <strong>🖼️ Работа с изображениями:</strong><br>
-                        • Загружайте фото для редактирования<br>
-                        • Добавляйте описание изменений<br>
-                        • Создавайте новые изображения<br>
-                        • Используйте примеры для вдохновения<br><br>
-                        
-                        <strong>⚡ Быстрые команды:</strong><br>
-                        • "нарисуй..." - создать изображение<br>
-                        • "измени..." - редактировать загруженное<br>
-                        • "сгенерируй..." - создать с нуля
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <input type="text" id="user-input" placeholder="Задайте вопрос или опишите изображение..." autocomplete="off">
+                    <button id="send-button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="action-buttons">
+                    <div class="file-input-wrapper">
+                        <button class="action-button">
+                            📁 Загрузить фото
+                        </button>
+                        <input type="file" id="file-input" accept="image/*" capture="environment">
                     </div>
+                    <button class="action-button" id="voiceButton">🎤 Голос</button>
+                    <button class="action-button" onclick="showImageHelp()">❓ Помощь</button>
+                    <button class="action-button" onclick="exportChat()">💾 Экспорт</button>
+                    <button class="action-button" onclick="clearChat()">🗑️ Очистить</button>
                 </div>
             </div>
         </div>
         
         <div class="footer">
-            Сделано в Беларуси • Переключайтесь между вкладками для разных функций
+            Сделано в Беларуси • Для нового чата нажмите на "Khuyew AI" • <a href="#" style="color: #666699;" onclick="showPrivacyInfo()">Конфиденциальность</a>
         </div>
     </div>
 
     <script src="https://js.puter.com/v2/"></script>
     <script>
+        // Глобальные переменные
+        let introCompleted = false;
+        let currentImage = null;
+        let lastUserMessage = null;
+        let isRecording = false;
+        let recognition = null;
+
         document.addEventListener('DOMContentLoaded', function() {
             const messagesContainer = document.getElementById('messagesContainer');
-            const imagesContainer = document.getElementById('imagesContainer');
             const userInput = document.getElementById('user-input');
-            const imageInput = document.getElementById('image-input');
             const sendButton = document.getElementById('send-button');
-            const imageSendButton = document.getElementById('image-send-button');
             const typingIndicator = document.getElementById('typingIndicator');
             const fileInput = document.getElementById('file-input');
-            const uploadDescription = document.getElementById('upload-description');
-            const uploadTrigger = document.getElementById('upload-trigger');
-            const tabs = document.querySelectorAll('.tab');
-            const chatTabs = document.querySelectorAll('.chat-tab');
+            const header = document.getElementById('header');
+            const themeToggle = document.getElementById('themeToggle');
+            const voiceButton = document.getElementById('voiceButton');
             
-            let introCompleted = false;
-            let currentImage = null;
-            let lastUserMessage = null;
-            let currentTab = 'main';
+            // Инициализация
+            initVoiceRecognition();
+            loadChatHistory();
+            initTheme();
             
-            // Переключение вкладок
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    switchTab(tabName);
-                });
-            });
-            
-            function switchTab(tabName) {
-                // Обновляем активные вкладки
-                tabs.forEach(tab => {
-                    tab.classList.toggle('active', tab.getAttribute('data-tab') === tabName);
-                });
-                
-                chatTabs.forEach(tab => {
-                    tab.classList.toggle('active', tab.id === `${tabName}-tab`);
-                });
-                
-                currentTab = tabName;
-                
-                // Фокус на соответствующее поле ввода
-                if (tabName === 'main') {
-                    userInput.focus();
-                } else if (tabName === 'images') {
-                    imageInput.focus();
+            // Обработчики событий
+            header.addEventListener('click', function() {
+                if (confirm('Начать новый чат? Текущая история будет очищена.')) {
+                    clearChat();
                 }
-            }
-            
-            // Функция для добавления сообщения
-            function addMessage(text, isUser = false, isUpload = false, container = messagesContainer) {
+            });
+
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // Функция для добавления сообщения с защитой от XSS
+            function addMessage(text, isUser = false, isUpload = false, isError = false) {
                 const messageElement = document.createElement('div');
-                messageElement.classList.add('message', isUser ? (isUpload ? 'upload-message' : 'user-message') : 'ai-message');
-                messageElement.textContent = text;
+                const className = isError ? 'error-message' : (isUser ? (isUpload ? 'upload-message' : 'user-message') : 'ai-message');
+                messageElement.classList.add('message', className);
                 
-                if (isUser && !isUpload && container === messagesContainer) {
+                // Санитизация текста для защиты от XSS
+                messageElement.textContent = sanitizeHTML(text);
+                
+                if (isUser && !isUpload && !isError) {
                     messageElement.classList.add('pending');
                     lastUserMessage = messageElement;
                 }
                 
-                container.appendChild(messageElement);
-                scrollToBottom(container);
+                messagesContainer.appendChild(messageElement);
+                scrollToBottom();
+                saveChatHistory();
+                manageChatStorage();
                 return messageElement;
             }
-            
-            // Функция для удаления анимации с сообщения пользователя
+
+            // Защита от XSS
+            function sanitizeHTML(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Управление хранилищем чата
+            function manageChatStorage() {
+                const maxMessages = 100;
+                const messages = document.querySelectorAll('.message');
+                if (messages.length > maxMessages) {
+                    const toRemove = messages.length - maxMessages;
+                    for (let i = 0; i < toRemove; i++) {
+                        messages[i].remove();
+                    }
+                }
+            }
+
+            // Удаление анимации с сообщения пользователя
             function removePendingAnimation() {
                 if (lastUserMessage) {
                     lastUserMessage.classList.remove('pending');
                     lastUserMessage = null;
                 }
             }
-            
-            // Функция для добавления сообщения с изображением
-            function addImageMessage(promptText, imageElement, isGenerated = true, container = messagesContainer) {
+
+            // Добавление сообщения с изображением
+            function addImageMessage(promptText, imageElement, isGenerated = true) {
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', 'ai-image-message');
                 
@@ -694,15 +647,17 @@
                 if (promptText) {
                     const promptElement = document.createElement('div');
                     promptElement.classList.add('image-prompt');
-                    promptElement.textContent = isGenerated ? `Запрос: "${promptText}"` : `Файл: ${promptText}`;
+                    promptElement.textContent = isGenerated ? `Запрос: "${sanitizeHTML(promptText)}"` : `Файл: ${sanitizeHTML(promptText)}`;
                     messageElement.appendChild(promptElement);
                 }
                 
-                container.appendChild(messageElement);
-                scrollToBottom(container);
+                messagesContainer.appendChild(messageElement);
+                scrollToBottom();
+                saveChatHistory();
+                manageChatStorage();
             }
-            
-            // Функция для live typing (как в DeepSeek)
+
+            // Постепенная печать текста
             function typeText(element, text, speed = 20) {
                 return new Promise(resolve => {
                     let i = 0;
@@ -712,148 +667,174 @@
                     function type() {
                         if (i < text.length) {
                             const char = text.charAt(i);
-                            element.innerHTML = text.substring(0, i + 1) + '<span class="typing-cursor"></span>';
+                            element.innerHTML = sanitizeHTML(text.substring(0, i + 1)) + '<span class="typing-cursor"></span>';
                             i++;
-                            scrollToBottom(element.parentElement);
+                            scrollToBottom();
                             
-                            const delay = /[.!?]/.test(char) ? speed * 4 : 
-                                         /[,;:]/.test(char) ? speed * 2 : speed;
+                            const delay = char === '.' || char === '!' || char === '?' ? speed * 3 : speed;
                             setTimeout(type, delay);
                         } else {
-                            element.innerHTML = text;
+                            element.innerHTML = sanitizeHTML(text);
                             element.classList.remove('ai-streaming');
+                            saveChatHistory();
                             resolve();
                         }
                     }
                     type();
                 });
             }
-            
+
             // Прокрутка вниз
-            function scrollToBottom(container) {
-                if (container) {
-                    container.scrollTop = container.scrollHeight;
-                }
+            function scrollToBottom() {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
-            
+
             // Пропуск введения
             function skipIntro() {
                 introCompleted = true;
                 document.querySelector('.skip-intro')?.remove();
-                addMessage('Готов к работе! Задавайте вопросы или перейдите во вкладку изображений.', false);
+                addMessage('Отлично! Теперь вы можете задавать любые вопросы, генерировать изображения или загружать фото для редактирования. Я готов помочь!', false);
             }
-            
+
             // Создание кнопки пропуска
             function createSkipButton() {
                 const skipButton = document.createElement('div');
                 skipButton.classList.add('skip-intro');
-                skipButton.textContent = 'Начать общение';
+                skipButton.textContent = 'Пропустить введение и начать общение';
                 skipButton.addEventListener('click', skipIntro);
                 messagesContainer.appendChild(skipButton);
-                scrollToBottom(messagesContainer);
+                scrollToBottom();
             }
-            
+
+            // Повторные попытки при ошибках сети
+            async function withRetry(operation, maxRetries = 3) {
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        return await operation();
+                    } catch (error) {
+                        console.error(`Попытка ${i + 1} не удалась:`, error);
+                        if (i === maxRetries - 1) throw error;
+                        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+                    }
+                }
+            }
+
             // Генерация изображения
-            async function generateImage(prompt, container = messagesContainer) {
+            async function generateImage(prompt) {
                 try {
                     const loadingElement = document.createElement('div');
                     loadingElement.classList.add('message', 'ai-message');
                     loadingElement.innerHTML = '<span class="image-loading"></span>Генерирую изображение...';
-                    container.appendChild(loadingElement);
-                    scrollToBottom(container);
+                    messagesContainer.appendChild(loadingElement);
+                    scrollToBottom();
                     
-                    const image = await puter.ai.txt2img(prompt, { testMode: true });
+                    const image = await withRetry(() => 
+                        puter.ai.txt2img(prompt, { testMode: true })
+                    );
                     
                     loadingElement.remove();
-                    addImageMessage(prompt, image, true, container);
+                    addImageMessage(prompt, image, true);
                     
                 } catch (error) {
                     console.error('Ошибка генерации изображения:', error);
-                    const loadingElements = container.querySelectorAll('.image-loading');
-                    loadingElements.forEach(el => el.closest('.message').remove());
-                    addMessage('Ошибка генерации. Попробуйте другой запрос.', false, false, container);
+                    document.querySelectorAll('.image-loading').forEach(el => el.closest('.message').remove());
+                    addMessage('Извините, произошла ошибка при генерации изображения. Пожалуйста, попробуйте другой запрос.', false, false, true);
                 }
             }
-            
-            // Обработка загрузки файла с описанием
-            uploadTrigger.addEventListener('click', function() {
-                uploadDescription.style.display = 'block';
-                fileInput.click();
-            });
-            
+
+            // Обработка загрузки файла
             fileInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        const img = new Image();
-                        img.src = e.target.result;
+                if (file) {
+                    if (file.type.startsWith('image/')) {
+                        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                            addMessage('Файл слишком большой. Пожалуйста, выберите изображение меньше 10MB.', false, false, true);
+                            fileInput.value = '';
+                            return;
+                        }
+
+                        const reader = new FileReader();
                         
-                        img.onload = function() {
-                            currentImage = img;
-                            const description = uploadDescription.value.trim();
+                        reader.onload = function(e) {
+                            const img = new Image();
+                            img.src = e.target.result;
                             
-                            addMessage(`📁 Загружено изображение: ${file.name}${description ? `\nОписание: ${description}` : ''}`, true, true, imagesContainer);
-                            
-                            const displayImg = img.cloneNode();
-                            addImageMessage(file.name, displayImg, false, imagesContainer);
-                            
-                            // Если есть описание, обрабатываем его как запрос на редактирование
-                            if (description) {
+                            img.onload = function() {
+                                currentImage = img;
+                                addMessage(`📁 Загружено изображение: ${file.name}`, true, true);
+                                
+                                const displayImg = img.cloneNode();
+                                addImageMessage(file.name, displayImg, false);
+                                
                                 setTimeout(() => {
-                                    processImageRequest(description, imagesContainer);
-                                }, 500);
-                            }
-                            
-                            // Сбрасываем форму
-                            uploadDescription.value = '';
-                            uploadDescription.style.display = 'none';
+                                    addMessage('Теперь вы можете описать какие изменения хотите внести в это изображение. Например: "добавь солнечные очки" или "сделай фон космическим".', false);
+                                }, 1000);
+                            };
                         };
-                    };
+                        
+                        reader.onerror = function() {
+                            addMessage('Ошибка при чтении файла. Пожалуйста, попробуйте другой файл.', false, false, true);
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    } else {
+                        addMessage('Пожалуйста, загрузите файл изображения (JPEG, PNG, etc.)', false, false, true);
+                    }
                     
-                    reader.readAsDataURL(file);
+                    fileInput.value = '';
                 }
-                fileInput.value = '';
             });
-            
-            // Обработка запросов для изображений
-            async function processImageRequest(message, container) {
-                addMessage(message, true, false, container);
-                
-                if (currentImage) {
-                    // Редактирование существующего изображения
-                    await editImage(message, currentImage, container);
-                } else {
-                    // Генерация нового изображения
-                    await generateImage(message, container);
-                }
-            }
-            
+
             // Редактирование изображения
-            async function editImage(prompt, originalImage, container) {
+            async function editImage(prompt, originalImage) {
                 try {
                     const loadingElement = document.createElement('div');
                     loadingElement.classList.add('message', 'ai-message');
                     loadingElement.innerHTML = '<span class="image-loading"></span>Редактирую изображение...';
-                    container.appendChild(loadingElement);
-                    scrollToBottom(container);
+                    messagesContainer.appendChild(loadingElement);
+                    scrollToBottom();
                     
                     const modifiedPrompt = `Модифицированная версия: ${prompt}`;
-                    const image = await puter.ai.txt2img(modifiedPrompt, { testMode: true });
+                    const image = await withRetry(() => 
+                        puter.ai.txt2img(modifiedPrompt, { testMode: true })
+                    );
                     
                     loadingElement.remove();
-                    addImageMessage(prompt, image, true, container);
+                    addImageMessage(prompt, image, true);
                     
                 } catch (error) {
-                    console.error('Ошибка редактирования:', error);
-                    const loadingElements = container.querySelectorAll('.image-loading');
-                    loadingElements.forEach(el => el.closest('.message').remove());
-                    addMessage('Ошибка редактирования. Попробуйте другой запрос.', false, false, container);
+                    console.error('Ошибка редактирования изображения:', error);
+                    document.querySelectorAll('.image-loading').forEach(el => el.closest('.message').remove());
+                    addMessage('Извините, произошла ошибка при редактировании изображения. Пожалуйста, попробуйте другой запрос.', false, false, true);
                 }
             }
-            
-            // Отправка сообщения в основном чате
+
+            // Анализ запроса
+            function analyzeRequest(message) {
+                const imageKeywords = [
+                    'нарисуй', 'сгенерируй', 'изображение', 'картинку', 'фото', 'иллюстрацию',
+                    'draw', 'generate', 'image', 'picture', 'photo', 'illustration',
+                    'создай', 'покажи', 'визуализируй', 'арт'
+                ];
+                
+                const editKeywords = [
+                    'измени', 'добавь', 'убери', 'переделай', 'сделай', 'исправь',
+                    'change', 'add', 'remove', 'modify', 'edit', 'fix',
+                    'отредактируй', 'преобразуй', 'трансформируй'
+                ];
+                
+                const lowerMessage = message.toLowerCase();
+                
+                if (currentImage && editKeywords.some(keyword => lowerMessage.includes(keyword))) {
+                    return 'edit';
+                } else if (imageKeywords.some(keyword => lowerMessage.includes(keyword))) {
+                    return 'generate';
+                } else {
+                    return 'text';
+                }
+            }
+
+            // Отправка сообщения
             async function sendMessage() {
                 const message = userInput.value.trim();
                 if (message === '') return;
@@ -865,15 +846,33 @@
                 
                 addMessage(message, true);
                 userInput.value = '';
-                userInput.style.height = 'auto';
                 
+                const requestType = analyzeRequest(message);
+                
+                if (requestType === 'generate') {
+                    await generateImage(message);
+                    removePendingAnimation();
+                    return;
+                } else if (requestType === 'edit' && currentImage) {
+                    await editImage(message, currentImage);
+                    removePendingAnimation();
+                    return;
+                } else if (requestType === 'edit' && !currentImage) {
+                    addMessage('Сначала загрузите изображение для редактирования, используя кнопку "📁 Загрузить фото".', false);
+                    removePendingAnimation();
+                    return;
+                }
+                
+                // Текстовый запрос
                 typingIndicator.style.display = 'block';
-                scrollToBottom(messagesContainer);
+                scrollToBottom();
                 
                 try {
-                    const response = await puter.ai.chat(message, { model: "gpt-5-nano" });
-                    typingIndicator.style.display = 'none';
+                    const response = await withRetry(() => 
+                        puter.ai.chat(message, { model: "gpt-5-nano" })
+                    );
                     
+                    typingIndicator.style.display = 'none';
                     const aiMessageElement = document.createElement('div');
                     aiMessageElement.classList.add('message', 'ai-message');
                     messagesContainer.appendChild(aiMessageElement);
@@ -889,26 +888,18 @@
                     errorElement.classList.add('message', 'ai-message');
                     messagesContainer.appendChild(errorElement);
                     
-                    await typeText(errorElement, "Извините, произошла ошибка. Пожалуйста, попробуйте еще раз.");
+                    await typeText(errorElement, "Извините, произошла ошибка соединения. Пожалуйста, проверьте интернет и попробуйте еще раз.");
                 }
             }
-            
-            // Отправка сообщения для изображений
-            async function sendImageMessage() {
-                const message = imageInput.value.trim();
-                if (message === '') return;
-                
-                imageInput.value = '';
-                imageInput.style.height = 'auto';
-                await processImageRequest(message, imagesContainer);
-            }
-            
-            // Компактное введение
+
+            // Введение бота
             async function showIntro() {
                 const introMessages = [
-                    "Привет! Я Khuyew AI - бесплатный ИИ-помощник.",
-                    "Используйте вкладки для разных задач: общение, изображения, справка.",
-                    "Готов помочь с любыми вопросами и творческими задачами!"
+                    "Привет! Я Khuyew AI - полностью бесплатный ИИ-помощник.",
+                    "Теперь я умею: общаться, генерировать изображения и редактировать ваши фото!",
+                    "Загрузите фото через кнопку '📁 Загрузить фото', затем опишите какие изменения хотите.",
+                    "Или просто опишите что нарисовать - я создам это с нуля.",
+                    "Я полностью бесплатный и безлимитный - используйте меня сколько угодно!"
                 ];
                 
                 for (const message of introMessages) {
@@ -919,61 +910,283 @@
                     messagesContainer.appendChild(messageElement);
                     
                     await typeText(messageElement, message);
-                    await new Promise(resolve => setTimeout(resolve, 800));
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
                 
                 if (!introCompleted) {
+                    const finalMessage = document.createElement('div');
+                    finalMessage.classList.add('message', 'ai-message');
+                    messagesContainer.appendChild(finalMessage);
+                    
+                    await typeText(finalMessage, "Теперь можете общаться, создавать или редактировать изображения! Для нового чата нажмите на 'Khuyew AI' выше.");
+                    
                     createSkipButton();
                 }
             }
-            
-            // Глобальные функции
-            window.generateExample = function() {
-                const prompt = "Милый кот в космосе, цифровое искусство";
-                addMessage(`🎨 Пример: "${prompt}"`, true, false, imagesContainer);
-                generateImage(prompt, imagesContainer);
-            };
-            
-            window.clearChat = function() {
-                if (confirm('Очистить чат?')) {
-                    messagesContainer.innerHTML = '';
-                    imagesContainer.innerHTML = '<div class="message ai-message"><strong>🖼️ Работа с изображениями</strong><br><br>• Загрузите фото и добавьте описание для редактирования<br>• Или создайте новое изображение с нуля<br>• Используйте поле ниже для описания</div>';
-                    currentImage = null;
-                    lastUserMessage = null;
-                    introCompleted = false;
-                    setTimeout(showIntro, 500);
+
+            // Инициализация голосового ввода
+            function initVoiceRecognition() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    recognition = new SpeechRecognition();
+                    recognition.continuous = false;
+                    recognition.lang = 'ru-RU';
+                    recognition.interimResults = false;
+                    
+                    recognition.onstart = function() {
+                        isRecording = true;
+                        voiceButton.classList.add('voice-recording');
+                        voiceButton.innerHTML = '🔴 Запись...';
+                        voiceButton.disabled = false;
+                    };
+                    
+                    recognition.onresult = function(event) {
+                        const transcript = event.results[0][0].transcript;
+                        userInput.value = transcript;
+                        userInput.focus();
+                    };
+                    
+                    recognition.onerror = function(event) {
+                        console.error('Ошибка распознавания голоса:', event.error);
+                        isRecording = false;
+                        voiceButton.classList.remove('voice-recording');
+                        voiceButton.innerHTML = '🎤 Голос';
+                        voiceButton.disabled = false;
+                        
+                        if (event.error === 'not-allowed') {
+                            addMessage('Доступ к микрофону запрещен. Разрешите доступ к микрофону в настройках браузера.', false, false, true);
+                        }
+                    };
+                    
+                    recognition.onend = function() {
+                        isRecording = false;
+                        voiceButton.classList.remove('voice-recording');
+                        voiceButton.innerHTML = '🎤 Голос';
+                        voiceButton.disabled = false;
+                    };
+                    
+                    voiceButton.addEventListener('click', function() {
+                        if (!isRecording) {
+                            try {
+                                recognition.start();
+                                voiceButton.disabled = true;
+                            } catch (error) {
+                                console.error('Ошибка запуска распознавания:', error);
+                                voiceButton.disabled = false;
+                            }
+                        } else {
+                            recognition.stop();
+                        }
+                    });
+                } else {
+                    voiceButton.style.display = 'none';
                 }
-            };
-            
+            }
+
+            // Управление темой
+            function initTheme() {
+                const savedTheme = localStorage.getItem('khuyew-theme');
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-theme');
+                    themeToggle.textContent = '☀️ Тема';
+                }
+            }
+
+            function toggleTheme() {
+                document.body.classList.toggle('light-theme');
+                if (document.body.classList.contains('light-theme')) {
+                    localStorage.setItem('khuyew-theme', 'light');
+                    themeToggle.textContent = '☀️ Тема';
+                } else {
+                    localStorage.setItem('khuyew-theme', 'dark');
+                    themeToggle.textContent = '🌙 Тема';
+                }
+            }
+
+            // Сохранение истории чата
+            function saveChatHistory() {
+                const messages = Array.from(document.querySelectorAll('.message')).map(msg => ({
+                    text: msg.textContent,
+                    isUser: msg.classList.contains('user-message') || msg.classList.contains('upload-message'),
+                    isError: msg.classList.contains('error-message'),
+                    isImage: msg.classList.contains('ai-image-message'),
+                    timestamp: new Date().toISOString()
+                }));
+                localStorage.setItem('khuyew-chat-history', JSON.stringify(messages));
+            }
+
+            function loadChatHistory() {
+                try {
+                    const history = localStorage.getItem('khuyew-chat-history');
+                    if (history) {
+                        const messages = JSON.parse(history);
+                        if (messages.length > 0) {
+                            messages.forEach(msg => {
+                                if (msg.isImage) {
+                                    // Пропускаем изображения при загрузке истории
+                                    return;
+                                }
+                                addMessage(msg.text, msg.isUser, false, msg.isError);
+                            });
+                            introCompleted = true;
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки истории:', error);
+                    localStorage.removeItem('khuyew-chat-history');
+                }
+                return false;
+            }
+
             // Обработчики событий
             sendButton.addEventListener('click', sendMessage);
-            imageSendButton.addEventListener('click', sendImageMessage);
             
             userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
+                if (e.key === 'Enter') {
                     sendMessage();
                 }
             });
-            
-            imageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendImageMessage();
-                }
-            });
-            
-            // Автоматическое изменение высоты textarea
-            [userInput, imageInput, uploadDescription].forEach(textarea => {
-                textarea.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-                });
-            });
-            
-            // Запуск введения
-            setTimeout(showIntro, 500);
+
+            // Фокус на поле ввода
+            userInput.focus();
+
+            // Запуск введения если нет истории
+            if (!document.querySelector('.message')) {
+                setTimeout(showIntro, 500);
+            }
         });
+
+        // Глобальные функции для кнопок
+        window.showImageHelp = function() {
+            const helpMessage = "📸 **Как использовать:**\n\n• **Генерация**: 'нарисуй кота', 'сгенерируй пейзаж'\n• **Редактирование**: сначала загрузите фото, затем 'добавь шляпу', 'измени фон'\n• **Загрузка**: используйте кнопку '📁 Загрузить фото' для своих изображений\n• **Голос**: нажмите '🎤 Голос' для голосового ввода";
+            addMessage(helpMessage, false);
+        };
+
+        window.exportChat = function() {
+            const messages = Array.from(document.querySelectorAll('.message'));
+            const chatText = messages.map(msg => {
+                const sender = msg.classList.contains('user-message') || msg.classList.contains('upload-message') ? 'Вы' : 'ИИ';
+                return `${sender}: ${msg.textContent}`;
+            }).join('\n\n');
+            
+            const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `khuyew-chat-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            addMessage('Чат экспортирован в файл!', false);
+        };
+
+        window.clearChat = function() {
+            if (confirm('Очистить всю историю чата?')) {
+                messagesContainer.innerHTML = '';
+                currentImage = null;
+                lastUserMessage = null;
+                introCompleted = false;
+                localStorage.removeItem('khuyew-chat-history');
+                setTimeout(showIntro, 500);
+            }
+        };
+
+        window.showPrivacyInfo = function() {
+            const privacyMessage = "🔒 **Конфиденциальность:**\n\n• Все данные хранятся локально в вашем браузере\n• Изображения обрабатываются через Puter AI API\n• История чата не передается третьим лицам\n• Для очистки данных используйте кнопку '🗑️ Очистить'";
+            addMessage(privacyMessage, false);
+            return false;
+        };
+
+        // Добавляем стили для светлой темы
+        const lightThemeStyles = `
+            <style>
+                body.light-theme {
+                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    color: #333;
+                }
+                
+                body.light-theme .header {
+                    border-bottom-color: rgba(0, 0, 0, 0.1);
+                }
+                
+                body.light-theme .header:hover {
+                    background: rgba(0, 0, 0, 0.05);
+                }
+                
+                body.light-theme .ai-message {
+                    background: rgba(255, 255, 255, 0.9);
+                    color: #333;
+                    border: 1px solid rgba(0, 0, 0, 0.1);
+                }
+                
+                body.light-theme .ai-image-message {
+                    background: rgba(255, 255, 255, 0.9);
+                    border: 1px solid rgba(0, 0, 0, 0.1);
+                }
+                
+                body.light-theme .input-container {
+                    background: rgba(255, 255, 255, 0.8);
+                    border-top-color: rgba(0, 0, 0, 0.1);
+                }
+                
+                body.light-theme #user-input {
+                    background: rgba(255, 255, 255, 0.9);
+                    border-color: rgba(0, 0, 0, 0.2);
+                    color: #333;
+                }
+                
+                body.light-theme #user-input::placeholder {
+                    color: #666;
+                }
+                
+                body.light-theme .action-button {
+                    background: rgba(255, 255, 255, 0.7);
+                    color: #666;
+                    border-color: rgba(0, 0, 0, 0.2);
+                }
+                
+                body.light-theme .action-button:hover {
+                    background: rgba(255, 255, 255, 0.9);
+                    color: #333;
+                }
+                
+                body.light-theme .typing-indicator {
+                    background: rgba(255, 255, 255, 0.9);
+                    color: #666;
+                }
+                
+                body.light-theme .footer {
+                    color: #666;
+                    border-top-color: rgba(0, 0, 0, 0.1);
+                }
+                
+                body.light-theme .theme-toggle {
+                    background: rgba(255, 255, 255, 0.7);
+                    color: #666;
+                }
+                
+                body.light-theme .github-link {
+                    color: #666;
+                }
+                
+                body.light-theme .github-link:hover {
+                    color: #0099ff;
+                }
+                
+                body.light-theme ::-webkit-scrollbar-track {
+                    background: rgba(0, 0, 0, 0.05);
+                }
+                
+                body.light-theme ::-webkit-scrollbar-thumb {
+                    background: rgba(0, 0, 0, 0.2);
+                }
+            </style>
+        `;
+        
+        document.head.insertAdjacentHTML('beforeend', lightThemeStyles);
     </script>
 </body>
 </html>
