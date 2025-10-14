@@ -78,8 +78,10 @@ function loadChatHistory(messagesContainer) {
             const messages = JSON.parse(history);
             if (messages.length > 0) {
                 messages.forEach(msg => {
-                    if (msg.isImage) return; // Пропускаем изображения
-                    addMessage(messagesContainer, msg.text, msg.isUser, msg.isError);
+                    // Восстанавливаем обычные сообщения
+                    if (!msg.isImage) {
+                        addMessage(messagesContainer, msg.text, msg.isUser, msg.isError);
+                    }
                 });
                 return true;
             }
@@ -91,7 +93,7 @@ function loadChatHistory(messagesContainer) {
     return false;
 }
 
-// Добавление сообщения
+// Добавление сообщения (теперь экспортируем эту функцию)
 function addMessage(messagesContainer, text, isUser = false, isError = false) {
     const messageElement = document.createElement('div');
     const className = isError ? 'error-message' : (isUser ? 'user-message' : 'ai-message');
@@ -130,14 +132,17 @@ function analyzeRequest(message) {
 // Управление темой
 function initTheme() {
     const savedTheme = localStorage.getItem('khuyew-theme');
-    if (savedTheme === 'light') {
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle && savedTheme === 'light') {
         document.body.classList.add('light-theme');
-        document.getElementById('themeToggle').textContent = '☀️';
+        themeToggle.textContent = '☀️';
     }
 }
 
 function toggleTheme() {
     const themeToggle = document.getElementById('themeToggle');
+    if (!themeToggle) return;
+    
     document.body.classList.toggle('light-theme');
     if (document.body.classList.contains('light-theme')) {
         localStorage.setItem('khuyew-theme', 'light');
@@ -146,4 +151,21 @@ function toggleTheme() {
         localStorage.setItem('khuyew-theme', 'dark');
         themeToggle.textContent = '🌙';
     }
+}
+
+// Экспортируем функции для использования в других модулях
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        sanitizeHTML,
+        scrollToBottom,
+        manageChatStorage,
+        withRetry,
+        exportChat,
+        saveChatHistory,
+        loadChatHistory,
+        addMessage,
+        analyzeRequest,
+        initTheme,
+        toggleTheme
+    };
 }
