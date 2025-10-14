@@ -164,12 +164,12 @@
         .scroll-to-bottom {
             position: absolute;
             right: 20px;
-            bottom: 100px;
+            bottom: 120px;
             background: rgba(255, 255, 255, 0.1);
             color: #a0a0c0;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
@@ -509,7 +509,7 @@
 
         #user-input {
             flex: 1;
-            padding: 14px 110px 14px 18px;
+            padding: 14px 140px 14px 18px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.08);
@@ -542,6 +542,11 @@
             box-shadow: 0 0 0 2px rgba(0, 153, 255, 0.2);
         }
 
+        #user-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         #send-button {
             background: linear-gradient(135deg, #0099ff, #0066ff);
             color: white;
@@ -560,7 +565,7 @@
             bottom: 0;
         }
 
-        #send-button:hover {
+        #send-button:hover:not(:disabled) {
             transform: scale(1.05);
         }
 
@@ -570,9 +575,38 @@
             cursor: not-allowed;
         }
 
+        #clear-input {
+            position: absolute;
+            right: 120px;
+            bottom: 7px;
+            background: transparent;
+            border: none;
+            color: #a0a0c0;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #clear-input.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #clear-input:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
         #voiceButton {
             position: absolute;
-            right: 60px;
+            right: 80px;
             bottom: 7px;
             background: transparent;
             border: none;
@@ -594,7 +628,7 @@
 
         #imageUploadButton {
             position: absolute;
-            right: 98px;
+            right: 120px;
             bottom: 7px;
             background: transparent;
             border: none;
@@ -943,9 +977,9 @@
             
             .scroll-to-bottom {
                 right: 15px;
-                bottom: 80px;
-                width: 32px;
-                height: 32px;
+                bottom: 100px;
+                width: 36px;
+                height: 36px;
             }
             
             .message {
@@ -967,7 +1001,7 @@
             }
             
             #user-input {
-                padding: 12px 100px 12px 16px;
+                padding: 12px 120px 12px 16px;
                 font-size: 13px;
             }
             
@@ -978,15 +1012,22 @@
                 bottom: 0;
             }
             
+            #clear-input {
+                right: 96px;
+                bottom: 5px;
+                width: 30px;
+                height: 30px;
+            }
+            
             #voiceButton {
-                right: 54px;
+                right: 64px;
                 bottom: 5px;
                 width: 30px;
                 height: 30px;
             }
             
             #imageUploadButton {
-                right: 90px;
+                right: 96px;
                 bottom: 5px;
                 width: 30px;
                 height: 30px;
@@ -1031,9 +1072,9 @@
             
             .scroll-to-bottom {
                 right: 10px;
-                bottom: 70px;
-                width: 28px;
-                height: 28px;
+                bottom: 90px;
+                width: 32px;
+                height: 32px;
             }
             
             .action-buttons {
@@ -1057,7 +1098,7 @@
             }
             
             #user-input {
-                padding: 12px 85px 12px 12px;
+                padding: 12px 100px 12px 12px;
             }
             
             #imageUploadButton {
@@ -1065,7 +1106,11 @@
             }
             
             #voiceButton {
-                right: 48px;
+                right: 52px;
+            }
+            
+            #clear-input {
+                right: 80px;
             }
         }
 
@@ -1256,6 +1301,9 @@
                 
                 <div class="input-wrapper">
                     <textarea id="user-input" placeholder="Задайте вопрос или опишите изображение..." autocomplete="off" rows="1"></textarea>
+                    <button id="clear-input">
+                        <i class="ti ti-x"></i>
+                    </button>
                     <button id="imageUploadButton">
                         <i class="ti ti-photo-up"></i>
                     </button>
@@ -1324,6 +1372,7 @@
                 this.messagesContainer = document.getElementById('messagesContainer');
                 this.userInput = document.getElementById('user-input');
                 this.sendButton = document.getElementById('send-button');
+                this.clearInput = document.getElementById('clear-input');
                 this.voiceButton = document.getElementById('voiceButton');
                 this.imageUploadButton = document.getElementById('imageUploadButton');
                 this.fileInput = document.getElementById('fileInput');
@@ -1438,6 +1487,14 @@
                     }
                 });
 
+                this.userInput.addEventListener('input', () => {
+                    this.updateClearButton();
+                });
+
+                this.clearInput.addEventListener('click', () => {
+                    this.clearUserInput();
+                });
+
                 // Загрузка изображений
                 this.imageUploadButton.addEventListener('click', () => {
                     this.fileInput.click();
@@ -1486,6 +1543,7 @@
                 this.userInput.addEventListener('input', () => {
                     this.userInput.style.height = 'auto';
                     this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+                    this.updateClearButton();
                 });
             }
 
@@ -1500,6 +1558,18 @@
                     this.updateNavigationButtons();
                 });
                 resizeObserver.observe(this.messagesContainer);
+            }
+
+            updateClearButton() {
+                const hasText = this.userInput.value.trim().length > 0;
+                this.clearInput.classList.toggle('show', hasText);
+            }
+
+            clearUserInput() {
+                this.userInput.value = '';
+                this.userInput.style.height = 'auto';
+                this.updateClearButton();
+                this.userInput.focus();
             }
 
             updateNavigationButtons() {
@@ -1546,6 +1616,7 @@
                 
                 this.isProcessing = true;
                 this.sendButton.disabled = true;
+                this.userInput.disabled = true;
                 
                 try {
                     if (!this.introCompleted) {
@@ -1560,8 +1631,8 @@
                         this.addUserMessage(message);
                     }
                     
-                    this.userInput.value = '';
-                    this.userInput.style.height = 'auto';
+                    // Очищаем поле ввода сразу после отправки
+                    this.clearUserInput();
                     this.removeCurrentImage();
                     
                     const requestType = this.analyzeRequest(message);
@@ -1596,6 +1667,7 @@
                 } finally {
                     this.isProcessing = false;
                     this.sendButton.disabled = false;
+                    this.userInput.disabled = false;
                     setTimeout(() => {
                         this.userInput.focus();
                         this.updateNavigationButtons();
@@ -1832,7 +1904,9 @@
                     this.introCompleted = false;
                     this.isProcessing = false;
                     this.sendButton.disabled = false;
+                    this.userInput.disabled = false;
                     this.removeCurrentImage();
+                    this.clearUserInput();
                     
                     // Отмена текущего стрима
                     if (this.currentStream) {
