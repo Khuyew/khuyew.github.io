@@ -3,6 +3,7 @@ class AIStreaming {
     constructor(messagesContainer) {
         this.messagesContainer = messagesContainer;
         this.currentStream = null;
+        this.streamingSpeed = 30; // Замедленная скорость печати (мс на символ)
     }
 
     // Стриминг текстового ответа
@@ -26,20 +27,24 @@ class AIStreaming {
             
             this.currentStream = response;
             let fullText = '';
+            let lastUpdateTime = 0;
+            const minUpdateInterval = 50; // Минимальный интервал между обновлениями (мс)
             
             for await (const part of response) {
                 if (part?.text) {
                     fullText += part.text;
-                    aiMessageElement.innerHTML = sanitizeHTML(fullText) + '<span class="typing-cursor"></span>';
-                    scrollToBottom(this.messagesContainer);
                     
-                    // Сохраняем прогресс в историю
-                    this.saveStreamingProgress(fullText);
+                    // Ограничиваем частоту обновлений для плавности
+                    const now = Date.now();
+                    if (now - lastUpdateTime >= minUpdateInterval) {
+                        this.updateMessageText(aiMessageElement, fullText);
+                        lastUpdateTime = now;
+                    }
                 }
             }
             
-            // Убираем курсор после завершения
-            aiMessageElement.innerHTML = sanitizeHTML(fullText);
+            // Финальное обновление
+            this.updateMessageText(aiMessageElement, fullText, false);
             aiMessageElement.classList.remove('ai-streaming');
             this.currentStream = null;
             
@@ -60,6 +65,19 @@ class AIStreaming {
         }
         
         return aiMessageElement;
+    }
+
+    // Плавное обновление текста сообщения
+    updateMessageText(element, text, isStreaming = true) {
+        if (isStreaming) {
+            element.innerHTML = sanitizeHTML(text) + '<span class="typing-cursor"></span>';
+        } else {
+            element.innerHTML = sanitizeHTML(text);
+        }
+        scrollToBottom(this.messagesContainer);
+        
+        // Сохраняем прогресс в историю
+        this.saveStreamingProgress(text);
     }
 
     // Сохранение прогресса стриминга
