@@ -19,11 +19,19 @@ class KhuyewAI {
             return;
         }
 
+        // Настройка Markdown
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            langPrefix: 'language-'
+        });
+
         this.aiStreaming = new AIStreaming(this.messagesContainer);
         this.voiceRecognition = new VoiceRecognition();
         
         this.loadChatHistory();
         initTheme();
+        initImageModal();
         this.setupEventListeners();
         
         // Фокус на поле ввода
@@ -96,7 +104,10 @@ class KhuyewAI {
         }
 
         // Основные обработчики
-        this.sendButton.addEventListener('click', () => this.sendMessage());
+        this.sendButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.sendMessage();
+        });
         
         this.userInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -109,11 +120,17 @@ class KhuyewAI {
         this.messagesContainer.addEventListener('click', () => {
             this.userInput.focus();
         });
+
+        // Предотвращение всплытия для всех action buttons
+        document.querySelectorAll('.action-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
     }
 
     async sendMessage() {
         if (this.isProcessing) {
-            console.log('Запрос уже обрабатывается');
             return;
         }
 
@@ -138,7 +155,6 @@ class KhuyewAI {
                 await this.aiStreaming.generateImage(message);
                 this.removePendingAnimation();
             } else {
-                // Текстовый запрос
                 try {
                     await this.aiStreaming.streamTextResponse(message);
                     this.removePendingAnimation();
@@ -146,21 +162,20 @@ class KhuyewAI {
                     console.error('Ошибка получения ответа:', error);
                     this.removePendingAnimation();
                     
-                    // Используем старый метод печати при ошибке стриминга
-                    const errorElement = addMessage(this.messagesContainer, 
-                        "Извините, произошла ошибка соединения. Пожалуйста, проверьте интернет и попробуйте еще раз.", 
+                    addMessage(this.messagesContainer, 
+                        "❌ Извините, произошла ошибка соединения. Пожалуйста, проверьте интернет и попробуйте еще раз.", 
                         false, true);
                 }
             }
         } catch (error) {
             console.error('Ошибка при отправке сообщения:', error);
             addMessage(this.messagesContainer, 
-                "Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз.", 
+                "❌ Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз.", 
                 false, true);
         } finally {
             this.isProcessing = false;
             this.sendButton.disabled = false;
-            this.userInput.focus();
+            setTimeout(() => this.userInput.focus(), 100);
         }
     }
 
@@ -183,47 +198,19 @@ class KhuyewAI {
         if (prompt) {
             this.sendMessage();
         } else {
-            this.userInput.placeholder = "Опишите что нарисовать...";
+            this.userInput.placeholder = "🎨 Опишите что нарисовать...";
             this.userInput.focus();
         }
-    }
-
-    // Резервный метод печати текста (используется при ошибках)
-    async typeText(element, text, speed = 20) {
-        return new Promise(resolve => {
-            let i = 0;
-            element.innerHTML = '';
-            element.classList.add('ai-streaming');
-            
-            const type = () => {
-                if (i < text.length) {
-                    const char = text.charAt(i);
-                    element.innerHTML = sanitizeHTML(text.substring(0, i + 1)) + '<span class="typing-cursor"></span>';
-                    i++;
-                    scrollToBottom(this.messagesContainer);
-                    
-                    const delay = char === '.' || char === '!' || char === '?' ? speed * 3 : speed;
-                    setTimeout(type, delay);
-                } else {
-                    element.innerHTML = sanitizeHTML(text);
-                    element.classList.remove('ai-streaming');
-                    saveChatHistory(this.messagesContainer);
-                    resolve();
-                }
-            };
-            
-            type();
-        });
     }
 
     // Введение бота
     async showIntro() {
         const introMessages = [
-            "Привет! Я Khuyew AI - полностью бесплатный ИИ-помощник.",
-            "Я умею общаться и генерировать изображения по вашему описанию!",
-            "Просто напишите что нарисовать или задайте любой вопрос.",
-            "Используйте кнопку '🎨 Сгенерировать' для быстрого создания изображений.",
-            "Я полностью бесплатный - используйте меня сколько угодно!"
+            "👋 Привет! Я **Khuyew AI** - полностью бесплатный ИИ-помощник.",
+            "✨ Я умею:\n• Отвечать на вопросы\n• Генерировать изображения\n• Поддерживать Markdown\n• Распознавать голос",
+            "💡 **Быстрый старт:**\n• Напишите вопрос\n• Или скажите `нарисуй кота`\n• Используйте кнопки для быстрых действий",
+            "🎯 **Особенности:**\n• 🤖 Умный AI\n• 🎨 Генерация картинок\n• 🎤 Голосовой ввод\n• 📝 Markdown поддержка\n• 💾 Экспорт чатов",
+            "🚀 **Начните общение прямо сейчас!**\nЯ полностью бесплатен и готов помочь!"
         ];
         
         for (const message of introMessages) {
@@ -234,7 +221,7 @@ class KhuyewAI {
             this.messagesContainer.appendChild(messageElement);
             
             await this.typeText(messageElement, message);
-            await new Promise(resolve => setTimeout(resolve, 800));
+            await new Promise(resolve => setTimeout(resolve, 1200));
         }
         
         if (!this.introCompleted) {
@@ -242,10 +229,38 @@ class KhuyewAI {
         }
     }
 
+    // Резервный метод печати текста
+    async typeText(element, text, speed = 40) {
+        return new Promise(resolve => {
+            let i = 0;
+            element.innerHTML = '';
+            element.classList.add('ai-streaming');
+            
+            const type = () => {
+                if (i < text.length) {
+                    const char = text.charAt(i);
+                    element.innerHTML = marked.parse(text.substring(0, i + 1)) + '<span class="typing-cursor"></span>';
+                    i++;
+                    scrollToBottom(this.messagesContainer);
+                    
+                    const delay = char === '.' || char === '!' || char === '?' ? speed * 3 : speed;
+                    setTimeout(type, delay);
+                } else {
+                    element.innerHTML = marked.parse(text);
+                    element.classList.remove('ai-streaming');
+                    saveChatHistory(this.messagesContainer);
+                    resolve();
+                }
+            };
+            
+            type();
+        });
+    }
+
     createSkipButton() {
         const skipButton = document.createElement('div');
         skipButton.classList.add('skip-intro');
-        skipButton.textContent = 'Пропустить введение';
+        skipButton.textContent = '⏩ Пропустить введение';
         skipButton.addEventListener('click', () => this.skipIntro());
         this.messagesContainer.appendChild(skipButton);
         scrollToBottom(this.messagesContainer);
@@ -255,7 +270,7 @@ class KhuyewAI {
         this.introCompleted = true;
         document.querySelector('.skip-intro')?.remove();
         addMessage(this.messagesContainer, 
-            'Отлично! Теперь вы можете задавать вопросы или генерировать изображения. Я готов помочь!', false);
+            '🎉 Отлично! Теперь вы можете задавать вопросы или генерировать изображения. Я готов помочь!', false);
     }
 
     loadChatHistory() {
@@ -266,17 +281,41 @@ class KhuyewAI {
     }
 
     showHelp() {
-        const helpMessage = "🎯 **Как использовать:**\n\n• **Общение**: просто напишите вопрос\n• **Генерация изображений**: 'нарисуй кота', 'сгенерируй пейзаж'\n• **Голосовой ввод**: нажмите '🎤 Голос' и говорите\n• **Быстрая генерация**: используйте кнопку '🎨 Сгенерировать'";
+        const helpMessage = `## 🎯 **Как использовать Khuyew AI**
+
+### 💬 **Основные функции:**
+• **Общение** - просто напишите вопрос
+• **Изображения** - "нарисуй кота", "сгенерируй пейзаж"
+• **Голосовой ввод** - нажмите 🎤 и говорите
+• **Markdown** - поддерживается форматирование
+
+### 🎨 **Генерация изображений:**
+\`\`\`
+нарисуй космонавта в стиле пиксель-арт
+сгенерируй фэнтезийный замок
+создай абстрактное искусство
+\`\`\`
+
+### ⌨️ **Горячие клавиши:**
+• **Enter** - отправить сообщение
+• **Shift + Enter** - новая строка
+• **ESC** - закрыть модальное окно
+
+### 💾 **Управление чатом:**
+• **Экспорт** - сохранить историю в файл
+• **Очистка** - начать новый чат
+• **Тема** - переключить светлую/тёмную`;
+
         addMessage(this.messagesContainer, helpMessage, false);
     }
 
     exportChat() {
         exportChat(this.messagesContainer);
-        addMessage(this.messagesContainer, 'Чат экспортирован в файл!', false);
+        addMessage(this.messagesContainer, '💾 Чат успешно экспортирован в файл!', false);
     }
 
     clearChat() {
-        if (confirm('Очистить всю историю чата?')) {
+        if (confirm('🧹 Очистить всю историю чата?')) {
             this.messagesContainer.innerHTML = '';
             this.lastUserMessage = null;
             this.introCompleted = false;
@@ -289,7 +328,25 @@ class KhuyewAI {
     }
 
     showPrivacyInfo() {
-        const privacyMessage = "🔒 **Конфиденциальность:**\n\n• Все данные хранятся локально в вашем браузере\n• История чата не передается третьим лицам\n• Для полной очистки используйте кнопку '🗑️ Очистить'";
+        const privacyMessage = `## 🔒 **Конфиденциальность и безопасность**
+
+### 📍 **Локальное хранение:**
+• Все данные хранятся **только в вашем браузере**
+• История чата **не передаётся** на сервер
+• Изображения генерируются через безопасное API
+
+### 🗑️ **Управление данными:**
+• Для полной очистки используйте кнопку **"🗑️ Очистить"**
+• История автоматически сохраняется локально
+• Максимум **100 сообщений** в истории
+
+### 🌐 **Доступ в интернет:**
+• Требуется только для работы AI и генерации изображений
+• Все запросы защищены HTTPS
+• Никакие личные данные не собираются
+
+### ✅ **Безопасность гарантирована!**`;
+
         addMessage(this.messagesContainer, privacyMessage, false);
     }
 }
