@@ -662,6 +662,28 @@
             opacity: 0.8;
         }
 
+        /* Белорусский флаг */
+        .belarus-flag {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .belarus-flag::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 6px;
+            background: linear-gradient(
+                to bottom,
+                #c8313e 0% 33%,
+                #0a6b3c 33% 66%,
+                #ffffff 66% 100%
+            );
+            border-radius: 1px;
+            border: 0.5px solid rgba(255,255,255,0.3);
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -920,6 +942,10 @@
             background: rgba(0, 153, 255, 0.05);
             border-left-color: #0099ff;
         }
+
+        body.light-theme .belarus-flag::before {
+            border-color: rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -976,7 +1002,7 @@
         
         <div class="footer">
             <div class="footer-content">
-                <span><i class="ti ti-flag footer-icon"></i> Сделано в Беларуси</span>
+                <span class="belarus-flag">Сделано в Беларуси</span>
                 <span class="footer-separator">•</span>
                 <span>Для нового чата нажмите на "Khuyew AI"</span>
                 <span class="footer-separator">•</span>
