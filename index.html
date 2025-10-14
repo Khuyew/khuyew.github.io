@@ -30,35 +30,30 @@
         
         /* Header */
         .header {
-            padding: 20px;
+            padding: 15px 20px;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        .header:hover {
             background: rgba(255, 255, 255, 0.05);
         }
         
         .logo {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
             background: linear-gradient(135deg, #00d4ff, #0099ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
         }
         
         .subtitle {
-            font-size: 14px;
+            font-size: 12px;
             color: #a0a0c0;
             opacity: 0.8;
+            margin-top: 2px;
         }
         
         .github-link {
             position: absolute;
-            top: 20px;
+            top: 15px;
             right: 20px;
             color: #a0a0c0;
             text-decoration: none;
@@ -68,6 +63,33 @@
         
         .github-link:hover {
             color: #0099ff;
+        }
+        
+        /* Tabs */
+        .tabs-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0 10px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #a0a0c0;
+        }
+        
+        .tab.active {
+            color: #0099ff;
+            border-bottom-color: #0099ff;
+            background: rgba(0, 153, 255, 0.1);
+        }
+        
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
         
         /* Chat */
@@ -107,43 +129,50 @@
             background: linear-gradient(135deg, #0099ff, #0066ff);
             color: white;
             position: relative;
+            border: 3px solid transparent;
         }
         
-        /* Анимированная градиентная рамка для сообщения пользователя */
+        /* Улучшенная анимированная градиентная рамка */
         .user-message.pending::before {
             content: '';
             position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #20b2aa, #ff0080);
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #20b2aa, #ff0080, #ff8c00);
             background-size: 400% 400%;
-            border-radius: 22px;
+            border-radius: 24px;
             z-index: -1;
-            animation: gradientBorder 3s ease infinite;
-            filter: blur(1px);
+            animation: gradientBorder 2s linear infinite;
+            filter: blur(2px);
         }
         
         @keyframes gradientBorder {
-            0%, 100% {
+            0% {
                 background-position: 0% 50%;
+                transform: scale(1);
             }
             50% {
                 background-position: 100% 50%;
+                transform: scale(1.02);
+            }
+            100% {
+                background-position: 0% 50%;
+                transform: scale(1);
             }
         }
         
         .user-message.pending {
-            animation: pulseGlow 2s ease-in-out infinite alternate;
+            animation: pulseGlow 1.5s ease-in-out infinite alternate;
         }
         
         @keyframes pulseGlow {
             from {
-                box-shadow: 0 0 10px rgba(0, 102, 255, 0.3);
+                box-shadow: 0 0 15px rgba(0, 102, 255, 0.4);
             }
             to {
-                box-shadow: 0 0 20px rgba(0, 102, 255, 0.6);
+                box-shadow: 0 0 25px rgba(0, 102, 255, 0.8);
             }
         }
         
@@ -193,10 +222,10 @@
             background: rgba(255, 255, 255, 0.05);
             color: #a0a0c0;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             margin-top: 10px;
             transition: all 0.3s;
         }
@@ -217,7 +246,7 @@
         .input-wrapper {
             display: flex;
             gap: 10px;
-            align-items: center;
+            align-items: flex-end;
         }
         
         #user-input {
@@ -230,6 +259,9 @@
             font-size: 16px;
             outline: none;
             transition: all 0.3s;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
         }
         
         #user-input::placeholder {
@@ -253,6 +285,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            flex-shrink: 0;
         }
         
         #send-button:hover {
@@ -267,7 +300,7 @@
         
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-top: 10px;
             justify-content: center;
             flex-wrap: wrap;
@@ -277,10 +310,10 @@
             background: rgba(255, 255, 255, 0.1);
             color: #a0a0c0;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 15px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             transition: all 0.3s;
         }
         
@@ -304,6 +337,25 @@
             width: 100%;
             height: 100%;
             cursor: pointer;
+        }
+        
+        .upload-description {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 40px;
+            max-height: 80px;
+            display: none;
+        }
+        
+        .upload-description::placeholder {
+            color: #8888aa;
         }
         
         .typing-indicator {
@@ -342,10 +394,11 @@
         /* Footer */
         .footer {
             text-align: center;
-            padding: 15px;
+            padding: 10px;
             color: #666699;
-            font-size: 12px;
+            font-size: 11px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
         }
         
         /* Responsive */
@@ -359,7 +412,7 @@
             }
             
             .header {
-                padding: 15px;
+                padding: 10px 15px;
             }
             
             .messages-container {
@@ -368,6 +421,15 @@
             
             .input-container {
                 padding: 15px;
+            }
+            
+            .tabs-container {
+                padding: 0 5px;
+            }
+            
+            .tab {
+                padding: 8px 12px;
+                font-size: 12px;
             }
         }
         
@@ -419,7 +481,7 @@
             color: white;
         }
         
-        /* Стиль для постепенной печати ИИ */
+        /* Стиль для live typing ИИ */
         .ai-streaming {
             position: relative;
         }
@@ -431,50 +493,116 @@
             font-weight: bold;
             margin-left: 2px;
         }
+        
+        .chat-tab {
+            display: none;
+        }
+        
+        .chat-tab.active {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="https://github.com/Khuyew" class="github-link" target="_blank">@Khuyew</a>
         
-        <div class="header" id="header">
+        <div class="header">
             <div class="logo">Khuyew AI</div>
             <div class="subtitle">Бесплатный ИИ-помощник с генерацией и редактированием изображений</div>
         </div>
         
+        <div class="tabs-container">
+            <div class="tab active" data-tab="main">💬 Основной чат</div>
+            <div class="tab" data-tab="images">🖼️ Работа с изображениями</div>
+            <div class="tab" data-tab="help">❓ Помощь</div>
+        </div>
+        
         <div class="chat-container">
-            <div class="messages-container" id="messagesContainer">
-                <!-- Сообщения будут добавляться здесь -->
-            </div>
-            
-            <div class="typing-indicator" id="typingIndicator">
-                ИИ печатает<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>
-            </div>
-            
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <input type="text" id="user-input" placeholder="Задайте вопрос или опишите изображение..." autocomplete="off">
-                    <button id="send-button">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                        </svg>
-                    </button>
+            <!-- Основной чат -->
+            <div class="chat-tab active" id="main-tab">
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Сообщения будут добавляться здесь -->
                 </div>
-                <div class="action-buttons">
-                    <div class="file-input-wrapper">
-                        <button class="action-button">
-                            📁 Загрузить фото
+                
+                <div class="typing-indicator" id="typingIndicator">
+                    ИИ печатает<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>
+                </div>
+                
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea id="user-input" placeholder="Задайте вопрос..." autocomplete="off"></textarea>
+                        <button id="send-button">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                            </svg>
                         </button>
-                        <input type="file" id="file-input" accept="image/*" capture="environment">
                     </div>
-                    <button class="action-button" onclick="showImageHelp()">❓ Помощь</button>
-                    <button class="action-button" onclick="clearChat()">🗑️ Очистить чат</button>
+                </div>
+            </div>
+            
+            <!-- Работа с изображениями -->
+            <div class="chat-tab" id="images-tab">
+                <div class="messages-container" id="imagesContainer">
+                    <div class="message ai-message">
+                        <strong>🖼️ Работа с изображениями</strong><br><br>
+                        • Загрузите фото и добавьте описание для редактирования<br>
+                        • Или создайте новое изображение с нуля<br>
+                        • Используйте поле ниже для описания
+                    </div>
+                </div>
+                
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea id="image-input" placeholder="Опишите что нужно сделать с изображением..." autocomplete="off"></textarea>
+                        <button id="image-send-button">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="action-buttons">
+                        <div class="file-input-wrapper">
+                            <button class="action-button" id="upload-trigger">
+                                📁 Загрузить фото
+                            </button>
+                            <input type="file" id="file-input" accept="image/*">
+                        </div>
+                        <button class="action-button" onclick="generateExample()">🎨 Пример генерации</button>
+                    </div>
+                    <textarea class="upload-description" id="upload-description" placeholder="Добавьте описание к загружаемому фото (что нужно сделать с изображением)..."></textarea>
+                </div>
+            </div>
+            
+            <!-- Помощь -->
+            <div class="chat-tab" id="help-tab">
+                <div class="messages-container">
+                    <div class="message ai-message">
+                        <strong>📖 Справка по использованию</strong><br><br>
+                        <strong>💬 Основной чат:</strong><br>
+                        • Задавайте любые вопросы<br>
+                        • Получайте текстовые ответы<br>
+                        • Поддержка длинных диалогов<br><br>
+                        
+                        <strong>🖼️ Работа с изображениями:</strong><br>
+                        • Загружайте фото для редактирования<br>
+                        • Добавляйте описание изменений<br>
+                        • Создавайте новые изображения<br>
+                        • Используйте примеры для вдохновения<br><br>
+                        
+                        <strong>⚡ Быстрые команды:</strong><br>
+                        • "нарисуй..." - создать изображение<br>
+                        • "измени..." - редактировать загруженное<br>
+                        • "сгенерируй..." - создать с нуля
+                    </div>
                 </div>
             </div>
         </div>
         
         <div class="footer">
-            Сделано в Беларуси • Для нового чата нажмите на "Khuyew AI"
+            Сделано в Беларуси • Переключайтесь между вкладками для разных функций
         </div>
     </div>
 
@@ -482,37 +610,64 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const messagesContainer = document.getElementById('messagesContainer');
+            const imagesContainer = document.getElementById('imagesContainer');
             const userInput = document.getElementById('user-input');
+            const imageInput = document.getElementById('image-input');
             const sendButton = document.getElementById('send-button');
+            const imageSendButton = document.getElementById('image-send-button');
             const typingIndicator = document.getElementById('typingIndicator');
             const fileInput = document.getElementById('file-input');
-            const header = document.getElementById('header');
+            const uploadDescription = document.getElementById('upload-description');
+            const uploadTrigger = document.getElementById('upload-trigger');
+            const tabs = document.querySelectorAll('.tab');
+            const chatTabs = document.querySelectorAll('.chat-tab');
             
             let introCompleted = false;
             let currentImage = null;
             let lastUserMessage = null;
+            let currentTab = 'main';
             
-            // Обновление чата при клике на заголовок
-            header.addEventListener('click', function() {
-                if (confirm('Начать новый чат? Текущая история будет очищена.')) {
-                    clearChat();
-                }
+            // Переключение вкладок
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
             });
             
+            function switchTab(tabName) {
+                // Обновляем активные вкладки
+                tabs.forEach(tab => {
+                    tab.classList.toggle('active', tab.getAttribute('data-tab') === tabName);
+                });
+                
+                chatTabs.forEach(tab => {
+                    tab.classList.toggle('active', tab.id === `${tabName}-tab`);
+                });
+                
+                currentTab = tabName;
+                
+                // Фокус на соответствующее поле ввода
+                if (tabName === 'main') {
+                    userInput.focus();
+                } else if (tabName === 'images') {
+                    imageInput.focus();
+                }
+            }
+            
             // Функция для добавления сообщения
-            function addMessage(text, isUser = false, isUpload = false) {
+            function addMessage(text, isUser = false, isUpload = false, container = messagesContainer) {
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isUser ? (isUpload ? 'upload-message' : 'user-message') : 'ai-message');
                 messageElement.textContent = text;
                 
-                if (isUser && !isUpload) {
-                    // Добавляем анимированную рамку для нового сообщения пользователя
+                if (isUser && !isUpload && container === messagesContainer) {
                     messageElement.classList.add('pending');
                     lastUserMessage = messageElement;
                 }
                 
-                messagesContainer.appendChild(messageElement);
-                scrollToBottom();
+                container.appendChild(messageElement);
+                scrollToBottom(container);
                 return messageElement;
             }
             
@@ -525,7 +680,7 @@
             }
             
             // Функция для добавления сообщения с изображением
-            function addImageMessage(promptText, imageElement, isGenerated = true) {
+            function addImageMessage(promptText, imageElement, isGenerated = true, container = messagesContainer) {
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', 'ai-image-message');
                 
@@ -543,11 +698,11 @@
                     messageElement.appendChild(promptElement);
                 }
                 
-                messagesContainer.appendChild(messageElement);
-                scrollToBottom();
+                container.appendChild(messageElement);
+                scrollToBottom(container);
             }
             
-            // Функция для постепенной печати (как в DeepSeek)
+            // Функция для live typing (как в DeepSeek)
             function typeText(element, text, speed = 20) {
                 return new Promise(resolve => {
                     let i = 0;
@@ -556,14 +711,13 @@
                     
                     function type() {
                         if (i < text.length) {
-                            // Добавляем по одному символу
                             const char = text.charAt(i);
                             element.innerHTML = text.substring(0, i + 1) + '<span class="typing-cursor"></span>';
                             i++;
-                            scrollToBottom();
+                            scrollToBottom(element.parentElement);
                             
-                            // Случайная небольшая задержка для естественности
-                            const delay = char === '.' || char === '!' || char === '?' ? speed * 3 : speed;
+                            const delay = /[.!?]/.test(char) ? speed * 4 : 
+                                         /[,;:]/.test(char) ? speed * 2 : speed;
                             setTimeout(type, delay);
                         } else {
                             element.innerHTML = text;
@@ -576,161 +730,134 @@
             }
             
             // Прокрутка вниз
-            function scrollToBottom() {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            function scrollToBottom(container) {
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
             }
             
             // Пропуск введения
             function skipIntro() {
                 introCompleted = true;
                 document.querySelector('.skip-intro')?.remove();
-                addMessage('Отлично! Теперь вы можете задавать любые вопросы, генерировать изображения или загружать фото для редактирования. Я готов помочь!', false);
+                addMessage('Готов к работе! Задавайте вопросы или перейдите во вкладку изображений.', false);
             }
             
             // Создание кнопки пропуска
             function createSkipButton() {
                 const skipButton = document.createElement('div');
                 skipButton.classList.add('skip-intro');
-                skipButton.textContent = 'Пропустить введение и начать общение';
+                skipButton.textContent = 'Начать общение';
                 skipButton.addEventListener('click', skipIntro);
                 messagesContainer.appendChild(skipButton);
-                scrollToBottom();
+                scrollToBottom(messagesContainer);
             }
             
             // Генерация изображения
-            async function generateImage(prompt) {
+            async function generateImage(prompt, container = messagesContainer) {
                 try {
-                    // Показываем индикатор загрузки
                     const loadingElement = document.createElement('div');
                     loadingElement.classList.add('message', 'ai-message');
                     loadingElement.innerHTML = '<span class="image-loading"></span>Генерирую изображение...';
-                    messagesContainer.appendChild(loadingElement);
-                    scrollToBottom();
+                    container.appendChild(loadingElement);
+                    scrollToBottom(container);
                     
-                    // Генерируем изображение (testMode: true для тестирования без использования кредитов)
                     const image = await puter.ai.txt2img(prompt, { testMode: true });
                     
-                    // Удаляем индикатор загрузки
                     loadingElement.remove();
-                    
-                    // Добавляем изображение в чат
-                    addImageMessage(prompt, image, true);
+                    addImageMessage(prompt, image, true, container);
                     
                 } catch (error) {
                     console.error('Ошибка генерации изображения:', error);
-                    
-                    // Удаляем индикатор загрузки
-                    const loadingElements = document.querySelectorAll('.image-loading');
+                    const loadingElements = container.querySelectorAll('.image-loading');
                     loadingElements.forEach(el => el.closest('.message').remove());
-                    
-                    // Показываем сообщение об ошибке
-                    addMessage('Извините, произошла ошибка при генерации изображения. Пожалуйста, попробуйте другой запрос.', false);
+                    addMessage('Ошибка генерации. Попробуйте другой запрос.', false, false, container);
                 }
             }
             
-            // Обработка загрузки файла
-            fileInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        
-                        reader.onload = function(e) {
-                            const img = new Image();
-                            img.src = e.target.result;
-                            
-                            img.onload = function() {
-                                // Сохраняем текущее изображение для возможного редактирования
-                                currentImage = img;
-                                
-                                // Добавляем сообщение о загрузке
-                                addMessage(`📁 Загружено изображение: ${file.name}`, true, true);
-                                
-                                // Показываем загруженное изображение
-                                const displayImg = img.cloneNode();
-                                addImageMessage(file.name, displayImg, false);
-                                
-                                // Предлагаем варианты редактирования
-                                setTimeout(() => {
-                                    addMessage('Теперь вы можете описать какие изменения хотите внести в это изображение. Например: "добавь солнечные очки" или "сделай фон космическим".', false);
-                                }, 1000);
-                            };
-                        };
-                        
-                        reader.readAsDataURL(file);
-                    } else {
-                        addMessage('Пожалуйста, загрузите файл изображения (JPEG, PNG, etc.)', false);
-                    }
-                    
-                    // Сбрасываем input
-                    fileInput.value = '';
-                }
+            // Обработка загрузки файла с описанием
+            uploadTrigger.addEventListener('click', function() {
+                uploadDescription.style.display = 'block';
+                fileInput.click();
             });
             
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.src = e.target.result;
+                        
+                        img.onload = function() {
+                            currentImage = img;
+                            const description = uploadDescription.value.trim();
+                            
+                            addMessage(`📁 Загружено изображение: ${file.name}${description ? `\nОписание: ${description}` : ''}`, true, true, imagesContainer);
+                            
+                            const displayImg = img.cloneNode();
+                            addImageMessage(file.name, displayImg, false, imagesContainer);
+                            
+                            // Если есть описание, обрабатываем его как запрос на редактирование
+                            if (description) {
+                                setTimeout(() => {
+                                    processImageRequest(description, imagesContainer);
+                                }, 500);
+                            }
+                            
+                            // Сбрасываем форму
+                            uploadDescription.value = '';
+                            uploadDescription.style.display = 'none';
+                        };
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+                fileInput.value = '';
+            });
+            
+            // Обработка запросов для изображений
+            async function processImageRequest(message, container) {
+                addMessage(message, true, false, container);
+                
+                if (currentImage) {
+                    // Редактирование существующего изображения
+                    await editImage(message, currentImage, container);
+                } else {
+                    // Генерация нового изображения
+                    await generateImage(message, container);
+                }
+            }
+            
             // Редактирование изображения
-            async function editImage(prompt, originalImage) {
+            async function editImage(prompt, originalImage, container) {
                 try {
-                    // Показываем индикатор загрузки
                     const loadingElement = document.createElement('div');
                     loadingElement.classList.add('message', 'ai-message');
                     loadingElement.innerHTML = '<span class="image-loading"></span>Редактирую изображение...';
-                    messagesContainer.appendChild(loadingElement);
-                    scrollToBottom();
+                    container.appendChild(loadingElement);
+                    scrollToBottom(container);
                     
-                    // Здесь будет код для редактирования изображения через Puter API
-                    // Временно используем генерацию нового изображения как заглушку
                     const modifiedPrompt = `Модифицированная версия: ${prompt}`;
                     const image = await puter.ai.txt2img(modifiedPrompt, { testMode: true });
                     
-                    // Удаляем индикатор загрузки
                     loadingElement.remove();
-                    
-                    // Добавляем отредактированное изображение в чат
-                    addImageMessage(prompt, image, true);
+                    addImageMessage(prompt, image, true, container);
                     
                 } catch (error) {
-                    console.error('Ошибка редактирования изображения:', error);
-                    
-                    // Удаляем индикатор загрузки
-                    const loadingElements = document.querySelectorAll('.image-loading');
+                    console.error('Ошибка редактирования:', error);
+                    const loadingElements = container.querySelectorAll('.image-loading');
                     loadingElements.forEach(el => el.closest('.message').remove());
-                    
-                    // Показываем сообщение об ошибке
-                    addMessage('Извините, произошла ошибка при редактировании изображения. Пожалуйста, попробуйте другой запрос.', false);
+                    addMessage('Ошибка редактирования. Попробуйте другой запрос.', false, false, container);
                 }
             }
             
-            // Анализ запроса и определение типа (текст, генерация или редактирование)
-            function analyzeRequest(message) {
-                const imageKeywords = [
-                    'нарисуй', 'сгенерируй', 'изображение', 'картинку', 'фото', 'иллюстрацию',
-                    'draw', 'generate', 'image', 'picture', 'photo', 'illustration',
-                    'создай', 'покажи', 'визуализируй', 'арт'
-                ];
-                
-                const editKeywords = [
-                    'измени', 'добавь', 'убери', 'переделай', 'сделай', 'исправь',
-                    'change', 'add', 'remove', 'modify', 'edit', 'fix',
-                    'отредактируй', 'преобразуй', 'трансформируй'
-                ];
-                
-                const lowerMessage = message.toLowerCase();
-                
-                if (currentImage && editKeywords.some(keyword => lowerMessage.includes(keyword))) {
-                    return 'edit';
-                } else if (imageKeywords.some(keyword => lowerMessage.includes(keyword))) {
-                    return 'generate';
-                } else {
-                    return 'text';
-                }
-            }
-            
-            // Отправка сообщения
+            // Отправка сообщения в основном чате
             async function sendMessage() {
                 const message = userInput.value.trim();
                 if (message === '') return;
                 
-                // Убираем кнопку пропуска при первом сообщении пользователя
                 if (!introCompleted) {
                     introCompleted = true;
                     document.querySelector('.skip-intro')?.remove();
@@ -738,27 +865,10 @@
                 
                 addMessage(message, true);
                 userInput.value = '';
+                userInput.style.height = 'auto';
                 
-                // Проверяем тип запроса
-                const requestType = analyzeRequest(message);
-                
-                if (requestType === 'generate') {
-                    await generateImage(message);
-                    removePendingAnimation();
-                    return;
-                } else if (requestType === 'edit' && currentImage) {
-                    await editImage(message, currentImage);
-                    removePendingAnimation();
-                    return;
-                } else if (requestType === 'edit' && !currentImage) {
-                    addMessage('Сначала загрузите изображение для редактирования, используя кнопку "📁 Загрузить фото".', false);
-                    removePendingAnimation();
-                    return;
-                }
-                
-                // Обычный текстовый запрос
                 typingIndicator.style.display = 'block';
-                scrollToBottom();
+                scrollToBottom(messagesContainer);
                 
                 try {
                     const response = await puter.ai.chat(message, { model: "gpt-5-nano" });
@@ -768,10 +878,7 @@
                     aiMessageElement.classList.add('message', 'ai-message');
                     messagesContainer.appendChild(aiMessageElement);
                     
-                    // Убираем анимацию с сообщения пользователя когда ИИ начинает отвечать
                     removePendingAnimation();
-                    
-                    // Постепенно печатаем ответ как в DeepSeek
                     await typeText(aiMessageElement, response);
                     
                 } catch (error) {
@@ -786,14 +893,22 @@
                 }
             }
             
-            // Введение бота
+            // Отправка сообщения для изображений
+            async function sendImageMessage() {
+                const message = imageInput.value.trim();
+                if (message === '') return;
+                
+                imageInput.value = '';
+                imageInput.style.height = 'auto';
+                await processImageRequest(message, imagesContainer);
+            }
+            
+            // Компактное введение
             async function showIntro() {
                 const introMessages = [
-                    "Привет! Я Khuyew AI - полностью бесплатный ИИ-помощник.",
-                    "Теперь я умею: общаться, генерировать изображения и редактировать ваши фото!",
-                    "Загрузите фото через кнопку '📁 Загрузить фото', затем опишите какие изменения хотите.",
-                    "Или просто опишите что нарисовать - я создам это с нуля.",
-                    "Я полностью бесплатный и безлимитный - используйте меня сколько угодно!"
+                    "Привет! Я Khuyew AI - бесплатный ИИ-помощник.",
+                    "Используйте вкладки для разных задач: общение, изображения, справка.",
+                    "Готов помочь с любыми вопросами и творческими задачами!"
                 ];
                 
                 for (const message of introMessages) {
@@ -804,29 +919,25 @@
                     messagesContainer.appendChild(messageElement);
                     
                     await typeText(messageElement, message);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    await new Promise(resolve => setTimeout(resolve, 800));
                 }
                 
                 if (!introCompleted) {
-                    const finalMessage = document.createElement('div');
-                    finalMessage.classList.add('message', 'ai-message');
-                    messagesContainer.appendChild(finalMessage);
-                    
-                    await typeText(finalMessage, "Теперь можете общаться, создавать или редактировать изображения! Для нового чата нажмите на 'Khuyew AI' выше.");
-                    
                     createSkipButton();
                 }
             }
             
-            // Глобальные функции для кнопок
-            window.showImageHelp = function() {
-                const helpMessage = "📸 **Как использовать:**\n\n• **Генерация**: 'нарисуй кота', 'сгенерируй пейзаж'\n• **Редактирование**: сначала загрузите фото, затем 'добавь шляпу', 'измени фон'\n• **Загрузка**: используйте кнопку '📁 Загрузить фото' для своих изображений";
-                addMessage(helpMessage, false);
+            // Глобальные функции
+            window.generateExample = function() {
+                const prompt = "Милый кот в космосе, цифровое искусство";
+                addMessage(`🎨 Пример: "${prompt}"`, true, false, imagesContainer);
+                generateImage(prompt, imagesContainer);
             };
             
             window.clearChat = function() {
-                if (confirm('Очистить всю историю чата?')) {
+                if (confirm('Очистить чат?')) {
                     messagesContainer.innerHTML = '';
+                    imagesContainer.innerHTML = '<div class="message ai-message"><strong>🖼️ Работа с изображениями</strong><br><br>• Загрузите фото и добавьте описание для редактирования<br>• Или создайте новое изображение с нуля<br>• Используйте поле ниже для описания</div>';
                     currentImage = null;
                     lastUserMessage = null;
                     introCompleted = false;
@@ -836,15 +947,29 @@
             
             // Обработчики событий
             sendButton.addEventListener('click', sendMessage);
+            imageSendButton.addEventListener('click', sendImageMessage);
             
             userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
                     sendMessage();
                 }
             });
             
-            // Фокус на поле ввода
-            userInput.focus();
+            imageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendImageMessage();
+                }
+            });
+            
+            // Автоматическое изменение высоты textarea
+            [userInput, imageInput, uploadDescription].forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+            });
             
             // Запуск введения
             setTimeout(showIntro, 500);
