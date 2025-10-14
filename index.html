@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khuyew AI</title>
+    <title>Khuyew AI - Бесплатный ИИ-помощник | GPT-5 nano | Мультиязычный чат</title>
+    <meta name="description" content="Khuyew AI - полностью бесплатный ИИ-помощник на основе GPT-5 nano. Безлимитное использование навсегда. Поддержка русского, английского, украинского, белорусского и китайского языков.">
+    <meta name="keywords" content="Khuyew AI, ИИ чат, GPT-5 nano, бесплатный ИИ, искусственный интеллект, AI помощник, мультиязычный чат">
+    <meta name="author" content="Khuyew AI">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Khuyew AI - Бесплатный ИИ-помощник">
+    <meta property="og:description" content="Полностью бесплатный ИИ-помощник на основе GPT-5 nano. Безлимитное использование навсегда.">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Khuyew AI - Бесплатный ИИ-помощник">
+    <meta name="twitter:description" content="Полностью бесплатный ИИ-помощник на основе GPT-5 nano">
+    
     <style>
         * {
             margin: 0;
@@ -12,336 +26,348 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
-        body {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            color: #ffffff;
+        :root {
+            --primary: #0066ff;
+            --primary-dark: #0052cc;
+            --bg-dark: #0f0f23;
+            --bg-card: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --border: rgba(255, 255, 255, 0.1);
         }
         
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
         .header {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         
         .logo {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            background: linear-gradient(135deg, #00d4ff, var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
         }
         
-        .subtitle {
-            font-size: 14px;
-            color: #a0a0c0;
-            opacity: 0.8;
-        }
-        
-        .api-info {
-            font-size: 12px;
-            color: #8888aa;
-            margin-top: 4px;
-        }
-        
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 1000px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 0;
-            height: calc(100vh - 120px);
-        }
-        
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .message {
-            max-width: 70%;
-            padding: 20px 24px;
-            border-radius: 24px;
-            line-height: 1.5;
-            word-wrap: break-word;
-            animation: fadeIn 0.4s ease;
+        .language-selector {
             position: relative;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .user-message {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #0099ff, #0066ff);
-            color: white;
-            border-bottom-right-radius: 8px;
-            box-shadow: 0 8px 25px rgba(0, 102, 255, 0.3);
-        }
-        
-        .ai-message {
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            color: #e0e0ff;
-            border-bottom-left-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
-        
-        .message-sender {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            opacity: 0.7;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .input-container {
-            display: flex;
-            padding: 25px 30px;
-            gap: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        #user-input {
-            flex: 1;
-            padding: 18px 24px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 25px;
-            outline: none;
-            font-size: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            transition: all 0.3s;
-        }
-        
-        #user-input::placeholder {
-            color: #8888aa;
-        }
-        
-        #user-input:focus {
-            border-color: #0099ff;
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.2);
-        }
-        
-        #send-button {
-            background: linear-gradient(135deg, #0099ff, #0066ff);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            padding: 18px 30px;
+        .language-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-weight: 600;
-            min-width: 100px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.3);
         }
         
-        #send-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.4);
+        .language-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
         
-        #send-button:active {
-            transform: translateY(0);
-        }
-        
-        .typing-indicator {
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px;
+            margin-top: 5px;
+            min-width: 150px;
             display: none;
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(20px);
-            color: #a0a0c0;
-            padding: 20px 24px;
-            border-radius: 24px;
-            border-bottom-left-radius: 8px;
-            font-style: italic;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .typing-dots span {
-            animation: typing 1.4s infinite;
-            opacity: 0;
+        .language-dropdown.show {
+            display: block;
         }
         
-        .typing-dots span:nth-child(2) {
-            animation-delay: 0.2s;
+        .language-option {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
         }
         
-        .typing-dots span:nth-child(3) {
-            animation-delay: 0.4s;
+        .language-option:hover {
+            background: var(--bg-card);
         }
         
-        @keyframes typing {
-            0%, 60%, 100% {
-                opacity: 0;
-            }
-            30% {
-                opacity: 1;
-            }
-        }
-        
-        .welcome-message {
+        /* Hero Section */
+        .hero {
             text-align: center;
-            padding: 50px 30px;
-            color: #a0a0c0;
+            padding: 60px 0 40px;
         }
         
-        .welcome-title {
-            font-size: 32px;
-            margin-bottom: 16px;
+        .hero-title {
+            font-size: 3rem;
             font-weight: 700;
+            margin-bottom: 20px;
             background: linear-gradient(135deg, #ffffff, #a0a0c0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
-        .welcome-text {
-            font-size: 18px;
-            opacity: 0.8;
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
             max-width: 600px;
-            margin: 0 auto 40px;
+            margin: 0 auto 30px;
             line-height: 1.6;
         }
         
-        .features {
+        .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin-top: 40px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 40px 0;
         }
         
-        .feature {
-            padding: 25px 20px;
-            background: rgba(255, 255, 255, 0.05);
+        .feature-card {
+            background: var(--bg-card);
             backdrop-filter: blur(20px);
+            padding: 30px 20px;
             border-radius: 20px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
             transition: transform 0.3s;
         }
         
-        .feature:hover {
+        .feature-card:hover {
             transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.08);
         }
         
         .feature-icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-            opacity: 0.9;
+            font-size: 40px;
+            margin-bottom: 15px;
         }
         
-        .feature div:last-child {
-            font-size: 14px;
-            color: #c0c0e0;
+        .feature-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
         }
         
-        /* Адаптивность для мобильных устройств */
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Chat Section */
+        .chat-section {
+            padding: 40px 0;
+        }
+        
+        .chat-container {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .chat-title {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .chat-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .messages-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            line-height: 1.5;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .input-container {
+            display: flex;
+            padding: 20px;
+            gap: 15px;
+            border-top: 1px solid var(--border);
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+        }
+        
+        #user-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        #user-input:focus {
+            border-color: var(--primary);
+        }
+        
+        #send-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        #send-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 15px 20px;
+            border-radius: 18px;
+            font-style: italic;
+        }
+        
+        /* Footer */
+        .footer {
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid var(--border);
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        
+        .footer-section p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .header {
-                padding: 15px;
+            .hero-title {
+                font-size: 2rem;
             }
             
-            .logo {
-                font-size: 24px;
-            }
-            
-            .message {
-                max-width: 85%;
-                padding: 16px 20px;
-            }
-            
-            .input-container {
-                padding: 20px;
-            }
-            
-            #user-input {
-                padding: 16px 20px;
-            }
-            
-            #send-button {
-                padding: 16px 20px;
-                min-width: 80px;
-            }
-            
-            .features {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .welcome-title {
-                font-size: 26px;
-            }
-            
-            .welcome-text {
-                font-size: 16px;
-            }
-        }
-        
-        @media (max-width: 480px) {
             .message {
                 max-width: 90%;
             }
             
-            .messages-container {
-                padding: 20px 15px;
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
             }
             
-            .input-container {
-                padding: 15px;
-            }
-            
-            .welcome-message {
-                padding: 30px 15px;
+            .features-grid {
+                grid-template-columns: 1fr;
             }
         }
         
-        /* Стилизация скроллбара */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        /* Эффект курсора при печати */
+        /* Typing animation */
         .typing-cursor::after {
             content: '|';
             animation: blink 1s infinite;
-            color: #0099ff;
+            color: var(--primary);
             font-weight: bold;
         }
         
@@ -352,155 +378,385 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">Khuyew AI</div>
-        <div class="subtitle">Продвинутый ИИ-помощник</div>
-        <div class="api-info">Использует Puter.js и модель GPT-5 nano</div>
-    </div>
-    
-    <div class="chat-container">
-        <div class="messages-container" id="messages-container">
-            <div class="welcome-message">
-                <div class="welcome-title">Добро пожаловать в Khuyew AI</div>
-                <div class="welcome-text">Интеллектуальный помощник нового поколения с продвинутыми возможностями обработки естественного языка</div>
-                
-                <div class="features">
-                    <div class="feature">
-                        <div class="feature-icon">🚀</div>
-                        <div>Мгновенные ответы</div>
-                    </div>
-                    <div class="feature">
-                        <div class="feature-icon">🧠</div>
-                        <div>Глубокое понимание</div>
-                    </div>
-                    <div class="feature">
-                        <div class="feature-icon">💫</div>
-                        <div>Креативные решения</div>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">Khuyew AI</div>
+                </div>
+                <div class="language-selector">
+                    <button class="language-btn" id="languageBtn">
+                        <span>🌐</span>
+                        <span id="currentLang">Русский</span>
+                        <span>▼</span>
+                    </button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <div class="language-option" data-lang="ru">Русский</div>
+                        <div class="language-option" data-lang="en">English</div>
+                        <div class="language-option" data-lang="uk">Українська</div>
+                        <div class="language-option" data-lang="be">Беларуская</div>
+                        <div class="language-option" data-lang="zh">中文</div>
                     </div>
                 </div>
             </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">Khuyew AI</h1>
+            <p class="hero-subtitle" id="heroSubtitle">
+                Полностью бесплатный ИИ-помощник на основе GPT-5 nano. 
+                Безлимитное использование навсегда. Этот ИИ самостоятельно сгенерировал свой интерфейс!
+            </p>
             
-            <div class="message ai-message">
-                <div class="message-sender">Khuyew AI</div>
-                Привет! Я ваш продвинутый ИИ-помощник, использующий модель GPT-5 nano через Puter.js. Готов помочь с любыми вопросами и задачами!
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3 class="feature-title" id="feature1Title">Бесплатно навсегда</h3>
+                    <p class="feature-description" id="feature1Desc">Никаких скрытых платежей или ограничений</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3 class="feature-title" id="feature2Title">Мультиязычный</h3>
+                    <p class="feature-description" id="feature2Desc">Поддержка 5 языков для глобальной аудитории</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title" id="feature3Title">GPT-5 nano</h3>
+                    <p class="feature-description" id="feature3Desc">Передовая модель искусственного интеллекта</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title" id="feature4Title">Мгновенные ответы</h3>
+                    <p class="feature-description" id="feature4Desc">Быстрая обработка запросов в реальном времени</p>
+                </div>
             </div>
         </div>
-        
-        <div class="typing-indicator" id="typing-indicator">
-            <div class="message-sender">Khuyew AI</div>
-            Печатает<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>
+    </section>
+
+    <!-- Chat Section -->
+    <section class="chat-section">
+        <div class="container">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2 class="chat-title" id="chatTitle">ИИ Чат-помощник</h2>
+                    <p class="chat-subtitle" id="chatSubtitle">Общайтесь с ИИ на любом языке</p>
+                </div>
+                <div class="messages-container" id="messagesContainer">
+                    <div class="message ai-message">
+                        <span id="welcomeMessage">Привет! Я Khuyew AI - полностью бесплатный ИИ-помощник, созданный с помощью передовых технологий. Чем могу помочь?</span>
+                    </div>
+                </div>
+                <div class="typing-indicator" id="typingIndicator">
+                    <span id="typingText">ИИ печатает</span><span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>
+                </div>
+                <div class="input-container">
+                    <input type="text" id="user-input" placeholder="Введите ваш вопрос..." autocomplete="off">
+                    <button id="send-button">Отправить</button>
+                </div>
+            </div>
         </div>
-        
-        <div class="input-container">
-            <input type="text" id="user-input" placeholder="Задайте любой вопрос..." autocomplete="off">
-            <button id="send-button">Отправить</button>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>О Khuyew AI</h3>
+                    <p id="aboutText">
+                        Передовой ИИ-помощник, использующий модель GPT-5 nano через Puter.js. 
+                        Полностью бесплатный и безлимитный навсегда.
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h3 id="techTitle">Технологии</h3>
+                    <p id="techText">
+                        • GPT-5 nano модель<br>
+                        • Puter.js API<br>
+                        • Мультиязычная поддержка<br>
+                        • Режим реального времени
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h3 id="uniqueTitle">Уникальность</h3>
+                    <p id="uniqueText">
+                        Этот ИИ самостоятельно сгенерировал свой интерфейс, 
+                        демонстрируя возможности современных AI-технологий.
+                    </p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 Khuyew AI. Все права защищены. Полностью бесплатный сервис.</p>
+            </div>
         </div>
-    </div>
+    </footer>
 
     <script src="https://js.puter.com/v2/"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const messagesContainer = document.getElementById('messages-container');
-            const userInput = document.getElementById('user-input');
-            const sendButton = document.getElementById('send-button');
-            const typingIndicator = document.getElementById('typing-indicator');
-            const welcomeMessage = document.querySelector('.welcome-message');
-            
-            // Функция для добавления сообщения пользователя
-            function addUserMessage(message) {
-                if (welcomeMessage.style.display !== 'none') {
-                    welcomeMessage.style.display = 'none';
-                }
-                
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', 'user-message');
-                messageElement.innerHTML = `
-                    <div class="message-sender">Вы</div>
-                    ${message}
-                `;
-                messagesContainer.appendChild(messageElement);
-                scrollToBottom();
+        // Локализация
+        const translations = {
+            ru: {
+                heroSubtitle: "Полностью бесплатный ИИ-помощник на основе GPT-5 nano. Безлимитное использование навсегда. Этот ИИ самостоятельно сгенерировал свой интерфейс!",
+                feature1Title: "Бесплатно навсегда",
+                feature1Desc: "Никаких скрытых платежей или ограничений",
+                feature2Title: "Мультиязычный",
+                feature2Desc: "Поддержка 5 языков для глобальной аудитории",
+                feature3Title: "GPT-5 nano",
+                feature3Desc: "Передовая модель искусственного интеллекта",
+                feature4Title: "Мгновенные ответы",
+                feature4Desc: "Быстрая обработка запросов в реальном времени",
+                chatTitle: "ИИ Чат-помощник",
+                chatSubtitle: "Общайтесь с ИИ на любом языке",
+                welcomeMessage: "Привет! Я Khuyew AI - полностью бесплатный ИИ-помощник, созданный с помощью передовых технологий. Чем могу помочь?",
+                typingText: "ИИ печатает",
+                inputPlaceholder: "Введите ваш вопрос...",
+                sendButton: "Отправить",
+                aboutText: "Передовой ИИ-помощник, использующий модель GPT-5 nano через Puter.js. Полностью бесплатный и безлимитный навсегда.",
+                techTitle: "Технологии",
+                techText: "• GPT-5 nano модель\n• Puter.js API\n• Мультиязычная поддержка\n• Режим реального времени",
+                uniqueTitle: "Уникальность",
+                uniqueText: "Этот ИИ самостоятельно сгенерировал свой интерфейс, демонстрируя возможности современных AI-технологий."
+            },
+            en: {
+                heroSubtitle: "Completely free AI assistant based on GPT-5 nano. Unlimited usage forever. This AI self-generated its interface!",
+                feature1Title: "Free Forever",
+                feature1Desc: "No hidden fees or limitations",
+                feature2Title: "Multilingual",
+                feature2Desc: "Support for 5 languages for global audience",
+                feature3Title: "GPT-5 nano",
+                feature3Desc: "Advanced artificial intelligence model",
+                feature4Title: "Instant Responses",
+                feature4Desc: "Fast real-time query processing",
+                chatTitle: "AI Chat Assistant",
+                chatSubtitle: "Chat with AI in any language",
+                welcomeMessage: "Hello! I'm Khuyew AI - a completely free AI assistant created using advanced technologies. How can I help you?",
+                typingText: "AI is typing",
+                inputPlaceholder: "Enter your question...",
+                sendButton: "Send",
+                aboutText: "Advanced AI assistant using GPT-5 nano model via Puter.js. Completely free and unlimited forever.",
+                techTitle: "Technologies",
+                techText: "• GPT-5 nano model\n• Puter.js API\n• Multilingual support\n• Real-time mode",
+                uniqueTitle: "Uniqueness",
+                uniqueText: "This AI self-generated its interface, demonstrating the capabilities of modern AI technologies."
+            },
+            uk: {
+                heroSubtitle: "Повністю безкоштовний AI-помічник на основі GPT-5 nano. Необмежене використання назавжди. Цей AI самостійно згенерував свій інтерфейс!",
+                feature1Title: "Безкоштовно назавжди",
+                feature1Desc: "Жодних прихованих платежів чи обмежень",
+                feature2Title: "Багатомовний",
+                feature2Desc: "Підтримка 5 мов для глобальної аудиторії",
+                feature3Title: "GPT-5 nano",
+                feature3Desc: "Передова модель штучного інтелекту",
+                feature4Title: "Миттєві відповіді",
+                feature4Desc: "Швидка обробка запитів у реальному часі",
+                chatTitle: "AI Чат-помічник",
+                chatSubtitle: "Спілкуйтеся з AI будь-якою мовою",
+                welcomeMessage: "Привіт! Я Khuyew AI - повністю безкоштовний AI-помічник, створений за допомогою передових технологій. Чим можу допомогти?",
+                typingText: "AI друкує",
+                inputPlaceholder: "Введіть ваше питання...",
+                sendButton: "Надіслати",
+                aboutText: "Передовий AI-помічник, що використовує модель GPT-5 nano через Puter.js. Повністю безкоштовний та необмежений назавжди.",
+                techTitle: "Технології",
+                techText: "• Модель GPT-5 nano\n• Puter.js API\n• Багатомовна підтримка\n• Режим реального часу",
+                uniqueTitle: "Унікальність",
+                uniqueText: "Цей AI самостійно згенерував свій інтерфейс, демонструючи можливості сучасних AI-технологій."
+            },
+            be: {
+                heroSubtitle: "Поўнасцю бясплатны AI-памочнік на аснове GPT-5 nano. Неабмежаванае выкарыстанне назаўжды. Гэты AI самастойна згенераваў свой інтэрфейс!",
+                feature1Title: "Бясплатна назаўжды",
+                feature1Desc: "Няма схаваных плацяжоў ці абмежаванняў",
+                feature2Title: "Шматмоўны",
+                feature2Desc: "Падтрымка 5 моў для глабальнай аўдыторыі",
+                feature3Title: "GPT-5 nano",
+                feature3Desc: "Перадавая мадэль штучнага інтэлекту",
+                feature4Title: "Імгненныя адказы",
+                feature4Desc: "Хуткая апрацоўка запытаў у рэальным часе",
+                chatTitle: "AI Чат-памочнік",
+                chatSubtitle: "Размаўляйце з AI любой мовай",
+                welcomeMessage: "Прывітанне! Я Khuyew AI - поўнасцю бясплатны AI-памочнік, створаны з дапамогай перадавых тэхналогій. Чым магу дапамагчы?",
+                typingText: "AI друкуе",
+                inputPlaceholder: "Увядзіце ваша пытанне...",
+                sendButton: "Адправіць",
+                aboutText: "Перадавы AI-памочнік, які выкарыстоўвае мадэль GPT-5 nano праз Puter.js. Поўнасцю бясплатны і неабмежаваны назаўжды.",
+                techTitle: "Тэхналогіі",
+                techText: "• Мадэль GPT-5 nano\n• Puter.js API\n• Шматмоўная падтрымка\n• Рэжым рэальнага часу",
+                uniqueTitle: "Унікальнасць",
+                uniqueText: "Гэты AI самастойна згенераваў свой інтэрфейс, дэманструючы магчымасці сучасных AI-тэхналогій."
+            },
+            zh: {
+                heroSubtitle: "基于GPT-5 nano的完全免费AI助手。永久无限使用。这个AI自行生成了它的界面！",
+                feature1Title: "永久免费",
+                feature1Desc: "无隐藏费用或限制",
+                feature2Title: "多语言",
+                feature2Desc: "支持5种语言，面向全球用户",
+                feature3Title: "GPT-5 nano",
+                feature3Desc: "先进的人工智能模型",
+                feature4Title: "即时响应",
+                feature4Desc: "快速实时查询处理",
+                chatTitle: "AI聊天助手",
+                chatSubtitle: "用任何语言与AI交流",
+                welcomeMessage: "你好！我是Khuyew AI - 使用先进技术创建的完全免费AI助手。有什么可以帮助您的？",
+                typingText: "AI正在输入",
+                inputPlaceholder: "输入您的问题...",
+                sendButton: "发送",
+                aboutText: "通过Puter.js使用GPT-5 nano模型的先进AI助手。完全免费且永久无限使用。",
+                techTitle: "技术",
+                techText: "• GPT-5 nano模型\n• Puter.js API\n• 多语言支持\n• 实时模式",
+                uniqueTitle: "独特性",
+                uniqueText: "这个AI自行生成了它的界面，展示了现代AI技术的能力。"
             }
+        };
+
+        let currentLang = 'ru';
+
+        // Инициализация языка
+        function initLanguage() {
+            const savedLang = localStorage.getItem('khuyewLang') || 'ru';
+            setLanguage(savedLang);
+        }
+
+        // Установка языка
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('khuyewLang', lang);
             
-            // Функция для постепенной печати текста ИИ
-            function typeText(element, text, speed = 20) {
-                return new Promise(resolve => {
-                    let i = 0;
-                    element.innerHTML = '<div class="message-sender">Khuyew AI</div>';
-                    const contentSpan = document.createElement('span');
-                    element.appendChild(contentSpan);
-                    
-                    function type() {
-                        if (i < text.length) {
-                            contentSpan.innerHTML = text.substring(0, i + 1) + '<span class="typing-cursor"></span>';
-                            i++;
-                            scrollToBottom();
-                            setTimeout(type, speed);
-                        } else {
-                            contentSpan.innerHTML = text;
-                            resolve();
-                        }
+            const t = translations[lang];
+            document.getElementById('currentLang').textContent = 
+                lang === 'ru' ? 'Русский' :
+                lang === 'en' ? 'English' :
+                lang === 'uk' ? 'Українська' :
+                lang === 'be' ? 'Беларуская' : '中文';
+            
+            // Обновляем все тексты
+            document.getElementById('heroSubtitle').textContent = t.heroSubtitle;
+            document.getElementById('feature1Title').textContent = t.feature1Title;
+            document.getElementById('feature1Desc').textContent = t.feature1Desc;
+            document.getElementById('feature2Title').textContent = t.feature2Title;
+            document.getElementById('feature2Desc').textContent = t.feature2Desc;
+            document.getElementById('feature3Title').textContent = t.feature3Title;
+            document.getElementById('feature3Desc').textContent = t.feature3Desc;
+            document.getElementById('feature4Title').textContent = t.feature4Title;
+            document.getElementById('feature4Desc').textContent = t.feature4Desc;
+            document.getElementById('chatTitle').textContent = t.chatTitle;
+            document.getElementById('chatSubtitle').textContent = t.chatSubtitle;
+            document.getElementById('welcomeMessage').textContent = t.welcomeMessage;
+            document.getElementById('typingText').textContent = t.typingText;
+            document.getElementById('user-input').placeholder = t.inputPlaceholder;
+            document.getElementById('send-button').textContent = t.sendButton;
+            document.getElementById('aboutText').textContent = t.aboutText;
+            document.getElementById('techTitle').textContent = t.techTitle;
+            document.getElementById('techText').textContent = t.techText;
+            document.getElementById('uniqueTitle').textContent = t.uniqueTitle;
+            document.getElementById('uniqueText').textContent = t.uniqueText;
+        }
+
+        // Функция для постепенной печати текста
+        function typeText(element, text, speed = 20) {
+            return new Promise(resolve => {
+                let i = 0;
+                element.innerHTML = '';
+                
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML = text.substring(0, i + 1) + '<span class="typing-cursor"></span>';
+                        i++;
+                        scrollToBottom();
+                        setTimeout(type, speed);
+                    } else {
+                        element.innerHTML = text;
+                        resolve();
                     }
-                    type();
-                });
-            }
-            
-            // Функция для прокрутки вниз
-            function scrollToBottom() {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-            
-            // Функция для отправки сообщения
-            async function sendMessage() {
-                const message = userInput.value.trim();
-                if (message === '') return;
-                
-                addUserMessage(message);
-                userInput.value = '';
-                
-                // Показываем индикатор набора текста
-                typingIndicator.style.display = 'block';
-                scrollToBottom();
-                
-                try {
-                    // Отправляем запрос к ИИ через Puter API
-                    const response = await puter.ai.chat(message, { model: "gpt-5-nano" });
-                    
-                    // Скрываем индикатор набора текста
-                    typingIndicator.style.display = 'none';
-                    
-                    // Создаем элемент для сообщения ИИ
-                    const aiMessageElement = document.createElement('div');
-                    aiMessageElement.classList.add('message', 'ai-message');
-                    messagesContainer.appendChild(aiMessageElement);
-                    
-                    // Постепенно печатаем ответ
-                    await typeText(aiMessageElement, response);
-                    
-                } catch (error) {
-                    typingIndicator.style.display = 'none';
-                    
-                    const errorMessageElement = document.createElement('div');
-                    errorMessageElement.classList.add('message', 'ai-message');
-                    messagesContainer.appendChild(errorMessageElement);
-                    
-                    await typeText(errorMessageElement, 'Извините, произошла ошибка при обработке вашего запроса. Пожалуйста, попробуйте еще раз.');
-                    console.error('Ошибка Puter API:', error);
                 }
+                type();
+            });
+        }
+
+        // Прокрутка вниз
+        function scrollToBottom() {
+            const container = document.getElementById('messagesContainer');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Отправка сообщения
+        async function sendMessage() {
+            const message = document.getElementById('user-input').value.trim();
+            if (message === '') return;
+
+            // Добавляем сообщение пользователя
+            const userMessageElement = document.createElement('div');
+            userMessageElement.classList.add('message', 'user-message');
+            userMessageElement.textContent = message;
+            document.getElementById('messagesContainer').appendChild(userMessageElement);
+
+            // Очищаем поле ввода
+            document.getElementById('user-input').value = '';
+
+            // Показываем индикатор набора
+            document.getElementById('typingIndicator').style.display = 'block';
+            scrollToBottom();
+
+            try {
+                // Отправляем запрос к ИИ
+                const response = await puter.ai.chat(message, { model: "gpt-5-nano" });
+                
+                // Скрываем индикатор
+                document.getElementById('typingIndicator').style.display = 'none';
+
+                // Создаем элемент для ответа ИИ
+                const aiMessageElement = document.createElement('div');
+                aiMessageElement.classList.add('message', 'ai-message');
+                document.getElementById('messagesContainer').appendChild(aiMessageElement);
+
+                // Печатаем ответ постепенно
+                await typeText(aiMessageElement, response);
+
+            } catch (error) {
+                document.getElementById('typingIndicator').style.display = 'none';
+                
+                const errorElement = document.createElement('div');
+                errorElement.classList.add('message', 'ai-message');
+                document.getElementById('messagesContainer').appendChild(errorElement);
+                
+                await typeText(errorElement, translations[currentLang].typingText + '... Ошибка соединения');
+                console.error('Puter API error:', error);
             }
-            
-            // Обработчик клика по кнопке отправки
-            sendButton.addEventListener('click', sendMessage);
-            
-            // Обработчик нажатия Enter в поле ввода
-            userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            initLanguage();
+
+            // Обработчики языка
+            document.getElementById('languageBtn').addEventListener('click', function() {
+                document.getElementById('languageDropdown').classList.toggle('show');
+            });
+
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    setLanguage(this.dataset.lang);
+                    document.getElementById('languageDropdown').classList.remove('show');
+                });
+            });
+
+            // Обработчики чата
+            document.getElementById('send-button').addEventListener('click', sendMessage);
+            document.getElementById('user-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            // Закрытие выпадающего списка при клике вне его
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.language-selector')) {
+                    document.getElementById('languageDropdown').classList.remove('show');
                 }
             });
-            
-            // Фокус на поле ввода при загрузке
-            userInput.focus();
+
+            // Фокус на поле ввода
+            document.getElementById('user-input').focus();
         });
     </script>
 </body>
