@@ -10,7 +10,9 @@ function sanitizeHTML(text) {
 // Прокрутка вниз
 function scrollToBottom(element) {
     if (element) {
-        element.scrollTop = element.scrollHeight;
+        setTimeout(() => {
+            element.scrollTop = element.scrollHeight;
+        }, 100);
     }
 }
 
@@ -44,7 +46,9 @@ function exportChat(messagesContainer) {
     const messages = Array.from(messagesContainer.querySelectorAll('.message'));
     const chatText = messages.map(msg => {
         const sender = msg.classList.contains('user-message') ? 'Вы' : 'ИИ';
-        return `${sender}: ${msg.textContent}`;
+        const content = msg.querySelector('.message-content') ? 
+            msg.querySelector('.message-content').textContent : msg.textContent;
+        return `${sender}: ${content}`;
     }).join('\n\n');
     
     const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
@@ -61,7 +65,8 @@ function exportChat(messagesContainer) {
 // Сохранение истории чата
 function saveChatHistory(messagesContainer) {
     const messages = Array.from(messagesContainer.querySelectorAll('.message')).map(msg => ({
-        text: msg.textContent,
+        text: msg.querySelector('.message-content') ? 
+            msg.querySelector('.message-content').textContent : msg.textContent,
         isUser: msg.classList.contains('user-message'),
         isError: msg.classList.contains('error-message'),
         isImage: msg.classList.contains('ai-image-message'),
@@ -93,7 +98,7 @@ function loadChatHistory(messagesContainer) {
     return false;
 }
 
-// Добавление сообщения (теперь экспортируем эту функцию)
+// Добавление сообщения
 function addMessage(messagesContainer, text, isUser = false, isError = false) {
     const messageElement = document.createElement('div');
     const className = isError ? 'error-message' : (isUser ? 'user-message' : 'ai-message');
@@ -101,7 +106,51 @@ function addMessage(messagesContainer, text, isUser = false, isError = false) {
     
     const contentElement = document.createElement('div');
     contentElement.classList.add('message-content');
-    contentElement.textContent = sanitizeHTML(text);
+    
+    if (isUser || isError) {
+        contentElement.textContent = sanitizeHTML(text);
+    } else {
+        // Для сообщений ИИ используем Markdown
+        contentElement.innerHTML = marked.parse(text);
+        
+        // Добавляем подсветку синтаксиса для блоков кода
+        contentElement.querySelectorAll('pre code').forEach((block) => {
+            // Создаем контейнер для блока кода с кнопкой копирования
+            const pre = block.closest('pre');
+            const language = block.className.replace('language-', '') || 'text';
+            
+            const codeHeader = document.createElement('div');
+            codeHeader.className = 'code-header';
+            
+            const languageSpan = document.createElement('span');
+            languageSpan.className = 'code-language';
+            languageSpan.textContent = language;
+            
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-button';
+            copyButton.innerHTML = '📋 Копировать';
+            
+            copyButton.addEventListener('click', () => {
+                const codeText = block.textContent;
+                navigator.clipboard.writeText(codeText).then(() => {
+                    copyButton.innerHTML = '✅ Скопировано!';
+                    copyButton.classList.add('copied');
+                    setTimeout(() => {
+                        copyButton.innerHTML = '📋 Копировать';
+                        copyButton.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+            
+            codeHeader.appendChild(languageSpan);
+            codeHeader.appendChild(copyButton);
+            
+            pre.insertBefore(codeHeader, block);
+            
+            // Применяем подсветку синтаксиса
+            hljs.highlightElement(block);
+        });
+    }
     
     messageElement.appendChild(contentElement);
     
@@ -153,19 +202,38 @@ function toggleTheme() {
     }
 }
 
-// Экспортируем функции для использования в других модулях
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        sanitizeHTML,
-        scrollToBottom,
-        manageChatStorage,
-        withRetry,
-        exportChat,
-        saveChatHistory,
-        loadChatHistory,
-        addMessage,
-        analyzeRequest,
-        initTheme,
-        toggleTheme
-    };
+// Модальное окно для изображений
+function initImageModal() {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const caption = document.getElementById('modalCaption');
+    const close = document.querySelector('.close');
+    
+    // Закрытие модального окна
+    close.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    
+    // Закрытие при клике вне изображения
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    
+    // Обработчики для всех изображений
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('generated-image')) {
+            modal.style.display = 'block';
+            modalImg.src = e.target.src;
+            caption.textContent = e.target.alt || 'Сгенерированное изображение';
+        }
+    });
+    
+    // Закрытие по ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'block') {
+            modal.style.display = 'none';
+        }
+    });
 }
