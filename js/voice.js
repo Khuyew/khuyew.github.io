@@ -16,7 +16,7 @@ class VoiceRecognition {
                 this.recognition = new SpeechRecognition();
                 this.recognition.continuous = false;
                 this.recognition.lang = 'ru-RU';
-                this.recognition.interimResults = false;
+                this.recognition.interimResults = true;
                 this.recognition.maxAlternatives = 1;
                 
                 this.setupEventListeners();
@@ -51,12 +51,27 @@ class VoiceRecognition {
         };
         
         this.recognition.onresult = (event) => {
-            if (event.results.length > 0 && event.results[0].length > 0) {
-                const transcript = event.results[0][0].transcript;
-                const userInput = document.getElementById('user-input');
-                if (userInput) {
-                    userInput.value = transcript;
-                    userInput.focus();
+            let finalTranscript = '';
+            let interimTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+            
+            const userInput = document.getElementById('user-input');
+            if (userInput) {
+                // Показываем промежуточный результат
+                userInput.value = finalTranscript || interimTranscript;
+                userInput.focus();
+                
+                // Если есть финальный результат, останавливаем запись
+                if (finalTranscript) {
+                    this.stop();
                 }
             }
         };
@@ -70,13 +85,16 @@ class VoiceRecognition {
             
             if (event.error === 'not-allowed') {
                 addMessage(messagesContainer, 
-                    'Доступ к микрофону запрещен. Разрешите доступ в настройках браузера.', false, true);
+                    '🔒 Доступ к микрофону запрещен. Разрешите доступ в настройках браузера.', false, true);
             } else if (event.error === 'no-speech') {
                 addMessage(messagesContainer, 
-                    'Речь не распознана. Попробуйте еще раз.', false, true);
+                    '🎤 Речь не распознана. Пожалуйста, говорите четче и громче.', false, true);
             } else if (event.error === 'audio-capture') {
                 addMessage(messagesContainer, 
-                    'Не удалось получить доступ к микрофону. Проверьте настройки.', false, true);
+                    '🎤 Не удалось получить доступ к микрофону. Проверьте настройки устройства.', false, true);
+            } else if (event.error === 'network') {
+                addMessage(messagesContainer, 
+                    '🌐 Ошибка сети. Проверьте подключение к интернету.', false, true);
             }
         };
         
@@ -84,7 +102,8 @@ class VoiceRecognition {
             this.stop();
         };
         
-        voiceButton.addEventListener('click', () => {
+        voiceButton.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (!this.isRecording) {
                 this.start();
             } else {
@@ -115,7 +134,7 @@ class VoiceRecognition {
             const messagesContainer = document.getElementById('messagesContainer');
             if (messagesContainer) {
                 addMessage(messagesContainer, 
-                    'Ошибка доступа к микрофону. Проверьте разрешения браузера.', false, true);
+                    '🎤 Ошибка доступа к микрофону. Проверьте разрешения браузера.', false, true);
             }
         }
     }
