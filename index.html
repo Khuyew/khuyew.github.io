@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Khuyew AI - Бесплатный ИИ-помощник</title>
     <meta name="description" content="Khuyew AI - полностью бесплатный ИИ-помощник с генерацией изображений">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -53,7 +54,16 @@
         </div>
     </div>
 
+    <!-- Модальное окно для изображений -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="modalCaption"></div>
+    </div>
+
     <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/voice.js"></script>
     <script src="js/streaming.js"></script>
