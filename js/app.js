@@ -8,11 +8,17 @@ class KhuyewAI {
         this.lastUserMessage = null;
         this.voiceRecognition = null;
         this.aiStreaming = null;
+        this.isProcessing = false;
         
         this.init();
     }
 
     init() {
+        if (!this.messagesContainer || !this.userInput || !this.sendButton) {
+            console.error('Не удалось найти необходимые DOM элементы');
+            return;
+        }
+
         this.aiStreaming = new AIStreaming(this.messagesContainer);
         this.voiceRecognition = new VoiceRecognition();
         
@@ -30,61 +36,131 @@ class KhuyewAI {
     }
 
     setupEventListeners() {
-        // Обработчики событий
-        document.querySelector('.logo').addEventListener('click', () => this.clearChat());
-        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-        document.getElementById('generateImageBtn').addEventListener('click', () => this.handleGenerateImage());
-        document.getElementById('helpButton').addEventListener('click', () => this.showHelp());
-        document.getElementById('exportButton').addEventListener('click', () => this.exportChat());
-        document.getElementById('clearButton').addEventListener('click', () => this.clearChat());
-        document.getElementById('privacyLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            this.showPrivacyInfo();
-        });
+        // Обработчики событий для логотипа
+        const logo = document.querySelector('.logo');
+        if (logo) {
+            logo.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.clearChat();
+            });
+        }
 
+        // Обработчики для кнопок управления
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleTheme();
+            });
+        }
+
+        const generateImageBtn = document.getElementById('generateImageBtn');
+        if (generateImageBtn) {
+            generateImageBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.handleGenerateImage();
+            });
+        }
+
+        const helpButton = document.getElementById('helpButton');
+        if (helpButton) {
+            helpButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.showHelp();
+            });
+        }
+
+        const exportButton = document.getElementById('exportButton');
+        if (exportButton) {
+            exportButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.exportChat();
+            });
+        }
+
+        const clearButton = document.getElementById('clearButton');
+        if (clearButton) {
+            clearButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.clearChat();
+            });
+        }
+
+        const privacyLink = document.getElementById('privacyLink');
+        if (privacyLink) {
+            privacyLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showPrivacyInfo();
+            });
+        }
+
+        // Основные обработчики
         this.sendButton.addEventListener('click', () => this.sendMessage());
+        
         this.userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
                 this.sendMessage();
             }
+        });
+
+        // Автофокус при клике в любое место чата
+        this.messagesContainer.addEventListener('click', () => {
+            this.userInput.focus();
         });
     }
 
     async sendMessage() {
+        if (this.isProcessing) {
+            console.log('Запрос уже обрабатывается');
+            return;
+        }
+
         const message = this.userInput.value.trim();
         if (message === '') return;
         
-        if (!this.introCompleted) {
-            this.introCompleted = true;
-            document.querySelector('.skip-intro')?.remove();
-        }
+        this.isProcessing = true;
+        this.sendButton.disabled = true;
         
-        this.addUserMessage(message);
-        this.userInput.value = '';
-        
-        const requestType = analyzeRequest(message);
-        
-        if (requestType === 'generate') {
-            await this.aiStreaming.generateImage(message);
-            this.removePendingAnimation();
-            return;
-        }
-        
-        // Текстовый запрос
         try {
-            await this.aiStreaming.streamTextResponse(message);
-            this.removePendingAnimation();
+            if (!this.introCompleted) {
+                this.introCompleted = true;
+                document.querySelector('.skip-intro')?.remove();
+            }
+            
+            this.addUserMessage(message);
+            this.userInput.value = '';
+            
+            const requestType = analyzeRequest(message);
+            
+            if (requestType === 'generate') {
+                await this.aiStreaming.generateImage(message);
+                this.removePendingAnimation();
+            } else {
+                // Текстовый запрос
+                try {
+                    await this.aiStreaming.streamTextResponse(message);
+                    this.removePendingAnimation();
+                } catch (error) {
+                    console.error('Ошибка получения ответа:', error);
+                    this.removePendingAnimation();
+                    
+                    // Используем старый метод печати при ошибке стриминга
+                    const errorElement = addMessage(this.messagesContainer, 
+                        "Извините, произошла ошибка соединения. Пожалуйста, проверьте интернет и попробуйте еще раз.", 
+                        false, true);
+                }
+            }
         } catch (error) {
-            console.error('Ошибка получения ответа:', error);
-            this.removePendingAnimation();
-            
-            const errorElement = document.createElement('div');
-            errorElement.classList.add('message', 'ai-message');
-            this.messagesContainer.appendChild(errorElement);
-            
-            // Используем старый метод печати при ошибке стриминга
-            await this.typeText(errorElement, 
-                "Извините, произошла ошибка соединения. Пожалуйста, проверьте интернет и попробуйте еще раз.");
+            console.error('Ошибка при отправке сообщения:', error);
+            addMessage(this.messagesContainer, 
+                "Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз.", 
+                false, true);
+        } finally {
+            this.isProcessing = false;
+            this.sendButton.disabled = false;
+            this.userInput.focus();
         }
     }
 
@@ -119,7 +195,7 @@ class KhuyewAI {
             element.innerHTML = '';
             element.classList.add('ai-streaming');
             
-            function type() {
+            const type = () => {
                 if (i < text.length) {
                     const char = text.charAt(i);
                     element.innerHTML = sanitizeHTML(text.substring(0, i + 1)) + '<span class="typing-cursor"></span>';
@@ -134,8 +210,9 @@ class KhuyewAI {
                     saveChatHistory(this.messagesContainer);
                     resolve();
                 }
-            }
-            type.call(this);
+            };
+            
+            type();
         });
     }
 
@@ -203,6 +280,9 @@ class KhuyewAI {
             this.messagesContainer.innerHTML = '';
             this.lastUserMessage = null;
             this.introCompleted = false;
+            this.isProcessing = false;
+            this.sendButton.disabled = false;
+            this.aiStreaming.cancelStream();
             localStorage.removeItem('khuyew-chat-history');
             setTimeout(() => this.showIntro(), 500);
         }
