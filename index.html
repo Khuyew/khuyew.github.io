@@ -443,7 +443,7 @@
 
         #user-input {
             flex: 1;
-            padding: 14px 110px 14px 18px;
+            padding: 14px 170px 14px 18px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.08);
@@ -534,6 +534,27 @@
         }
 
         #imageUploadButton:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        #clearInputButton {
+            position: absolute;
+            right: 136px; /* слева от загрузки изображений */
+            background: transparent;
+            border: none;
+            color: #a0a0c0;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        #clearInputButton:hover {
             background: rgba(255, 255, 255, 0.1);
             color: #ffffff;
         }
@@ -877,7 +898,7 @@
             }
             
             #user-input {
-                padding: 12px 100px 12px 16px;
+                padding: 12px 150px 12px 16px;
                 font-size: 13px;
             }
             
@@ -895,6 +916,12 @@
             
             #imageUploadButton {
                 right: 90px;
+                width: 30px;
+                height: 30px;
+            }
+
+            #clearInputButton {
+                right: 124px;
                 width: 30px;
                 height: 30px;
             }
@@ -950,7 +977,7 @@
             }
             
             #user-input {
-                padding: 12px 85px 12px 12px;
+                padding: 12px 125px 12px 12px;
             }
             
             #imageUploadButton {
@@ -960,6 +987,41 @@
             #voiceButton {
                 right: 48px;
             }
+
+            #clearInputButton {
+                right: 112px;
+            }
+        }
+
+        /* Scroll controls */
+        .scroll-controls {
+            position: fixed;
+            right: 16px;
+            bottom: 86px; /* above input area */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 50;
+        }
+
+        .scroll-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0c0;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .scroll-btn:hover { 
+            background: rgba(255, 255, 255, 0.15); 
+            color: #ffffff; 
         }
 
         /* Light theme */
@@ -1087,6 +1149,24 @@
             background: rgba(0, 0, 0, 0.15);
             color: #2d3748;
         }
+
+        /* Light theme adjustments for new buttons */
+        body.light-theme #clearInputButton,
+        body.light-theme #imageUploadButton,
+        body.light-theme #voiceButton,
+        body.light-theme .scroll-btn {
+            background: rgba(0, 0, 0, 0.06);
+            color: #666;
+            border-color: rgba(0,0,0,0.15);
+        }
+
+        body.light-theme #clearInputButton:hover,
+        body.light-theme #imageUploadButton:hover,
+        body.light-theme #voiceButton:hover,
+        body.light-theme .scroll-btn:hover {
+            background: rgba(0,0,0,0.1);
+            color: #2d3748;
+        }
     </style>
 </head>
 <body>
@@ -1126,6 +1206,9 @@
                 
                 <div class="input-wrapper">
                     <textarea id="user-input" placeholder="Задайте вопрос или опишите изображение..." autocomplete="off" rows="1"></textarea>
+                    <button id="clearInputButton" title="Очистить ввод">
+                        <i class="ti ti-x"></i>
+                    </button>
                     <button id="imageUploadButton">
                         <i class="ti ti-photo-up"></i>
                     </button>
@@ -1141,18 +1224,6 @@
                     <button class="action-button" id="helpButton">
                         <i class="ti ti-help"></i>
                         Помощь
-                    </button>
-                    <button class="action-button" id="importButton">
-                        <i class="ti ti-upload"></i>
-                        Импорт
-                    </button>
-                    <button class="action-button" id="exportButton">
-                        <i class="ti ti-download"></i>
-                        Экспорт TXT
-                    </button>
-                    <button class="action-button" id="exportJsonButton">
-                        <i class="ti ti-file-code"></i>
-                        Экспорт JSON
                     </button>
                     <button class="action-button" id="clearButton">
                         <i class="ti ti-trash"></i>
@@ -1189,9 +1260,18 @@
         <div id="modalCaption"></div>
     </div>
 
+    <!-- Кнопки прокрутки -->
+    <div class="scroll-controls">
+        <button id="scrollUpBtn" class="scroll-btn" title="К последнему сообщению ИИ">
+            <i class="ti ti-arrow-up"></i>
+        </button>
+        <button id="scrollDownBtn" class="scroll-btn" title="Вниз чата">
+            <i class="ti ti-arrow-down"></i>
+        </button>
+    </div>
+
     <!-- Скрытые inputs -->
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
-    <input type="file" id="importJsonInput" accept="application/json" style="display: none;">
 
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -1222,10 +1302,14 @@
                 this.voiceButton = document.getElementById('voiceButton');
                 this.imageUploadButton = document.getElementById('imageUploadButton');
                 this.fileInput = document.getElementById('fileInput');
-                this.importJsonInput = document.getElementById('importJsonInput');
+                // importJsonInput удалён вместе с импортом/экспортом
+                this.importJsonInput = null;
                 this.imagePreviewContainer = document.getElementById('imagePreviewContainer');
                 this.imagePreview = document.getElementById('imagePreview');
                 this.removeImageBtn = document.getElementById('removeImageBtn');
+                this.clearInputButton = document.getElementById('clearInputButton');
+                this.scrollUpBtn = document.getElementById('scrollUpBtn');
+                this.scrollDownBtn = document.getElementById('scrollDownBtn');
                 
                 this.introCompleted = false;
                 this.lastUserMessage = null;
@@ -1292,21 +1376,7 @@
                     });
                 }
 
-                const exportButton = document.getElementById('exportButton');
-                if (exportButton) {
-                    exportButton.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.exportChat();
-                    });
-                }
-
-                const exportJsonButton = document.getElementById('exportJsonButton');
-                if (exportJsonButton) {
-                    exportJsonButton.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.exportChatAsJSON();
-                    });
-                }
+                // Кнопки экспорта удалены
 
                 const clearButton = document.getElementById('clearButton');
                 if (clearButton) {
@@ -1325,14 +1395,7 @@
                     });
                 }
 
-                const importButton = document.getElementById('importButton');
-                if (importButton && this.importJsonInput) {
-                    importButton.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.importJsonInput.click();
-                    });
-                    this.importJsonInput.addEventListener('change', (e) => this.handleImportJson(e));
-                }
+                // Кнопка импорта удалена
 
                 // Основные обработчики
                 this.sendButton.addEventListener('click', (e) => {
@@ -1359,6 +1422,16 @@
                 this.removeImageBtn.addEventListener('click', () => {
                     this.removeCurrentImage();
                 });
+
+                if (this.clearInputButton) {
+                    this.clearInputButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.userInput.value = '';
+                        this.userInput.style.height = 'auto';
+                        this.userInput.focus();
+                    });
+                }
 
                 // Автофокус при клике в любое место чата
                 this.messagesContainer.addEventListener('click', () => {
@@ -1392,6 +1465,14 @@
                         }
                     }
                 }, true);
+
+                // Прокрутка
+                if (this.scrollDownBtn) {
+                    this.scrollDownBtn.addEventListener('click', () => this.scrollToBottom());
+                }
+                if (this.scrollUpBtn) {
+                    this.scrollUpBtn.addEventListener('click', () => this.scrollToLastAIMessage());
+                }
             }
 
             setupTextareaAutoResize() {
@@ -1420,9 +1501,13 @@
                         document.querySelector('.skip-intro')?.remove();
                     }
                     
+                    // Сохраняем текущее изображение на время запроса,
+                    // чтобы не потерять его после очистки превью
+                    const imageForRequest = this.currentImage;
+
                     // Добавляем сообщение пользователя
                     if (hasImage) {
-                        this.addUserMessageWithImage(message, this.currentImage);
+                        this.addUserMessageWithImage(message, imageForRequest);
                     } else {
                         this.addUserMessage(message);
                     }
@@ -1439,7 +1524,7 @@
                     } else {
                         try {
                             if (hasImage) {
-                                await this.analyzeImageWithText(message, this.currentImage);
+                                await this.analyzeImageWithText(message, imageForRequest);
                             } else {
                                 await this.streamTextResponse(message);
                             }
@@ -1817,6 +1902,17 @@
                 }
             }
 
+            scrollToLastAIMessage() {
+                const aiMessages = this.messagesContainer.querySelectorAll('.message.ai-message, .message.ai-image-message');
+                const last = aiMessages[aiMessages.length - 1];
+                if (last) {
+                    last.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    // если нет сообщений ИИ — просто наверх
+                    this.messagesContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
             addMessage(text, isUser = false, isError = false) {
                 const messageElement = document.createElement('div');
                 const className = isError ? 'error-message' : (isUser ? 'user-message' : 'ai-message');
@@ -2141,12 +2237,23 @@
                         this.messagesContainer.appendChild(aiMessageElement);
                     }
                     
-                    // Эмулируем ответ ИИ об изображении
-                    const prompt = text ? `по изображению: "${text}"` : "по загруженному изображению";
-                    const response = await puter.ai.chat(`Проанализируй изображение и ответь ${prompt}. Опиши что на изображении и ответь на вопрос пользователя.`, { 
-                        model: "gpt-5-nano", 
-                        stream: true 
-                    });
+                    // Формируем подсказку и передаём изображение модели
+                    const prompt = text ? `Проанализируй прикреплённое изображение и ответь по запросу: "${text}". Сначала кратко (1-2 предложения) опиши, что на изображении, затем ответь по сути.` : 
+                        "Проанализируй прикреплённое изображение. Опиши, что на нём, затем сделай выводы.";
+
+                    // Пробуем мультимодальный режим с передачей изображения
+                    let response;
+                    try {
+                        response = await puter.ai.chat(prompt, {
+                            model: "gpt-5-nano",
+                            stream: true,
+                            images: [imageData]
+                        });
+                    } catch (mmErr) {
+                        // Фолбэк: инлайн-ссылка на data URL (на случай если images не поддерживается)
+                        const fallbackPrompt = `${prompt}\n\nВспомогательная ссылка на изображение (data URL): ${imageData.slice(0, 128)}...`;
+                        response = await puter.ai.chat(fallbackPrompt, { model: "gpt-5-nano", stream: true });
+                    }
                     
                     let fullText = '';
                     
