@@ -108,6 +108,32 @@
             backdrop-filter: blur(10px);
         }
         
+        .ai-image-message {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            max-width: 90%;
+        }
+        
+        .generated-image {
+            max-width: 100%;
+            border-radius: 15px;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .image-prompt {
+            font-style: italic;
+            color: #a0a0c0;
+            margin-top: 10px;
+            font-size: 14px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
         .skip-intro {
             align-self: center;
             background: rgba(255, 255, 255, 0.05);
@@ -185,6 +211,31 @@
             height: 20px;
         }
         
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: #a0a0c0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .action-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-color: #0099ff;
+        }
+        
         .typing-indicator {
             display: none;
             align-self: flex-start;
@@ -233,6 +284,10 @@
                 max-width: 90%;
             }
             
+            .ai-image-message {
+                max-width: 95%;
+            }
+            
             .header {
                 padding: 15px;
             }
@@ -272,6 +327,21 @@
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0; }
         }
+        
+        .image-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #0099ff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -280,7 +350,7 @@
         
         <div class="header">
             <div class="logo">Khuyew AI</div>
-            <div class="subtitle">Полностью бесплатный ИИ-помощник</div>
+            <div class="subtitle">Полностью бесплатный ИИ-помощник + генерация изображений</div>
         </div>
         
         <div class="chat-container">
@@ -294,12 +364,17 @@
             
             <div class="input-container">
                 <div class="input-wrapper">
-                    <input type="text" id="user-input" placeholder="Задайте вопрос..." autocomplete="off">
+                    <input type="text" id="user-input" placeholder="Задайте вопрос или опишите изображение..." autocomplete="off">
                     <button id="send-button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
                         </svg>
                     </button>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-button" onclick="generateExampleImage()">🎨 Сгенерировать кота</button>
+                    <button class="action-button" onclick="showImageHelp()">📖 Помощь по изображениям</button>
+                    <button class="action-button" onclick="clearChat()">🗑️ Очистить чат</button>
                 </div>
             </div>
         </div>
@@ -324,6 +399,26 @@
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isUser ? 'user-message' : 'ai-message');
                 messageElement.textContent = text;
+                messagesContainer.appendChild(messageElement);
+                scrollToBottom();
+            }
+            
+            // Функция для добавления сообщения с изображением
+            function addImageMessage(promptText, imageElement) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', 'ai-image-message');
+                
+                const textElement = document.createElement('div');
+                textElement.textContent = 'Сгенерировано изображение:';
+                messageElement.appendChild(textElement);
+                
+                messageElement.appendChild(imageElement);
+                
+                const promptElement = document.createElement('div');
+                promptElement.classList.add('image-prompt');
+                promptElement.textContent = `Запрос: "${promptText}"`;
+                messageElement.appendChild(promptElement);
+                
                 messagesContainer.appendChild(messageElement);
                 scrollToBottom();
             }
@@ -358,7 +453,7 @@
             function skipIntro() {
                 introCompleted = true;
                 document.querySelector('.skip-intro')?.remove();
-                addMessage('Отлично! Теперь вы можете задавать любые вопросы. Я готов помочь!', false);
+                addMessage('Отлично! Теперь вы можете задавать любые вопросы или генерировать изображения. Я готов помочь!', false);
             }
             
             // Создание кнопки пропуска
@@ -371,35 +466,48 @@
                 scrollToBottom();
             }
             
-            // Введение бота
-            async function showIntro() {
-                const introMessages = [
-                    "Привет! Я Khuyew AI - полностью бесплатный ИИ-помощник.",
-                    "Я создан на основе модели GPT-5 nano и работаю через Puter.js API.",
-                    "Моя особенность - я сам создал этот интерфейс для общения с вами!",
-                    "Я полностью бесплатный и безлимитный - используйте меня сколько угодно!",
-                    "Готов отвечать на вопросы, помогать с задачами и просто общаться."
+            // Генерация изображения
+            async function generateImage(prompt) {
+                try {
+                    // Показываем индикатор загрузки
+                    const loadingElement = document.createElement('div');
+                    loadingElement.classList.add('message', 'ai-message');
+                    loadingElement.innerHTML = '<span class="image-loading"></span>Генерирую изображение...';
+                    messagesContainer.appendChild(loadingElement);
+                    scrollToBottom();
+                    
+                    // Генерируем изображение (testMode: true для тестирования без использования кредитов)
+                    const image = await puter.ai.txt2img(prompt, { testMode: true });
+                    
+                    // Удаляем индикатор загрузки
+                    loadingElement.remove();
+                    
+                    // Добавляем изображение в чат
+                    image.classList.add('generated-image');
+                    addImageMessage(prompt, image);
+                    
+                } catch (error) {
+                    console.error('Ошибка генерации изображения:', error);
+                    
+                    // Удаляем индикатор загрузки
+                    const loadingElements = document.querySelectorAll('.image-loading');
+                    loadingElements.forEach(el => el.closest('.message').remove());
+                    
+                    // Показываем сообщение об ошибке
+                    addMessage('Извините, произошла ошибка при генерации изображения. Пожалуйста, попробуйте другой запрос.', false);
+                }
+            }
+            
+            // Анализ запроса и определение типа (текст или изображение)
+            function analyzeRequest(message) {
+                const imageKeywords = [
+                    'нарисуй', 'сгенерируй', 'изображение', 'картинку', 'фото', 'иллюстрацию',
+                    'draw', 'generate', 'image', 'picture', 'photo', 'illustration',
+                    'создай', 'покажи', 'визуализируй', 'арт'
                 ];
                 
-                for (const message of introMessages) {
-                    if (introCompleted) break;
-                    
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('message', 'ai-message');
-                    messagesContainer.appendChild(messageElement);
-                    
-                    await typeText(messageElement, message);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-                
-                if (!introCompleted) {
-                    const finalMessage = document.createElement('div');
-                    finalMessage.classList.add('message', 'ai-message');
-                    finalMessage.textContent = "Теперь можете задавать вопросы! Для нового чата просто обновите страницу.";
-                    messagesContainer.appendChild(finalMessage);
-                    
-                    createSkipButton();
-                }
+                const lowerMessage = message.toLowerCase();
+                return imageKeywords.some(keyword => lowerMessage.includes(keyword));
             }
             
             // Отправка сообщения
@@ -416,6 +524,13 @@
                 addMessage(message, true);
                 userInput.value = '';
                 
+                // Проверяем, является ли запрос запросом на генерацию изображения
+                if (analyzeRequest(message)) {
+                    await generateImage(message);
+                    return;
+                }
+                
+                // Обычный текстовый запрос
                 typingIndicator.style.display = 'block';
                 scrollToBottom();
                 
@@ -439,6 +554,57 @@
                     await typeText(errorElement, "Извините, произошла ошибка. Пожалуйста, попробуйте еще раз.");
                 }
             }
+            
+            // Введение бота
+            async function showIntro() {
+                const introMessages = [
+                    "Привет! Я Khuyew AI - полностью бесплатный ИИ-помощник.",
+                    "Теперь я умею не только общаться, но и генерировать изображения!",
+                    "Просто опишите что вы хотите увидеть, и я создам это для вас.",
+                    "Используйте кнопки ниже для быстрого доступа к функциям.",
+                    "Я полностью бесплатный и безлимитный - используйте меня сколько угодно!"
+                ];
+                
+                for (const message of introMessages) {
+                    if (introCompleted) break;
+                    
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message', 'ai-message');
+                    messagesContainer.appendChild(messageElement);
+                    
+                    await typeText(messageElement, message);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                if (!introCompleted) {
+                    const finalMessage = document.createElement('div');
+                    finalMessage.classList.add('message', 'ai-message');
+                    finalMessage.textContent = "Теперь можете задавать вопросы или создавать изображения! Для нового чата просто обновите страницу.";
+                    messagesContainer.appendChild(finalMessage);
+                    
+                    createSkipButton();
+                }
+            }
+            
+            // Глобальные функции для кнопок
+            window.generateExampleImage = function() {
+                const prompt = "Милый пушистый кот с голубыми глазами, цифровое искусство";
+                addMessage(`🎨 Запрос: "${prompt}"`, true);
+                generateImage(prompt);
+            };
+            
+            window.showImageHelp = function() {
+                const helpMessage = "Для генерации изображений используйте слова: 'нарисуй', 'сгенерируй', 'изображение', 'картинку', 'создай' и т.д. Например: 'Нарисуй космический корабль' или 'Сгенерируй пейзаж горного озера'";
+                addMessage(helpMessage, false);
+            };
+            
+            window.clearChat = function() {
+                if (confirm('Очистить всю историю чата?')) {
+                    messagesContainer.innerHTML = '';
+                    introCompleted = false;
+                    setTimeout(showIntro, 500);
+                }
+            };
             
             // Обработчики событий
             sendButton.addEventListener('click', sendMessage);
