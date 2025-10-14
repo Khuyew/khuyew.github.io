@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Khuyew AI - Бесплатный ИИ-помощник</title>
     <meta name="description" content="Khuyew AI - полностью бесплатный ИИ-помощник с генерацией изображений">
+    <meta name="theme-color" content="#0f0f23">
+    <link rel="manifest" href="manifest.webmanifest">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <!-- Иконки Tabler Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
@@ -1140,9 +1142,17 @@
                         <i class="ti ti-help"></i>
                         Помощь
                     </button>
+                    <button class="action-button" id="importButton">
+                        <i class="ti ti-upload"></i>
+                        Импорт
+                    </button>
                     <button class="action-button" id="exportButton">
                         <i class="ti ti-download"></i>
-                        Экспорт
+                        Экспорт TXT
+                    </button>
+                    <button class="action-button" id="exportJsonButton">
+                        <i class="ti ti-file-code"></i>
+                        Экспорт JSON
                     </button>
                     <button class="action-button" id="clearButton">
                         <i class="ti ti-trash"></i>
@@ -1179,12 +1189,29 @@
         <div id="modalCaption"></div>
     </div>
 
-    <!-- Скрытый input для загрузки файлов -->
+    <!-- Скрытые inputs -->
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    <input type="file" id="importJsonInput" accept="application/json" style="display: none;">
 
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script>
+        // Fallbacks for offline mode when CDNs are unavailable
+        (function(){
+            if (typeof window.marked === 'undefined') {
+                window.marked = { parse: function(text){
+                    // Basic escape to avoid raw HTML injection
+                    const div = document.createElement('div');
+                    div.textContent = String(text || '');
+                    return div.innerHTML.replace(/\n/g, '<br>');
+                }};
+            }
+            if (typeof window.hljs === 'undefined') {
+                window.hljs = { highlightElement: function(){ /* no-op offline */ } };
+            }
+        })();
+    </script>
     <script>
         // Основное приложение
         class KhuyewAI {
@@ -1195,6 +1222,7 @@
                 this.voiceButton = document.getElementById('voiceButton');
                 this.imageUploadButton = document.getElementById('imageUploadButton');
                 this.fileInput = document.getElementById('fileInput');
+                this.importJsonInput = document.getElementById('importJsonInput');
                 this.imagePreviewContainer = document.getElementById('imagePreviewContainer');
                 this.imagePreview = document.getElementById('imagePreview');
                 this.removeImageBtn = document.getElementById('removeImageBtn');
@@ -1272,6 +1300,14 @@
                     });
                 }
 
+                const exportJsonButton = document.getElementById('exportJsonButton');
+                if (exportJsonButton) {
+                    exportJsonButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.exportChatAsJSON();
+                    });
+                }
+
                 const clearButton = document.getElementById('clearButton');
                 if (clearButton) {
                     clearButton.addEventListener('click', (e) => {
@@ -1287,6 +1323,15 @@
                         e.stopPropagation();
                         this.showPrivacyInfo();
                     });
+                }
+
+                const importButton = document.getElementById('importButton');
+                if (importButton && this.importJsonInput) {
+                    importButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.importJsonInput.click();
+                    });
+                    this.importJsonInput.addEventListener('change', (e) => this.handleImportJson(e));
                 }
 
                 // Основные обработчики
@@ -1319,6 +1364,18 @@
                 this.messagesContainer.addEventListener('click', () => {
                     this.userInput.focus();
                 });
+
+                // Drag & drop изображений
+                const preventDefaults = (e) => { e.preventDefault(); e.stopPropagation(); };
+                ['dragenter','dragover','dragleave','drop'].forEach(eventName => {
+                    this.messagesContainer.addEventListener(eventName, preventDefaults, false);
+                    document.querySelector('.input-container')?.addEventListener(eventName, preventDefaults, false);
+                });
+                this.messagesContainer.addEventListener('drop', (e) => this.handleDrop(e));
+                document.querySelector('.input-container')?.addEventListener('drop', (e) => this.handleDrop(e));
+
+                // Вставка из буфера обмена (paste) изображений
+                document.addEventListener('paste', (e) => this.handlePaste(e));
 
                 // Обработка ошибок изображений
                 document.addEventListener('error', (e) => {
@@ -1465,37 +1522,54 @@
             }
 
             handleImageUpload(event) {
-                const file = event.target.files[0];
+                const file = event.target.files?.[0];
                 if (!file) return;
+                this.loadImageFile(file);
+                // Сбрасываем input для возможности загрузки того же файла снова
+                event.target.value = '';
+            }
 
+            loadImageFile(file) {
                 if (!file.type.startsWith('image/')) {
                     alert('Пожалуйста, выберите файл изображения');
                     return;
                 }
-
-                // Проверка размера файла (максимум 5MB)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('Размер изображения не должен превышать 5MB');
                     return;
                 }
-
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.currentImage = e.target.result;
                     this.imagePreview.src = this.currentImage;
                     this.imagePreviewContainer.style.display = 'block';
-                    this.userInput.placeholder = "Опишите изображение или задайте вопрос...";
+                    this.userInput.placeholder = 'Опишите изображение или задайте вопрос...';
                     this.userInput.focus();
                 };
-                
-                reader.onerror = () => {
-                    alert('Ошибка при загрузке изображения');
-                };
-                
+                reader.onerror = () => alert('Ошибка при загрузке изображения');
                 reader.readAsDataURL(file);
-                
-                // Сбрасываем input для возможности загрузки того же файла снова
-                event.target.value = '';
+            }
+
+            handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt?.files;
+                if (!files || files.length === 0) return;
+                const file = Array.from(files).find(f => f.type.startsWith('image/'));
+                if (file) {
+                    this.loadImageFile(file);
+                }
+            }
+
+            handlePaste(e) {
+                const items = e.clipboardData?.items;
+                if (!items) return;
+                for (const item of items) {
+                    if (item.type.startsWith('image/')) {
+                        const file = item.getAsFile();
+                        if (file) this.loadImageFile(file);
+                        break;
+                    }
+                }
             }
 
             removeCurrentImage() {
@@ -1618,6 +1692,77 @@
                     console.error('Ошибка экспорта:', error);
                     this.addMessage('❌ Ошибка при экспорте чата', false, true);
                 }
+            }
+
+            exportChatAsJSON() {
+                try {
+                    const messages = Array.from(this.messagesContainer.querySelectorAll('.message')).map(msg => {
+                        const isUser = msg.classList.contains('user-message');
+                        const isAIImage = msg.classList.contains('ai-image-message');
+                        const base = {
+                            sender: isUser ? 'user' : 'ai',
+                            text: ''
+                        };
+                        if (isAIImage) {
+                            const img = msg.querySelector('img.generated-image');
+                            return { ...base, type: 'image', imageSrc: img?.src || '' };
+                        }
+                        const content = msg.querySelector('.message-content');
+                        return { ...base, type: 'text', text: content ? content.textContent : msg.textContent };
+                    });
+                    const payload = {
+                        app: 'Khuyew AI',
+                        version: 1,
+                        exportedAt: new Date().toISOString(),
+                        messages
+                    };
+                    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `khuyew-chat-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    this.addMessage('💾 JSON-файл с чатом сохранён!', false);
+                } catch (error) {
+                    console.error('Ошибка экспорта JSON:', error);
+                    this.addMessage('❌ Ошибка при экспорте JSON', false, true);
+                }
+            }
+
+            handleImportJson(e) {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const data = JSON.parse(reader.result);
+                        if (!data || !Array.isArray(data.messages)) throw new Error('Неверный формат');
+                        if (confirm('Очистить текущий чат перед импортом?')) {
+                            this.messagesContainer.innerHTML = '';
+                        }
+                        for (const m of data.messages) {
+                            if (m.type === 'image' && m.imageSrc) {
+                                this.addAIImageMessageFromSrc(m.imageSrc, m.text || '');
+                            } else {
+                                this.addMessage(m.text || '', m.sender === 'user');
+                            }
+                        }
+                        this.addMessage('✅ Чат импортирован из JSON', false);
+                    } catch (err) {
+                        console.error('Ошибка импорта JSON:', err);
+                        this.addMessage('❌ Ошибка импорта JSON-файла', false, true);
+                    } finally {
+                        e.target.value = '';
+                    }
+                };
+                reader.onerror = () => {
+                    this.addMessage('❌ Ошибка чтения файла JSON', false, true);
+                    e.target.value = '';
+                };
+                reader.readAsText(file);
             }
 
             clearChat() {
@@ -2057,39 +2202,7 @@
                         this.currentTypingIndicator.remove();
                         this.currentTypingIndicator = null;
                     }
-                    
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('message', 'ai-image-message');
-                    
-                    const textElement = document.createElement('div');
-                    textElement.textContent = '🎨 Сгенерировано изображение:';
-                    messageElement.appendChild(textElement);
-                    
-                    const img = document.createElement('img');
-                    if (image instanceof HTMLElement) {
-                        img.src = image.src;
-                    } else {
-                        img.src = image;
-                    }
-                    img.classList.add('generated-image');
-                    img.alt = `Изображение по запросу: ${prompt}`;
-                    img.onerror = () => {
-                        img.style.display = 'none';
-                        const errorMsg = document.createElement('div');
-                        errorMsg.textContent = '❌ Не удалось загрузить изображение';
-                        errorMsg.style.color = '#ff6b6b';
-                        errorMsg.style.marginTop = '10px';
-                        messageElement.appendChild(errorMsg);
-                    };
-                    messageElement.appendChild(img);
-                    
-                    const promptElement = document.createElement('div');
-                    promptElement.classList.add('image-prompt');
-                    promptElement.textContent = `Запрос: "${prompt}"`;
-                    messageElement.appendChild(promptElement);
-                    
-                    this.messagesContainer.appendChild(messageElement);
-                    this.scrollToBottom();
+                    this.addAIImageMessageFromSrc(image instanceof HTMLElement ? image.src : image, prompt);
                     
                 } catch (error) {
                     console.error('Ошибка генерации изображения:', error);
@@ -2104,6 +2217,35 @@
                     );
                 }
             }
+
+            addAIImageMessageFromSrc(src, prompt = '') {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', 'ai-image-message');
+                const textElement = document.createElement('div');
+                textElement.textContent = '🎨 Сгенерировано изображение:';
+                messageElement.appendChild(textElement);
+                const img = document.createElement('img');
+                img.src = src;
+                img.classList.add('generated-image');
+                img.alt = prompt ? `Изображение по запросу: ${prompt}` : 'Сгенерированное изображение';
+                img.onerror = () => {
+                    img.style.display = 'none';
+                    const errorMsg = document.createElement('div');
+                    errorMsg.textContent = '❌ Не удалось загрузить изображение';
+                    errorMsg.style.color = '#ff6b6b';
+                    errorMsg.style.marginTop = '10px';
+                    messageElement.appendChild(errorMsg);
+                };
+                messageElement.appendChild(img);
+                if (prompt) {
+                    const promptElement = document.createElement('div');
+                    promptElement.classList.add('image-prompt');
+                    promptElement.textContent = `Запрос: "${prompt}"`;
+                    messageElement.appendChild(promptElement);
+                }
+                this.messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+            }
         }
 
         // Инициализация приложения
@@ -2115,6 +2257,15 @@
                 alert('Произошла ошибка при загрузке приложения. Пожалуйста, обновите страницу.');
             }
         });
+
+        // Регистрация Service Worker для PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js').catch(err => {
+                    console.error('Service Worker registration failed:', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>

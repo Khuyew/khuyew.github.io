@@ -1,0 +1,17 @@
+{
+  "name": "Khuyew AI",
+  "short_name": "Khuyew AI",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0f0f23",
+  "background_color": "#0f0f23",
+  "description": "Бесплатный ИИ-помощник с генерацией изображений и голосовым вводом.",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
