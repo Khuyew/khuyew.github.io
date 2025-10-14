@@ -432,15 +432,16 @@
 
         .input-wrapper {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             align-items: center;
             max-width: 900px;
             margin: 0 auto;
+            position: relative;
         }
 
         #user-input {
             flex: 1;
-            padding: 14px 18px;
+            padding: 14px 50px 14px 18px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.08);
@@ -449,6 +450,10 @@
             outline: none;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            resize: none;
+            min-height: 46px;
+            max-height: 120px;
+            overflow-y: auto;
         }
 
         #user-input::placeholder {
@@ -474,6 +479,8 @@
             justify-content: center;
             transition: all 0.3s ease;
             flex-shrink: 0;
+            position: absolute;
+            right: 8px;
         }
 
         #send-button:hover {
@@ -486,12 +493,118 @@
             cursor: not-allowed;
         }
 
-        #send-button svg {
-            width: 18px;
-            height: 18px;
+        #voiceButton {
+            position: absolute;
+            right: 60px;
+            background: transparent;
+            border: none;
+            color: #a0a0c0;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
-        /* Исправленные кнопки действий - компактные и горизонтальные */
+        #voiceButton:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        #imageUploadButton {
+            position: absolute;
+            right: 98px;
+            background: transparent;
+            border: none;
+            color: #a0a0c0;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        #imageUploadButton:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .voice-recording {
+            background: linear-gradient(135deg, #ff4444, #ff6b6b) !important;
+            animation: voicePulse 1.5s ease-in-out infinite !important;
+            color: white !important;
+        }
+
+        @keyframes voicePulse {
+            0%, 100% { 
+                transform: scale(1);
+            }
+            50% { 
+                transform: scale(1.02);
+            }
+        }
+
+        /* Preview изображения */
+        .image-preview-container {
+            max-width: 900px;
+            margin: 12px auto 0 auto;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .image-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .image-preview-title {
+            font-size: 12px;
+            color: #a0a0c0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .remove-image-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0c0;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .remove-image-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            display: block;
+        }
+
+        /* Action buttons */
         .action-buttons {
             display: flex;
             gap: 6px;
@@ -554,23 +667,6 @@
             margin-top: 8px;
             transition: width 0.1s ease;
             max-width: 100%;
-        }
-
-        /* Voice recording */
-        .voice-recording {
-            background: linear-gradient(135deg, #ff4444, #ff6b6b) !important;
-            animation: voicePulse 1.5s ease-in-out infinite !important;
-            color: white !important;
-            border-color: #ff4444 !important;
-        }
-
-        @keyframes voicePulse {
-            0%, 100% { 
-                transform: scale(1);
-            }
-            50% { 
-                transform: scale(1.02);
-            }
         }
 
         /* Error message */
@@ -778,12 +874,25 @@
             }
             
             #user-input {
-                padding: 12px 16px;
+                padding: 12px 45px 12px 16px;
             }
             
             #send-button {
                 width: 42px;
                 height: 42px;
+                right: 6px;
+            }
+            
+            #voiceButton {
+                right: 54px;
+                width: 30px;
+                height: 30px;
+            }
+            
+            #imageUploadButton {
+                right: 90px;
+                width: 30px;
+                height: 30px;
             }
             
             .action-buttons {
@@ -834,6 +943,10 @@
             
             .footer-separator {
                 display: none;
+            }
+            
+            #imageUploadButton {
+                right: 80px;
             }
         }
 
@@ -946,6 +1059,22 @@
         body.light-theme .belarus-flag::before {
             border-color: rgba(0,0,0,0.3);
         }
+
+        body.light-theme .image-preview-container {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme .remove-image-btn {
+            background: rgba(0, 0, 0, 0.1);
+            border-color: rgba(0, 0, 0, 0.2);
+            color: #666;
+        }
+
+        body.light-theme .remove-image-btn:hover {
+            background: rgba(0, 0, 0, 0.15);
+            color: #2d3748;
+        }
     </style>
 </head>
 <body>
@@ -968,21 +1097,35 @@
             </div>
             
             <div class="input-container">
+                <!-- Preview загруженного изображения -->
+                <div class="image-preview-container" id="imagePreviewContainer">
+                    <div class="image-preview-header">
+                        <div class="image-preview-title">
+                            <i class="ti ti-photo"></i>
+                            Изображение для анализа
+                        </div>
+                        <button class="remove-image-btn" id="removeImageBtn">
+                            <i class="ti ti-x"></i>
+                            Удалить
+                        </button>
+                    </div>
+                    <img class="image-preview" id="imagePreview">
+                </div>
+                
                 <div class="input-wrapper">
-                    <input type="text" id="user-input" placeholder="Задайте вопрос или опишите изображение..." autocomplete="off">
+                    <textarea id="user-input" placeholder="Задайте вопрос или опишите изображение..." autocomplete="off" rows="1"></textarea>
+                    <button id="imageUploadButton">
+                        <i class="ti ti-photo-up"></i>
+                    </button>
+                    <button id="voiceButton">
+                        <i class="ti ti-microphone"></i>
+                    </button>
                     <button id="send-button">
                         <i class="ti ti-send"></i>
                     </button>
                 </div>
+                
                 <div class="action-buttons">
-                    <button class="action-button" id="generateImageBtn">
-                        <i class="ti ti-palette"></i>
-                        Сгенерировать
-                    </button>
-                    <button class="action-button" id="voiceButton">
-                        <i class="ti ti-microphone"></i>
-                        Голос
-                    </button>
                     <button class="action-button" id="helpButton">
                         <i class="ti ti-help"></i>
                         Помощь
@@ -1026,6 +1169,9 @@
         <div id="modalCaption"></div>
     </div>
 
+    <!-- Скрытый input для загрузки файлов -->
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
@@ -1036,11 +1182,19 @@
                 this.messagesContainer = document.getElementById('messagesContainer');
                 this.userInput = document.getElementById('user-input');
                 this.sendButton = document.getElementById('send-button');
+                this.voiceButton = document.getElementById('voiceButton');
+                this.imageUploadButton = document.getElementById('imageUploadButton');
+                this.fileInput = document.getElementById('fileInput');
+                this.imagePreviewContainer = document.getElementById('imagePreviewContainer');
+                this.imagePreview = document.getElementById('imagePreview');
+                this.removeImageBtn = document.getElementById('removeImageBtn');
+                
                 this.introCompleted = false;
                 this.lastUserMessage = null;
                 this.isProcessing = false;
                 this.currentStream = null;
                 this.currentTypingIndicator = null;
+                this.currentImage = null;
                 
                 this.init();
             }
@@ -1062,6 +1216,7 @@
                 this.initTheme();
                 this.initImageModal();
                 this.setupEventListeners();
+                this.setupTextareaAutoResize();
                 
                 // Фокус на поле ввода
                 this.userInput.focus();
@@ -1088,14 +1243,6 @@
                     themeToggle.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.toggleTheme();
-                    });
-                }
-
-                const generateImageBtn = document.getElementById('generateImageBtn');
-                if (generateImageBtn) {
-                    generateImageBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.handleGenerateImage();
                     });
                 }
 
@@ -1138,11 +1285,24 @@
                     this.sendMessage();
                 });
                 
-                this.userInput.addEventListener('keypress', (e) => {
+                this.userInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
                         this.sendMessage();
                     }
+                });
+
+                // Загрузка изображений
+                this.imageUploadButton.addEventListener('click', () => {
+                    this.fileInput.click();
+                });
+
+                this.fileInput.addEventListener('change', (e) => {
+                    this.handleImageUpload(e);
+                });
+
+                this.removeImageBtn.addEventListener('click', () => {
+                    this.removeCurrentImage();
                 });
 
                 // Автофокус при клике в любое место чата
@@ -1167,13 +1327,22 @@
                 }, true);
             }
 
+            setupTextareaAutoResize() {
+                this.userInput.addEventListener('input', () => {
+                    this.userInput.style.height = 'auto';
+                    this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+                });
+            }
+
             async sendMessage() {
                 if (this.isProcessing) {
                     return;
                 }
 
                 const message = this.userInput.value.trim();
-                if (message === '') return;
+                const hasImage = this.currentImage !== null;
+                
+                if (message === '' && !hasImage) return;
                 
                 this.isProcessing = true;
                 this.sendButton.disabled = true;
@@ -1184,17 +1353,29 @@
                         document.querySelector('.skip-intro')?.remove();
                     }
                     
-                    this.addUserMessage(message);
+                    // Добавляем сообщение пользователя
+                    if (hasImage) {
+                        this.addUserMessageWithImage(message, this.currentImage);
+                    } else {
+                        this.addUserMessage(message);
+                    }
+                    
                     this.userInput.value = '';
+                    this.userInput.style.height = 'auto';
+                    this.removeCurrentImage();
                     
                     const requestType = this.analyzeRequest(message);
                     
-                    if (requestType === 'generate') {
+                    if (requestType === 'generate' && !hasImage) {
                         await this.generateImage(message);
                         this.removePendingAnimation();
                     } else {
                         try {
-                            await this.streamTextResponse(message);
+                            if (hasImage) {
+                                await this.analyzeImageWithText(message, this.currentImage);
+                            } else {
+                                await this.streamTextResponse(message);
+                            }
                             this.removePendingAnimation();
                         } catch (error) {
                             console.error('Ошибка получения ответа:', error);
@@ -1226,6 +1407,36 @@
                 return messageElement;
             }
 
+            addUserMessageWithImage(text, imageData) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', 'user-message', 'pending');
+                
+                const contentElement = document.createElement('div');
+                contentElement.classList.add('message-content');
+                
+                if (text) {
+                    contentElement.textContent = text;
+                }
+                
+                // Добавляем изображение
+                const imgElement = document.createElement('img');
+                imgElement.src = imageData;
+                imgElement.classList.add('generated-image');
+                imgElement.style.maxWidth = '200px';
+                imgElement.style.maxHeight = '150px';
+                imgElement.style.marginTop = '10px';
+                imgElement.alt = 'Загруженное изображение';
+                
+                contentElement.appendChild(imgElement);
+                messageElement.appendChild(contentElement);
+                
+                this.messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+                this.lastUserMessage = messageElement;
+                
+                return messageElement;
+            }
+
             removePendingAnimation() {
                 if (this.lastUserMessage) {
                     this.lastUserMessage.classList.remove('pending');
@@ -1233,22 +1444,40 @@
                 }
             }
 
-            handleGenerateImage() {
-                const prompt = this.userInput.value.trim();
-                if (prompt) {
-                    this.sendMessage();
-                } else {
-                    this.userInput.placeholder = "🎨 Опишите что нарисовать...";
-                    this.userInput.focus();
+            handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                if (!file.type.startsWith('image/')) {
+                    alert('Пожалуйста, выберите файл изображения');
+                    return;
                 }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.currentImage = e.target.result;
+                    this.imagePreview.src = this.currentImage;
+                    this.imagePreviewContainer.style.display = 'block';
+                    this.userInput.placeholder = "Опишите изображение или задайте вопрос...";
+                };
+                reader.readAsDataURL(file);
+                
+                // Сбрасываем input для возможности загрузки того же файла снова
+                event.target.value = '';
+            }
+
+            removeCurrentImage() {
+                this.currentImage = null;
+                this.imagePreviewContainer.style.display = 'none';
+                this.userInput.placeholder = "Задайте вопрос или опишите изображение...";
             }
 
             // Введение бота
             async showIntro() {
                 const introMessages = [
                     "👋 Привет! Я **Khuyew AI** - полностью бесплатный ИИ-помощник.",
-                    "✨ Я умею отвечать на вопросы и генерировать изображения по вашему описанию!",
-                    "💡 **Быстрый старт:** Просто напишите вопрос или скажите 'нарисуй кота'",
+                    "✨ Я умею отвечать на вопросы, анализировать изображения и генерировать картинки!",
+                    "💡 **Быстрый старт:** Напишите вопрос, загрузите изображение или скажите 'нарисуй кота'",
                     "🎯 Используйте кнопки ниже для быстрых действий",
                     "🚀 **Начните общение прямо сейчас!** Я полностью бесплатен и готов помочь!"
                 ];
@@ -1309,7 +1538,7 @@
                 this.introCompleted = true;
                 document.querySelector('.skip-intro')?.remove();
                 this.addMessage(
-                    '🎉 Отлично! Теперь вы можете задавать вопросы или генерировать изображения.', 
+                    '🎉 Отлично! Теперь вы можете задавать вопросы, загружать изображения или генерировать картинки.', 
                     false
                 );
             }
@@ -1318,12 +1547,14 @@
                 const helpMessage = `## 🎯 **Как использовать**
 
 • **Общение** - напишите вопрос
-• **Изображения** - "нарисуй кота", "сгенерируй пейзаж"
+• **Анализ изображений** - загрузите картинку и опишите что нужно сделать
+• **Генерация изображений** - "нарисуй кота", "сгенерируй пейзаж"
 • **Голосовой ввод** - нажмите 🎤 и говорите
 • **Markdown** - поддерживается форматирование
 
 ### ⌨️ **Горячие клавиши:**
 • **Enter** - отправить сообщение
+• **Shift + Enter** - новая строка
 • **ESC** - закрыть модальное окно`;
 
                 this.addMessage(helpMessage, false);
@@ -1363,6 +1594,7 @@
                     this.introCompleted = false;
                     this.isProcessing = false;
                     this.sendButton.disabled = false;
+                    this.removeCurrentImage();
                     
                     // Отмена текущего стрима
                     if (this.currentStream) {
@@ -1386,6 +1618,7 @@
 
 • Все данные хранятся **только в вашем браузере**
 • История чата **не передаётся** на сервер
+• Изображения обрабатываются локально
 • Для полной очистки используйте кнопку **"🗑️ Очистить"**`;
 
                 this.addMessage(privacyMessage, false);
@@ -1490,7 +1723,7 @@
             initVoiceRecognition() {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (!SpeechRecognition) {
-                    document.getElementById('voiceButton').style.display = 'none';
+                    this.voiceButton.style.display = 'none';
                     return;
                 }
 
@@ -1500,12 +1733,11 @@
                     this.recognition.lang = 'ru-RU';
                     this.recognition.interimResults = true;
 
-                    const voiceButton = document.getElementById('voiceButton');
                     const voiceLevel = document.getElementById('voiceLevel');
 
                     this.recognition.onstart = () => {
-                        voiceButton.classList.add('voice-recording');
-                        voiceButton.innerHTML = '<i class="ti ti-square"></i>Стоп';
+                        this.voiceButton.classList.add('voice-recording');
+                        this.voiceButton.innerHTML = '<i class="ti ti-square"></i>';
                         voiceLevel.style.display = 'block';
                     };
 
@@ -1518,24 +1750,25 @@
                         }
                         if (transcript) {
                             this.userInput.value = transcript;
+                            this.userInput.dispatchEvent(new Event('input'));
                         }
                     };
 
                     this.recognition.onend = () => {
-                        voiceButton.classList.remove('voice-recording');
-                        voiceButton.innerHTML = '<i class="ti ti-microphone"></i>Голос';
+                        this.voiceButton.classList.remove('voice-recording');
+                        this.voiceButton.innerHTML = '<i class="ti ti-microphone"></i>';
                         voiceLevel.style.display = 'none';
                     };
 
                     this.recognition.onerror = (event) => {
                         console.error('Ошибка распознавания:', event.error);
-                        voiceButton.classList.remove('voice-recording');
-                        voiceButton.innerHTML = '<i class="ti ti-microphone"></i>Голос';
+                        this.voiceButton.classList.remove('voice-recording');
+                        this.voiceButton.innerHTML = '<i class="ti ti-microphone"></i>';
                         voiceLevel.style.display = 'none';
                     };
 
-                    voiceButton.addEventListener('click', () => {
-                        if (voiceButton.classList.contains('voice-recording')) {
+                    this.voiceButton.addEventListener('click', () => {
+                        if (this.voiceButton.classList.contains('voice-recording')) {
                             this.recognition.stop();
                         } else {
                             try {
@@ -1547,7 +1780,7 @@
                     });
                 } catch (error) {
                     console.error('Ошибка инициализации голосового ввода:', error);
-                    document.getElementById('voiceButton').style.display = 'none';
+                    this.voiceButton.style.display = 'none';
                 }
             }
 
@@ -1608,7 +1841,7 @@
                         modalImg.src = e.target.src;
                         const caption = document.getElementById('modalCaption');
                         if (caption) {
-                            caption.textContent = e.target.alt || 'Сгенерированное изображение';
+                            caption.textContent = e.target.alt || 'Изображение';
                         }
                     }
                 });
@@ -1689,6 +1922,72 @@
                 }
                 
                 return aiMessageElement;
+            }
+
+            async analyzeImageWithText(text, imageData) {
+                // Создаем индикатор анализа
+                const analyzingIndicator = document.createElement('div');
+                analyzingIndicator.classList.add('message', 'ai-message');
+                analyzingIndicator.innerHTML = `
+                    <div class="ai-status">
+                        <i class="ti ti-eye"></i>
+                        ИИ анализирует изображение
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                
+                this.messagesContainer.appendChild(analyzingIndicator);
+                this.scrollToBottom();
+
+                const aiMessageElement = document.createElement('div');
+                aiMessageElement.classList.add('message', 'ai-message', 'ai-streaming');
+                
+                const contentElement = document.createElement('div');
+                contentElement.classList.add('message-content');
+                contentElement.innerHTML = '<span class="typing-cursor"></span>';
+                aiMessageElement.appendChild(contentElement);
+
+                try {
+                    // В реальном приложении здесь был бы вызов API для анализа изображения
+                    // Пока эмулируем ответ
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    analyzingIndicator.remove();
+                    this.messagesContainer.appendChild(aiMessageElement);
+                    
+                    // Эмулируем ответ ИИ об изображении
+                    const prompt = text ? `по изображению: "${text}"` : "по загруженному изображению";
+                    const response = await puter.ai.chat(`Проанализируй изображение и ответь ${prompt}. Опиши что на изображении и ответь на вопрос пользователя.`, { 
+                        model: "gpt-5-nano", 
+                        stream: true 
+                    });
+                    
+                    let fullText = '';
+                    
+                    for await (const part of response) {
+                        if (part?.text) {
+                            fullText += part.text;
+                            contentElement.innerHTML = '<span class="typing-cursor"></span>' + this.sanitizeHTML(fullText);
+                            this.scrollToBottom();
+                        }
+                    }
+                    
+                    contentElement.innerHTML = marked.parse(fullText);
+                    this.applyCodeHighlighting(contentElement);
+                    aiMessageElement.classList.remove('ai-streaming');
+                    
+                } catch (error) {
+                    console.error('Ошибка анализа изображения:', error);
+                    analyzingIndicator.remove();
+                    this.addMessage(
+                        '❌ Ошибка анализа изображения. Попробуйте еще раз.', 
+                        false, true
+                    );
+                }
             }
 
             async generateImage(prompt) {
