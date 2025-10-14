@@ -7,6 +7,8 @@
     <meta name="description" content="Khuyew AI - полностью бесплатный ИИ-помощник с генерацией изображений">
     <meta name="theme-color" content="#0f0f23">
     <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="shortcut icon" href="icons/icon.svg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <!-- Иконки Tabler Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
@@ -991,13 +993,18 @@
             #clearInputButton {
                 right: 112px;
             }
+            /* Prevent overlap of scroll controls with input on very small screens */
+            .scroll-controls {
+                left: 12px;
+                bottom: 120px;
+            }
         }
 
         /* Scroll controls */
         .scroll-controls {
             position: fixed;
-            right: 16px;
-            bottom: 86px; /* above input area */
+            left: 16px;
+            bottom: 100px; /* above input area and away from send button */
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -1902,6 +1909,18 @@
                 }
             }
 
+            // Преобразование data URL в File/Blob для корректной передачи изображений
+            async dataURLToFile(dataURL, filename = 'image.png') {
+                const res = await fetch(dataURL);
+                const blob = await res.blob();
+                const type = blob.type || 'image/png';
+                try {
+                    return new File([blob], filename, { type });
+                } catch (e) {
+                    return new Blob([blob], { type });
+                }
+            }
+
             scrollToLastAIMessage() {
                 const aiMessages = this.messagesContainer.querySelectorAll('.message.ai-message, .message.ai-image-message');
                 const last = aiMessages[aiMessages.length - 1];
@@ -2237,22 +2256,30 @@
                         this.messagesContainer.appendChild(aiMessageElement);
                     }
                     
-                    // Формируем подсказку и передаём изображение модели
+                    // Формируем подсказку и подготавливаем изображение к отправке
                     const prompt = text ? `Проанализируй прикреплённое изображение и ответь по запросу: "${text}". Сначала кратко (1-2 предложения) опиши, что на изображении, затем ответь по сути.` : 
                         "Проанализируй прикреплённое изображение. Опиши, что на нём, затем сделай выводы.";
 
-                    // Пробуем мультимодальный режим с передачей изображения
+                    // Пытаемся отправить изображение в мультимодальную (vision) модель
                     let response;
                     try {
+                        const imageFile = await this.dataURLToFile(imageData, 'upload.png');
                         response = await puter.ai.chat(prompt, {
-                            model: "gpt-5-nano",
+                            model: "gpt-5-vision",
                             stream: true,
-                            images: [imageData]
+                            images: [imageFile]
                         });
                     } catch (mmErr) {
-                        // Фолбэк: инлайн-ссылка на data URL (на случай если images не поддерживается)
-                        const fallbackPrompt = `${prompt}\n\nВспомогательная ссылка на изображение (data URL): ${imageData.slice(0, 128)}...`;
-                        response = await puter.ai.chat(fallbackPrompt, { model: "gpt-5-nano", stream: true });
+                        try {
+                            response = await puter.ai.chat(prompt, {
+                                model: "gpt-5-vision",
+                                stream: true,
+                                images: [imageData]
+                            });
+                        } catch (innerErr) {
+                            const fallbackPrompt = `${prompt}\n\nВспомогательная ссылка на изображение (data URL, усечено): ${imageData.slice(0, 128)}...`;
+                            response = await puter.ai.chat(fallbackPrompt, { model: "gpt-5-nano", stream: true });
+                        }
                     }
                     
                     let fullText = '';
