@@ -2,10 +2,16 @@
 class AIStreaming {
     constructor(messagesContainer) {
         this.messagesContainer = messagesContainer;
+        this.currentStream = null;
     }
 
     // Стриминг текстового ответа
     async streamTextResponse(prompt) {
+        // Отменяем предыдущий стрим, если он есть
+        if (this.currentStream) {
+            this.currentStream.cancel?.();
+        }
+
         const aiMessageElement = document.createElement('div');
         aiMessageElement.classList.add('message', 'ai-message', 'ai-streaming');
         this.messagesContainer.appendChild(aiMessageElement);
@@ -18,6 +24,7 @@ class AIStreaming {
                 stream: true 
             });
             
+            this.currentStream = response;
             let fullText = '';
             
             for await (const part of response) {
@@ -25,21 +32,70 @@ class AIStreaming {
                     fullText += part.text;
                     aiMessageElement.innerHTML = sanitizeHTML(fullText) + '<span class="typing-cursor"></span>';
                     scrollToBottom(this.messagesContainer);
+                    
+                    // Сохраняем прогресс в историю
+                    this.saveStreamingProgress(fullText);
                 }
             }
             
             // Убираем курсор после завершения
             aiMessageElement.innerHTML = sanitizeHTML(fullText);
             aiMessageElement.classList.remove('ai-streaming');
+            this.currentStream = null;
+            
+            // Сохраняем финальную версию
+            saveChatHistory(this.messagesContainer);
             
         } catch (error) {
             console.error('Ошибка стриминга:', error);
             aiMessageElement.remove();
+            this.currentStream = null;
+            
+            // Показываем сообщение об ошибке
+            const errorElement = addMessage(this.messagesContainer, 
+                "Извините, произошла ошибка при получении ответа. Пожалуйста, попробуйте еще раз.", 
+                false, true);
+                
             throw error;
         }
         
-        saveChatHistory(this.messagesContainer);
         return aiMessageElement;
+    }
+
+    // Сохранение прогресса стриминга
+    saveStreamingProgress(text) {
+        try {
+            const messages = Array.from(this.messagesContainer.querySelectorAll('.message'));
+            const lastAiMessage = messages.reverse().find(msg => 
+                msg.classList.contains('ai-message') && 
+                msg.classList.contains('ai-streaming')
+            );
+            
+            if (lastAiMessage) {
+                const tempMessages = messages.filter(msg => msg !== lastAiMessage);
+                const chatData = tempMessages.map(msg => ({
+                    text: msg.textContent,
+                    isUser: msg.classList.contains('user-message'),
+                    isError: msg.classList.contains('error-message'),
+                    isImage: msg.classList.contains('ai-image-message'),
+                    timestamp: new Date().toISOString()
+                }));
+                
+                // Добавляем текущий прогресс
+                chatData.push({
+                    text: text,
+                    isUser: false,
+                    isError: false,
+                    isImage: false,
+                    timestamp: new Date().toISOString(),
+                    isStreaming: true
+                });
+                
+                localStorage.setItem('khuyew-chat-history', JSON.stringify(chatData));
+            }
+        } catch (error) {
+            console.error('Ошибка сохранения прогресса:', error);
+        }
     }
 
     // Генерация изображения
@@ -60,9 +116,15 @@ class AIStreaming {
             
         } catch (error) {
             console.error('Ошибка генерации изображения:', error);
-            document.querySelectorAll('.image-loading').forEach(el => el.closest('.message').remove());
+            
+            // Удаляем все элементы загрузки
+            document.querySelectorAll('.image-loading').forEach(el => {
+                const message = el.closest('.message');
+                if (message) message.remove();
+            });
+            
             addMessage(this.messagesContainer, 
-                'Извините, произошла ошибка при генерации изображения. Пожалуйста, попробуйте другой запрос.', 
+                'Извините, произошла ошибка при генерации изображения. Пожалуйста, попробуйте другой запрос или проверьте подключение к интернету.', 
                 false, true);
         }
     }
@@ -76,8 +138,18 @@ class AIStreaming {
         textElement.textContent = 'Сгенерировано изображение:';
         messageElement.appendChild(textElement);
         
-        imageElement.classList.add('generated-image');
-        messageElement.appendChild(imageElement);
+        // Убедимся, что imageElement - это DOM элемент
+        if (imageElement instanceof HTMLElement) {
+            imageElement.classList.add('generated-image');
+            messageElement.appendChild(imageElement);
+        } else {
+            // Если это URL или другой формат
+            const img = document.createElement('img');
+            img.src = imageElement;
+            img.classList.add('generated-image');
+            img.alt = 'Сгенерированное изображение';
+            messageElement.appendChild(img);
+        }
         
         if (promptText) {
             const promptElement = document.createElement('div');
@@ -90,5 +162,13 @@ class AIStreaming {
         scrollToBottom(this.messagesContainer);
         saveChatHistory(this.messagesContainer);
         manageChatStorage(this.messagesContainer);
+    }
+
+    // Остановка текущего стрима
+    cancelStream() {
+        if (this.currentStream) {
+            this.currentStream.cancel?.();
+            this.currentStream = null;
+        }
     }
 }
