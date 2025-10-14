@@ -7,12 +7,49 @@ function sanitizeHTML(text) {
     return div.innerHTML;
 }
 
-// Прокрутка вниз
+// Дебаунсинг функций для оптимизации производительности
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Троттлинг функций
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// Оптимизированная прокрутка вниз с использованием requestAnimationFrame
 function scrollToBottom(element) {
     if (element) {
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             element.scrollTop = element.scrollHeight;
-        }, 100);
+        });
+    }
+}
+
+// Плавная прокрутка вниз
+function smoothScrollToBottom(element) {
+    if (element) {
+        element.scrollTo({
+            top: element.scrollHeight,
+            behavior: 'smooth'
+        });
     }
 }
 
@@ -209,31 +246,80 @@ function initImageModal() {
     const caption = document.getElementById('modalCaption');
     const close = document.querySelector('.close');
     
-    // Закрытие модального окна
-    close.addEventListener('click', () => {
+    if (!modal || !modalImg || !caption || !close) return;
+    
+    // Функция открытия модального окна
+    function openModal(src, alt) {
+        modal.style.display = 'block';
+        modal.setAttribute('aria-hidden', 'false');
+        modalImg.src = src;
+        modalImg.alt = alt || 'Увеличенное изображение';
+        caption.textContent = alt || 'Сгенерированное изображение';
+        
+        // Фокус на кнопку закрытия
+        close.focus();
+        
+        // Блокируем скролл страницы
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Функция закрытия модального окна
+    function closeModal() {
         modal.style.display = 'none';
-    });
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        
+        // Возвращаем фокус на изображение, которое открыло модальное окно
+        const focusedImage = document.querySelector('.generated-image:focus');
+        if (focusedImage) {
+            focusedImage.focus();
+        }
+    }
+    
+    // Закрытие модального окна
+    close.addEventListener('click', closeModal);
     
     // Закрытие при клике вне изображения
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            modal.style.display = 'none';
+            closeModal();
         }
     });
     
     // Обработчики для всех изображений
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('generated-image')) {
-            modal.style.display = 'block';
-            modalImg.src = e.target.src;
-            caption.textContent = e.target.alt || 'Сгенерированное изображение';
+            openModal(e.target.src, e.target.alt);
         }
     });
     
-    // Закрытие по ESC
+    // Поддержка клавиатуры для изображений
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'block') {
-            modal.style.display = 'none';
+        if (e.target.classList.contains('generated-image') && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            openModal(e.target.src, e.target.alt);
+        }
+    });
+    
+    // Закрытие по ESC и управление фокусом в модальном окне
+    document.addEventListener('keydown', (e) => {
+        if (modal.style.display === 'block') {
+            if (e.key === 'Escape') {
+                closeModal();
+            } else if (e.key === 'Tab') {
+                // Ограничиваем фокус внутри модального окна
+                const focusableElements = modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+                
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
         }
     });
 }

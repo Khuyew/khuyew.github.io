@@ -189,12 +189,18 @@ class AIStreaming {
         if (imageElement instanceof HTMLElement) {
             imageElement.classList.add('generated-image');
             imageElement.alt = `Изображение по запросу: ${promptText}`;
+            imageElement.setAttribute('tabindex', '0');
+            imageElement.setAttribute('role', 'button');
+            imageElement.setAttribute('aria-label', `Увеличить изображение: ${promptText}`);
             messageElement.appendChild(imageElement);
         } else {
             const img = document.createElement('img');
             img.src = imageElement;
             img.classList.add('generated-image');
             img.alt = `Изображение по запросу: ${promptText}`;
+            img.setAttribute('tabindex', '0');
+            img.setAttribute('role', 'button');
+            img.setAttribute('aria-label', `Увеличить изображение: ${promptText}`);
             messageElement.appendChild(img);
         }
         
@@ -209,6 +215,49 @@ class AIStreaming {
         scrollToBottom(this.messagesContainer);
         saveChatHistory(this.messagesContainer);
         manageChatStorage(this.messagesContainer);
+    }
+
+    // Анализ изображения с текстом
+    async analyzeImageWithText(text, imageData) {
+        try {
+            // Создаем индикатор анализа
+            const analyzingElement = document.createElement('div');
+            analyzingElement.classList.add('message', 'ai-message');
+            analyzingElement.innerHTML = `
+                <div class="ai-status">
+                    <i class="ti ti-eye"></i>
+                    ИИ анализирует изображение
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            this.messagesContainer.appendChild(analyzingElement);
+            scrollToBottom(this.messagesContainer);
+            
+            // Эмулируем задержку анализа
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Удаляем индикатор анализа
+            analyzingElement.remove();
+            
+            // Создаем промпт для анализа изображения
+            const prompt = text ? 
+                `Проанализируй изображение и ответь на вопрос: "${text}"` : 
+                "Проанализируй это изображение и опиши что на нем изображено";
+            
+            // Используем обычный текстовый ответ (в реальном приложении здесь был бы API для анализа изображений)
+            await this.streamTextResponse(prompt + ". (Примечание: Анализ изображений временно недоступен, но я могу помочь с текстовыми вопросами!)");
+            
+        } catch (error) {
+            console.error('Ошибка анализа изображения:', error);
+            addMessage(this.messagesContainer, 
+                '❌ Ошибка анализа изображения. Попробуйте еще раз.', 
+                false, true);
+        }
     }
 
     // Остановка текущего стрима

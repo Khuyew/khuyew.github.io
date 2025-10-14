@@ -45,7 +45,8 @@ class VoiceRecognition {
         this.recognition.onstart = () => {
             this.isRecording = true;
             voiceButton.classList.add('voice-recording');
-            voiceButton.innerHTML = '🔴 Стоп';
+            voiceButton.innerHTML = '<i class="ti ti-square"></i>';
+            voiceButton.title = 'Остановить запись';
             if (voiceLevel) voiceLevel.style.display = 'block';
             this.startVoiceVisualization();
         };
@@ -153,7 +154,8 @@ class VoiceRecognition {
         this.isRecording = false;
         if (voiceButton) {
             voiceButton.classList.remove('voice-recording');
-            voiceButton.innerHTML = '🎤 Голос';
+            voiceButton.innerHTML = '<i class="ti ti-microphone"></i>';
+            voiceButton.title = 'Голосовой ввод';
         }
         if (voiceLevel) {
             voiceLevel.style.display = 'none';
@@ -184,7 +186,8 @@ class VoiceRecognition {
             const bufferLength = this.analyser.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
             
-            const updateVoiceLevel = () => {
+            // Троттлим обновление визуализации для лучшей производительности
+            const throttledUpdate = throttle(() => {
                 if (!this.isRecording) return;
                 
                 this.analyser.getByteFrequencyData(dataArray);
@@ -196,6 +199,11 @@ class VoiceRecognition {
                 const level = Math.min(average / 128, 1);
                 
                 voiceLevel.style.width = `${level * 100}%`;
+            }, 50);
+            
+            const updateVoiceLevel = () => {
+                if (!this.isRecording) return;
+                throttledUpdate();
                 requestAnimationFrame(updateVoiceLevel);
             };
             
