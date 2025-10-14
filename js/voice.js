@@ -5,21 +5,34 @@ class VoiceRecognition {
         this.recognition = null;
         this.audioContext = null;
         this.analyser = null;
+        this.mediaStream = null;
         this.init();
     }
 
     init() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
-            this.recognition = new SpeechRecognition();
-            this.recognition.continuous = false;
-            this.recognition.lang = 'ru-RU';
-            this.recognition.interimResults = false;
-            this.recognition.maxAlternatives = 1;
-            
-            this.setupEventListeners();
+            try {
+                this.recognition = new SpeechRecognition();
+                this.recognition.continuous = false;
+                this.recognition.lang = 'ru-RU';
+                this.recognition.interimResults = false;
+                this.recognition.maxAlternatives = 1;
+                
+                this.setupEventListeners();
+            } catch (error) {
+                console.error('Ошибка инициализации распознавания голоса:', error);
+                this.disableVoiceButton();
+            }
         } else {
-            document.getElementById('voiceButton').style.display = 'none';
+            this.disableVoiceButton();
+        }
+    }
+
+    disableVoiceButton() {
+        const voiceButton = document.getElementById('voiceButton');
+        if (voiceButton) {
+            voiceButton.style.display = 'none';
         }
     }
 
@@ -27,30 +40,43 @@ class VoiceRecognition {
         const voiceButton = document.getElementById('voiceButton');
         const voiceLevel = document.getElementById('voiceLevel');
         
+        if (!voiceButton) return;
+        
         this.recognition.onstart = () => {
             this.isRecording = true;
             voiceButton.classList.add('voice-recording');
             voiceButton.innerHTML = '🔴 Стоп';
-            voiceLevel.style.display = 'block';
+            if (voiceLevel) voiceLevel.style.display = 'block';
             this.startVoiceVisualization();
         };
         
         this.recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            document.getElementById('user-input').value = transcript;
-            document.getElementById('user-input').focus();
+            if (event.results.length > 0 && event.results[0].length > 0) {
+                const transcript = event.results[0][0].transcript;
+                const userInput = document.getElementById('user-input');
+                if (userInput) {
+                    userInput.value = transcript;
+                    userInput.focus();
+                }
+            }
         };
         
         this.recognition.onerror = (event) => {
             console.error('Ошибка распознавания голоса:', event.error);
             this.stop();
             
+            const messagesContainer = document.getElementById('messagesContainer');
+            if (!messagesContainer) return;
+            
             if (event.error === 'not-allowed') {
-                addMessage(document.getElementById('messagesContainer'), 
+                addMessage(messagesContainer, 
                     'Доступ к микрофону запрещен. Разрешите доступ в настройках браузера.', false, true);
             } else if (event.error === 'no-speech') {
-                addMessage(document.getElementById('messagesContainer'), 
+                addMessage(messagesContainer, 
                     'Речь не распознана. Попробуйте еще раз.', false, true);
+            } else if (event.error === 'audio-capture') {
+                addMessage(messagesContainer, 
+                    'Не удалось получить доступ к микрофону. Проверьте настройки.', false, true);
             }
         };
         
@@ -69,7 +95,14 @@ class VoiceRecognition {
 
     start() {
         const voiceButton = document.getElementById('voiceButton');
+        if (!voiceButton || !this.recognition) return;
+        
         try {
+            // Проверяем поддержку getUserMedia
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('Браузер не поддерживает доступ к микрофону');
+            }
+            
             this.recognition.start();
             voiceButton.disabled = true;
             setTimeout(() => {
@@ -78,6 +111,12 @@ class VoiceRecognition {
         } catch (error) {
             console.error('Ошибка запуска распознавания:', error);
             voiceButton.disabled = false;
+            
+            const messagesContainer = document.getElementById('messagesContainer');
+            if (messagesContainer) {
+                addMessage(messagesContainer, 
+                    'Ошибка доступа к микрофону. Проверьте разрешения браузера.', false, true);
+            }
         }
     }
 
@@ -86,56 +125,76 @@ class VoiceRecognition {
         const voiceLevel = document.getElementById('voiceLevel');
         
         if (this.recognition && this.isRecording) {
-            this.recognition.stop();
+            try {
+                this.recognition.stop();
+            } catch (error) {
+                console.error('Ошибка остановки распознавания:', error);
+            }
         }
         this.isRecording = false;
-        voiceButton.classList.remove('voice-recording');
-        voiceButton.innerHTML = '🎤 Голос';
-        voiceLevel.style.display = 'none';
+        if (voiceButton) {
+            voiceButton.classList.remove('voice-recording');
+            voiceButton.innerHTML = '🎤 Голос';
+        }
+        if (voiceLevel) {
+            voiceLevel.style.display = 'none';
+        }
         this.stopVoiceVisualization();
     }
 
-    startVoiceVisualization() {
+    async startVoiceVisualization() {
         const voiceLevel = document.getElementById('voiceLevel');
-        if (!navigator.mediaDevices) return;
+        if (!voiceLevel || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
         
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then(stream => {
-                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                this.analyser = this.audioContext.createAnalyser();
-                const microphone = this.audioContext.createMediaStreamSource(stream);
-                microphone.connect(this.analyser);
-                this.analyser.fftSize = 256;
-                
-                const bufferLength = this.analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                
-                const updateVoiceLevel = () => {
-                    if (!this.isRecording) return;
-                    
-                    this.analyser.getByteFrequencyData(dataArray);
-                    let sum = 0;
-                    for (let i = 0; i < bufferLength; i++) {
-                        sum += dataArray[i];
-                    }
-                    const average = sum / bufferLength;
-                    const level = Math.min(average / 128, 1);
-                    
-                    voiceLevel.style.width = `${level * 100}%`;
-                    requestAnimationFrame(updateVoiceLevel);
-                };
-                
-                updateVoiceLevel();
-            })
-            .catch(err => {
-                console.error('Ошибка доступа к микрофону:', err);
+        try {
+            this.mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }, 
+                video: false 
             });
+            
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.analyser = this.audioContext.createAnalyser();
+            const microphone = this.audioContext.createMediaStreamSource(this.mediaStream);
+            microphone.connect(this.analyser);
+            this.analyser.fftSize = 256;
+            
+            const bufferLength = this.analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            const updateVoiceLevel = () => {
+                if (!this.isRecording) return;
+                
+                this.analyser.getByteFrequencyData(dataArray);
+                let sum = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    sum += dataArray[i];
+                }
+                const average = sum / bufferLength;
+                const level = Math.min(average / 128, 1);
+                
+                voiceLevel.style.width = `${level * 100}%`;
+                requestAnimationFrame(updateVoiceLevel);
+            };
+            
+            updateVoiceLevel();
+        } catch (err) {
+            console.error('Ошибка визуализации голоса:', err);
+        }
     }
 
     stopVoiceVisualization() {
+        if (this.mediaStream) {
+            this.mediaStream.getTracks().forEach(track => track.stop());
+            this.mediaStream = null;
+        }
         if (this.audioContext) {
-            this.audioContext.close();
+            this.audioContext.close().catch(console.error);
             this.audioContext = null;
         }
+        this.analyser = null;
     }
 }
