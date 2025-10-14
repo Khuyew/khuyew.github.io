@@ -3,7 +3,8 @@ class AIStreaming {
     constructor(messagesContainer) {
         this.messagesContainer = messagesContainer;
         this.currentStream = null;
-        this.streamingSpeed = 30; // Замедленная скорость печати (мс на символ)
+        this.streamingSpeed = 50; // Оптимальная скорость печати
+        this.chunkSize = 3; // Количество символов за один шаг
     }
 
     // Стриминг текстового ответа
@@ -15,8 +16,12 @@ class AIStreaming {
 
         const aiMessageElement = document.createElement('div');
         aiMessageElement.classList.add('message', 'ai-message', 'ai-streaming');
-        this.messagesContainer.appendChild(aiMessageElement);
         
+        const contentElement = document.createElement('div');
+        contentElement.classList.add('message-content');
+        aiMessageElement.appendChild(contentElement);
+        
+        this.messagesContainer.appendChild(aiMessageElement);
         scrollToBottom(this.messagesContainer);
 
         try {
@@ -27,93 +32,119 @@ class AIStreaming {
             
             this.currentStream = response;
             let fullText = '';
-            let lastUpdateTime = 0;
-            const minUpdateInterval = 50; // Минимальный интервал между обновлениями (мс)
+            let buffer = '';
+            let isFirstChunk = true;
             
             for await (const part of response) {
                 if (part?.text) {
+                    buffer += part.text;
                     fullText += part.text;
                     
-                    // Ограничиваем частоту обновлений для плавности
-                    const now = Date.now();
-                    if (now - lastUpdateTime >= minUpdateInterval) {
-                        this.updateMessageText(aiMessageElement, fullText);
-                        lastUpdateTime = now;
+                    // Обрабатываем буфер порциями для плавности
+                    if (buffer.length >= this.chunkSize || part.text.includes('\n')) {
+                        await this.typeText(contentElement, buffer, isFirstChunk);
+                        buffer = '';
+                        isFirstChunk = false;
                     }
                 }
             }
             
-            // Финальное обновление
-            this.updateMessageText(aiMessageElement, fullText, false);
+            // Обрабатываем оставшийся буфер
+            if (buffer.length > 0) {
+                await this.typeText(contentElement, buffer, isFirstChunk);
+            }
+            
+            // Финальное обновление с Markdown
+            this.finalizeMessage(contentElement, fullText);
             aiMessageElement.classList.remove('ai-streaming');
             this.currentStream = null;
-            
-            // Сохраняем финальную версию
-            saveChatHistory(this.messagesContainer);
             
         } catch (error) {
             console.error('Ошибка стриминга:', error);
             aiMessageElement.remove();
             this.currentStream = null;
             
-            // Показываем сообщение об ошибке
-            const errorElement = addMessage(this.messagesContainer, 
-                "Извините, произошла ошибка при получении ответа. Пожалуйста, попробуйте еще раз.", 
-                false, true);
-                
             throw error;
         }
         
         return aiMessageElement;
     }
 
-    // Плавное обновление текста сообщения
-    updateMessageText(element, text, isStreaming = true) {
-        if (isStreaming) {
-            element.innerHTML = sanitizeHTML(text) + '<span class="typing-cursor"></span>';
-        } else {
-            element.innerHTML = sanitizeHTML(text);
-        }
-        scrollToBottom(this.messagesContainer);
-        
-        // Сохраняем прогресс в историю
-        this.saveStreamingProgress(text);
+    // Плавная печать текста
+    async typeText(element, text, isFirstChunk = false) {
+        return new Promise(resolve => {
+            let i = 0;
+            const currentContent = element.innerHTML;
+            
+            const type = () => {
+                if (i < text.length) {
+                    const chunk = text.substring(i, i + 1);
+                    element.innerHTML = currentContent + sanitizeHTML(text.substring(0, i + 1)) + '<span class="typing-cursor"></span>';
+                    i++;
+                    
+                    // Разная скорость для разных символов
+                    let delay = this.streamingSpeed;
+                    if (chunk === '.' || chunk === '!' || chunk === '?') {
+                        delay = this.streamingSpeed * 3;
+                    } else if (chunk === ',' || chunk === ';') {
+                        delay = this.streamingSpeed * 2;
+                    } else if (chunk === ' ' || chunk === '\n') {
+                        delay = this.streamingSpeed / 2;
+                    }
+                    
+                    setTimeout(type, delay);
+                } else {
+                    resolve();
+                }
+            };
+            
+            type();
+        });
     }
 
-    // Сохранение прогресса стриминга
-    saveStreamingProgress(text) {
-        try {
-            const messages = Array.from(this.messagesContainer.querySelectorAll('.message'));
-            const lastAiMessage = messages.reverse().find(msg => 
-                msg.classList.contains('ai-message') && 
-                msg.classList.contains('ai-streaming')
-            );
+    // Финальная обработка сообщения с Markdown
+    finalizeMessage(element, text) {
+        element.innerHTML = marked.parse(text);
+        this.applyCodeHighlighting(element);
+        saveChatHistory(this.messagesContainer);
+        scrollToBottom(this.messagesContainer);
+    }
+
+    // Применение подсветки синтаксиса
+    applyCodeHighlighting(element) {
+        element.querySelectorAll('pre code').forEach((block) => {
+            const pre = block.closest('pre');
+            const language = block.className.replace('language-', '') || 'text';
             
-            if (lastAiMessage) {
-                const tempMessages = messages.filter(msg => msg !== lastAiMessage);
-                const chatData = tempMessages.map(msg => ({
-                    text: msg.textContent,
-                    isUser: msg.classList.contains('user-message'),
-                    isError: msg.classList.contains('error-message'),
-                    isImage: msg.classList.contains('ai-image-message'),
-                    timestamp: new Date().toISOString()
-                }));
-                
-                // Добавляем текущий прогресс
-                chatData.push({
-                    text: text,
-                    isUser: false,
-                    isError: false,
-                    isImage: false,
-                    timestamp: new Date().toISOString(),
-                    isStreaming: true
+            const codeHeader = document.createElement('div');
+            codeHeader.className = 'code-header';
+            
+            const languageSpan = document.createElement('span');
+            languageSpan.className = 'code-language';
+            languageSpan.textContent = language;
+            
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-button';
+            copyButton.innerHTML = '📋 Копировать';
+            
+            copyButton.addEventListener('click', () => {
+                const codeText = block.textContent;
+                navigator.clipboard.writeText(codeText).then(() => {
+                    copyButton.innerHTML = '✅ Скопировано!';
+                    copyButton.classList.add('copied');
+                    setTimeout(() => {
+                        copyButton.innerHTML = '📋 Копировать';
+                        copyButton.classList.remove('copied');
+                    }, 2000);
                 });
-                
-                localStorage.setItem('khuyew-chat-history', JSON.stringify(chatData));
-            }
-        } catch (error) {
-            console.error('Ошибка сохранения прогресса:', error);
-        }
+            });
+            
+            codeHeader.appendChild(languageSpan);
+            codeHeader.appendChild(copyButton);
+            
+            pre.insertBefore(codeHeader, block);
+            hljs.highlightElement(block);
+        });
     }
 
     // Генерация изображения
@@ -135,14 +166,13 @@ class AIStreaming {
         } catch (error) {
             console.error('Ошибка генерации изображения:', error);
             
-            // Удаляем все элементы загрузки
             document.querySelectorAll('.image-loading').forEach(el => {
                 const message = el.closest('.message');
                 if (message) message.remove();
             });
             
             addMessage(this.messagesContainer, 
-                'Извините, произошла ошибка при генерации изображения. Пожалуйста, попробуйте другой запрос или проверьте подключение к интернету.', 
+                '❌ Извините, произошла ошибка при генерации изображения. Пожалуйста, попробуйте другой запрос или проверьте подключение к интернету.', 
                 false, true);
         }
     }
@@ -153,19 +183,18 @@ class AIStreaming {
         messageElement.classList.add('message', 'ai-image-message');
         
         const textElement = document.createElement('div');
-        textElement.textContent = 'Сгенерировано изображение:';
+        textElement.textContent = '🎨 Сгенерировано изображение:';
         messageElement.appendChild(textElement);
         
-        // Убедимся, что imageElement - это DOM элемент
         if (imageElement instanceof HTMLElement) {
             imageElement.classList.add('generated-image');
+            imageElement.alt = `Изображение по запросу: ${promptText}`;
             messageElement.appendChild(imageElement);
         } else {
-            // Если это URL или другой формат
             const img = document.createElement('img');
             img.src = imageElement;
             img.classList.add('generated-image');
-            img.alt = 'Сгенерированное изображение';
+            img.alt = `Изображение по запросу: ${promptText}`;
             messageElement.appendChild(img);
         }
         
