@@ -20,24 +20,19 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
-
         body {
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
             color: #ffffff;
-            display: flex;
-            flex-direction: column;
+            overflow: hidden;
+            height: 100vh;
         }
 
         .container {
-            flex: 1;
+            width: 100%;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             background: rgba(255, 255, 255, 0.02);
-            min-height: 0; /* Важно для правильного flexbox */
         }
 
         /* Header */
@@ -47,7 +42,7 @@
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
             flex-shrink: 0;
-            z-index: 10;
+            transition: transform 0.3s ease;
         }
 
         .header-content {
@@ -123,7 +118,6 @@
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
-            min-height: 0; /* Важно для правильного flexbox */
         }
 
         .messages-container {
@@ -134,7 +128,6 @@
             flex-direction: column;
             gap: 16px;
             scroll-behavior: smooth;
-            min-height: 0; /* Важно для правильного flexbox */
         }
 
         .message {
@@ -440,6 +433,7 @@
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .input-wrapper {
@@ -453,7 +447,7 @@
 
         #user-input {
             flex: 1;
-            padding: 14px 60px 14px 18px; /* Уменьшено правое поле для кнопки отправки */
+            padding: 14px 170px 14px 18px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.08);
@@ -483,9 +477,9 @@
             background: linear-gradient(135deg, #0099ff, #0066ff);
             color: white;
             border: none;
-            border-radius: 50%; /* Круглая кнопка */
-            width: 40px;
-            height: 40px;
+            border-radius: 0 18px 18px 0;
+            width: 50px;
+            height: 46px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -493,27 +487,25 @@
             transition: all 0.3s ease;
             flex-shrink: 0;
             position: absolute;
-            right: 8px; /* Прижата к правому краю */
-            top: 50%;
-            transform: translateY(-50%);
-            box-shadow: 0 2px 10px rgba(0, 153, 255, 0.3);
+            right: 0;
+            top: 0;
+            z-index: 2;
         }
 
         #send-button:hover {
-            transform: translateY(-50%) scale(1.05);
-            box-shadow: 0 4px 15px rgba(0, 153, 255, 0.4);
+            background: linear-gradient(135deg, #0088ee, #0055dd);
+            transform: none;
         }
 
         #send-button:disabled {
             opacity: 0.6;
-            transform: translateY(-50%);
             cursor: not-allowed;
-            box-shadow: none;
+            background: linear-gradient(135deg, #666, #888);
         }
 
         #voiceButton {
             position: absolute;
-            right: 56px; /* Сдвинуто левее для круглой кнопки отправки */
+            right: 60px;
             background: transparent;
             border: none;
             color: #a0a0c0;
@@ -525,6 +517,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            z-index: 2;
         }
 
         #voiceButton:hover {
@@ -534,7 +527,7 @@
 
         #imageUploadButton {
             position: absolute;
-            right: 94px; /* Сдвинуто левее */
+            right: 98px;
             background: transparent;
             border: none;
             color: #a0a0c0;
@@ -546,6 +539,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            z-index: 2;
         }
 
         #imageUploadButton:hover {
@@ -555,7 +549,7 @@
 
         #clearInputButton {
             position: absolute;
-            right: 132px; /* слева от загрузки изображений */
+            right: 136px;
             background: transparent;
             border: none;
             color: #a0a0c0;
@@ -567,6 +561,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            z-index: 2;
         }
 
         #clearInputButton:hover {
@@ -761,7 +756,7 @@
             backdrop-filter: blur(10px);
             flex-shrink: 0;
             line-height: 1.4;
-            z-index: 10;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .footer-content {
@@ -866,64 +861,55 @@
             margin: 0 auto;
         }
 
-        /* Scroll controls - ИСПРАВЛЕННЫЕ */
-        .scroll-controls {
-            position: fixed;
-            z-index: 50;
-            pointer-events: none;
-        }
-
+        /* Кнопки прокрутки */
         .scroll-btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: rgba(255, 255, 255, 0.7);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0c0;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 12px;
-            font-weight: 500;
-        }
-
-        .scroll-btn:hover { 
-            background: rgba(255, 255, 255, 0.25); 
-            color: #ffffff; 
-            transform: scale(1.05);
-        }
-
-        /* Кнопка "К последнему сообщению бота" */
-        #scrollUpBtn {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            writing-mode: horizontal-tb;
-            width: auto;
-            height: auto;
-            min-height: auto;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            white-space: nowrap;
             opacity: 0.7;
         }
 
-        /* Кнопка "Вниз" */
-        #scrollDownBtn {
+        .scroll-btn:hover { 
+            background: rgba(255, 255, 255, 0.15); 
+            color: #ffffff; 
+            opacity: 1;
+        }
+
+        /* Кнопка "Вверх" - полупрозрачный текст слева */
+        #scrollUpBtn {
             position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            writing-mode: vertical-rl;
             width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            height: auto;
+            min-height: 110px;
+            padding: 10px 6px;
+            border-radius: 0 10px 10px 0;
+            letter-spacing: 0.5px;
+            display: none;
+            z-index: 50;
+        }
+
+        /* Кнопка "Вниз" - в поле чата */
+        #scrollDownBtn {
+            position: absolute;
+            bottom: 90px;
+            right: 20px;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             display: none;
             z-index: 60;
-            right: 20px;
-            bottom: 100px;
         }
 
         /* Responsive */
@@ -974,30 +960,29 @@
             }
             
             #user-input {
-                padding: 12px 55px 12px 16px; /* Уменьшено для мобильных */
+                padding: 12px 150px 12px 16px;
                 font-size: 13px;
             }
             
             #send-button {
-                width: 38px;
-                height: 38px;
-                right: 6px;
+                width: 46px;
+                height: 42px;
             }
             
             #voiceButton {
-                right: 50px;
+                right: 54px;
                 width: 30px;
                 height: 30px;
             }
             
             #imageUploadButton {
-                right: 86px;
+                right: 90px;
                 width: 30px;
                 height: 30px;
             }
 
             #clearInputButton {
-                right: 122px;
+                right: 124px;
                 width: 30px;
                 height: 30px;
             }
@@ -1020,18 +1005,16 @@
                 gap: 8px;
             }
 
-            /* Адаптивные кнопки прокрутки */
-            #scrollUpBtn {
-                left: 10px;
-                padding: 6px 10px;
-                font-size: 10px;
-            }
-
             #scrollDownBtn {
-                right: 10px;
-                bottom: 90px;
+                bottom: 80px;
+                right: 15px;
                 width: 36px;
                 height: 36px;
+            }
+
+            #scrollUpBtn {
+                width: 36px;
+                min-height: 100px;
             }
         }
 
@@ -1067,7 +1050,7 @@
             }
             
             #user-input {
-                padding: 12px 50px 12px 12px;
+                padding: 12px 125px 12px 12px;
             }
             
             #imageUploadButton {
@@ -1075,17 +1058,23 @@
             }
             
             #voiceButton {
-                right: 46px;
+                right: 48px;
             }
 
             #clearInputButton {
-                right: 114px;
+                right: 112px;
             }
 
-            /* Скрываем кнопки прокрутки на очень маленьких экранах */
-            #scrollUpBtn,
             #scrollDownBtn {
-                display: none !important;
+                bottom: 75px;
+                right: 12px;
+                width: 34px;
+                height: 34px;
+            }
+
+            #scrollUpBtn {
+                width: 34px;
+                min-height: 90px;
             }
         }
 
@@ -1180,368 +1169,224 @@
             color: #2d3748;
         }
 
-        /* Loading animation */
-        .loading-dots {
-            display: inline-flex;
-            gap: 3px;
+        body.light-theme .ai-message code {
+            background: rgba(0, 0, 0, 0.05);
+            color: #e53e3e;
         }
 
-        .loading-dots span {
-            width: 6px;
-            height: 6px;
-            background: #0099ff;
-            border-radius: 50%;
-            animation: loadingDots 1.4s infinite ease-in-out;
+        body.light-theme .ai-message pre {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
         }
 
-        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes loadingDots {
-            0%, 80%, 100% { 
-                transform: scale(0.8);
-                opacity: 0.5;
-            }
-            40% { 
-                transform: scale(1);
-                opacity: 1;
-            }
+        body.light-theme .ai-message blockquote {
+            background: rgba(0, 153, 255, 0.05);
+            border-left-color: #0099ff;
         }
 
-        /* Улучшенная видимость для скринридеров */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
+        body.light-theme .belarus-flag::before {
+            border-color: rgba(0,0,0,0.3);
         }
 
-        /* Анимация появления */
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Кнопки прокрутки для светлой темы */
+        body.light-theme .scroll-btn {
+            background: rgba(0, 0, 0, 0.1);
+            border-color: rgba(0, 0, 0, 0.2);
+            color: #666;
         }
 
-        .slide-in-up {
-            animation: slideInUp 0.3s ease-out;
+        body.light-theme .scroll-btn:hover {
+            background: rgba(0, 0, 0, 0.15);
+            color: #2d3748;
         }
 
-        /* Анимация исчезновения */
-        @keyframes slideOutDown {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(20px);
-            }
+        /* Скрытие элементов при прокрутке */
+        .header.hidden,
+        .input-container.hidden,
+        .footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .slide-out-down {
-            animation: slideOutDown 0.3s ease-in;
-        }
-
-        /* Focus styles для доступности */
-        button:focus-visible,
-        input:focus-visible,
-        textarea:focus-visible {
-            outline: 2px solid #0099ff;
-            outline-offset: 2px;
-        }
-
-        /* Выделение текста */
-        ::selection {
-            background: rgba(0, 153, 255, 0.3);
-            color: inherit;
-        }
-
-        /* Улучшенная читаемость для длинных сообщений */
-        .ai-message {
-            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Контраст для кода */
-        .ai-message code {
-            text-shadow: none;
+        .header.hidden {
+            transform: translateY(-100%);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
-        <header class="header">
+        <div class="header">
             <div class="header-content">
-                <div class="logo-section">
-                    <div class="logo">Khuyew AI</div>
-                    <div class="subtitle">Бесплатный ИИ-помощник с генерацией изображений</div>
-                </div>
+                <div class="logo">Khuyew AI</div>
+                <div class="subtitle">Полностью бесплатный ИИ-помощник с генерацией изображений</div>
                 <div class="header-controls">
                     <button class="control-btn" id="themeToggle">
                         <i class="ti ti-sun"></i>
                         <span>Тема</span>
                     </button>
-                    <button class="control-btn" id="clearChat">
+                    <button class="control-btn" id="clearChatBtn">
                         <i class="ti ti-trash"></i>
                         <span>Очистить</span>
                     </button>
-                    <a href="https://github.com/khuyew/khuyew-ai" class="control-btn" target="_blank">
-                        <i class="ti ti-brand-github"></i>
-                        <span>GitHub</span>
+                    <a href="#" class="control-btn">
+                        <i class="ti ti-help"></i>
+                        <span>Помощь</span>
                     </a>
                 </div>
             </div>
-        </header>
+        </div>
 
-        <!-- Chat Container -->
+        <!-- Chat container -->
         <div class="chat-container">
             <div class="messages-container" id="messagesContainer">
                 <!-- Сообщения будут добавляться здесь -->
             </div>
         </div>
 
-        <!-- Image Preview -->
-        <div class="image-preview-container" id="imagePreviewContainer">
-            <div class="image-preview-header">
-                <div class="image-preview-title">
-                    <i class="ti ti-photo"></i>
-                    Изображение для отправки
-                </div>
-                <button class="remove-image-btn" id="removeImageBtn">
-                    <i class="ti ti-x"></i>
-                    Удалить
-                </button>
-            </div>
-            <img id="imagePreview" class="image-preview" alt="Preview">
-        </div>
+        <!-- Кнопка "Вверх" -->
+        <button id="scrollUpBtn" class="scroll-btn">ВВЕРХ</button>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="action-button" id="regenerateButton" disabled>
-                <i class="ti ti-refresh"></i>
-                <span>Перегенерировать</span>
-            </button>
-            <button class="action-button" id="continueButton" disabled>
-                <i class="ti ti-arrow-right"></i>
-                <span>Продолжить</span>
-            </button>
-            <button class="action-button" id="copyLastButton" disabled>
-                <i class="ti ti-copy"></i>
-                <span>Копировать</span>
-            </button>
-        </div>
+        <!-- Кнопка "Вниз" -->
+        <button id="scrollDownBtn" class="scroll-btn">
+            <i class="ti ti-chevron-down"></i>
+        </button>
 
-        <!-- Input Container -->
+        <!-- Input area -->
         <div class="input-container">
             <div class="input-wrapper">
-                <textarea 
-                    id="user-input" 
-                    placeholder="Напишите сообщение..." 
-                    rows="1"
-                    maxlength="4000"
-                ></textarea>
-                
+                <textarea id="user-input" placeholder="Напишите сообщение..." rows="1"></textarea>
                 <button id="clearInputButton" title="Очистить">
-                    <i class="ti ti-backspace"></i>
+                    <i class="ti ti-x"></i>
                 </button>
-                
                 <button id="imageUploadButton" title="Загрузить изображение">
-                    <i class="ti ti-photo-up"></i>
+                    <i class="ti ti-photo"></i>
                 </button>
-                
                 <button id="voiceButton" title="Голосовой ввод">
                     <i class="ti ti-microphone"></i>
                 </button>
-                
-                <button id="send-button" title="Отправить сообщение">
+                <button id="send-button">
                     <i class="ti ti-send"></i>
                 </button>
-                
                 <div class="voice-level" id="voiceLevel"></div>
+            </div>
+            
+            <!-- Preview изображения -->
+            <div class="image-preview-container" id="imagePreviewContainer">
+                <div class="image-preview-header">
+                    <div class="image-preview-title">
+                        <i class="ti ti-photo"></i>
+                        Изображение для загрузки
+                    </div>
+                    <button class="remove-image-btn" id="removeImageBtn">
+                        <i class="ti ti-x"></i>
+                        Удалить
+                    </button>
+                </div>
+                <img id="imagePreview" class="image-preview" alt="Preview">
+            </div>
+
+            <!-- Action buttons -->
+            <div class="action-buttons">
+                <button class="action-button" data-prompt="Напиши код для создания простого веб-сайта">
+                    <i class="ti ti-code"></i>
+                    Код сайта
+                </button>
+                <button class="action-button" data-prompt="Объясни концепцию машинного обучения">
+                    <i class="ti ti-brain"></i>
+                    ML объяснение
+                </button>
+                <button class="action-button" data-prompt="Напиши профессиональное email-письмо">
+                    <i class="ti ti-mail"></i>
+                    Email письмо
+                </button>
+                <button class="action-button" data-prompt="Создай план тренировок на неделю">
+                    <i class="ti ti-barbell"></i>
+                    План тренировок
+                </button>
+                <button class="action-button" data-prompt="Предложи идеи для проекта">
+                    <i class="ti ti-bulb"></i>
+                    Идеи проекта
+                </button>
             </div>
         </div>
 
         <!-- Footer -->
-        <footer class="footer">
+        <div class="footer">
             <div class="footer-content">
-                <span>Khuyew AI v1.0</span>
-                <span class="footer-separator">•</span>
+                <span>Khuyew AI v1.0.0</span>
+                <span class="footer-separator">|</span>
                 <span class="belarus-flag">Сделано в Беларуси</span>
-                <span class="footer-separator">•</span>
-                <a href="https://github.com/khuyew/khuyew-ai" target="_blank">
+                <span class="footer-separator">|</span>
+                <a href="#" target="_blank">
                     <i class="ti ti-brand-github footer-icon"></i>
                     GitHub
                 </a>
-                <span class="footer-separator">•</span>
-                <a href="#" id="privacyLink">
+                <span class="footer-separator">|</span>
+                <a href="#" target="_blank">
+                    <i class="ti ti-file-text footer-icon"></i>
+                    Документация
+                </a>
+                <span class="footer-separator">|</span>
+                <a href="#" target="_blank">
                     <i class="ti ti-shield footer-icon"></i>
                     Конфиденциальность
                 </a>
             </div>
-        </footer>
+        </div>
     </div>
 
-    <!-- Scroll Controls -->
-    <div class="scroll-controls">
-        <button id="scrollUpBtn" class="scroll-btn" title="К последнему сообщению бота">
-            <i class="ti ti-arrow-up"></i>
-            <span>К боту</span>
-        </button>
-        <button id="scrollDownBtn" class="scroll-btn" title="Вниз">
-            <i class="ti ti-arrow-down"></i>
-        </button>
-    </div>
-
-    <!-- Image Modal -->
+    <!-- Modal для изображений -->
     <div id="imageModal" class="modal">
         <span class="close">&times;</span>
         <img class="modal-content" id="modalImage">
         <div id="modalCaption"></div>
     </div>
 
-    <!-- Hidden file input for image upload -->
-    <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script>
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            // Инициализация темы
-            const themeToggle = document.getElementById('themeToggle');
-            const currentTheme = localStorage.getItem('theme') || 'dark';
-            document.body.classList.toggle('light-theme', currentTheme === 'light');
-            themeToggle.innerHTML = currentTheme === 'light' ? 
-                '<i class="ti ti-moon"></i><span>Тема</span>' : 
-                '<i class="ti ti-sun"></i><span>Тема</span>';
+        // Элементы DOM
+        const messagesContainer = document.getElementById('messagesContainer');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const voiceButton = document.getElementById('voiceButton');
+        const imageUploadButton = document.getElementById('imageUploadButton');
+        const clearInputButton = document.getElementById('clearInputButton');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const clearChatBtn = document.getElementById('clearChatBtn');
+        const actionButtons = document.querySelectorAll('.action-button');
+        const voiceLevel = document.getElementById('voiceLevel');
+        const scrollUpBtn = document.getElementById('scrollUpBtn');
+        const scrollDownBtn = document.getElementById('scrollDownBtn');
+        const header = document.querySelector('.header');
+        const inputContainer = document.querySelector('.input-container');
+        const footer = document.querySelector('.footer');
 
-            // Переключение темы
-            themeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('light-theme');
-                const isLight = document.body.classList.contains('light-theme');
-                localStorage.setItem('theme', isLight ? 'light' : 'dark');
-                themeToggle.innerHTML = isLight ? 
-                    '<i class="ti ti-moon"></i><span>Тема</span>' : 
-                    '<i class="ti ti-sun"></i><span>Тема</span>';
-            });
+        // Переменные состояния
+        let isRecording = false;
+        let recognition = null;
+        let currentImageFile = null;
+        let isAIResponding = false;
+        let isUserScrolling = false;
+        let scrollTimeout = null;
+        let isInputVisible = true;
 
-            // Инициализация элементов
-            const messagesContainer = document.getElementById('messagesContainer');
-            const userInput = document.getElementById('user-input');
-            const sendButton = document.getElementById('send-button');
-            const voiceButton = document.getElementById('voiceButton');
-            const imageUploadButton = document.getElementById('imageUploadButton');
-            const clearInputButton = document.getElementById('clearInputButton');
-            const imageUploadInput = document.getElementById('imageUploadInput');
-            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-            const imagePreview = document.getElementById('imagePreview');
-            const removeImageBtn = document.getElementById('removeImageBtn');
-            const scrollUpBtn = document.getElementById('scrollUpBtn');
-            const scrollDownBtn = document.getElementById('scrollDownBtn');
-            const regenerateButton = document.getElementById('regenerateButton');
-            const continueButton = document.getElementById('continueButton');
-            const copyLastButton = document.getElementById('copyLastButton');
-            const clearChatButton = document.getElementById('clearChat');
+        // Инициализация
+        function init() {
+            loadTheme();
+            setupEventListeners();
+            showWelcomeMessage();
+            autoResizeTextarea();
+        }
 
-            let currentImage = null;
-            let isRecording = false;
-            let recognition = null;
-            let isGenerating = false;
-
-            // Авто-размер textarea
-            userInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-            });
-
-            // Очистка поля ввода
-            clearInputButton.addEventListener('click', function() {
-                userInput.value = '';
-                userInput.style.height = 'auto';
-                userInput.focus();
-            });
-
-            // Загрузка изображения
-            imageUploadButton.addEventListener('click', function() {
-                imageUploadInput.click();
-            });
-
-            imageUploadInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                        showError('Размер изображения не должен превышать 5MB');
-                        return;
-                    }
-                    
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        currentImage = event.target.result;
-                        imagePreview.src = currentImage;
-                        imagePreviewContainer.style.display = 'block';
-                        
-                        // Прокрутка к превью изображения
-                        setTimeout(() => {
-                            imagePreviewContainer.scrollIntoView({ 
-                                behavior: 'smooth', 
-                                block: 'nearest' 
-                            });
-                        }, 100);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Удаление изображения
-            removeImageBtn.addEventListener('click', function() {
-                currentImage = null;
-                imagePreviewContainer.style.display = 'none';
-                imageUploadInput.value = '';
-            });
-
+        // Настройка обработчиков событий
+        function setupEventListeners() {
             // Отправка сообщения
-            function sendMessage() {
-                const message = userInput.value.trim();
-                if ((!message && !currentImage) || isGenerating) return;
-
-                // Добавление сообщения пользователя
-                addMessage('user', message, currentImage);
-                
-                // Очистка ввода
-                userInput.value = '';
-                userInput.style.height = 'auto';
-                
-                // Скрытие превью изображения
-                if (currentImage) {
-                    currentImage = null;
-                    imagePreviewContainer.style.display = 'none';
-                    imageUploadInput.value = '';
-                }
-
-                // Показать статус генерации
-                addAITypingIndicator();
-
-                // Здесь будет логика отправки на сервер
-                setTimeout(() => {
-                    // Временная заглушка для демонстрации
-                    simulateAIResponse(message);
-                }, 1000);
-            }
-
             sendButton.addEventListener('click', sendMessage);
-
-            userInput.addEventListener('keydown', function(e) {
+            userInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
@@ -1549,251 +1394,409 @@
             });
 
             // Голосовой ввод
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                recognition = new SpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = true;
-                recognition.lang = 'ru-RU';
+            voiceButton.addEventListener('click', toggleVoiceRecognition);
 
-                recognition.onstart = function() {
-                    isRecording = true;
-                    voiceButton.classList.add('voice-recording');
-                    voiceButton.innerHTML = '<i class="ti ti-square"></i>';
-                };
-
-                recognition.onresult = function(event) {
-                    const transcript = Array.from(event.results)
-                        .map(result => result[0].transcript)
-                        .join('');
-                    userInput.value = transcript;
-                    userInput.style.height = 'auto';
-                    userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
-                };
-
-                recognition.onend = function() {
-                    isRecording = false;
-                    voiceButton.classList.remove('voice-recording');
-                    voiceButton.innerHTML = '<i class="ti ti-microphone"></i>';
-                };
-
-                recognition.onerror = function(event) {
-                    console.error('Speech recognition error:', event.error);
-                    isRecording = false;
-                    voiceButton.classList.remove('voice-recording');
-                    voiceButton.innerHTML = '<i class="ti ti-microphone"></i>';
-                };
-
-                voiceButton.addEventListener('click', function() {
-                    if (isRecording) {
-                        recognition.stop();
-                    } else {
-                        try {
-                            recognition.start();
-                        } catch (error) {
-                            console.error('Speech recognition start error:', error);
-                        }
-                    }
-                });
-            } else {
-                voiceButton.style.display = 'none';
-            }
-
-            // Управление прокруткой
-            function updateScrollButtons() {
-                const container = messagesContainer;
-                const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 50;
-                
-                scrollDownBtn.style.display = isAtBottom ? 'none' : 'flex';
-                
-                // Показать кнопку "К боту" только если есть сообщения от ИИ
-                const hasAIMessages = document.querySelector('.ai-message');
-                scrollUpBtn.style.display = hasAIMessages ? 'flex' : 'none';
-            }
-
-            scrollUpBtn.addEventListener('click', function() {
-                const lastAIMessage = document.querySelector('.ai-message:last-child');
-                if (lastAIMessage) {
-                    lastAIMessage.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                    });
-                }
+            // Загрузка изображения
+            imageUploadButton.addEventListener('click', () => {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.addEventListener('change', handleImageUpload);
+                fileInput.click();
             });
 
-            scrollDownBtn.addEventListener('click', function() {
-                messagesContainer.scrollTo({
-                    top: messagesContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
+            // Удаление изображения
+            removeImageBtn.addEventListener('click', removeImage);
+
+            // Очистка ввода
+            clearInputButton.addEventListener('click', () => {
+                userInput.value = '';
+                userInput.focus();
+                autoResizeTextarea();
             });
 
-            messagesContainer.addEventListener('scroll', updateScrollButtons);
-            window.addEventListener('resize', updateScrollButtons);
+            // Переключение темы
+            themeToggle.addEventListener('click', toggleTheme);
 
             // Очистка чата
-            clearChatButton.addEventListener('click', function() {
-                if (confirm('Очистить всю историю чата?')) {
-                    messagesContainer.innerHTML = '';
-                    updateScrollButtons();
-                }
+            clearChatBtn.addEventListener('click', clearChat);
+
+            // Кнопки действий
+            actionButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const prompt = e.currentTarget.getAttribute('data-prompt');
+                    userInput.value = prompt;
+                    userInput.focus();
+                    autoResizeTextarea();
+                });
             });
 
-            // Вспомогательные функции
-            function addMessage(type, content, image = null) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${type}-message slide-in-up`;
-                
-                if (type === 'user') {
-                    if (image) {
-                        messageDiv.innerHTML = `
-                            ${content ? `<div class="message-content">${escapeHtml(content)}</div>` : ''}
-                            <img src="${image}" alt="Uploaded image" class="generated-image" onclick="openModal('${image}')">
-                        `;
-                    } else {
-                        messageDiv.innerHTML = `<div class="message-content">${escapeHtml(content)}</div>`;
-                    }
-                } else if (type === 'ai') {
-                    messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
-                }
-                
-                messagesContainer.appendChild(messageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                updateScrollButtons();
-                
-                // Обновить состояние кнопок действий
-                const hasAIMessages = document.querySelector('.ai-message');
-                copyLastButton.disabled = !hasAIMessages;
-                regenerateButton.disabled = !hasAIMessages;
-            }
+            // Автоматическое изменение размера textarea
+            userInput.addEventListener('input', autoResizeTextarea);
 
-            function addAITypingIndicator() {
-                const typingDiv = document.createElement('div');
-                typingDiv.className = 'message ai-message ai-streaming';
-                typingDiv.innerHTML = `
+            // Прокрутка чата
+            messagesContainer.addEventListener('scroll', handleScroll);
+            
+            // Кнопки прокрутки
+            scrollUpBtn.addEventListener('click', scrollToTop);
+            scrollDownBtn.addEventListener('click', scrollToBottom);
+
+            // Модальное окно для изображений
+            setupImageModal();
+
+            // Обработчики для скрытия/показа интерфейса при прокрутке
+            messagesContainer.addEventListener('scroll', handleInterfaceVisibility);
+            document.addEventListener('mousemove', handleMouseMove);
+        }
+
+        // Показать приветственное сообщение
+        function showWelcomeMessage() {
+            const welcomeMessage = `
+                <div class="message ai-message">
                     <div class="ai-status">
-                        <span>ИИ генерирует ответ</span>
                         <div class="typing-indicator">
                             <div class="typing-dot"></div>
                             <div class="typing-dot"></div>
                             <div class="typing-dot"></div>
                         </div>
+                        Khuyew AI думает...
                     </div>
-                `;
-                messagesContainer.appendChild(typingDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                updateScrollButtons();
-                return typingDiv;
-            }
-
-            function simulateAIResponse(userMessage) {
-                // Удалить индикатор набора
-                const typingIndicator = document.querySelector('.ai-streaming');
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-
-                // Простой пример ответа ИИ
-                let response = "Это демонстрационный ответ ИИ. В реальном приложении здесь будет ответ от модели искусственного интеллекта.";
-                
-                if (userMessage.toLowerCase().includes('привет')) {
-                    response = "Привет! Я Khuyew AI - ваш бесплатный помощник. Чем могу помочь?";
-                } else if (userMessage.toLowerCase().includes('погода')) {
-                    response = "К сожалению, у меня нет доступа к актуальным данным о погоде. Рекомендую проверить специализированные сервисы погоды.";
-                }
-
-                addMessage('ai', response);
-                isGenerating = false;
-            }
-
-            function showError(message) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'message error-message slide-in-up';
-                errorDiv.innerHTML = `
                     <div class="message-content">
-                        <i class="ti ti-alert-circle"></i> ${message}
+                        <h2>👋 Добро пожаловать в Khuyew AI!</h2>
+                        <p>Я ваш бесплатный ИИ-помощник, готовый помочь с:</p>
+                        <ul>
+                            <li>💬 Ответами на вопросы</li>
+                            <li>🖼️ Генерацией изображений</li>
+                            <li>💻 Написанием кода</li>
+                            <li>📚 Обучением и объяснениями</li>
+                            <li>✍️ Творческими задачами</li>
+                        </ul>
+                        <p>Просто напишите ваш вопрос или используйте быстрые кнопки ниже!</p>
+                        <blockquote>
+                            💡 <strong>Совет:</strong> Вы можете загружать изображения для анализа, использовать голосовой ввод или выбрать один из готовых запросов.
+                        </blockquote>
                     </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                messagesContainer.innerHTML = welcomeMessage;
+                scrollToBottom();
+            }, 500);
+        }
+
+        // Отправка сообщения
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if ((!message && !currentImageFile) || isAIResponding) return;
+
+            // Добавление сообщения пользователя
+            addMessage(message, 'user', currentImageFile);
+            
+            // Очистка ввода и превью
+            userInput.value = '';
+            removeImage();
+            autoResizeTextarea();
+            
+            // Имитация ответа ИИ
+            simulateAIResponse(message);
+        }
+
+        // Добавление сообщения
+        function addMessage(content, type, imageFile = null) {
+            const messageDiv = document.createElement('div');
+            
+            if (type === 'user') {
+                messageDiv.className = 'message user-message';
+                messageDiv.innerHTML = `
+                    <div class="message-content">${formatUserMessage(content)}</div>
+                    ${imageFile ? `<div class="image-prompt">📎 Изображение прикреплено</div>` : ''}
                 `;
-                messagesContainer.appendChild(errorDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                updateScrollButtons();
+            } else if (type === 'ai') {
+                messageDiv.className = 'message ai-message';
+                messageDiv.innerHTML = content;
+            } else if (type === 'error') {
+                messageDiv.className = 'message error-message';
+                messageDiv.innerHTML = `<div class="message-content">❌ ${content}</div>`;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Форматирование сообщения пользователя
+        function formatUserMessage(content) {
+            if (!content) return '📎 Изображение';
+            return content.replace(/\n/g, '<br>');
+        }
+
+        // Имитация ответа ИИ
+        function simulateAIResponse(userMessage) {
+            isAIResponding = true;
+            sendButton.disabled = true;
+
+            const thinkingMessage = document.createElement('div');
+            thinkingMessage.className = 'message ai-message ai-streaming';
+            thinkingMessage.innerHTML = `
+                <div class="ai-status">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                    Khuyew AI думает...
+                </div>
+                <div class="message-content">
+                    <span class="typing-cursor">|</span>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(thinkingMessage);
+            scrollToBottom();
+
+            // Имитация задержки ответа
+            setTimeout(() => {
+                thinkingMessage.remove();
+                const response = generateAIResponse(userMessage);
+                addMessage(response, 'ai');
+                isAIResponding = false;
+                sendButton.disabled = false;
+            }, 2000);
+        }
+
+        // Генерация ответа ИИ
+        function generateAIResponse(userMessage) {
+            const responses = [
+                `Я понимаю ваш вопрос о "${userMessage}". Как искусственный интеллект, я могу помочь вам с анализом этой темы, предложить решения или сгенерировать соответствующий контент. Что именно вас интересует?`,
                 
-                setTimeout(() => {
-                    errorDiv.remove();
-                }, 5000);
+                `Отличный вопрос! "${userMessage}" - это интересная тема. Я могу предложить несколько подходов к решению этой задачи. Хотите, чтобы я подробнее остановился на каком-то конкретном аспекте?`,
+                
+                `Спасибо за ваш запрос! На основе "${userMessage}" я могу предоставить развернутый ответ, примеры кода или пошаговое руководство. Какой формат ответа будет для вас наиболее полезен?`,
+                
+                `Я обработал ваш запрос "${userMessage}". Для более точного ответа мне нужно уточнить: вы ищете теоретическое объяснение, практические примеры или пошаговое решение?`,
+                
+                `По теме "${userMessage}" у меня есть comprehensive информация. Я могу структурировать ответ в виде руководства, добавить примеры кода или визуализацию. Что предпочитаете?`
+            ];
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        // Голосовой ввод
+        function toggleVoiceRecognition() {
+            if (!isRecording) {
+                startVoiceRecognition();
+            } else {
+                stopVoiceRecognition();
+            }
+        }
+
+        function startVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert('Голосовой ввод не поддерживается в вашем браузере');
+                return;
             }
 
-            function escapeHtml(unsafe) {
-                return unsafe
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#039;");
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'ru-RU';
+
+            recognition.onstart = () => {
+                isRecording = true;
+                voiceButton.classList.add('voice-recording');
+                voiceLevel.style.display = 'block';
+            };
+
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                }
+                if (transcript) {
+                    userInput.value += transcript;
+                    autoResizeTextarea();
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Ошибка распознавания:', event.error);
+                stopVoiceRecognition();
+            };
+
+            recognition.onend = () => {
+                stopVoiceRecognition();
+            };
+
+            recognition.start();
+        }
+
+        function stopVoiceRecognition() {
+            if (recognition) {
+                recognition.stop();
+            }
+            isRecording = false;
+            voiceButton.classList.remove('voice-recording');
+            voiceLevel.style.display = 'none';
+        }
+
+        // Загрузка изображения
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('Пожалуйста, выберите файл изображения');
+                return;
             }
 
-            // Инициализация кнопок прокрутки
-            updateScrollButtons();
+            currentImageFile = file;
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreviewContainer.style.display = 'block';
+            };
+            
+            reader.readAsDataURL(file);
+        }
 
-            // Фокус на поле ввода при загрузке
-            userInput.focus();
-        });
+        function removeImage() {
+            currentImageFile = null;
+            imagePreviewContainer.style.display = 'none';
+            imagePreview.src = '';
+        }
 
-        // Глобальные функции для модального окна
-        function openModal(imageSrc) {
+        // Автоматическое изменение размера textarea
+        function autoResizeTextarea() {
+            userInput.style.height = 'auto';
+            userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+        }
+
+        // Прокрутка
+        function scrollToBottom() {
+            messagesContainer.scrollTo({
+                top: messagesContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        function scrollToTop() {
+            messagesContainer.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function handleScroll() {
+            // Показать/скрыть кнопку "Вверх"
+            const scrollTop = messagesContainer.scrollTop;
+            const scrollHeight = messagesContainer.scrollHeight;
+            const clientHeight = messagesContainer.clientHeight;
+            
+            // Кнопка "Вверх" - показываем только если не вверху
+            scrollUpBtn.style.display = scrollTop > 100 ? 'flex' : 'none';
+            
+            // Кнопка "Вниз" - показываем только если не внизу
+            const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+            scrollDownBtn.style.display = isAtBottom ? 'none' : 'flex';
+
+            // Отметка о ручной прокрутке
+            isUserScrolling = true;
+            if (scrollTimeout) clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                isUserScrolling = false;
+            }, 1000);
+        }
+
+        // Управление видимостью интерфейса при прокрутке
+        function handleInterfaceVisibility() {
+            if (isUserScrolling) {
+                hideInterface();
+            }
+        }
+
+        function handleMouseMove() {
+            if (!isUserScrolling) {
+                showInterface();
+            }
+        }
+
+        function hideInterface() {
+            if (isInputVisible) {
+                header.classList.add('hidden');
+                inputContainer.classList.add('hidden');
+                footer.classList.add('hidden');
+                isInputVisible = false;
+            }
+        }
+
+        function showInterface() {
+            if (!isInputVisible) {
+                header.classList.remove('hidden');
+                inputContainer.classList.remove('hidden');
+                footer.classList.remove('hidden');
+                isInputVisible = true;
+            }
+        }
+
+        // Тема
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            themeToggle.innerHTML = isLight ? 
+                '<i class="ti ti-moon"></i><span>Тема</span>' : 
+                '<i class="ti ti-sun"></i><span>Тема</span>';
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                themeToggle.innerHTML = '<i class="ti ti-moon"></i><span>Тема</span>';
+            }
+        }
+
+        // Очистка чата
+        function clearChat() {
+            if (confirm('Очистить всю историю чата?')) {
+                messagesContainer.innerHTML = '';
+                showWelcomeMessage();
+            }
+        }
+
+        // Модальное окно для изображений
+        function setupImageModal() {
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
-            modal.style.display = 'block';
-            modalImg.src = imageSrc;
-        }
+            const caption = document.getElementById('modalCaption');
+            const close = document.querySelector('.close');
 
-        function closeModal() {
-            const modal = document.getElementById('imageModal');
-            modal.style.display = 'none';
-        }
+            // Обработчики для открытия изображений в модальном окне
+            messagesContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('generated-image')) {
+                    modal.style.display = 'block';
+                    modalImg.src = e.target.src;
+                    caption.textContent = e.target.alt || 'Сгенерированное изображение';
+                }
+            });
 
-        // Закрытие модального окна
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('imageModal');
-            const closeBtn = document.querySelector('.close');
-            
-            closeBtn.addEventListener('click', closeModal);
-            
-            modal.addEventListener('click', function(e) {
+            // Закрытие модального окна
+            close.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
-                    closeModal();
+                    modal.style.display = 'none';
                 }
             });
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeModal();
-                }
-            });
-        });
+        }
 
-        // Обработка копирования кода
-        document.addEventListener('DOMContentLoaded', function() {
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('copy-button')) {
-                    const button = e.target;
-                    const codeBlock = button.closest('pre');
-                    const code = codeBlock.querySelector('code').textContent;
-                    
-                    navigator.clipboard.writeText(code).then(() => {
-                        button.classList.add('copied');
-                        button.innerHTML = '<i class="ti ti-check"></i>Скопировано';
-                        
-                        setTimeout(() => {
-                            button.classList.remove('copied');
-                            button.innerHTML = '<i class="ti ti-copy"></i>Копировать';
-                        }, 2000);
-                    }).catch(err => {
-                        console.error('Failed to copy code:', err);
-                    });
-                }
-            });
-        });
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
