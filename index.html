@@ -42,7 +42,6 @@
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
             flex-shrink: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .header-content {
@@ -433,31 +432,28 @@
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .input-wrapper {
             display: flex;
-            gap: 0;
+            gap: 8px;
             align-items: center;
             max-width: 900px;
             margin: 0 auto;
             position: relative;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 18px;
-            overflow: hidden;
         }
 
         #user-input {
             flex: 1;
-            padding: 14px 18px;
-            border: none;
-            background: transparent;
+            padding: 14px 170px 14px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.08);
             color: white;
             font-size: 14px;
             outline: none;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
             resize: none;
             min-height: 46px;
             max-height: 120px;
@@ -470,14 +466,17 @@
         }
 
         #user-input:focus {
+            border-color: #0099ff;
             background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 2px rgba(0, 153, 255, 0.2);
         }
 
         #send-button {
             background: linear-gradient(135deg, #0099ff, #0066ff);
             color: white;
             border: none;
-            width: 50px;
+            border-radius: 18px; /* match input radius */
+            width: 46px;
             height: 46px;
             cursor: pointer;
             display: flex;
@@ -485,21 +484,25 @@
             justify-content: center;
             transition: all 0.3s ease;
             flex-shrink: 0;
-            margin: 0;
-            border-radius: 0;
+            position: absolute;
+            right: 10px; /* remove visible right gap */
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         #send-button:hover {
-            background: linear-gradient(135deg, #0088ee, #0055dd);
+            transform: translateY(-50%) scale(1.05);
         }
 
         #send-button:disabled {
             opacity: 0.6;
+            transform: none;
             cursor: not-allowed;
-            background: linear-gradient(135deg, #666, #888);
         }
 
         #voiceButton {
+            position: absolute;
+            right: 60px;
             background: transparent;
             border: none;
             color: #a0a0c0;
@@ -511,7 +514,6 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            margin-right: 8px;
         }
 
         #voiceButton:hover {
@@ -520,6 +522,8 @@
         }
 
         #imageUploadButton {
+            position: absolute;
+            right: 98px;
             background: transparent;
             border: none;
             color: #a0a0c0;
@@ -531,7 +535,6 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            margin-right: 4px;
         }
 
         #imageUploadButton:hover {
@@ -540,6 +543,8 @@
         }
 
         #clearInputButton {
+            position: absolute;
+            right: 136px; /* слева от загрузки изображений */
             background: transparent;
             border: none;
             color: #a0a0c0;
@@ -551,18 +556,11 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            margin-right: 4px;
         }
 
         #clearInputButton:hover {
             background: rgba(255, 255, 255, 0.1);
             color: #ffffff;
-        }
-
-        .input-buttons {
-            display: flex;
-            align-items: center;
-            padding-right: 8px;
         }
 
         .voice-recording {
@@ -752,7 +750,6 @@
             backdrop-filter: blur(10px);
             flex-shrink: 0;
             line-height: 1.4;
-            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .footer-content {
@@ -857,68 +854,6 @@
             margin: 0 auto;
         }
 
-        /* Кнопки прокрутки */
-        .scroll-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #a0a0c0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            pointer-events: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            opacity: 0.7;
-        }
-
-        .scroll-btn:hover { 
-            background: rgba(255, 255, 255, 0.15); 
-            color: #ffffff; 
-            opacity: 1;
-        }
-
-        /* Кнопка "Вверх" - полупрозрачный текст */
-        #scrollUpBtn {
-            position: fixed;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            writing-mode: vertical-rl;
-            width: 40px;
-            height: auto;
-            min-height: 110px;
-            padding: 10px 6px;
-            border-radius: 0 10px 10px 0;
-            letter-spacing: 0.5px;
-            display: none;
-            z-index: 50;
-            background: transparent;
-            border: none;
-            color: rgba(160, 160, 192, 0.6);
-            font-weight: 500;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        #scrollUpBtn:hover {
-            color: rgba(255, 255, 255, 0.9);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        /* Кнопка "Вниз" - в поле чата */
-        #scrollDownBtn {
-            position: absolute;
-            bottom: 90px;
-            right: 20px;
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            display: none;
-            z-index: 60;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -963,33 +898,34 @@
             }
             
             .input-wrapper {
-                gap: 0;
+                gap: 8px;
             }
             
             #user-input {
-                padding: 12px 16px;
+                padding: 12px 150px 12px 16px;
                 font-size: 13px;
             }
             
             #send-button {
-                width: 46px;
+                width: 42px;
                 height: 42px;
+                right: 6px;
             }
             
             #voiceButton {
-                margin-right: 6px;
+                right: 54px;
                 width: 30px;
                 height: 30px;
             }
             
             #imageUploadButton {
-                margin-right: 2px;
+                right: 90px;
                 width: 30px;
                 height: 30px;
             }
 
             #clearInputButton {
-                margin-right: 2px;
+                right: 124px;
                 width: 30px;
                 height: 30px;
             }
@@ -1010,19 +946,6 @@
             
             .footer-content {
                 gap: 8px;
-            }
-
-            #scrollDownBtn {
-                bottom: 80px;
-                right: 15px;
-                width: 36px;
-                height: 36px;
-            }
-
-            #scrollUpBtn {
-                width: 36px;
-                min-height: 100px;
-                font-size: 11px;
             }
         }
 
@@ -1058,33 +981,81 @@
             }
             
             #user-input {
-                padding: 12px 12px;
+                padding: 12px 125px 12px 12px;
             }
             
             #imageUploadButton {
-                margin-right: 2px;
+                right: 80px;
             }
             
             #voiceButton {
-                margin-right: 4px;
+                right: 48px;
             }
 
             #clearInputButton {
-                margin-right: 2px;
+                right: 112px;
             }
+            /* Prevent overlap of scroll controls with input on very small screens */
+            .scroll-controls {
+                left: 12px;
+                bottom: 120px;
+            }
+        }
 
-            #scrollDownBtn {
-                bottom: 75px;
-                right: 12px;
-                width: 34px;
-                height: 34px;
-            }
+        /* Scroll controls */
+        .scroll-controls {
+            position: fixed; /* container remains fixed but children override their own position */
+            left: 0;
+            bottom: 0;
+            z-index: 50;
+            pointer-events: none; /* avoid covering content; buttons re-enable */
+        }
 
-            #scrollUpBtn {
-                width: 34px;
-                min-height: 90px;
-                font-size: 10px;
-            }
+        .scroll-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0c0;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            pointer-events: auto; /* clickable */
+        }
+
+        .scroll-btn:hover { 
+            background: rgba(255, 255, 255, 0.15); 
+            color: #ffffff; 
+        }
+
+        /* Up/Down buttons redesign */
+        #scrollUpBtn {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) rotate(180deg);
+            writing-mode: vertical-rl; /* vertical text */
+            width: 40px;
+            height: auto;
+            min-height: 110px;
+            padding: 10px 6px;
+            border-radius: 0 10px 10px 0;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            display: none; /* shown when scrolled */
+        }
+
+        #scrollDownBtn {
+            position: fixed;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: none; /* appears when not at bottom */
+            z-index: 60;
         }
 
         /* Light theme */
@@ -1118,13 +1089,9 @@
             border-top-color: rgba(0, 0, 0, 0.1);
         }
 
-        body.light-theme .input-wrapper {
-            background: rgba(0, 0, 0, 0.05);
-            border-color: rgba(0, 0, 0, 0.2);
-        }
-
         body.light-theme #user-input {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(0, 0, 0, 0.2);
             color: #2d3748;
         }
 
@@ -1201,737 +1168,1362 @@
             border-color: rgba(0,0,0,0.3);
         }
 
-        /* Кнопки прокрутки для светлой темы */
-        body.light-theme .scroll-btn {
+        body.light-theme .image-preview-container {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme .remove-image-btn {
             background: rgba(0, 0, 0, 0.1);
             border-color: rgba(0, 0, 0, 0.2);
             color: #666;
         }
 
-        body.light-theme .scroll-btn:hover {
+        body.light-theme .remove-image-btn:hover {
             background: rgba(0, 0, 0, 0.15);
             color: #2d3748;
         }
 
-        body.light-theme #scrollUpBtn {
-            background: transparent;
-            color: rgba(102, 102, 102, 0.6);
+        /* Light theme adjustments for new buttons */
+        body.light-theme #clearInputButton,
+        body.light-theme #imageUploadButton,
+        body.light-theme #voiceButton,
+        body.light-theme .scroll-btn {
+            background: rgba(0, 0, 0, 0.06);
+            color: #666;
+            border-color: rgba(0,0,0,0.15);
         }
 
-        body.light-theme #scrollUpBtn:hover {
-            color: rgba(45, 55, 72, 0.9);
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        /* Скрытие элементов при прокрутке */
-        .header.hidden,
-        .input-container.hidden,
-        .footer.hidden {
-            transform: translateY(100%);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .header.hidden {
-            transform: translateY(-100%);
-        }
-
-        .interface-visible {
-            transform: translateY(0) !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
+        body.light-theme #clearInputButton:hover,
+        body.light-theme #imageUploadButton:hover,
+        body.light-theme #voiceButton:hover,
+        body.light-theme .scroll-btn:hover {
+            background: rgba(0,0,0,0.1);
+            color: #2d3748;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <div class="header-content">
                 <div class="logo">Khuyew AI</div>
-                <div class="subtitle">Полностью бесплатный ИИ-помощник с генерацией изображений</div>
+                <div class="subtitle">Бесплатный ИИ-помощник с генерацией изображений</div>
                 <div class="header-controls">
                     <button class="control-btn" id="themeToggle">
                         <i class="ti ti-moon"></i>
-                        <span>Тема</span>
-                    </button>
-                    <button class="control-btn" id="clearChatBtn">
-                        <i class="ti ti-trash"></i>
-                        <span>Очистить</span>
-                    </button>
-                    <button class="control-btn" id="helpButton">
-                        <i class="ti ti-help"></i>
-                        <span>Помощь</span>
                     </button>
                 </div>
             </div>
         </div>
-
-        <!-- Chat container -->
+        
         <div class="chat-container">
             <div class="messages-container" id="messagesContainer">
                 <!-- Сообщения будут добавляться здесь -->
             </div>
-        </div>
-
-        <!-- Кнопка "Вверх" -->
-        <button id="scrollUpBtn" class="scroll-btn">ВВЕРХ</button>
-
-        <!-- Кнопка "Вниз" -->
-        <button id="scrollDownBtn" class="scroll-btn">
-            <i class="ti ti-chevron-down"></i>
-        </button>
-
-        <!-- Input area -->
-        <div class="input-container">
-            <div class="input-wrapper">
-                <textarea id="user-input" placeholder="Напишите сообщение..." rows="1"></textarea>
-                <div class="input-buttons">
-                    <button id="clearInputButton" title="Очистить">
+            
+            <div class="input-container">
+                <!-- Preview загруженного изображения -->
+                <div class="image-preview-container" id="imagePreviewContainer">
+                    <div class="image-preview-header">
+                        <div class="image-preview-title">
+                            <i class="ti ti-photo"></i>
+                            Изображение для анализа
+                        </div>
+                        <button class="remove-image-btn" id="removeImageBtn">
+                            <i class="ti ti-x"></i>
+                            Удалить
+                        </button>
+                    </div>
+                    <img class="image-preview" id="imagePreview">
+                </div>
+                
+                <div class="input-wrapper">
+                    <textarea id="user-input" placeholder="Задайте вопрос или опишите изображение..." autocomplete="off" rows="1"></textarea>
+                    <button id="clearInputButton" title="Очистить ввод">
                         <i class="ti ti-x"></i>
                     </button>
-                    <button id="imageUploadButton" title="Загрузить изображение">
-                        <i class="ti ti-photo"></i>
+                    <button id="imageUploadButton">
+                        <i class="ti ti-photo-up"></i>
                     </button>
-                    <button id="voiceButton" title="Голосовой ввод">
+                    <button id="voiceButton">
                         <i class="ti ti-microphone"></i>
                     </button>
-                </div>
-                <button id="send-button">
-                    <i class="ti ti-send"></i>
-                </button>
-            </div>
-            <div class="voice-level" id="voiceLevel"></div>
-            
-            <!-- Preview изображения -->
-            <div class="image-preview-container" id="imagePreviewContainer">
-                <div class="image-preview-header">
-                    <div class="image-preview-title">
-                        <i class="ti ti-photo"></i>
-                        Изображение для загрузки
-                    </div>
-                    <button class="remove-image-btn" id="removeImageBtn">
-                        <i class="ti ti-x"></i>
-                        Удалить
+                    <button id="send-button">
+                        <i class="ti ti-send"></i>
                     </button>
                 </div>
-                <img id="imagePreview" class="image-preview" alt="Preview">
-            </div>
-
-            <!-- Action buttons -->
-            <div class="action-buttons">
-                <button class="action-button" data-prompt="Напиши код для создания простого веб-сайта">
-                    <i class="ti ti-code"></i>
-                    Код сайта
-                </button>
-                <button class="action-button" data-prompt="Объясни концепцию машинного обучения">
-                    <i class="ti ti-brain"></i>
-                    ML объяснение
-                </button>
-                <button class="action-button" data-prompt="Напиши профессиональное email-письмо">
-                    <i class="ti ti-mail"></i>
-                    Email письмо
-                </button>
-                <button class="action-button" data-prompt="Создай план тренировок на неделю">
-                    <i class="ti ti-barbell"></i>
-                    План тренировок
-                </button>
+                
+                <div class="action-buttons">
+                    <button class="action-button" id="helpButton">
+                        <i class="ti ti-help"></i>
+                        Помощь
+                    </button>
+                    <button class="action-button" id="clearButton">
+                        <i class="ti ti-trash"></i>
+                        Очистить
+                    </button>
+                </div>
+                <div class="voice-level" id="voiceLevel"></div>
             </div>
         </div>
-
-        <!-- Footer -->
+        
         <div class="footer">
             <div class="footer-content">
-                <span>Khuyew AI v1.0.0</span>
-                <span class="footer-separator">|</span>
                 <span class="belarus-flag">Сделано в Беларуси</span>
-                <span class="footer-separator">|</span>
-                <a href="#" target="_blank">
+                <span class="footer-separator">•</span>
+                <span>Для нового чата нажмите на "Khuyew AI"</span>
+                <span class="footer-separator">•</span>
+                <a href="https://github.com/Khuyew" target="_blank">
                     <i class="ti ti-brand-github footer-icon"></i>
                     GitHub
                 </a>
-                <span class="footer-separator">|</span>
-                <a href="#" target="_blank">
-                    <i class="ti ti-shield footer-icon"></i>
+                <span class="footer-separator">•</span>
+                <a href="#" id="privacyLink">
+                    <i class="ti ti-shield-lock footer-icon"></i>
                     Конфиденциальность
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Modal для изображений -->
+    <!-- Модальное окно для изображений -->
     <div id="imageModal" class="modal">
         <span class="close">&times;</span>
         <img class="modal-content" id="modalImage">
         <div id="modalCaption"></div>
     </div>
 
+    <!-- Кнопки прокрутки -->
+    <div class="scroll-controls">
+        <button id="scrollUpBtn" class="scroll-btn" title="К последнему сообщению ИИ">Вверх</button>
+        <button id="scrollDownBtn" class="scroll-btn" title="Вниз чата">
+            <i class="ti ti-arrow-down"></i>
+        </button>
+    </div>
+
+    <!-- Скрытые inputs -->
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script>
-        // Элементы DOM
-        const messagesContainer = document.getElementById('messagesContainer');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-        const voiceButton = document.getElementById('voiceButton');
-        const imageUploadButton = document.getElementById('imageUploadButton');
-        const clearInputButton = document.getElementById('clearInputButton');
-        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-        const imagePreview = document.getElementById('imagePreview');
-        const removeImageBtn = document.getElementById('removeImageBtn');
-        const themeToggle = document.getElementById('themeToggle');
-        const clearChatBtn = document.getElementById('clearChatBtn');
-        const helpButton = document.getElementById('helpButton');
-        const actionButtons = document.querySelectorAll('.action-button');
-        const voiceLevel = document.getElementById('voiceLevel');
-        const scrollUpBtn = document.getElementById('scrollUpBtn');
-        const scrollDownBtn = document.getElementById('scrollDownBtn');
-        const header = document.querySelector('.header');
-        const inputContainer = document.querySelector('.input-container');
-        const footer = document.querySelector('.footer');
+        // Fallbacks for offline mode when CDNs are unavailable
+        (function(){
+            if (typeof window.marked === 'undefined') {
+                window.marked = { parse: function(text){
+                    // Basic escape to avoid raw HTML injection
+                    const div = document.createElement('div');
+                    div.textContent = String(text || '');
+                    return div.innerHTML.replace(/\n/g, '<br>');
+                }};
+            }
+            if (typeof window.hljs === 'undefined') {
+                window.hljs = { highlightElement: function(){ /* no-op offline */ } };
+            }
+        })();
+    </script>
+    <script>
+        // Основное приложение
+        class KhuyewAI {
+            constructor() {
+                this.messagesContainer = document.getElementById('messagesContainer');
+                this.userInput = document.getElementById('user-input');
+                this.sendButton = document.getElementById('send-button');
+                this.voiceButton = document.getElementById('voiceButton');
+                this.imageUploadButton = document.getElementById('imageUploadButton');
+                this.fileInput = document.getElementById('fileInput');
+                // importJsonInput удалён вместе с импортом/экспортом
+                this.importJsonInput = null;
+                this.imagePreviewContainer = document.getElementById('imagePreviewContainer');
+                this.imagePreview = document.getElementById('imagePreview');
+                this.removeImageBtn = document.getElementById('removeImageBtn');
+                this.clearInputButton = document.getElementById('clearInputButton');
+                this.scrollUpBtn = document.getElementById('scrollUpBtn');
+                this.scrollDownBtn = document.getElementById('scrollDownBtn');
+                
+                this.introCompleted = false;
+                this.lastUserMessage = null;
+                this.isProcessing = false;
+                this.currentStream = null;
+                this.currentTypingIndicator = null;
+                this.currentImage = null;
+                
+                this.init();
+            }
 
-        // Переменные состояния
-        let isRecording = false;
-        let recognition = null;
-        let currentImageFile = null;
-        let isAIResponding = false;
-        let isUserScrolling = false;
-        let scrollTimeout = null;
-        let interfaceTimeout = null;
-        let isInterfaceVisible = true;
-        let lastScrollTop = 0;
-
-        // Инициализация
-        function init() {
-            loadTheme();
-            setupEventListeners();
-            showWelcomeMessage();
-            autoResizeTextarea();
-            setupScrollHandlers();
-        }
-
-        // Настройка обработчиков событий
-        function setupEventListeners() {
-            // Отправка сообщения
-            sendButton.addEventListener('click', sendMessage);
-            userInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
+            init() {
+                if (!this.messagesContainer || !this.userInput || !this.sendButton) {
+                    console.error('Не удалось найти необходимые DOM элементы');
+                    return;
                 }
-            });
+
+                // Настройка Markdown
+                marked.setOptions({
+                    breaks: true,
+                    gfm: true,
+                    langPrefix: 'language-'
+                });
+
+                this.initVoiceRecognition();
+                this.initTheme();
+                this.initImageModal();
+                this.setupEventListeners();
+                this.setupTextareaAutoResize();
+                
+                // Фокус на поле ввода
+                this.userInput.focus();
+
+                // Запуск введения если нет истории
+                if (!this.messagesContainer.querySelector('.message')) {
+                    setTimeout(() => this.showIntro(), 500);
+                }
+            }
+
+            setupEventListeners() {
+                // Обработчики событий для логотипа
+                const logo = document.querySelector('.logo');
+                if (logo) {
+                    logo.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.clearChat();
+                    });
+                }
+
+                // Обработчики для кнопок управления
+                const themeToggle = document.getElementById('themeToggle');
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggleTheme();
+                    });
+                }
+
+                const helpButton = document.getElementById('helpButton');
+                if (helpButton) {
+                    helpButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.showHelp();
+                    });
+                }
+
+                // Кнопки экспорта удалены
+
+                const clearButton = document.getElementById('clearButton');
+                if (clearButton) {
+                    clearButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.clearChat();
+                    });
+                }
+
+                const privacyLink = document.getElementById('privacyLink');
+                if (privacyLink) {
+                    privacyLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.showPrivacyInfo();
+                    });
+                }
+
+                // Кнопка импорта удалена
+
+                // Основные обработчики
+                this.sendButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.sendMessage();
+                });
+                
+                this.userInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Keep caret padding symmetrical with send button alignment
+                const adjustInputPadding = () => {
+                    const send = this.sendButton;
+                    const rightPad = send ? (send.offsetWidth + 24 + 100) : 170; // icon buttons width
+                    this.userInput.style.paddingRight = rightPad + 'px';
+                };
+                window.addEventListener('resize', adjustInputPadding);
+                setTimeout(adjustInputPadding, 100);
+
+                // Загрузка изображений
+                this.imageUploadButton.addEventListener('click', () => {
+                    this.fileInput.click();
+                });
+
+                this.fileInput.addEventListener('change', (e) => {
+                    this.handleImageUpload(e);
+                });
+
+                this.removeImageBtn.addEventListener('click', () => {
+                    this.removeCurrentImage();
+                });
+
+                if (this.clearInputButton) {
+                    this.clearInputButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.userInput.value = '';
+                        this.userInput.style.height = 'auto';
+                        this.userInput.focus();
+                    });
+                }
+
+                // Автофокус при клике в любое место чата
+                this.messagesContainer.addEventListener('click', () => {
+                    this.userInput.focus();
+                });
+
+                // Drag & drop изображений
+                const preventDefaults = (e) => { e.preventDefault(); e.stopPropagation(); };
+                ['dragenter','dragover','dragleave','drop'].forEach(eventName => {
+                    this.messagesContainer.addEventListener(eventName, preventDefaults, false);
+                    document.querySelector('.input-container')?.addEventListener(eventName, preventDefaults, false);
+                });
+                this.messagesContainer.addEventListener('drop', (e) => this.handleDrop(e));
+                document.querySelector('.input-container')?.addEventListener('drop', (e) => this.handleDrop(e));
+
+                // Вставка из буфера обмена (paste) изображений
+                document.addEventListener('paste', (e) => this.handlePaste(e));
+
+                // Обработка ошибок изображений
+                document.addEventListener('error', (e) => {
+                    if (e.target.classList.contains('generated-image') || e.target.classList.contains('image-preview')) {
+                        console.error('Ошибка загрузки изображения:', e.target.src);
+                        e.target.style.display = 'none';
+                        const parent = e.target.closest('.ai-image-message') || e.target.closest('.image-preview-container');
+                        if (parent) {
+                            const errorMsg = document.createElement('div');
+                            errorMsg.textContent = '❌ Не удалось загрузить изображение';
+                            errorMsg.style.color = '#ff6b6b';
+                            errorMsg.style.marginTop = '10px';
+                            parent.appendChild(errorMsg);
+                        }
+                    }
+                }, true);
+
+                // Прокрутка
+                if (this.scrollDownBtn) {
+                    this.scrollDownBtn.addEventListener('click', () => this.scrollToBottom());
+                }
+                if (this.scrollUpBtn) {
+                    this.scrollUpBtn.addEventListener('click', () => this.scrollToLastAIMessage());
+                }
+
+                // Show/hide scroll controls contextually
+                const updateScrollControls = () => {
+                    const el = this.messagesContainer;
+                    if (!el) return;
+                    const atBottom = Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) < 4;
+                    const atTop = el.scrollTop <= 4;
+                    // Up button visible when not at top and there is at least one AI message
+                    const hasAI = !!el.querySelector('.ai-message, .ai-image-message');
+                    if (this.scrollUpBtn) {
+                        this.scrollUpBtn.style.display = (!atTop && hasAI) ? 'flex' : 'none';
+                    }
+                    // Down button appears above send button when not at bottom
+                    if (this.scrollDownBtn) {
+                        this.scrollDownBtn.style.display = atBottom ? 'none' : 'flex';
+                        if (!atBottom) {
+                            // position above send button
+                            const input = document.querySelector('.input-container');
+                            const rect = input?.getBoundingClientRect?.();
+                            const offsetBottom = rect ? (window.innerHeight - rect.top) + 72 : 120;
+                            this.scrollDownBtn.style.left = 'auto';
+                            this.scrollDownBtn.style.right = '26px';
+                            this.scrollDownBtn.style.bottom = offsetBottom + 'px';
+                        }
+                    }
+                };
+                this.messagesContainer.addEventListener('scroll', updateScrollControls);
+                window.addEventListener('resize', updateScrollControls);
+                setInterval(updateScrollControls, 800); // keep in sync during streaming
+                setTimeout(updateScrollControls, 100);
+            }
+
+            setupTextareaAutoResize() {
+                this.userInput.addEventListener('input', () => {
+                    this.userInput.style.height = 'auto';
+                    this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+                });
+            }
+
+            async sendMessage() {
+                if (this.isProcessing) {
+                    return;
+                }
+
+                const message = this.userInput.value.trim();
+                const hasImage = this.currentImage !== null;
+                
+                if (message === '' && !hasImage) return;
+                
+                this.isProcessing = true;
+                this.sendButton.disabled = true;
+                
+                try {
+                    if (!this.introCompleted) {
+                        this.introCompleted = true;
+                        document.querySelector('.skip-intro')?.remove();
+                    }
+                    
+                    // Сохраняем текущее изображение на время запроса,
+                    // чтобы не потерять его после очистки превью
+                    const imageForRequest = this.currentImage;
+
+                    // Добавляем сообщение пользователя
+                    if (hasImage) {
+                        this.addUserMessageWithImage(message, imageForRequest);
+                    } else {
+                        this.addUserMessage(message);
+                    }
+                    
+                    this.userInput.value = '';
+                    this.userInput.style.height = 'auto';
+                    this.removeCurrentImage();
+                    
+                    const requestType = this.analyzeRequest(message);
+                    
+                    if (requestType === 'generate' && !hasImage) {
+                        await this.generateImage(message);
+                        this.removePendingAnimation();
+                    } else {
+                        try {
+                            if (hasImage) {
+                                await this.analyzeImageWithText(message, imageForRequest);
+                            } else {
+                                await this.streamTextResponse(message);
+                            }
+                            this.removePendingAnimation();
+                        } catch (error) {
+                            console.error('Ошибка получения ответа:', error);
+                            this.removePendingAnimation();
+                            
+                            this.addMessage(
+                                "❌ Извините, произошла ошибка соединения. Пожалуйста, проверьте интернет и попробуйте еще раз.", 
+                                false, true
+                            );
+                        }
+                    }
+                } catch (error) {
+                    console.error('Ошибка при отправке сообщения:', error);
+                    this.addMessage(
+                        "❌ Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз.", 
+                        false, true
+                    );
+                } finally {
+                    this.isProcessing = false;
+                    this.sendButton.disabled = false;
+                    setTimeout(() => this.userInput.focus(), 100);
+                }
+            }
+
+            addUserMessage(text) {
+                const messageElement = this.addMessage(text, true);
+                messageElement.classList.add('pending');
+                this.lastUserMessage = messageElement;
+                return messageElement;
+            }
+
+            addUserMessageWithImage(text, imageData) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', 'user-message', 'pending');
+                
+                const contentElement = document.createElement('div');
+                contentElement.classList.add('message-content');
+                
+                if (text) {
+                    const textElement = document.createElement('div');
+                    textElement.textContent = text;
+                    contentElement.appendChild(textElement);
+                }
+                
+                // Добавляем изображение
+                const imgElement = document.createElement('img');
+                // Normalize possible whitespace/newlines that may appear in pasted data URLs
+                if (typeof imageData === 'string') {
+                    imageData = imageData.trim().replace(/\s+/g, '');
+                }
+                imgElement.src = imageData;
+                imgElement.classList.add('generated-image');
+                imgElement.style.maxWidth = '200px';
+                imgElement.style.maxHeight = '150px';
+                imgElement.style.marginTop = text ? '10px' : '0';
+                imgElement.alt = 'Загруженное изображение';
+                imgElement.onerror = () => {
+                    imgElement.style.display = 'none';
+                    const errorMsg = document.createElement('div');
+                    errorMsg.textContent = '❌ Не удалось загрузить изображение';
+                    errorMsg.style.color = '#ff6b6b';
+                    errorMsg.style.marginTop = '10px';
+                    contentElement.appendChild(errorMsg);
+                };
+                
+                contentElement.appendChild(imgElement);
+                messageElement.appendChild(contentElement);
+                
+                this.messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+                this.lastUserMessage = messageElement;
+                
+                return messageElement;
+            }
+
+            removePendingAnimation() {
+                if (this.lastUserMessage) {
+                    this.lastUserMessage.classList.remove('pending');
+                    this.lastUserMessage = null;
+                }
+            }
+
+            handleImageUpload(event) {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                this.loadImageFile(file);
+                // Сбрасываем input для возможности загрузки того же файла снова
+                event.target.value = '';
+            }
+
+            loadImageFile(file) {
+                if (!file.type.startsWith('image/')) {
+                    alert('Пожалуйста, выберите файл изображения');
+                    return;
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Размер изображения не должен превышать 5MB');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.currentImage = e.target.result;
+                    this.imagePreview.src = this.currentImage;
+                    this.imagePreviewContainer.style.display = 'block';
+                    this.userInput.placeholder = 'Опишите изображение или задайте вопрос...';
+                    this.userInput.focus();
+                };
+                reader.onerror = () => alert('Ошибка при загрузке изображения');
+                reader.readAsDataURL(file);
+            }
+
+            handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt?.files;
+                if (!files || files.length === 0) return;
+                const file = Array.from(files).find(f => f.type.startsWith('image/'));
+                if (file) {
+                    this.loadImageFile(file);
+                }
+            }
+
+            handlePaste(e) {
+                const items = e.clipboardData?.items;
+                if (!items) return;
+                for (const item of items) {
+                    if (item.type.startsWith('image/')) {
+                        const file = item.getAsFile();
+                        if (file) this.loadImageFile(file);
+                        break;
+                    }
+                }
+            }
+
+            removeCurrentImage() {
+                this.currentImage = null;
+                this.imagePreviewContainer.style.display = 'none';
+                this.userInput.placeholder = "Задайте вопрос или опишите изображение...";
+                this.fileInput.value = '';
+            }
+
+            // Введение бота
+            async showIntro() {
+                const introMessages = [
+                    "👋 Привет! Я **Khuyew AI** - полностью бесплатный ИИ-помощник.",
+                    "✨ Я умею отвечать на вопросы, анализировать изображения и генерировать картинки!",
+                    "💡 **Быстрый старт:** Напишите вопрос, загрузите изображение или скажите 'нарисуй кота'",
+                    "🎯 Используйте кнопки справа для голосового ввода и загрузки изображений",
+                    "🚀 **Начните общение прямо сейчас!** Я полностью бесплатен и готов помочь!"
+                ];
+                
+                // Сразу показываем кнопку пропуска
+                this.createSkipButton();
+                
+                for (const message of introMessages) {
+                    if (this.introCompleted) break;
+                    
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message', 'ai-message');
+                    this.messagesContainer.appendChild(messageElement);
+                    
+                    await this.typeText(messageElement, message);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+
+            // Исправленный метод печати текста
+            async typeText(element, text, speed = 30) {
+                return new Promise(resolve => {
+                    let i = 0;
+                    element.innerHTML = '<span class="typing-cursor"></span>';
+                    element.classList.add('ai-streaming');
+                    
+                    const type = () => {
+                        if (i < text.length) {
+                            const char = text.charAt(i);
+                            element.innerHTML = '<span class="typing-cursor"></span>' + this.sanitizeHTML(text.substring(0, i + 1));
+                            i++;
+                            this.scrollToBottom();
+                            
+                            const delay = char === '.' || char === '!' || char === '?' ? speed * 3 : speed;
+                            setTimeout(type, delay);
+                        } else {
+                            element.innerHTML = marked.parse(text);
+                            element.classList.remove('ai-streaming');
+                            this.applyCodeHighlighting(element);
+                            resolve();
+                        }
+                    };
+                    
+                    type();
+                });
+            }
+
+            createSkipButton() {
+                const skipButton = document.createElement('div');
+                skipButton.classList.add('skip-intro');
+                skipButton.innerHTML = '<i class="ti ti-player-skip-forward"></i>Пропустить введение';
+                skipButton.addEventListener('click', () => this.skipIntro());
+                this.messagesContainer.appendChild(skipButton);
+                this.scrollToBottom();
+            }
+
+            skipIntro() {
+                this.introCompleted = true;
+                document.querySelector('.skip-intro')?.remove();
+                this.addMessage(
+                    '🎉 Отлично! Теперь вы можете задавать вопросы, загружать изображения или генерировать картинки.', 
+                    false
+                );
+            }
+
+            showHelp() {
+                const helpMessage = `## 🎯 **Как использовать**
+
+• **Общение** - напишите вопрос и нажмите Enter
+• **Анализ изображений** - загрузите картинку и опишите что нужно сделать
+• **Генерация изображений** - "нарисуй кота", "сгенерируй пейзаж"
+• **Голосовой ввод** - нажмите 🎤 и говорите
+• **Загрузка файлов** - нажмите 📷 для выбора изображения
+
+### ⌨️ **Горячие клавиши:**
+• **Enter** - отправить сообщение
+• **Shift + Enter** - новая строка
+• **ESC** - закрыть модальное окно`;
+
+                this.addMessage(helpMessage, false);
+            }
+
+            exportChat() {
+                try {
+                    const messages = Array.from(this.messagesContainer.querySelectorAll('.message'));
+                    const chatText = messages.map(msg => {
+                        const sender = msg.classList.contains('user-message') ? 'Вы' : 'ИИ';
+                        const content = msg.querySelector('.message-content') ? 
+                            msg.querySelector('.message-content').textContent : msg.textContent;
+                        return `${sender}: ${content}`;
+                    }).join('\n\n');
+                    
+                    const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `khuyew-chat-${new Date().toISOString().split('T')[0]}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    this.addMessage('💾 Чат экспортирован в файл!', false);
+                } catch (error) {
+                    console.error('Ошибка экспорта:', error);
+                    this.addMessage('❌ Ошибка при экспорте чата', false, true);
+                }
+            }
+
+            exportChatAsJSON() {
+                try {
+                    const messages = Array.from(this.messagesContainer.querySelectorAll('.message')).map(msg => {
+                        const isUser = msg.classList.contains('user-message');
+                        const isAIImage = msg.classList.contains('ai-image-message');
+                        const base = {
+                            sender: isUser ? 'user' : 'ai',
+                            text: ''
+                        };
+                        if (isAIImage) {
+                            const img = msg.querySelector('img.generated-image');
+                            return { ...base, type: 'image', imageSrc: img?.src || '' };
+                        }
+                        const content = msg.querySelector('.message-content');
+                        return { ...base, type: 'text', text: content ? content.textContent : msg.textContent };
+                    });
+                    const payload = {
+                        app: 'Khuyew AI',
+                        version: 1,
+                        exportedAt: new Date().toISOString(),
+                        messages
+                    };
+                    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `khuyew-chat-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    this.addMessage('💾 JSON-файл с чатом сохранён!', false);
+                } catch (error) {
+                    console.error('Ошибка экспорта JSON:', error);
+                    this.addMessage('❌ Ошибка при экспорте JSON', false, true);
+                }
+            }
+
+            handleImportJson(e) {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const data = JSON.parse(reader.result);
+                        if (!data || !Array.isArray(data.messages)) throw new Error('Неверный формат');
+                        if (confirm('Очистить текущий чат перед импортом?')) {
+                            this.messagesContainer.innerHTML = '';
+                        }
+                        for (const m of data.messages) {
+                            if (m.type === 'image' && m.imageSrc) {
+                                this.addAIImageMessageFromSrc(m.imageSrc, m.text || '');
+                            } else {
+                                this.addMessage(m.text || '', m.sender === 'user');
+                            }
+                        }
+                        this.addMessage('✅ Чат импортирован из JSON', false);
+                    } catch (err) {
+                        console.error('Ошибка импорта JSON:', err);
+                        this.addMessage('❌ Ошибка импорта JSON-файла', false, true);
+                    } finally {
+                        e.target.value = '';
+                    }
+                };
+                reader.onerror = () => {
+                    this.addMessage('❌ Ошибка чтения файла JSON', false, true);
+                    e.target.value = '';
+                };
+                reader.readAsText(file);
+            }
+
+            clearChat() {
+                if (confirm('Очистить всю историю чата?')) {
+                    this.messagesContainer.innerHTML = '';
+                    this.lastUserMessage = null;
+                    this.introCompleted = false;
+                    this.isProcessing = false;
+                    this.sendButton.disabled = false;
+                    this.removeCurrentImage();
+                    
+                    // Отмена текущего стрима
+                    if (this.currentStream) {
+                        this.currentStream.cancel?.();
+                        this.currentStream = null;
+                    }
+                    
+                    // Удаление индикатора печати
+                    if (this.currentTypingIndicator) {
+                        this.currentTypingIndicator.remove();
+                        this.currentTypingIndicator = null;
+                    }
+                    
+                    localStorage.removeItem('khuyew-chat-history');
+                    setTimeout(() => this.showIntro(), 500);
+                }
+            }
+
+            showPrivacyInfo() {
+                const privacyMessage = `## 🔒 **Конфиденциальность**
+
+• Все данные хранятся **только в вашем браузере**
+• История чата **не передаётся** на сервер
+• Изображения обрабатываются локально
+• Для полной очистки используйте кнопку **"🗑️ Очистить"**`;
+
+                this.addMessage(privacyMessage, false);
+            }
+
+            // Утилиты
+            sanitizeHTML(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            scrollToBottom() {
+                if (this.messagesContainer) {
+                    setTimeout(() => {
+                        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                    }, 50);
+                }
+            }
+
+            // Преобразование data URL в File/Blob для корректной передачи изображений
+            async dataURLToFile(dataURL, filename = 'image.png') {
+                // Handle possible newlines/spaces and validate the Data URL scheme
+                if (typeof dataURL === 'string') {
+                    dataURL = dataURL.trim().replace(/\s+/g, '');
+                }
+                const isDataUrl = typeof dataURL === 'string' && dataURL.startsWith('data:');
+
+                try {
+                    if (isDataUrl) {
+                        // Prefer direct decode to avoid fetch() truncation issues on very long data URLs
+                        const commaIndex = dataURL.indexOf(',');
+                        if (commaIndex === -1) throw new Error('Invalid data URL');
+                        const meta = dataURL.substring(5, commaIndex); // after 'data:'
+                        const base64 = dataURL.substring(commaIndex + 1);
+                        const isBase64 = /;base64/i.test(meta);
+                        const mimeMatch = meta.match(/^([^;]+)/);
+                        const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+
+                        let binaryString;
+                        if (isBase64) {
+                            binaryString = atob(base64);
+                        } else {
+                            // URL-encoded data
+                            binaryString = decodeURIComponent(base64);
+                        }
+                        const len = binaryString.length;
+                        const bytes = new Uint8Array(len);
+                        for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
+                        const blob = new Blob([bytes], { type: mime });
+                        try {
+                            return new File([blob], filename, { type: mime });
+                        } catch {
+                            return blob;
+                        }
+                    } else {
+                        // Fallback for http(s) URLs
+                        const res = await fetch(dataURL);
+                        const blob = await res.blob();
+                        const type = blob.type || 'image/png';
+                        try {
+                            return new File([blob], filename, { type });
+                        } catch {
+                            return new Blob([blob], { type });
+                        }
+                    }
+                } catch (err) {
+                    console.error('dataURLToFile error:', err);
+                    // Last resort: return empty PNG blob to avoid crashes
+                    return new Blob([], { type: 'image/png' });
+                }
+            }
+
+            scrollToLastAIMessage() {
+                const aiMessages = this.messagesContainer.querySelectorAll('.message.ai-message, .message.ai-image-message');
+                const last = aiMessages[aiMessages.length - 1];
+                if (last) {
+                    last.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    // если нет сообщений ИИ — просто наверх
+                    this.messagesContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            addMessage(text, isUser = false, isError = false) {
+                const messageElement = document.createElement('div');
+                const className = isError ? 'error-message' : (isUser ? 'user-message' : 'ai-message');
+                messageElement.classList.add('message', className);
+                
+                const contentElement = document.createElement('div');
+                contentElement.classList.add('message-content');
+                
+                if (isUser || isError) {
+                    contentElement.textContent = this.sanitizeHTML(text);
+                } else {
+                    try {
+                        contentElement.innerHTML = marked.parse(text);
+                        this.applyCodeHighlighting(contentElement);
+                    } catch (error) {
+                        console.error('Ошибка парсинга Markdown:', error);
+                        contentElement.textContent = text;
+                    }
+                }
+                
+                messageElement.appendChild(contentElement);
+                
+                this.messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+                return messageElement;
+            }
+
+            applyCodeHighlighting(element) {
+                try {
+                    element.querySelectorAll('pre code').forEach((block) => {
+                        const pre = block.closest('pre');
+                        const language = block.className.replace('language-', '') || 'text';
+                        
+                        const codeHeader = document.createElement('div');
+                        codeHeader.className = 'code-header';
+                        
+                        const languageSpan = document.createElement('span');
+                        languageSpan.className = 'code-language';
+                        languageSpan.textContent = language;
+                        
+                        const copyButton = document.createElement('button');
+                        copyButton.className = 'copy-button';
+                        copyButton.innerHTML = '<i class="ti ti-copy"></i>Копировать';
+                        
+                        copyButton.addEventListener('click', () => {
+                            const codeText = block.textContent;
+                            navigator.clipboard.writeText(codeText).then(() => {
+                                copyButton.innerHTML = '<i class="ti ti-check"></i>Скопировано!';
+                                copyButton.classList.add('copied');
+                                setTimeout(() => {
+                                    copyButton.innerHTML = '<i class="ti ti-copy"></i>Копировать';
+                                    copyButton.classList.remove('copied');
+                                }, 2000);
+                            }).catch(err => {
+                                console.error('Ошибка копирования:', err);
+                                copyButton.innerHTML = '<i class="ti ti-x"></i>Ошибка';
+                            });
+                        });
+                        
+                        codeHeader.appendChild(languageSpan);
+                        codeHeader.appendChild(copyButton);
+                        
+                        pre.insertBefore(codeHeader, block);
+                        hljs.highlightElement(block);
+                    });
+                } catch (error) {
+                    console.error('Ошибка подсветки синтаксиса:', error);
+                }
+            }
+
+            analyzeRequest(message) {
+                const imageKeywords = [
+                    'нарисуй', 'сгенерируй', 'изображение', 'картинку', 'фото', 'иллюстрацию',
+                    'draw', 'generate', 'image', 'picture', 'photo', 'illustration'
+                ];
+                
+                const lowerMessage = message.toLowerCase();
+                return imageKeywords.some(keyword => lowerMessage.includes(keyword)) ? 'generate' : 'text';
+            }
 
             // Голосовой ввод
-            voiceButton.addEventListener('click', toggleVoiceRecognition);
+            initVoiceRecognition() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    this.voiceButton.style.display = 'none';
+                    return;
+                }
 
-            // Загрузка изображения
-            imageUploadButton.addEventListener('click', () => {
-                const fileInput = document.createElement('input');
-                fileInput.type = 'file';
-                fileInput.accept = 'image/*';
-                fileInput.addEventListener('change', handleImageUpload);
-                fileInput.click();
-            });
+                try {
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.continuous = false;
+                    this.recognition.lang = 'ru-RU';
+                    this.recognition.interimResults = true;
 
-            // Удаление изображения
-            removeImageBtn.addEventListener('click', removeImage);
+                    const voiceLevel = document.getElementById('voiceLevel');
 
-            // Очистка ввода
-            clearInputButton.addEventListener('click', () => {
-                userInput.value = '';
-                userInput.focus();
-                autoResizeTextarea();
-            });
+                    this.recognition.onstart = () => {
+                        this.voiceButton.classList.add('voice-recording');
+                        this.voiceButton.innerHTML = '<i class="ti ti-square"></i>';
+                        voiceLevel.style.display = 'block';
+                    };
 
-            // Переключение темы
-            themeToggle.addEventListener('click', toggleTheme);
+                    this.recognition.onresult = (event) => {
+                        let transcript = '';
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            if (event.results[i].isFinal) {
+                                transcript += event.results[i][0].transcript;
+                            }
+                        }
+                        if (transcript) {
+                            this.userInput.value = transcript;
+                            this.userInput.dispatchEvent(new Event('input'));
+                        }
+                    };
 
-            // Очистка чата
-            clearChatBtn.addEventListener('click', clearChat);
+                    this.recognition.onend = () => {
+                        this.voiceButton.classList.remove('voice-recording');
+                        this.voiceButton.innerHTML = '<i class="ti ti-microphone"></i>';
+                        voiceLevel.style.display = 'none';
+                    };
 
-            // Кнопка помощи
-            helpButton.addEventListener('click', showHelp);
+                    this.recognition.onerror = (event) => {
+                        console.error('Ошибка распознавания:', event.error);
+                        this.voiceButton.classList.remove('voice-recording');
+                        this.voiceButton.innerHTML = '<i class="ti ti-microphone"></i>';
+                        voiceLevel.style.display = 'none';
+                    };
 
-            // Кнопки действий
-            actionButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const prompt = e.currentTarget.getAttribute('data-prompt');
-                    userInput.value = prompt;
-                    userInput.focus();
-                    autoResizeTextarea();
+                    this.voiceButton.addEventListener('click', () => {
+                        if (this.voiceButton.classList.contains('voice-recording')) {
+                            this.recognition.stop();
+                        } else {
+                            try {
+                                this.recognition.start();
+                            } catch (error) {
+                                console.error('Ошибка запуска распознавания:', error);
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Ошибка инициализации голосового ввода:', error);
+                    this.voiceButton.style.display = 'none';
+                }
+            }
+
+            // Тема
+            initTheme() {
+                const savedTheme = localStorage.getItem('khuyew-theme');
+                const themeToggle = document.getElementById('themeToggle');
+                // По умолчанию темная тема
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-theme');
+                    themeToggle.innerHTML = '<i class="ti ti-sun"></i>';
+                } else {
+                    themeToggle.innerHTML = '<i class="ti ti-moon"></i>';
+                }
+            }
+
+            toggleTheme() {
+                const themeToggle = document.getElementById('themeToggle');
+                document.body.classList.toggle('light-theme');
+                if (document.body.classList.contains('light-theme')) {
+                    localStorage.setItem('khuyew-theme', 'light');
+                    themeToggle.innerHTML = '<i class="ti ti-sun"></i>';
+                } else {
+                    localStorage.setItem('khuyew-theme', 'dark');
+                    themeToggle.innerHTML = '<i class="ti ti-moon"></i>';
+                }
+            }
+
+            // Модальное окно
+            initImageModal() {
+                const modal = document.getElementById('imageModal');
+                const modalImg = document.getElementById('modalImage');
+                const close = document.querySelector('.close');
+                
+                if (!modal || !close) return;
+                
+                close.addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+                
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+
+                // ESC для закрытия
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && modal.style.display === 'block') {
+                        modal.style.display = 'none';
+                    }
+                });
+
+                // Обработчики для изображений
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('generated-image')) {
+                        modal.style.display = 'block';
+                        modalImg.src = e.target.src;
+                        const caption = document.getElementById('modalCaption');
+                        if (caption) {
+                            caption.textContent = e.target.alt || 'Изображение';
+                        }
+                    }
+                });
+            }
+
+            // AI функции
+            async streamTextResponse(prompt) {
+                if (this.currentStream) {
+                    this.currentStream.cancel?.();
+                }
+
+                // Создаем индикатор печати
+                const typingIndicator = document.createElement('div');
+                typingIndicator.classList.add('message', 'ai-message');
+                typingIndicator.innerHTML = `
+                    <div class="ai-status">
+                        <i class="ti ti-pencil"></i>
+                        ИИ печатает
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                
+                this.messagesContainer.appendChild(typingIndicator);
+                this.currentTypingIndicator = typingIndicator;
+                this.scrollToBottom();
+
+                const aiMessageElement = document.createElement('div');
+                aiMessageElement.classList.add('message', 'ai-message', 'ai-streaming');
+                
+                const contentElement = document.createElement('div');
+                contentElement.classList.add('message-content');
+                contentElement.innerHTML = '<span class="typing-cursor"></span>';
+                aiMessageElement.appendChild(contentElement);
+
+                try {
+                    const response = await puter.ai.chat(prompt, { 
+                        model: "gpt-5-nano", 
+                        stream: true 
+                    });
+                    
+                    this.currentStream = response;
+                    let fullText = '';
+                    
+                    // Удаляем индикатор печати когда начинается реальный ответ
+                    if (this.currentTypingIndicator) {
+                        this.currentTypingIndicator.remove();
+                        this.currentTypingIndicator = null;
+                        this.messagesContainer.appendChild(aiMessageElement);
+                    }
+                    
+                    for await (const part of response) {
+                        if (part?.text) {
+                            fullText += part.text;
+                            contentElement.innerHTML = '<span class="typing-cursor"></span>' + this.sanitizeHTML(fullText);
+                            this.scrollToBottom();
+                        }
+                    }
+                    
+                    contentElement.innerHTML = marked.parse(fullText);
+                    this.applyCodeHighlighting(contentElement);
+                    aiMessageElement.classList.remove('ai-streaming');
+                    this.currentStream = null;
+                    
+                } catch (error) {
+                    console.error('Ошибка стриминга:', error);
+                    // Удаляем индикатор печати при ошибке
+                    if (this.currentTypingIndicator) {
+                        this.currentTypingIndicator.remove();
+                        this.currentTypingIndicator = null;
+                    }
+                    aiMessageElement.remove();
+                    this.currentStream = null;
+                    throw error;
+                }
+                
+                return aiMessageElement;
+            }
+
+            async analyzeImageWithText(text, imageData) {
+                // Создаем индикатор анализа
+                const analyzingIndicator = document.createElement('div');
+                analyzingIndicator.classList.add('message', 'ai-message');
+                analyzingIndicator.innerHTML = `
+                    <div class="ai-status">
+                        <i class="ti ti-eye"></i>
+                        ИИ анализирует изображение
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                
+                this.messagesContainer.appendChild(analyzingIndicator);
+                this.currentTypingIndicator = analyzingIndicator;
+                this.scrollToBottom();
+
+                const aiMessageElement = document.createElement('div');
+                aiMessageElement.classList.add('message', 'ai-message', 'ai-streaming');
+                
+                const contentElement = document.createElement('div');
+                contentElement.classList.add('message-content');
+                contentElement.innerHTML = '<span class="typing-cursor"></span>';
+                aiMessageElement.appendChild(contentElement);
+
+                try {
+                    // Эмулируем задержку анализа
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Удаляем индикатор анализа
+                    if (this.currentTypingIndicator) {
+                        this.currentTypingIndicator.remove();
+                        this.currentTypingIndicator = null;
+                        this.messagesContainer.appendChild(aiMessageElement);
+                    }
+                    
+                    // Формируем подсказку и подготавливаем изображение к отправке
+                    const prompt = text ? `Проанализируй прикреплённое изображение и ответь по запросу: "${text}". Сначала кратко (1-2 предложения) опиши, что на изображении, затем ответь по сути.` : 
+                        "Проанализируй прикреплённое изображение. Опиши, что на нём, затем сделай выводы.";
+
+                    // Пытаемся отправить изображение в мультимодальную (vision) модель
+                    let response;
+                    try {
+                        const imageFile = await this.dataURLToFile(imageData, 'upload.png');
+                        response = await puter.ai.chat(prompt, {
+                            model: "gpt-5-vision",
+                            stream: true,
+                            images: [imageFile]
+                        });
+                    } catch (mmErr) {
+                        try {
+                            // In case File/Blob upload fails, pass the normalized data URL directly
+                            if (typeof imageData === 'string') {
+                                imageData = imageData.trim().replace(/\s+/g, '');
+                            }
+                            response = await puter.ai.chat(prompt, {
+                                model: "gpt-5-vision",
+                                stream: true,
+                                images: [imageData]
+                            });
+                        } catch (innerErr) {
+                            // Provide a safe short hash instead of a truncated data URL to avoid confusion
+                            const shortHash = (() => {
+                                try {
+                                    const str = String(imageData || '');
+                                    let h = 0;
+                                    for (let i = 0; i < str.length; i++) {
+                                        h = (h * 31 + str.charCodeAt(i)) >>> 0;
+                                    }
+                                    return h.toString(16);
+                                } catch { return 'na'; }
+                            })();
+                            const fallbackPrompt = `${prompt}\n\nИзображение приложено локально. Контрольный идентификатор: ${shortHash}`;
+                            response = await puter.ai.chat(fallbackPrompt, { model: "gpt-5-nano", stream: true });
+                        }
+                    }
+                    
+                    let fullText = '';
+                    
+                    for await (const part of response) {
+                        if (part?.text) {
+                            fullText += part.text;
+                            contentElement.innerHTML = '<span class="typing-cursor"></span>' + this.sanitizeHTML(fullText);
+                            this.scrollToBottom();
+                        }
+                    }
+                    
+                    contentElement.innerHTML = marked.parse(fullText);
+                    this.applyCodeHighlighting(contentElement);
+                    aiMessageElement.classList.remove('ai-streaming');
+                    
+                } catch (error) {
+                    console.error('Ошибка анализа изображения:', error);
+                    if (this.currentTypingIndicator) {
+                        this.currentTypingIndicator.remove();
+                        this.currentTypingIndicator = null;
+                    }
+                    this.addMessage(
+                        '❌ Ошибка анализа изображения. Попробуйте еще раз.', 
+                        false, true
+                    );
+                }
+            }
+
+            async generateImage(prompt) {
+                try {
+                    // Показываем индикатор генерации
+                    const loadingElement = document.createElement('div');
+                    loadingElement.classList.add('message', 'ai-message');
+                    loadingElement.innerHTML = `
+                        <div class="ai-status">
+                            <i class="ti ti-photo"></i>
+                            ИИ генерирует изображение
+                            <div class="typing-indicator">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    `;
+                    this.messagesContainer.appendChild(loadingElement);
+                    this.currentTypingIndicator = loadingElement;
+                    this.scrollToBottom();
+                    
+                    const image = await puter.ai.txt2img(prompt, { testMode: true });
+                    
+                    // Удаляем индикатор загрузки
+                    if (this.currentTypingIndicator) {
+                        this.currentTypingIndicator.remove();
+                        this.currentTypingIndicator = null;
+                    }
+                    this.addAIImageMessageFromSrc(image instanceof HTMLElement ? image.src : image, prompt);
+                    
+                } catch (error) {
+                    console.error('Ошибка генерации изображения:', error);
+                    // Удаляем индикатор загрузки при ошибке
+                    if (this.currentTypingIndicator) {
+                        this.currentTypingIndicator.remove();
+                        this.currentTypingIndicator = null;
+                    }
+                    this.addMessage(
+                        '❌ Ошибка генерации изображения. Попробуйте другой запрос.', 
+                        false, true
+                    );
+                }
+            }
+
+            addAIImageMessageFromSrc(src, prompt = '') {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', 'ai-image-message');
+                const textElement = document.createElement('div');
+                textElement.textContent = '🎨 Сгенерировано изображение:';
+                messageElement.appendChild(textElement);
+                const img = document.createElement('img');
+                img.src = src;
+                img.classList.add('generated-image');
+                img.alt = prompt ? `Изображение по запросу: ${prompt}` : 'Сгенерированное изображение';
+                img.onerror = () => {
+                    img.style.display = 'none';
+                    const errorMsg = document.createElement('div');
+                    errorMsg.textContent = '❌ Не удалось загрузить изображение';
+                    errorMsg.style.color = '#ff6b6b';
+                    errorMsg.style.marginTop = '10px';
+                    messageElement.appendChild(errorMsg);
+                };
+                messageElement.appendChild(img);
+                if (prompt) {
+                    const promptElement = document.createElement('div');
+                    promptElement.classList.add('image-prompt');
+                    promptElement.textContent = `Запрос: "${prompt}"`;
+                    messageElement.appendChild(promptElement);
+                }
+                this.messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+            }
+        }
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                window.khuyewAI = new KhuyewAI();
+            } catch (error) {
+                console.error('Ошибка инициализации приложения:', error);
+                alert('Произошла ошибка при загрузке приложения. Пожалуйста, обновите страницу.');
+            }
+        });
+
+        // Регистрация Service Worker для PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js').catch(err => {
+                    console.error('Service Worker registration failed:', err);
                 });
             });
-
-            // Автоматическое изменение размера textarea
-            userInput.addEventListener('input', autoResizeTextarea);
-
-            // Прокрутка чата
-            messagesContainer.addEventListener('scroll', handleScroll);
-            
-            // Кнопки прокрутки
-            scrollUpBtn.addEventListener('click', scrollToTop);
-            scrollDownBtn.addEventListener('click', scrollToBottom);
-
-            // Модальное окно для изображений
-            setupImageModal();
-
-            // Touch события для мобильных устройств
-            document.addEventListener('touchstart', handleTouchStart);
-            document.addEventListener('touchend', handleTouchEnd);
         }
-
-        // Обработчики для мобильных устройств
-        function handleTouchStart() {
-            showInterface();
-            resetInterfaceTimeout();
-        }
-
-        function handleTouchEnd() {
-            resetInterfaceTimeout();
-        }
-
-        function resetInterfaceTimeout() {
-            if (interfaceTimeout) clearTimeout(interfaceTimeout);
-            interfaceTimeout = setTimeout(() => {
-                if (isUserScrolling && !isAtBottom()) {
-                    hideInterface();
-                }
-            }, 2000);
-        }
-
-        // Настройка обработчиков прокрутки
-        function setupScrollHandlers() {
-            let scrollTimer;
-            
-            messagesContainer.addEventListener('scroll', () => {
-                if (!scrollTimer) {
-                    isUserScrolling = true;
-                    showInterface();
-                }
-                
-                clearTimeout(scrollTimer);
-                scrollTimer = setTimeout(() => {
-                    isUserScrolling = false;
-                    scrollTimer = null;
-                    
-                    if (!isAtBottom()) {
-                        setTimeout(() => {
-                            if (!isUserScrolling) {
-                                hideInterface();
-                            }
-                        }, 1000);
-                    }
-                }, 150);
-                
-                updateScrollButtons();
-            });
-        }
-
-        // Показать приветственное сообщение
-        function showWelcomeMessage() {
-            const welcomeMessage = `
-                <div class="message ai-message">
-                    <div class="message-content">
-                        <h2>👋 Добро пожаловать в Khuyew AI!</h2>
-                        <p>Я ваш бесплатный ИИ-помощник, готовый помочь с:</p>
-                        <ul>
-                            <li>💬 Ответами на вопросы</li>
-                            <li>🖼️ Генерацией изображений</li>
-                            <li>💻 Написанием кода</li>
-                            <li>📚 Обучением и объяснениями</li>
-                            <li>✍️ Творческими задачами</li>
-                        </ul>
-                        <p>Просто напишите ваш вопрос или используйте быстрые кнопки ниже!</p>
-                        <blockquote>
-                            💡 <strong>Совет:</strong> Вы можете загружать изображения для анализа, использовать голосовой ввод или выбрать один из готовых запросов.
-                        </blockquote>
-                    </div>
-                </div>
-            `;
-            
-            setTimeout(() => {
-                messagesContainer.innerHTML = welcomeMessage;
-                scrollToBottom();
-            }, 500);
-        }
-
-        // Показать справку
-        function showHelp() {
-            const helpMessage = `
-                <div class="message ai-message">
-                    <div class="message-content">
-                        <h2>📖 Справка по использованию</h2>
-                        
-                        <h3>💬 Основные функции:</h3>
-                        <ul>
-                            <li><strong>Текстовый чат</strong> - просто напишите ваш вопрос</li>
-                            <li><strong>Генерация изображений</strong> - используйте запросы типа "нарисуй..."</li>
-                            <li><strong>Анализ изображений</strong> - загрузите картинку и задайте вопрос</li>
-                            <li><strong>Голосовой ввод</strong> - нажмите кнопку микрофона</li>
-                        </ul>
-                        
-                        <h3>⌨️ Горячие клавиши:</h3>
-                        <ul>
-                            <li><strong>Enter</strong> - отправить сообщение</li>
-                            <li><strong>Shift + Enter</strong> - новая строка</li>
-                            <li><strong>ESC</strong> - закрыть модальное окно</li>
-                        </ul>
-                        
-                        <h3>📱 Управление интерфейсом:</h3>
-                        <ul>
-                            <li>При прокрутке чата интерфейс автоматически скрывается</li>
-                            <li>Коснитесь экрана или начните печатать чтобы показать интерфейс</li>
-                            <li>Используйте кнопки "ВВЕРХ" и "▼" для быстрой навигации</li>
-                        </ul>
-                        
-                        <blockquote>
-                            🆓 <strong>Важно:</strong> Khuyew AI полностью бесплатен и не хранит ваши данные на серверах.
-                        </blockquote>
-                    </div>
-                </div>
-            `;
-            
-            addMessage(helpMessage, 'ai');
-        }
-
-        // Отправка сообщения
-        function sendMessage() {
-            const message = userInput.value.trim();
-            if ((!message && !currentImageFile) || isAIResponding) return;
-
-            // Добавление сообщения пользователя
-            addMessage(message, 'user', currentImageFile);
-            
-            // Очистка ввода и превью
-            userInput.value = '';
-            removeImage();
-            autoResizeTextarea();
-            
-            // Показать интерфейс при отправке сообщения
-            showInterface();
-            
-            // Имитация ответа ИИ
-            simulateAIResponse(message);
-        }
-
-        // Добавление сообщения
-        function addMessage(content, type, imageFile = null) {
-            const messageDiv = document.createElement('div');
-            
-            if (type === 'user') {
-                messageDiv.className = 'message user-message';
-                messageDiv.innerHTML = `
-                    <div class="message-content">${formatUserMessage(content)}</div>
-                    ${imageFile ? `<div class="image-prompt">📎 Изображение прикреплено</div>` : ''}
-                `;
-            } else if (type === 'ai') {
-                messageDiv.className = 'message ai-message';
-                messageDiv.innerHTML = content;
-            } else if (type === 'error') {
-                messageDiv.className = 'message error-message';
-                messageDiv.innerHTML = `<div class="message-content">❌ ${content}</div>`;
-            }
-            
-            messagesContainer.appendChild(messageDiv);
-            scrollToBottom();
-        }
-
-        // Форматирование сообщения пользователя
-        function formatUserMessage(content) {
-            if (!content) return '📎 Изображение';
-            return content.replace(/\n/g, '<br>');
-        }
-
-        // Имитация ответа ИИ
-        function simulateAIResponse(userMessage) {
-            isAIResponding = true;
-            sendButton.disabled = true;
-
-            const thinkingMessage = document.createElement('div');
-            thinkingMessage.className = 'message ai-message ai-streaming';
-            thinkingMessage.innerHTML = `
-                <div class="ai-status">
-                    <div class="typing-indicator">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                    Khuyew AI думает...
-                </div>
-                <div class="message-content">
-                    <span class="typing-cursor">|</span>
-                </div>
-            `;
-            
-            messagesContainer.appendChild(thinkingMessage);
-            scrollToBottom();
-
-            // Имитация задержки ответа
-            setTimeout(() => {
-                thinkingMessage.remove();
-                const response = generateAIResponse(userMessage);
-                addMessage(response, 'ai');
-                isAIResponding = false;
-                sendButton.disabled = false;
-            }, 2000);
-        }
-
-        // Генерация ответа ИИ
-        function generateAIResponse(userMessage) {
-            const responses = [
-                `Я понимаю ваш вопрос о "${userMessage}". Как искусственный интеллект, я могу помочь вам с анализом этой темы, предложить решения или сгенерировать соответствующий контент. Что именно вас интересует?`,
-                
-                `Отличный вопрос! "${userMessage}" - это интересная тема. Я могу предложить несколько подходов к решению этой задачи. Хотите, чтобы я подробнее остановился на каком-то конкретном аспекте?`,
-                
-                `Спасибо за ваш запрос! На основе "${userMessage}" я могу предоставить развернутый ответ, примеры кода или пошаговое руководство. Какой формат ответа будет для вас наиболее полезен?`,
-                
-                `Я обработал ваш запрос "${userMessage}". Для более точного ответа мне нужно уточнить: вы ищете теоретическое объяснение, практические примеры или пошаговое решение?`,
-                
-                `По теме "${userMessage}" у меня есть comprehensive информация. Я могу структурировать ответ в виде руководства, добавить примеры кода или визуализацию. Что предпочитаете?`
-            ];
-            
-            return responses[Math.floor(Math.random() * responses.length)];
-        }
-
-        // Голосовой ввод
-        function toggleVoiceRecognition() {
-            if (!isRecording) {
-                startVoiceRecognition();
-            } else {
-                stopVoiceRecognition();
-            }
-        }
-
-        function startVoiceRecognition() {
-            if (!('webkitSpeechRecognition' in window)) {
-                alert('Голосовой ввод не поддерживается в вашем браузере');
-                return;
-            }
-
-            recognition = new webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = true;
-            recognition.lang = 'ru-RU';
-
-            recognition.onstart = () => {
-                isRecording = true;
-                voiceButton.classList.add('voice-recording');
-                voiceLevel.style.display = 'block';
-            };
-
-            recognition.onresult = (event) => {
-                let transcript = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    if (event.results[i].isFinal) {
-                        transcript += event.results[i][0].transcript;
-                    }
-                }
-                if (transcript) {
-                    userInput.value += transcript;
-                    autoResizeTextarea();
-                }
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Ошибка распознавания:', event.error);
-                stopVoiceRecognition();
-            };
-
-            recognition.onend = () => {
-                stopVoiceRecognition();
-            };
-
-            recognition.start();
-        }
-
-        function stopVoiceRecognition() {
-            if (recognition) {
-                recognition.stop();
-            }
-            isRecording = false;
-            voiceButton.classList.remove('voice-recording');
-            voiceLevel.style.display = 'none';
-        }
-
-        // Загрузка изображения
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (!file.type.startsWith('image/')) {
-                alert('Пожалуйста, выберите файл изображения');
-                return;
-            }
-
-            currentImageFile = file;
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-                imagePreview.src = e.target.result;
-                imagePreviewContainer.style.display = 'block';
-            };
-            
-            reader.readAsDataURL(file);
-        }
-
-        function removeImage() {
-            currentImageFile = null;
-            imagePreviewContainer.style.display = 'none';
-            imagePreview.src = '';
-        }
-
-        // Автоматическое изменение размера textarea
-        function autoResizeTextarea() {
-            userInput.style.height = 'auto';
-            userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
-        }
-
-        // Прокрутка
-        function scrollToBottom() {
-            messagesContainer.scrollTo({
-                top: messagesContainer.scrollHeight,
-                behavior: 'smooth'
-            });
-            showInterface();
-        }
-
-        function scrollToTop() {
-            messagesContainer.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-            showInterface();
-        }
-
-        function handleScroll() {
-            updateScrollButtons();
-        }
-
-        function updateScrollButtons() {
-            const scrollTop = messagesContainer.scrollTop;
-            const scrollHeight = messagesContainer.scrollHeight;
-            const clientHeight = messagesContainer.clientHeight;
-            
-            // Кнопка "Вверх" - показываем только если не вверху
-            scrollUpBtn.style.display = scrollTop > 100 ? 'flex' : 'none';
-            
-            // Кнопка "Вниз" - показываем только если не внизу
-            const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-            scrollDownBtn.style.display = isAtBottom ? 'none' : 'flex';
-
-            // Автоматическое скрытие интерфейса при прокрутке вниз
-            if (scrollTop > lastScrollTop && scrollTop > 100 && !isAtBottom) {
-                // Прокрутка вниз
-                if (!isUserScrolling) {
-                    isUserScrolling = true;
-                }
-            } else {
-                // Прокрутка вверх или внизу
-                showInterface();
-            }
-            
-            lastScrollTop = scrollTop;
-        }
-
-        function isAtBottom() {
-            const scrollTop = messagesContainer.scrollTop;
-            const scrollHeight = messagesContainer.scrollHeight;
-            const clientHeight = messagesContainer.clientHeight;
-            return scrollHeight - scrollTop - clientHeight < 50;
-        }
-
-        // Управление видимостью интерфейса
-        function showInterface() {
-            if (!isInterfaceVisible) {
-                header.classList.add('interface-visible');
-                inputContainer.classList.add('interface-visible');
-                footer.classList.add('interface-visible');
-                isInterfaceVisible = true;
-            }
-            
-            // Сброс таймера автоматического скрытия
-            resetInterfaceHideTimer();
-        }
-
-        function hideInterface() {
-            if (isInterfaceVisible && isUserScrolling && !isAtBottom()) {
-                header.classList.remove('interface-visible');
-                inputContainer.classList.remove('interface-visible');
-                footer.classList.remove('interface-visible');
-                isInterfaceVisible = false;
-            }
-        }
-
-        function resetInterfaceHideTimer() {
-            if (interfaceTimeout) clearTimeout(interfaceTimeout);
-            interfaceTimeout = setTimeout(() => {
-                if (isUserScrolling && !isAtBottom()) {
-                    hideInterface();
-                }
-            }, 2000);
-        }
-
-        // Тема
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-            const isLight = document.body.classList.contains('light-theme');
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            themeToggle.innerHTML = isLight ? 
-                '<i class="ti ti-sun"></i><span>Тема</span>' : 
-                '<i class="ti ti-moon"></i><span>Тема</span>';
-        }
-
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-theme');
-                themeToggle.innerHTML = '<i class="ti ti-sun"></i><span>Тема</span>';
-            }
-        }
-
-        // Очистка чата
-        function clearChat() {
-            if (confirm('Очистить всю историю чата?')) {
-                messagesContainer.innerHTML = '';
-                showWelcomeMessage();
-            }
-        }
-
-        // Модальное окно для изображений
-        function setupImageModal() {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            const caption = document.getElementById('modalCaption');
-            const close = document.querySelector('.close');
-
-            // Обработчики для открытия изображений в модальном окне
-            messagesContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('generated-image')) {
-                    modal.style.display = 'block';
-                    modalImg.src = e.target.src;
-                    caption.textContent = e.target.alt || 'Сгенерированное изображение';
-                }
-            });
-
-            // Закрытие модального окна
-            close.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-
-            // ESC для закрытия
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && modal.style.display === 'block') {
-                    modal.style.display = 'none';
-                }
-            });
-        }
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
