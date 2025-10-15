@@ -15,6 +15,10 @@ class KhuyewAI {
         this.voiceInputBtn = document.getElementById('voiceInputBtn');
         this.fileInput = document.getElementById('fileInput');
         this.attachedFiles = document.getElementById('attachedFiles');
+        this.chatSelectButton = document.getElementById('chatSelectButton');
+        this.chatDropdown = document.getElementById('chatDropdown');
+        this.currentChatName = document.getElementById('currentChatName');
+        this.newChatBtn = document.getElementById('newChatBtn');
 
         this.isProcessing = false;
         this.currentTheme = 'dark';
@@ -32,7 +36,12 @@ class KhuyewAI {
             "Какие есть способы улучшить производительность веб-сайта?",
             "Создай описание для приложения на основе ИИ..."
         ];
-        this.currentAudio = null; // Текущее воспроизводимое аудио
+        this.currentAudio = null;
+        this.isSpeaking = false;
+        this.currentUtterance = null;
+        this.chatSessions = new Map();
+        this.currentChatId = 'default';
+        this.chatHistory = [];
 
         // Настройка marked для markdown
         this.setupMarked();
@@ -67,6 +76,8 @@ class KhuyewAI {
         this.showWelcomeMessage();
         this.loadConversationHistory();
         this.loadModelPreference();
+        this.loadChatSessions();
+        this.setupChatSelector();
     }
 
     bindEvents() {
@@ -104,11 +115,48 @@ class KhuyewAI {
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         this.voiceInputBtn.addEventListener('click', () => this.toggleVoiceInput());
 
+        // Новые обработчики для системы чатов
+        this.chatSelectButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleChatDropdown();
+        });
+
+        this.newChatBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.createNewChat();
+        });
+
+        // Закрытие dropdown при клике вне его
+        document.addEventListener('click', () => {
+            this.chatDropdown.classList.remove('show');
+        });
+
         window.addEventListener('beforeunload', () => {
             this.saveMessages();
             this.saveConversationHistory();
             this.saveModelPreference();
+            this.saveChatSessions();
         });
+    }
+
+    setupChatSelector() {
+        // Создаем основной чат по умолчанию если его нет
+        if (!this.chatSessions.has('default')) {
+            this.createDefaultChat();
+        }
+    }
+
+    createDefaultChat() {
+        const defaultSession = {
+            id: 'default',
+            name: 'Основной чат',
+            messages: [],
+            conversationHistory: [],
+            createdAt: Date.now()
+        };
+        this.chatSessions.set('default', defaultSession);
+        this.currentChatId = 'default';
+        this.saveChatSessions();
     }
 
     setupAutoResize() {
@@ -150,7 +198,6 @@ class KhuyewAI {
             };
         } else {
             this.voiceInputBtn.style.display = 'none';
-            this.showNotification('Голосовой ввод не поддерживается в вашем браузере', 'warning');
         }
     }
 
@@ -185,6 +232,164 @@ class KhuyewAI {
         };
 
         type();
+    }
+
+    toggleChatDropdown() {
+        this.chatDropdown.classList.toggle('show');
+        this.updateChatDropdown();
+    }
+
+    updateChatDropdown() {
+        const chatList = this.chatDropdown.querySelector('.chat-list') || document.createElement('div');
+        chatList.className = 'chat-list';
+        chatList.innerHTML = '';
+
+        this.chatSessions.forEach((session, id) => {
+            const chatItem = document.createElement('div');
+            chatItem.className = `chat-item ${id === this.currentChatId ? 'active' : ''}`;
+            chatItem.setAttribute('data-chat-id', id);
+            chatItem.innerHTML = `
+                <i class="ti ti-message"></i>
+                ${session.name}
+                ${id !== 'default' ? '<button class="delete-chat-btn"><i class="ti ti-x"></i></button>' : ''}
+            `;
+
+            chatItem.addEventListener('click', (e) => {
+                if (!e.target.closest('.delete-chat-btn')) {
+                    this.switchChat(id);
+                    this.chatDropdown.classList.remove('show');
+                }
+            });
+
+            // Обработчик удаления чата
+            const deleteBtn = chatItem.querySelector('.delete-chat-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.deleteChat(id);
+                });
+            }
+
+            chatList.appendChild(chatItem);
+        });
+
+        // Если нет элемента chat-list, добавляем его
+        if (!this.chatDropdown.querySelector('.chat-list')) {
+            this.chatDropdown.insertBefore(chatList, this.newChatBtn);
+        }
+    }
+
+    createNewChat() {
+        const chatName = `Чат ${this.chatSessions.size}`;
+        const chatId = this.createChatSession(chatName);
+        this.switchChat(chatId);
+        this.chatDropdown.classList.remove('show');
+        this.showNotification(`Создан новый чат: ${chatName}`, 'success');
+    }
+
+    createChatSession(name = 'Новый чат') {
+        const chatId = 'chat-' + Date.now();
+        const session = {
+            id: chatId,
+            name: name,
+            messages: [],
+            conversationHistory: [],
+            createdAt: Date.now()
+        };
+        
+        this.chatSessions.set(chatId, session);
+        this.saveChatSessions();
+        this.updateChatDropdown();
+        
+        return chatId;
+    }
+
+    switchChat(chatId) {
+        if (this.chatSessions.has(chatId)) {
+            // Сохраняем текущую сессию перед переключением
+            this.saveCurrentSession();
+            
+            this.currentChatId = chatId;
+            const session = this.chatSessions.get(chatId);
+            
+            // Обновляем имя текущего чата
+            this.currentChatName.textContent = session.name;
+            
+            // Загружаем новую сессию
+            this.loadSession(session);
+            this.showNotification(`Переключен на чат: ${session.name}`, 'success');
+        }
+    }
+
+    deleteChat(chatId) {
+        if (chatId === 'default') {
+            this.showNotification('Основной чат нельзя удалить', 'warning');
+            return;
+        }
+
+        if (this.chatSessions.size <= 1) {
+            this.showNotification('Нельзя удалить последний чат', 'warning');
+            return;
+        }
+
+        if (confirm(`Удалить чат "${this.chatSessions.get(chatId).name}"?`)) {
+            this.chatSessions.delete(chatId);
+            
+            // Если удаляем текущий чат, переключаемся на default
+            if (this.currentChatId === chatId) {
+                this.switchChat('default');
+            }
+            
+            this.saveChatSessions();
+            this.updateChatDropdown();
+            this.showNotification('Чат удален', 'success');
+        }
+    }
+
+    saveCurrentSession() {
+        const messages = [];
+        this.messagesContainer.querySelectorAll('.message').forEach(message => {
+            if (message.classList.contains('typing-indicator') || message.classList.contains('streaming-message')) return;
+            
+            const role = message.classList.contains('message-user') ? 'user' : 
+                       message.classList.contains('message-error') ? 'error' : 'ai';
+            
+            const content = message.querySelector('.message-content').innerHTML;
+            messages.push({ role, content });
+        });
+        
+        const session = this.chatSessions.get(this.currentChatId);
+        if (session) {
+            session.messages = messages;
+            session.conversationHistory = [...this.conversationHistory];
+            this.chatSessions.set(this.currentChatId, session);
+        }
+        
+        this.saveChatSessions();
+    }
+
+    loadSession(session) {
+        this.messagesContainer.innerHTML = '';
+        this.conversationHistory = session.conversationHistory || [];
+        
+        session.messages.forEach(msg => {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message message-${msg.role}`;
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = msg.content;
+            
+            messageElement.appendChild(messageContent);
+            this.messagesContainer.appendChild(messageElement);
+        });
+        
+        // Прикрепляем обработчики для кнопок копирования
+        this.messagesContainer.querySelectorAll('.message-content').forEach(content => {
+            this.attachCopyButtons(content);
+        });
+        
+        this.scrollToBottom();
     }
 
     changeModel(model) {
@@ -377,7 +582,6 @@ class KhuyewAI {
             let prompt;
             
             if (images.length > 0 && userMessage.trim()) {
-                // Проверяем доступность функции img2txt
                 if (typeof puter?.ai?.img2txt !== 'function') {
                     throw new Error('Функция анализа изображений недоступна');
                 }
@@ -391,7 +595,6 @@ class KhuyewAI {
 Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
             } 
             else if (images.length > 0) {
-                // Проверяем доступность функции img2txt
                 if (typeof puter?.ai?.img2txt !== 'function') {
                     throw new Error('Функция анализа изображений недоступна');
                 }
@@ -409,12 +612,10 @@ class KhuyewAI {
                 prompt = contextPrompt;
             }
             
-            // Проверяем доступность функции chat
             if (typeof puter?.ai?.chat !== 'function') {
                 throw new Error('Функция чата недоступна');
             }
             
-            // Настройки для разных моделей
             const modelOptions = {
                 'gpt-5-nano': { model: 'gpt-5-nano' },
                 'o3-mini': { model: 'o3-mini' },
@@ -429,28 +630,26 @@ class KhuyewAI {
             const options = {
                 ...modelOptions[this.currentModel],
                 systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.",
-                stream: true // Включаем стриминг
+                stream: true
             };
             
-            // Создаем сообщение для стриминга
             const messageId = this.createStreamingMessage();
             
-            // Получаем стриминг-ответ
             const response = await puter.ai.chat(prompt, options);
             
-            // Убираем индикатор печати
             this.removeTypingIndicator(typingId);
             
-            // Обрабатываем стриминг
             let fullResponse = '';
             for await (const part of response) {
                 if (part?.text) {
                     fullResponse += part.text;
                     this.updateStreamingMessage(messageId, fullResponse);
+                    
+                    // Замедляем стриминг для лучшего восприятия
+                    await new Promise(resolve => setTimeout(resolve, 20));
                 }
             }
             
-            // Завершаем сообщение
             this.finalizeStreamingMessage(messageId, fullResponse);
             
             this.addToConversationHistory('assistant', fullResponse);
@@ -473,7 +672,18 @@ class KhuyewAI {
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content streaming-content';
-        messageContent.innerHTML = '<div class="streaming-cursor">▌</div>';
+        
+        messageContent.innerHTML = `
+            <div class="typing-indicator-inline">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span>ИИ печатает...</span>
+            </div>
+            <div class="streaming-text"></div>
+        `;
         
         messageElement.appendChild(messageContent);
         this.messagesContainer.appendChild(messageElement);
@@ -486,15 +696,23 @@ class KhuyewAI {
         const messageElement = document.getElementById(messageId);
         if (!messageElement) return;
         
-        const messageContent = messageElement.querySelector('.message-content');
+        const streamingText = messageElement.querySelector('.streaming-text');
+        const typingIndicator = messageElement.querySelector('.typing-indicator-inline');
         
-        // Обрабатываем markdown для текущего контента
+        if (content.length > 50 && typingIndicator) {
+            typingIndicator.style.opacity = '0.7';
+        }
+        if (content.length > 100 && typingIndicator) {
+            typingIndicator.style.opacity = '0.3';
+        }
+        if (content.length > 150 && typingIndicator) {
+            typingIndicator.style.display = 'none';
+        }
+        
         const processedContent = this.processCodeBlocks(content);
-        messageContent.innerHTML = processedContent + '<div class="streaming-cursor">▌</div>';
+        streamingText.innerHTML = processedContent;
         
-        // Прикрепляем обработчики для кнопок копирования
-        this.attachCopyButtons(messageContent);
-        
+        this.attachCopyButtons(streamingText);
         this.scrollToBottom();
     }
 
@@ -502,110 +720,111 @@ class KhuyewAI {
         const messageElement = document.getElementById(messageId);
         if (!messageElement) return;
         
-        // Убираем класс стриминга и курсор
         messageElement.classList.remove('streaming-message');
         const messageContent = messageElement.querySelector('.message-content');
         messageContent.classList.remove('streaming-content');
         
-        // Финальная обработка markdown
         const processedContent = this.processCodeBlocks(fullContent);
         messageContent.innerHTML = processedContent;
         
-        // Добавляем индикатор модели
         const modelIndicator = document.createElement('div');
         modelIndicator.className = 'model-indicator';
         modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
         messageContent.appendChild(modelIndicator);
         
-        // Добавляем кнопку озвучивания (только текст без markdown)
         this.addSpeakButton(messageElement, this.extractPlainText(fullContent));
-        
-        // Прикрепляем обработчики для кнопок копирования
         this.attachCopyButtons(messageContent);
-        
         this.scrollToBottom();
     }
 
     extractPlainText(markdownText) {
-        // Удаляем markdown разметку для озвучивания
         return markdownText
-            .replace(/#{1,6}\s?/g, '') // Заголовки
-            .replace(/\*\*(.*?)\*\*/g, '$1') // Жирный текст
-            .replace(/\*(.*?)\*/g, '$1') // Курсив
-            .replace(/`{1,3}(.*?)`{1,3}/g, '$1') // Код
-            .replace(/!\[.*?\]\(.*?\)/g, '') // Изображения
-            .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Ссылки
-            .replace(/>\s?/g, '') // Цитаты
-            .replace(/\n{3,}/g, '\n\n') // Множественные переносы
-            .replace(/^\s+|\s+$/g, '') // Trim
-            .replace(/\s+/g, ' '); // Множественные пробелы
+            .replace(/#{1,6}\s?/g, '')
+            .replace(/\*\*(.*?)\*\*/g, '$1')
+            .replace(/\*(.*?)\*/g, '$1')
+            .replace(/`{1,3}(.*?)`{1,3}/g, '$1')
+            .replace(/!\[.*?\]\(.*?\)/g, '')
+            .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+            .replace(/>\s?/g, '')
+            .replace(/\n{3,}/g, '\n\n')
+            .replace(/^\s+|\s+$/g, '')
+            .replace(/\s+/g, ' ');
     }
 
     addSpeakButton(messageElement, plainText) {
-        // Создаем контейнер для кнопок действий
         const actionsContainer = document.createElement('div');
         actionsContainer.className = 'message-actions';
         
-        // Кнопка "Озвучить ответ"
         const speakButton = document.createElement('button');
-        speakButton.className = 'action-btn-small';
+        speakButton.className = 'action-btn-small speak-btn';
         speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
-        speakButton.addEventListener('click', () => this.speakText(plainText));
+        speakButton.setAttribute('data-text', plainText);
+        
+        speakButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const text = e.currentTarget.getAttribute('data-text');
+            this.toggleTextToSpeech(text, speakButton);
+        });
         
         actionsContainer.appendChild(speakButton);
         messageElement.appendChild(actionsContainer);
     }
 
-    async speakText(text) {
+    toggleTextToSpeech(text, button) {
+        if (this.isSpeaking && this.currentUtterance) {
+            window.speechSynthesis.cancel();
+            this.isSpeaking = false;
+            button.classList.remove('speaking');
+            button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+            this.showNotification('Озвучивание остановлено', 'info');
+        } else {
+            this.speakText(text, button);
+        }
+    }
+
+    async speakText(text, button) {
         try {
-            // Останавливаем текущее воспроизведение
-            if (this.currentAudio) {
-                this.currentAudio.pause();
-                this.currentAudio = null;
+            if (this.isSpeaking) {
+                window.speechSynthesis.cancel();
             }
             
-            // Используем Web Speech API для озвучивания
             if ('speechSynthesis' in window) {
-                // Останавливаем любое текущее воспроизведение
-                window.speechSynthesis.cancel();
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.lang = 'ru-RU';
+                this.currentUtterance.rate = 0.85;
+                this.currentUtterance.pitch = 1.0;
+                this.currentUtterance.volume = 1.0;
                 
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'ru-RU';
-                utterance.rate = 1.0;
-                utterance.pitch = 1.0;
-                utterance.volume = 1.0;
+                const voices = window.speechSynthesis.getVoices();
+                const russianVoice = voices.find(voice => 
+                    voice.lang.includes('ru') || voice.lang.includes('RU')
+                );
                 
-                // Находим кнопку и добавляем класс playing
-                const buttons = document.querySelectorAll('.action-btn-small');
-                buttons.forEach(btn => {
-                    if (btn.innerHTML.includes('Озвучить ответ')) {
-                        btn.classList.add('playing');
-                        btn.disabled = true;
-                    }
-                });
+                if (russianVoice) {
+                    this.currentUtterance.voice = russianVoice;
+                    this.currentUtterance.rate = 0.8;
+                }
                 
-                utterance.onend = () => {
-                    buttons.forEach(btn => {
-                        if (btn.innerHTML.includes('Озвучить ответ')) {
-                            btn.classList.remove('playing');
-                            btn.disabled = false;
-                        }
-                    });
+                button.classList.add('speaking');
+                button.innerHTML = '<i class="ti ti-player-pause"></i> Остановить';
+                this.isSpeaking = true;
+                
+                this.currentUtterance.onend = () => {
+                    this.isSpeaking = false;
+                    button.classList.remove('speaking');
+                    button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
                     this.showNotification('Озвучивание завершено', 'success');
                 };
                 
-                utterance.onerror = (error) => {
+                this.currentUtterance.onerror = (error) => {
                     console.error('Speech synthesis error:', error);
-                    buttons.forEach(btn => {
-                        if (btn.innerHTML.includes('Озвучить ответ')) {
-                            btn.classList.remove('playing');
-                            btn.disabled = false;
-                        }
-                    });
+                    this.isSpeaking = false;
+                    button.classList.remove('speaking');
+                    button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
                     this.showNotification('Ошибка при озвучивании текста', 'error');
                 };
                 
-                window.speechSynthesis.speak(utterance);
+                window.speechSynthesis.speak(this.currentUtterance);
                 this.showNotification('Озвучивание текста...', 'info');
                 
             } else {
@@ -619,7 +838,6 @@ class KhuyewAI {
 
     async generateVoice(text) {
         try {
-            // Проверяем доступность функции генерации голоса
             if (typeof puter?.ai?.txt2speech !== 'function') {
                 throw new Error('Функция генерации голоса недоступна');
             }
@@ -632,7 +850,6 @@ class KhuyewAI {
             this.isProcessing = true;
             this.sendBtn.disabled = true;
 
-            // Добавляем сообщение пользователя
             this.addMessage('user', `🔊 **Генерация голоса:** "${text}"`);
             
             this.userInput.value = '';
@@ -640,10 +857,8 @@ class KhuyewAI {
             
             this.showNotification('Генерация голоса...', 'info');
             
-            // Генерируем аудио с помощью Puter AI
             const audio = await puter.ai.txt2speech(text);
             
-            // Создаем сообщение с аудио
             this.addVoiceMessage(text, audio);
             
             this.addToConversationHistory('user', `Сгенерирован голос для текста: ${text}`);
@@ -680,7 +895,6 @@ class KhuyewAI {
         this.messagesContainer.appendChild(messageElement);
         this.scrollToBottom();
         
-        // Автовоспроизведение
         const audioElement = messageContent.querySelector('audio');
         audioElement.play().catch(e => {
             console.log('Autoplay prevented:', e);
@@ -728,7 +942,6 @@ class KhuyewAI {
 
     async generateImage(prompt) {
         try {
-            // Проверяем доступность функции генерации изображений
             if (typeof puter?.ai?.imagine !== 'function') {
                 throw new Error('puter.ai.imagine is not a function - функция генерации изображений недоступна');
             }
@@ -755,7 +968,6 @@ class KhuyewAI {
         } catch (error) {
             console.error('Image generation error:', error);
             
-            // Обновляем сообщение об ошибке
             const messages = this.messagesContainer.querySelectorAll('.message-ai');
             const lastMessage = messages[messages.length - 1];
             if (lastMessage) {
@@ -796,11 +1008,8 @@ class KhuyewAI {
         
         if (role === 'ai' || role === 'error') {
             try {
-                // Обрабатываем markdown с выделением кода
                 const processedContent = this.processCodeBlocks(content);
                 messageContent.innerHTML = processedContent;
-                
-                // Добавляем обработчики для кнопок копирования
                 this.attachCopyButtons(messageContent);
             } catch {
                 messageContent.textContent = content;
@@ -813,7 +1022,6 @@ class KhuyewAI {
                 messageContent.appendChild(modelIndicator);
             }
         } else {
-            // Для пользовательских сообщений тоже обрабатываем markdown
             try {
                 const processedContent = this.processCodeBlocks(content);
                 messageContent.innerHTML = processedContent;
@@ -848,10 +1056,8 @@ class KhuyewAI {
     }
 
     processCodeBlocks(content) {
-        // Сначала обрабатываем markdown
         let html = marked.parse(content);
         
-        // Затем добавляем заголовки для блоков кода
         html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
             const language = lang || 'text';
             return `
@@ -878,7 +1084,6 @@ class KhuyewAI {
                     try {
                         await navigator.clipboard.writeText(code);
                         
-                        // Визуальная обратная связь
                         const originalText = btn.innerHTML;
                         btn.innerHTML = '<i class="ti ti-check"></i> Скопировано!';
                         btn.classList.add('copied');
@@ -942,9 +1147,7 @@ class KhuyewAI {
             confirm('Вы уверены, что хотите очистить всю историю чата?')) {
             
             this.messagesContainer.innerHTML = '';
-            localStorage.removeItem('khuyew-ai-messages');
             this.conversationHistory = [];
-            localStorage.removeItem('khuyew-ai-conversation-history');
             this.showWelcomeMessage();
             this.showNotification('Чат очищен', 'success');
         }
@@ -968,6 +1171,7 @@ class KhuyewAI {
 • **Подсветка синтаксиса** - красивое отображение кода
 • **Копирование кода** - удобное копирование фрагментов кода
 • **Стриминг ответов** - ответы появляются постепенно с плавной анимацией
+• **Мульти-чаты** - создавайте отдельные чаты для разных тем
 
 ## 🤖 Доступные модели:
 • **GPT-5 Nano** - быстрая и эффективная для повседневных задач
@@ -983,12 +1187,19 @@ class KhuyewAI {
 ## 🔊 Аудио возможности:
 • **Генерация голоса** - использует ИИ для создания естественной речи из текста
 • **Озвучить ответ** - слушайте ответы ИИ без markdown разметки
+• **Управление воспроизведением** - нажмите кнопку повторно для остановки
+
+## 💬 Система чатов:
+• Создавайте отдельные чаты для разных тем
+• Переключайтесь между чатами в верхнем меню
+• Каждый чат сохраняет свою историю и контекст
 
 ## 💡 Примеры использования:
 • Отправьте фото с текстом "Что здесь написано?"
 • Отправьте фото задачи "Реши эту математическую задачу"
 • Нажмите "Озвучить ответ" чтобы услышать ответ ИИ
 • Включите "Генерация голоса" для создания речи из текста
+• Создайте отдельный чат для работы и отдельный для развлечений
 
 \`\`\`python
 # Пример кода с подсветкой синтаксиса
@@ -1018,9 +1229,16 @@ def hello_world():
 • **Gemini 1.5 Flash** - лучше для эффективного решения различных задач
 • **xAI Grok** - лучше для неформального общения и остроумных ответов
 
+## 💬 Система чатов:
+• **Создание нового чата** - нажмите "Новый чат" в выпадающем меню
+• **Переключение между чатами** - выберите чат из списка
+• **Удаление чатов** - нажмите ❌ рядом с названием чата (кроме основного)
+• Каждый чат сохраняет свою историю и контекст
+
 ## 🔊 Аудио функции:
 • **Генерация голоса** - создает аудио из текста с помощью ИИ
 • **Озвучить ответ** - воспроизводит ответ ИИ без markdown разметки
+• **Остановить озвучку** - нажмите кнопку повторно для остановки
 
 ## 🖼️ Работа с изображениями:
 1. **Нажмите кнопку ➕** чтобы прикрепить изображение
@@ -1106,7 +1324,11 @@ console.log(calculateSum(5, 3));
                 messages.push({ role, content });
             });
             
-            localStorage.setItem('khuyew-ai-messages', JSON.stringify(messages));
+            const session = this.chatSessions.get(this.currentChatId);
+            if (session) {
+                session.messages = messages;
+                this.chatSessions.set(this.currentChatId, session);
+            }
         } catch (error) {
             console.error('Error saving messages:', error);
         }
@@ -1114,10 +1336,9 @@ console.log(calculateSum(5, 3));
 
     loadMessages() {
         try {
-            const saved = localStorage.getItem('khuyew-ai-messages');
-            if (saved) {
-                const messages = JSON.parse(saved);
-                messages.forEach(msg => {
+            const session = this.chatSessions.get(this.currentChatId);
+            if (session && session.messages) {
+                session.messages.forEach(msg => {
                     const messageElement = document.createElement('div');
                     messageElement.className = `message message-${msg.role}`;
                     
@@ -1129,7 +1350,6 @@ console.log(calculateSum(5, 3));
                     this.messagesContainer.appendChild(messageElement);
                 });
                 
-                // Прикрепляем обработчики для кнопок копирования
                 this.messagesContainer.querySelectorAll('.message-content').forEach(content => {
                     this.attachCopyButtons(content);
                 });
@@ -1138,13 +1358,16 @@ console.log(calculateSum(5, 3));
             }
         } catch (error) {
             console.error('Error loading messages:', error);
-            localStorage.removeItem('khuyew-ai-messages');
         }
     }
 
     saveConversationHistory() {
         try {
-            localStorage.setItem('khuyew-ai-conversation-history', JSON.stringify(this.conversationHistory));
+            const session = this.chatSessions.get(this.currentChatId);
+            if (session) {
+                session.conversationHistory = this.conversationHistory;
+                this.chatSessions.set(this.currentChatId, session);
+            }
         } catch (error) {
             console.error('Error saving conversation history:', error);
         }
@@ -1152,13 +1375,12 @@ console.log(calculateSum(5, 3));
 
     loadConversationHistory() {
         try {
-            const saved = localStorage.getItem('khuyew-ai-conversation-history');
-            if (saved) {
-                this.conversationHistory = JSON.parse(saved);
+            const session = this.chatSessions.get(this.currentChatId);
+            if (session && session.conversationHistory) {
+                this.conversationHistory = session.conversationHistory;
             }
         } catch (error) {
             console.error('Error loading conversation history:', error);
-            localStorage.removeItem('khuyew-ai-conversation-history');
         }
     }
 
@@ -1183,18 +1405,44 @@ console.log(calculateSum(5, 3));
             console.error('Error loading model preference:', error);
         }
     }
+
+    saveChatSessions() {
+        try {
+            const sessions = Array.from(this.chatSessions.entries());
+            localStorage.setItem('khuyew-ai-chat-sessions', JSON.stringify(sessions));
+        } catch (error) {
+            console.error('Error saving chat sessions:', error);
+        }
+    }
+
+    loadChatSessions() {
+        try {
+            const saved = localStorage.getItem('khuyew-ai-chat-sessions');
+            if (saved) {
+                const sessions = JSON.parse(saved);
+                this.chatSessions = new Map(sessions);
+                this.updateChatDropdown();
+            }
+        } catch (error) {
+            console.error('Error loading chat sessions:', error);
+        }
+    }
 }
 
-// Проверяем доступность API puter.ai при загрузке
+// Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof puter === 'undefined') {
         console.error('Puter.ai не загружен');
-        // Можно показать уведомление пользователю
         const notification = document.createElement('div');
         notification.className = 'notification error';
         notification.textContent = 'Puter.ai не загружен. Некоторые функции могут быть недоступны.';
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 5000);
+    }
+    
+    // Загружаем голоса при инициализации
+    if ('speechSynthesis' in window) {
+        speechSynthesis.getVoices();
     }
     
     new KhuyewAI();
