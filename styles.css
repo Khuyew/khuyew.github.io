@@ -107,6 +107,41 @@ body {
     font-weight: 500;
 }
 
+/* Header Controls */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.model-select {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    outline: none;
+    min-width: 120px;
+}
+
+.model-select:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-primary);
+}
+
+.model-select:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--accent-primary-alpha);
+}
+
+.model-select option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
 .control-btn {
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
@@ -197,6 +232,14 @@ body {
     width: 100%;
     height: auto;
     display: block;
+}
+
+/* Model indicator in messages */
+.model-indicator {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    font-style: italic;
 }
 
 .typing-indicator {
@@ -570,6 +613,16 @@ body {
         text-align: center;
     }
     
+    .header-controls {
+        gap: 6px;
+    }
+    
+    .model-select {
+        min-width: 110px;
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+    
     .messages-container {
         padding: 16px;
         gap: 12px;
@@ -615,6 +668,20 @@ body {
 }
 
 @media (max-width: 480px) {
+    .header-content {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .header-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .model-select {
+        min-width: 100px;
+    }
+    
     .message {
         max-width: 95%;
         font-size: 12px;
