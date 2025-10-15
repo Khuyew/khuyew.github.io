@@ -10,6 +10,10 @@
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    
+    <!-- Puter AI SDK -->
+    <script src="https://js.puter.com/v2/"></script>
+    
     <style>
         /* Reset and base styles */
         * {
@@ -534,6 +538,10 @@
                         <i class="ti ti-trash"></i>
                         Очистить чат
                     </button>
+                    <button class="action-btn" id="generateImageBtn">
+                        <i class="ti ti-photo"></i>
+                        Генерация изображения
+                    </button>
                 </div>
             </div>
         </main>
@@ -562,11 +570,13 @@
                 this.clearInputBtn = document.getElementById('clearInputBtn');
                 this.clearChatBtn = document.getElementById('clearChatBtn');
                 this.helpBtn = document.getElementById('helpBtn');
+                this.generateImageBtn = document.getElementById('generateImageBtn');
                 this.themeToggle = document.getElementById('themeToggle');
                 this.logo = document.querySelector('.logo');
 
                 this.isProcessing = false;
                 this.currentTheme = 'dark';
+                this.isImageMode = false;
 
                 this.init();
             }
@@ -590,6 +600,7 @@
                 this.clearInputBtn.addEventListener('click', () => this.clearInput());
                 this.clearChatBtn.addEventListener('click', () => this.clearChat());
                 this.helpBtn.addEventListener('click', () => this.showHelp());
+                this.generateImageBtn.addEventListener('click', () => this.toggleImageMode());
                 this.themeToggle.addEventListener('click', () => this.toggleTheme());
                 this.logo.addEventListener('click', () => this.clearChat());
 
@@ -631,22 +642,98 @@
                     // Show typing indicator
                     const typingId = this.showTypingIndicator();
                     
-                    // Simulate AI response (in real app, this would be API call)
-                    setTimeout(() => {
-                        this.removeTypingIndicator(typingId);
-                        this.addMessage('ai', this.generateResponse(message));
-                        this.saveMessages();
-                        this.isProcessing = false;
-                        this.sendBtn.disabled = false;
-                    }, 1000 + Math.random() * 2000);
+                    if (this.isImageMode) {
+                        // Generate image
+                        await this.generateImage(message, typingId);
+                    } else {
+                        // Get AI response
+                        await this.getAIResponse(message, typingId);
+                    }
 
                 } catch (error) {
                     console.error('Error:', error);
                     this.removeTypingIndicator();
-                    this.addMessage('error', 'Произошла ошибка при отправке сообщения');
+                    this.addMessage('error', 'Произошла ошибка при отправке сообщения: ' + error.message);
                     this.isProcessing = false;
                     this.sendBtn.disabled = false;
                 }
+            }
+
+            async getAIResponse(userMessage, typingId) {
+                try {
+                    // Use Puter AI for responses
+                    const response = await puter.ai.chat(userMessage, { 
+                        model: "gpt-5-nano",
+                        systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно."
+                    });
+                    
+                    this.removeTypingIndicator(typingId);
+                    this.addMessage('ai', response);
+                    this.saveMessages();
+                    
+                } catch (error) {
+                    this.removeTypingIndicator(typingId);
+                    this.addMessage('error', 'Ошибка при получении ответа от ИИ: ' + error.message);
+                } finally {
+                    this.isProcessing = false;
+                    this.sendBtn.disabled = false;
+                }
+            }
+
+            async generateImage(prompt, typingId) {
+                try {
+                    this.removeTypingIndicator(typingId);
+                    
+                    // Show image generation message
+                    this.addMessage('ai', `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n*Идет процесс создания изображения...*`);
+                    
+                    // Use Puter AI for image generation
+                    const imageResult = await puter.ai.imagine(prompt, {
+                        model: "dall-e-3",
+                        size: "1024x1024"
+                    });
+                    
+                    // Remove the loading message and add the actual image
+                    const messages = this.messagesContainer.querySelectorAll('.message-ai');
+                    const lastMessage = messages[messages.length - 1];
+                    if (lastMessage) {
+                        lastMessage.querySelector('.message-content').innerHTML = 
+                            `🖼️ **Сгенерированное изображение по запросу:** "${prompt}"\n\n` +
+                            `![Generated Image](${imageResult.url})`;
+                    }
+                    
+                    this.saveMessages();
+                    
+                } catch (error) {
+                    this.removeTypingIndicator(typingId);
+                    this.addMessage('error', 'Ошибка при генерации изображения: ' + error.message);
+                } finally {
+                    this.isProcessing = false;
+                    this.sendBtn.disabled = false;
+                }
+            }
+
+            toggleImageMode() {
+                this.isImageMode = !this.isImageMode;
+                const placeholder = this.isImageMode 
+                    ? "Опишите изображение для генерации..." 
+                    : "Задайте вопрос или опишите изображение...";
+                
+                this.userInput.placeholder = placeholder;
+                this.generateImageBtn.style.background = this.isImageMode 
+                    ? 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))'
+                    : 'var(--bg-tertiary)';
+                this.generateImageBtn.style.color = this.isImageMode 
+                    ? 'white' 
+                    : 'var(--text-secondary)';
+                
+                const icon = this.generateImageBtn.querySelector('i');
+                icon.className = this.isImageMode ? 'ti ti-photo-off' : 'ti ti-photo';
+                
+                this.showNotification(
+                    this.isImageMode ? 'Режим генерации изображений включен' : 'Режим генерации изображений выключен',
+                    'success'
+                );
             }
 
             addMessage(role, content) {
@@ -684,7 +771,7 @@
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
                     </div>
-                    <span>ИИ печатает...</span>
+                    <span>${this.isImageMode ? 'ИИ генерирует изображение...' : 'ИИ печатает...'}</span>
                 `;
                 
                 this.messagesContainer.appendChild(typingElement);
@@ -701,20 +788,6 @@
                     const typingElements = this.messagesContainer.querySelectorAll('.typing-indicator');
                     typingElements.forEach(el => el.remove());
                 }
-            }
-
-            generateResponse(userMessage) {
-                const responses = [
-                    `Я получил ваше сообщение: "${userMessage}". Как ИИ-помощник, я могу помочь вам с различными задачами, включая ответы на вопросы, анализ текста и многое другое.`,
-
-                    `Спасибо за ваше сообщение! "${userMessage}" - интересный запрос. Чем именно я могу помочь вам с этим?`,
-
-                    `Понял ваш запрос: "${userMessage}". Я готов предоставить вам информацию или помощь по этой теме. Что вас конкретно интересует?`,
-
-                    `Ваше сообщение "${userMessage}" получено. Как бесплатный ИИ-помощник, я здесь чтобы помочь вам с любыми вопросами или задачами.`
-                ];
-
-                return responses[Math.floor(Math.random() * responses.length)];
             }
 
             clearInput() {
@@ -738,21 +811,25 @@
             showWelcomeMessage() {
                 const welcomeMessage = `# 👋 Добро пожаловать в Khuyew AI!
 
-Я ваш бесплатный ИИ-помощник. Вот что я умею:
+Я ваш бесплатный ИИ-помощник с использованием передовых моделей AI. Вот что я умею:
 
 ## 🎯 Основные возможности:
-• **Отвечать на вопросы** - задавайте любые вопросы
-• **Помогать с задачами** - программирование, письмо, анализ
-• **Объяснять концепции** - сложные темы простыми словами
-• **Генерировать идеи** - творческие и практические решения
+• **Умные ответы на вопросы** - используя GPT-5 nano для точных ответов
+• **Генерация изображений** - создание уникальных изображений по описанию
+• **Помощь с задачами** - программирование, письмо, анализ
+• **Объяснение концепций** - сложные темы простыми словами
+
+## 🖼️ Генерация изображений:
+Нажмите кнопку "Генерация изображения" для создания уникальных картинок по вашему описанию!
 
 ## 💡 Как использовать:
-1. Просто напишите ваш вопрос в поле ввода ниже
-2. Нажмите Enter или кнопку отправки
-3. Получите развернутый ответ от ИИ
+1. Напишите ваш вопрос или описание изображения
+2. Выберите режим (чат или генерация изображений)
+3. Нажмите Enter или кнопку отправки
+4. Получите развернутый ответ или изображение
 
 ## 🚀 Начните прямо сейчас!
-Напишите ваш первый вопрос и я постараюсь помочь вам наилучшим образом.`;
+Напишите ваш первый вопрос или опишите изображение, и я постараюсь помочь вам наилучшим образом.`;
 
                 if (this.messagesContainer.children.length === 0) {
                     this.addMessage('ai', welcomeMessage);
@@ -767,19 +844,22 @@
 • **Отправка** - Enter или кнопка отправки
 • **Новая строка** - Shift + Enter
 • **Очистка чата** - кнопка "Очистить чат"
+• **Генерация изображений** - кнопка для переключения режима
 
 ### Возможности:
-• Бесплатные ответы на любые вопросы
+• Бесплатные ответы на любые вопросы с использованием GPT-5 nano
+• Генерация изображений с помощью DALL-E 3
 • Поддержка маркдаун-форматирования
 • Сохранение истории в браузере
 • Адаптивный дизайн
 
 ### Советы:
 • Будьте конкретны в вопросах
+• Для генерации изображений давайте детальные описания
 • Используйте четкие формулировки
 • Задавайте уточняющие вопросы
 
-**Готовы начать? Просто напишите ваш вопрос ниже!**`;
+**Готовы начать? Просто напишите ваш вопрос или описание изображения ниже!**`;
 
                 this.addMessage('ai', helpMessage);
             }
@@ -833,7 +913,7 @@
                 messageElements.forEach(element => {
                     const role = element.classList.contains('message-user') ? 'user' : 
                                 element.classList.contains('message-error') ? 'error' : 'ai';
-                    const content = element.querySelector('.message-content').textContent;
+                    const content = element.querySelector('.message-content').innerHTML;
                     
                     if (content) {
                         messages.push({ role, content });
@@ -849,7 +929,15 @@
                     if (saved) {
                         const messages = JSON.parse(saved);
                         messages.forEach(msg => {
-                            this.addMessage(msg.role, msg.content);
+                            const messageElement = document.createElement('div');
+                            messageElement.className = `message message-${msg.role}`;
+                            
+                            const messageContent = document.createElement('div');
+                            messageContent.className = 'message-content';
+                            messageContent.innerHTML = msg.content;
+                            
+                            messageElement.appendChild(messageContent);
+                            this.messagesContainer.appendChild(messageElement);
                         });
                     }
                 } catch (error) {
