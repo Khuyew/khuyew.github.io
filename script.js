@@ -7,6 +7,7 @@ class KhuyewAI {
         this.clearChatBtn = document.getElementById('clearChatBtn');
         this.helpBtn = document.getElementById('helpBtn');
         this.generateImageBtn = document.getElementById('generateImageBtn');
+        this.generateVoiceBtn = document.getElementById('generateVoiceBtn');
         this.themeToggle = document.getElementById('themeToggle');
         this.modelSelect = document.getElementById('modelSelect');
         this.logo = document.querySelector('.logo');
@@ -18,6 +19,7 @@ class KhuyewAI {
         this.isProcessing = false;
         this.currentTheme = 'dark';
         this.isImageMode = false;
+        this.isVoiceMode = false;
         this.attachedImages = [];
         this.isListening = false;
         this.recognition = null;
@@ -87,6 +89,7 @@ class KhuyewAI {
                 this.toggleImageMode();
             }
         });
+        this.generateVoiceBtn.addEventListener('click', () => this.toggleVoiceMode());
         this.themeToggle.addEventListener('click', () => this.toggleTheme());
         this.modelSelect.addEventListener('change', (e) => {
             if (e.target.value === 'claude-sonnet') {
@@ -232,6 +235,24 @@ class KhuyewAI {
         }
     }
 
+    toggleVoiceMode() {
+        this.isVoiceMode = !this.isVoiceMode;
+        const placeholder = this.isVoiceMode 
+            ? "Введите текст для генерации голоса..." 
+            : "Задайте вопрос или опишите изображение...";
+        
+        this.userInput.placeholder = placeholder;
+        this.generateVoiceBtn.classList.toggle('voice-mode-active', this.isVoiceMode);
+        
+        const icon = this.generateVoiceBtn.querySelector('i');
+        icon.className = this.isVoiceMode ? 'ti ti-microphone-off' : 'ti ti-microphone';
+        
+        this.showNotification(
+            this.isVoiceMode ? 'Режим генерации голоса включен' : 'Режим генерации голоса выключен',
+            'success'
+        );
+    }
+
     handleFileSelect(event) {
         const files = event.target.files;
         if (files.length === 0) return;
@@ -321,19 +342,23 @@ class KhuyewAI {
             this.isProcessing = true;
             this.sendBtn.disabled = true;
 
-            this.addMessage('user', message, this.attachedImages);
-            this.addToConversationHistory('user', message, this.attachedImages);
-            
-            this.userInput.value = '';
-            this.userInput.style.height = 'auto';
-            const imagesToProcess = [...this.attachedImages];
-            this.attachedImages = [];
-            this.renderAttachedFiles();
-            
-            if (this.isImageMode) {
-                await this.generateImage(message);
+            if (this.isVoiceMode) {
+                await this.generateVoice(message);
             } else {
-                await this.getAIResponse(message, imagesToProcess);
+                this.addMessage('user', message, this.attachedImages);
+                this.addToConversationHistory('user', message, this.attachedImages);
+                
+                this.userInput.value = '';
+                this.userInput.style.height = 'auto';
+                const imagesToProcess = [...this.attachedImages];
+                this.attachedImages = [];
+                this.renderAttachedFiles();
+                
+                if (this.isImageMode) {
+                    await this.generateImage(message);
+                } else {
+                    await this.getAIResponse(message, imagesToProcess);
+                }
             }
 
         } catch (error) {
@@ -492,8 +517,8 @@ class KhuyewAI {
         modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
         messageContent.appendChild(modelIndicator);
         
-        // Добавляем кнопки действий (озвучивание)
-        this.addMessageActions(messageElement, fullContent);
+        // Добавляем кнопку озвучивания (только текст без markdown)
+        this.addSpeakButton(messageElement, this.extractPlainText(fullContent));
         
         // Прикрепляем обработчики для кнопок копирования
         this.attachCopyButtons(messageContent);
@@ -501,26 +526,33 @@ class KhuyewAI {
         this.scrollToBottom();
     }
 
-    addMessageActions(messageElement, content) {
+    extractPlainText(markdownText) {
+        // Удаляем markdown разметку для озвучивания
+        return markdownText
+            .replace(/#{1,6}\s?/g, '') // Заголовки
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Жирный текст
+            .replace(/\*(.*?)\*/g, '$1') // Курсив
+            .replace(/`{1,3}(.*?)`{1,3}/g, '$1') // Код
+            .replace(/!\[.*?\]\(.*?\)/g, '') // Изображения
+            .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Ссылки
+            .replace(/>\s?/g, '') // Цитаты
+            .replace(/\n{3,}/g, '\n\n') // Множественные переносы
+            .replace(/^\s+|\s+$/g, '') // Trim
+            .replace(/\s+/g, ' '); // Множественные пробелы
+    }
+
+    addSpeakButton(messageElement, plainText) {
         // Создаем контейнер для кнопок действий
         const actionsContainer = document.createElement('div');
         actionsContainer.className = 'message-actions';
         
-        // Кнопка "Озвучить текст"
+        // Кнопка "Озвучить ответ"
         const speakButton = document.createElement('button');
         speakButton.className = 'action-btn-small';
-        speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить текст';
-        speakButton.addEventListener('click', () => this.speakText(content));
-        
-        // Кнопка "Сгенерировать голос"
-        const generateVoiceButton = document.createElement('button');
-        generateVoiceButton.className = 'action-btn-small';
-        generateVoiceButton.innerHTML = '<i class="ti ti-microphone"></i> Сгенерировать голос';
-        generateVoiceButton.addEventListener('click', () => this.generateVoice(content));
+        speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+        speakButton.addEventListener('click', () => this.speakText(plainText));
         
         actionsContainer.appendChild(speakButton);
-        actionsContainer.appendChild(generateVoiceButton);
-        
         messageElement.appendChild(actionsContainer);
     }
 
@@ -546,7 +578,7 @@ class KhuyewAI {
                 // Находим кнопку и добавляем класс playing
                 const buttons = document.querySelectorAll('.action-btn-small');
                 buttons.forEach(btn => {
-                    if (btn.innerHTML.includes('Озвучить текст')) {
+                    if (btn.innerHTML.includes('Озвучить ответ')) {
                         btn.classList.add('playing');
                         btn.disabled = true;
                     }
@@ -554,17 +586,18 @@ class KhuyewAI {
                 
                 utterance.onend = () => {
                     buttons.forEach(btn => {
-                        if (btn.innerHTML.includes('Озвучить текст')) {
+                        if (btn.innerHTML.includes('Озвучить ответ')) {
                             btn.classList.remove('playing');
                             btn.disabled = false;
                         }
                     });
+                    this.showNotification('Озвучивание завершено', 'success');
                 };
                 
                 utterance.onerror = (error) => {
                     console.error('Speech synthesis error:', error);
                     buttons.forEach(btn => {
-                        if (btn.innerHTML.includes('Озвучить текст')) {
+                        if (btn.innerHTML.includes('Озвучить ответ')) {
                             btn.classList.remove('playing');
                             btn.disabled = false;
                         }
@@ -588,69 +621,70 @@ class KhuyewAI {
         try {
             // Проверяем доступность функции генерации голоса
             if (typeof puter?.ai?.txt2speech !== 'function') {
-                this.showNotification('Генерация голоса временно недоступна', 'warning');
+                throw new Error('Функция генерации голоса недоступна');
+            }
+            
+            if (!text.trim()) {
+                this.showNotification('Введите текст для генерации голоса', 'error');
                 return;
             }
+
+            this.isProcessing = true;
+            this.sendBtn.disabled = true;
+
+            // Добавляем сообщение пользователя
+            this.addMessage('user', `🔊 **Генерация голоса:** "${text}"`);
             
-            // Останавливаем текущее воспроизведение
-            if (this.currentAudio) {
-                this.currentAudio.pause();
-                this.currentAudio = null;
-            }
-            
-            // Находим кнопку и добавляем класс playing
-            const buttons = document.querySelectorAll('.action-btn-small');
-            buttons.forEach(btn => {
-                if (btn.innerHTML.includes('Сгенерировать голос')) {
-                    btn.classList.add('playing');
-                    btn.disabled = true;
-                }
-            });
+            this.userInput.value = '';
+            this.userInput.style.height = 'auto';
             
             this.showNotification('Генерация голоса...', 'info');
             
             // Генерируем аудио с помощью Puter AI
             const audio = await puter.ai.txt2speech(text);
             
-            // Сохраняем ссылку на текущее аудио
-            this.currentAudio = audio;
+            // Создаем сообщение с аудио
+            this.addVoiceMessage(text, audio);
             
-            // Воспроизводим аудио
-            audio.play();
-            
-            // Обработчики событий аудио
-            audio.addEventListener('ended', () => {
-                buttons.forEach(btn => {
-                    if (btn.innerHTML.includes('Сгенерировать голос')) {
-                        btn.classList.remove('playing');
-                        btn.disabled = false;
-                    }
-                });
-                this.showNotification('Воспроизведение завершено', 'success');
-            });
-            
-            audio.addEventListener('error', (error) => {
-                console.error('Audio playback error:', error);
-                buttons.forEach(btn => {
-                    if (btn.innerHTML.includes('Сгенерировать голос')) {
-                        btn.classList.remove('playing');
-                        btn.disabled = false;
-                    }
-                });
-                this.showNotification('Ошибка при воспроизведении аудио', 'error');
-            });
+            this.addToConversationHistory('user', `Сгенерирован голос для текста: ${text}`);
+            this.saveMessages();
+            this.saveConversationHistory();
             
         } catch (error) {
             console.error('Error generating voice:', error);
-            const buttons = document.querySelectorAll('.action-btn-small');
-            buttons.forEach(btn => {
-                if (btn.innerHTML.includes('Сгенерировать голос')) {
-                    btn.classList.remove('playing');
-                    btn.disabled = false;
-                }
-            });
-            this.showNotification('Ошибка при генерации голоса: ' + error.message, 'error');
+            this.addMessage('error', 'Ошибка при генерации голоса: ' + error.message);
+        } finally {
+            this.isProcessing = false;
+            this.sendBtn.disabled = false;
         }
+    }
+
+    addVoiceMessage(text, audio) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message message-ai';
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        messageContent.innerHTML = `
+            🔊 **Сгенерированный голос для текста:** "${text}"
+            <div class="audio-player" style="margin-top: 12px;">
+                <audio controls style="width: 100%; max-width: 300px;">
+                    <source src="${audio.src}" type="audio/mpeg">
+                    Ваш браузер не поддерживает аудио элементы.
+                </audio>
+            </div>
+        `;
+        
+        messageElement.appendChild(messageContent);
+        this.messagesContainer.appendChild(messageElement);
+        this.scrollToBottom();
+        
+        // Автовоспроизведение
+        const audioElement = messageContent.querySelector('audio');
+        audioElement.play().catch(e => {
+            console.log('Autoplay prevented:', e);
+        });
     }
 
     buildContextPrompt(currentMessage) {
@@ -777,9 +811,6 @@ class KhuyewAI {
                 modelIndicator.className = 'model-indicator';
                 modelIndicator.textContent = `Модель: ${this.getModelDisplayName(model)} • ${this.getModelDescription(model)}`;
                 messageContent.appendChild(modelIndicator);
-                
-                // Добавляем кнопки действий для AI сообщений
-                this.addMessageActions(messageElement, content);
             }
         } else {
             // Для пользовательских сообщений тоже обрабатываем markdown
@@ -931,12 +962,12 @@ class KhuyewAI {
 • **Умные ответы на вопросы** - используя различные модели ИИ
 • **Анализ изображений** - извлечение текста и решение задач по фото
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
-• **Озвучивание текста** - слушайте ответы ИИ в аудиоформате
 • **Генерация голоса** - преобразование текста в естественную речь
+• **Озвучивание ответов** - слушайте ответы ИИ в аудиоформате
 • **Контекстный диалог** - помню историю нашего разговора
 • **Подсветка синтаксиса** - красивое отображение кода
 • **Копирование кода** - удобное копирование фрагментов кода
-• **Стриминг ответов** - ответы появляются постепенно, как печатная машинка
+• **Стриминг ответов** - ответы появляются постепенно с плавной анимацией
 
 ## 🤖 Доступные модели:
 • **GPT-5 Nano** - быстрая и эффективная для повседневных задач
@@ -950,14 +981,14 @@ class KhuyewAI {
 **Текущая модель: ${currentModelName}** - ${currentModelDesc}
 
 ## 🔊 Аудио возможности:
-• **Озвучить текст** - использует встроенный синтез речи браузера
-• **Сгенерировать голос** - использует передовые ИИ-модели для естественной речи
+• **Генерация голоса** - использует ИИ для создания естественной речи из текста
+• **Озвучить ответ** - слушайте ответы ИИ без markdown разметки
 
 ## 💡 Примеры использования:
 • Отправьте фото с текстом "Что здесь написано?"
 • Отправьте фото задачи "Реши эту математическую задачу"
-• Нажмите "Озвучить текст" чтобы услышать ответ
-• Используйте "Сгенерировать голос" для более естественного звучания
+• Нажмите "Озвучить ответ" чтобы услышать ответ ИИ
+• Включите "Генерация голоса" для создания речи из текста
 
 \`\`\`python
 # Пример кода с подсветкой синтаксиса
@@ -988,8 +1019,8 @@ def hello_world():
 • **xAI Grok** - лучше для неформального общения и остроумных ответов
 
 ## 🔊 Аудио функции:
-• **Озвучить текст** - использует встроенный синтезатор речи вашего браузера
-• **Сгенерировать голос** - использует ИИ для создания более естественного голоса
+• **Генерация голоса** - создает аудио из текста с помощью ИИ
+• **Озвучить ответ** - воспроизводит ответ ИИ без markdown разметки
 
 ## 🖼️ Работа с изображениями:
 1. **Нажмите кнопку ➕** чтобы прикрепить изображение
@@ -1002,7 +1033,7 @@ def hello_world():
 • Поддерживаю естественный диалог
 
 ## ⚡ Стриминг ответов:
-• Ответы появляются постепенно, как печатная машинка
+• Ответы появляются постепенно с плавной анимацией
 • Вы видите ответ по мере его генерации
 • Поддерживается markdown форматирование в реальном времени
 
