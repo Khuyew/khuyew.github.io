@@ -8,6 +8,7 @@ class KhuyewAI {
         this.helpBtn = document.getElementById('helpBtn');
         this.generateImageBtn = document.getElementById('generateImageBtn');
         this.themeToggle = document.getElementById('themeToggle');
+        this.modelSelect = document.getElementById('modelSelect');
         this.logo = document.querySelector('.logo');
         this.attachFileBtn = document.getElementById('attachFileBtn');
         this.voiceInputBtn = document.getElementById('voiceInputBtn');
@@ -21,6 +22,7 @@ class KhuyewAI {
         this.isListening = false;
         this.recognition = null;
         this.conversationHistory = [];
+        this.currentModel = 'gpt-5-nano';
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
             "Напиши код для сортировки массива на Python...",
@@ -40,6 +42,7 @@ class KhuyewAI {
         this.startPlaceholderAnimation();
         this.showWelcomeMessage();
         this.loadConversationHistory();
+        this.loadModelPreference();
     }
 
     bindEvents() {
@@ -56,6 +59,7 @@ class KhuyewAI {
         this.helpBtn.addEventListener('click', () => this.showHelp());
         this.generateImageBtn.addEventListener('click', () => this.toggleImageMode());
         this.themeToggle.addEventListener('click', () => this.toggleTheme());
+        this.modelSelect.addEventListener('change', (e) => this.changeModel(e.target.value));
         this.logo.addEventListener('click', () => this.clearChat());
         this.attachFileBtn.addEventListener('click', () => this.fileInput.click());
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
@@ -64,6 +68,7 @@ class KhuyewAI {
         window.addEventListener('beforeunload', () => {
             this.saveMessages();
             this.saveConversationHistory();
+            this.saveModelPreference();
         });
     }
 
@@ -141,6 +146,29 @@ class KhuyewAI {
         };
 
         type();
+    }
+
+    changeModel(model) {
+        this.currentModel = model;
+        const modelName = this.getModelDisplayName(model);
+        this.showNotification(`Модель изменена на: ${modelName}`, 'success');
+        this.saveModelPreference();
+    }
+
+    getModelDisplayName(model) {
+        const modelNames = {
+            'gpt-5-nano': 'GPT-5 Nano',
+            'o3-mini': 'O3 Mini'
+        };
+        return modelNames[model] || model;
+    }
+
+    getModelDescription(model) {
+        const descriptions = {
+            'gpt-5-nano': 'Быстрая и эффективная модель для повседневных задач',
+            'o3-mini': 'Продвинутая модель с улучшенными возможностями рассуждения'
+        };
+        return descriptions[model] || 'Модель ИИ';
     }
 
     toggleVoiceInput() {
@@ -245,13 +273,9 @@ class KhuyewAI {
             this.isProcessing = true;
             this.sendBtn.disabled = true;
 
-            // Add user message
             this.addMessage('user', message, this.attachedImages);
-            
-            // Add to conversation history
             this.addToConversationHistory('user', message, this.attachedImages);
             
-            // Clear input and attached files
             this.userInput.value = '';
             this.userInput.style.height = 'auto';
             const imagesToProcess = [...this.attachedImages];
@@ -280,7 +304,6 @@ class KhuyewAI {
             
             let prompt;
             
-            // Если есть и изображение и текст
             if (images.length > 0 && userMessage.trim()) {
                 const extractedText = await puter.ai.img2txt(images[0].data);
                 
@@ -290,7 +313,6 @@ class KhuyewAI {
 
 Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
             } 
-            // Если только изображение без текста
             else if (images.length > 0) {
                 const extractedText = await puter.ai.img2txt(images[0].data);
                 
@@ -300,21 +322,20 @@ class KhuyewAI {
 
 Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
             }
-            // Если только текст
             else {
                 const contextPrompt = this.buildContextPrompt(userMessage);
                 prompt = contextPrompt;
             }
             
             const response = await puter.ai.chat(prompt, { 
-                model: "gpt-5-nano",
+                model: this.currentModel,
                 systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений."
             });
             
             this.removeTypingIndicator(typingId);
             
             this.addToConversationHistory('assistant', response);
-            this.addMessage('ai', response);
+            this.addMessage('ai', response, [], this.currentModel);
             
             this.saveMessages();
             this.saveConversationHistory();
@@ -329,7 +350,6 @@ class KhuyewAI {
     }
 
     buildContextPrompt(currentMessage) {
-        // Берем последние 6 сообщений для контекста
         const recentHistory = this.conversationHistory.slice(-6);
         
         if (recentHistory.length === 0) {
@@ -340,7 +360,6 @@ class KhuyewAI {
         
         recentHistory.forEach(msg => {
             const role = msg.role === 'user' ? 'Пользователь' : 'Ассистент';
-            // Ограничиваем длину каждого сообщения чтобы не превысить лимиты
             const content = msg.content.length > 500 ? msg.content.substring(0, 500) + '...' : msg.content;
             context += `${role}: ${content}\n`;
         });
@@ -353,7 +372,6 @@ class KhuyewAI {
     addToConversationHistory(role, content, images = []) {
         let messageContent = content;
         
-        // Если есть изображения, добавляем информацию о них
         if (images && images.length > 0) {
             const imageNames = images.map(img => img.name).join(', ');
             messageContent += ` [Прикреплено изображение: ${imageNames}]`;
@@ -365,7 +383,6 @@ class KhuyewAI {
             timestamp: Date.now()
         });
 
-        // Ограничиваем историю 30 сообщениями
         if (this.conversationHistory.length > 30) {
             this.conversationHistory = this.conversationHistory.slice(-25);
         }
@@ -421,7 +438,7 @@ class KhuyewAI {
         );
     }
 
-    addMessage(role, content, images = []) {
+    addMessage(role, content, images = [], model = null) {
         const messageElement = document.createElement('div');
         messageElement.className = `message message-${role}`;
         
@@ -433,6 +450,13 @@ class KhuyewAI {
                 messageContent.innerHTML = marked.parse(content);
             } catch {
                 messageContent.textContent = content;
+            }
+            
+            if (role === 'ai' && model) {
+                const modelIndicator = document.createElement('div');
+                modelIndicator.className = 'model-indicator';
+                modelIndicator.textContent = `Модель: ${this.getModelDisplayName(model)} • ${this.getModelDescription(model)}`;
+                messageContent.appendChild(modelIndicator);
             }
         } else {
             messageContent.textContent = content;
@@ -512,16 +536,25 @@ class KhuyewAI {
     }
 
     showWelcomeMessage() {
+        const currentModelName = this.getModelDisplayName(this.currentModel);
+        const currentModelDesc = this.getModelDescription(this.currentModel);
+        
         const welcomeMessage = `# 👋 Добро пожаловать в Khuyew AI!
 
-Я ваш бесплатный ИИ-помощник с использованием передовых моделей AI. Вот что я умею:
+Я ваш бесплатный ИИ-помощник с использованием передовых моделей AI. 
 
 ## 🎯 Основные возможности:
-• **Умные ответы на вопросы** - используя GPT-5 nano для точных ответов
+• **Умные ответы на вопросы** - используя различные модели ИИ
 • **Генерация изображений** - создание уникальных изображений по описанию
 • **Анализ изображений** - извлечение текста и решение задач по фото
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
 • **Контекстный диалог** - помню историю нашего разговора
+
+## 🤖 Доступные модели:
+• **GPT-5 Nano** - быстрая и эффективная для повседневных задач
+• **O3 Mini** - продвинутая модель с улучшенными возможностями рассуждения
+
+**Текущая модель: ${currentModelName}** - ${currentModelDesc}
 
 ## 💡 Примеры использования:
 • Отправьте фото с текстом "Что здесь написано?"
@@ -531,12 +564,19 @@ class KhuyewAI {
 
 **Начните общение, отправив сообщение или изображение!**`;
 
-        this.addMessage('ai', welcomeMessage);
+        this.addMessage('ai', welcomeMessage, [], this.currentModel);
         this.addToConversationHistory('assistant', welcomeMessage);
     }
 
     showHelp() {
+        const currentModelName = this.getModelDisplayName(this.currentModel);
+        
         const helpMessage = `# 🆘 Помощь по Khuyew AI
+
+## 🤖 Текущая модель: ${currentModelName}
+Вы можете переключать модели в верхнем правом углу. Каждая модель имеет свои особенности:
+• **GPT-5 Nano** - лучше для быстрых ответов и простых задач
+• **O3 Mini** - лучше для сложных рассуждений и анализа
 
 ## 🖼️ Работа с изображениями:
 1. **Нажмите кнопку ➕** чтобы прикрепить изображение
@@ -556,7 +596,7 @@ class KhuyewAI {
 
 **Попробуйте отправить изображение с вопросом!**`;
 
-        this.addMessage('ai', helpMessage);
+        this.addMessage('ai', helpMessage, [], this.currentModel);
         this.addToConversationHistory('assistant', helpMessage);
     }
 
@@ -654,14 +694,32 @@ class KhuyewAI {
             localStorage.removeItem('khuyew-ai-conversation-history');
         }
     }
+
+    saveModelPreference() {
+        try {
+            localStorage.setItem('khuyew-ai-model', this.currentModel);
+        } catch (error) {
+            console.error('Error saving model preference:', error);
+        }
+    }
+
+    loadModelPreference() {
+        try {
+            const savedModel = localStorage.getItem('khuyew-ai-model');
+            if (savedModel && (savedModel === 'gpt-5-nano' || savedModel === 'o3-mini')) {
+                this.currentModel = savedModel;
+                this.modelSelect.value = savedModel;
+            }
+        } catch (error) {
+            console.error('Error loading model preference:', error);
+        }
+    }
 }
 
-// Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new KhuyewAI();
 });
 
-// Add light theme variables
 document.head.insertAdjacentHTML('beforeend', `
 <style>
     [data-theme="light"] {
