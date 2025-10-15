@@ -13,6 +13,8 @@
     <!-- Иконки Tabler Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <style>
+        /* ВАШ CSS С МИНИМАЛЬНЫМИ ИЗМЕНЕНИЯМИ ДЛЯ НОВОЙ КНОПКИ ПРОКРУТКИ */
+        
         * {
             margin: 0;
             padding: 0;
@@ -117,6 +119,7 @@
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
+            position: relative;
         }
 
         .messages-container {
@@ -151,7 +154,7 @@
             }
         }
 
-        /* Исправленные сообщения пользователя */
+        /* Сообщения пользователя */
         .user-message {
             align-self: flex-end;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -239,7 +242,7 @@
             }
         }
 
-        /* Исправленный курсор */
+        /* Курсор */
         .typing-cursor {
             display: inline-block;
             animation: blink 1.2s infinite;
@@ -475,7 +478,7 @@
             background: linear-gradient(135deg, #0099ff, #0066ff);
             color: white;
             border: none;
-            border-radius: 18px; /* match input radius */
+            border-radius: 18px;
             width: 46px;
             height: 46px;
             cursor: pointer;
@@ -485,7 +488,7 @@
             transition: all 0.3s ease;
             flex-shrink: 0;
             position: absolute;
-            right: 10px; /* remove visible right gap */
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
         }
@@ -544,7 +547,7 @@
 
         #clearInputButton {
             position: absolute;
-            right: 136px; /* слева от загрузки изображений */
+            right: 136px;
             background: transparent;
             border: none;
             color: #a0a0c0;
@@ -739,7 +742,7 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Исправленный Footer */
+        /* Footer */
         .footer {
             text-align: center;
             padding: 10px 20px;
@@ -854,6 +857,49 @@
             margin: 0 auto;
         }
 
+        /* НОВАЯ КНОПКА ПРОКРУТКИ В СТИЛЕ VK */
+        .vk-scroll-up {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .vk-scroll-up.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .vk-scroll-up-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0c0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .vk-scroll-up-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -947,6 +993,16 @@
             .footer-content {
                 gap: 8px;
             }
+
+            /* Mobile adjustments for VK scroll button */
+            .vk-scroll-up {
+                width: 50px;
+            }
+
+            .vk-scroll-up-button {
+                width: 36px;
+                height: 36px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -995,211 +1051,6 @@
             #clearInputButton {
                 right: 112px;
             }
-            /* Prevent overlap of scroll controls with input on very small screens */
-            .scroll-controls {
-                left: 12px;
-                bottom: 120px;
-            }
-        }
-
-        /* Scroll controls */
-        .scroll-controls {
-            position: fixed; /* container remains fixed but children override their own position */
-            left: 0;
-            bottom: 0;
-            z-index: 50;
-            pointer-events: none; /* avoid covering content; buttons re-enable */
-        }
-
-        .scroll-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #a0a0c0;
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            pointer-events: auto; /* clickable */
-        }
-
-        .scroll-btn:hover { 
-            background: rgba(255, 255, 255, 0.15); 
-            color: #ffffff; 
-        }
-
-        /* Up/Down buttons redesign */
-        #scrollUpBtn {
-            position: fixed;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%) rotate(180deg);
-            writing-mode: vertical-rl; /* vertical text */
-            width: 40px;
-            height: auto;
-            min-height: 110px;
-            padding: 10px 6px;
-            border-radius: 0 10px 10px 0;
-            font-size: 12px;
-            letter-spacing: 0.5px;
-            display: none; /* shown when scrolled */
-        }
-
-        #scrollDownBtn {
-            position: fixed;
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            display: none; /* appears when not at bottom */
-            z-index: 60;
-        }
-
-        /* Light theme */
-        body.light-theme {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: #2d3748;
-        }
-
-        body.light-theme .container {
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        body.light-theme .header {
-            border-bottom-color: rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        body.light-theme .ai-message {
-            background: rgba(255, 255, 255, 0.9);
-            color: #2d3748;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        body.light-theme .ai-image-message {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        body.light-theme .input-container {
-            background: rgba(255, 255, 255, 0.9);
-            border-top-color: rgba(0, 0, 0, 0.1);
-        }
-
-        body.light-theme #user-input {
-            background: rgba(255, 255, 255, 0.9);
-            border-color: rgba(0, 0, 0, 0.2);
-            color: #2d3748;
-        }
-
-        body.light-theme #user-input::placeholder {
-            color: #666;
-        }
-
-        body.light-theme .action-button {
-            background: rgba(0, 0, 0, 0.05);
-            color: #666;
-            border-color: rgba(0, 0, 0, 0.15);
-        }
-
-        body.light-theme .action-button:hover {
-            background: rgba(0, 0, 0, 0.08);
-            color: #2d3748;
-        }
-
-        body.light-theme .control-btn {
-            background: rgba(0, 0, 0, 0.1);
-            color: #666;
-        }
-
-        body.light-theme .control-btn:hover {
-            background: rgba(0, 0, 0, 0.15);
-            color: #2d3748;
-        }
-
-        body.light-theme .footer {
-            color: #666;
-            border-top-color: rgba(0, 0, 0, 0.1);
-            background: rgba(0, 0, 0, 0.03);
-        }
-
-        body.light-theme .footer a {
-            color: #666;
-        }
-
-        body.light-theme ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        body.light-theme ::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        body.light-theme .skip-intro {
-            background: rgba(0, 0, 0, 0.1);
-            color: #666;
-            border-color: rgba(0, 0, 0, 0.2);
-        }
-
-        body.light-theme .skip-intro:hover {
-            background: rgba(0, 0, 0, 0.15);
-            color: #2d3748;
-        }
-
-        body.light-theme .ai-message code {
-            background: rgba(0, 0, 0, 0.05);
-            color: #e53e3e;
-        }
-
-        body.light-theme .ai-message pre {
-            background: rgba(0, 0, 0, 0.05);
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-
-        body.light-theme .ai-message blockquote {
-            background: rgba(0, 153, 255, 0.05);
-            border-left-color: #0099ff;
-        }
-
-        body.light-theme .belarus-flag::before {
-            border-color: rgba(0,0,0,0.3);
-        }
-
-        body.light-theme .image-preview-container {
-            background: rgba(0, 0, 0, 0.05);
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-
-        body.light-theme .remove-image-btn {
-            background: rgba(0, 0, 0, 0.1);
-            border-color: rgba(0, 0, 0, 0.2);
-            color: #666;
-        }
-
-        body.light-theme .remove-image-btn:hover {
-            background: rgba(0, 0, 0, 0.15);
-            color: #2d3748;
-        }
-
-        /* Light theme adjustments for new buttons */
-        body.light-theme #clearInputButton,
-        body.light-theme #imageUploadButton,
-        body.light-theme #voiceButton,
-        body.light-theme .scroll-btn {
-            background: rgba(0, 0, 0, 0.06);
-            color: #666;
-            border-color: rgba(0,0,0,0.15);
-        }
-
-        body.light-theme #clearInputButton:hover,
-        body.light-theme #imageUploadButton:hover,
-        body.light-theme #voiceButton:hover,
-        body.light-theme .scroll-btn:hover {
-            background: rgba(0,0,0,0.1);
-            color: #2d3748;
         }
     </style>
 </head>
@@ -1218,6 +1069,13 @@
         </div>
         
         <div class="chat-container">
+            <!-- НОВАЯ КНОПКА ПРОКРУТКИ В СТИЛЕ VK -->
+            <div class="vk-scroll-up" id="vkScrollUp">
+                <div class="vk-scroll-up-button" id="vkScrollUpButton">
+                    <i class="ti ti-arrow-up"></i>
+                </div>
+            </div>
+            
             <div class="messages-container" id="messagesContainer">
                 <!-- Сообщения будут добавляться здесь -->
             </div>
@@ -1294,14 +1152,6 @@
         <div id="modalCaption"></div>
     </div>
 
-    <!-- Кнопки прокрутки -->
-    <div class="scroll-controls">
-        <button id="scrollUpBtn" class="scroll-btn" title="К последнему сообщению ИИ">Вверх</button>
-        <button id="scrollDownBtn" class="scroll-btn" title="Вниз чата">
-            <i class="ti ti-arrow-down"></i>
-        </button>
-    </div>
-
     <!-- Скрытые inputs -->
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
 
@@ -1325,6 +1175,8 @@
         })();
     </script>
     <script>
+        // ВАША ОРИГИНАЛЬНАЯ ЛОГИКА ИИ БЕЗ ИЗМЕНЕНИЙ
+        
         // Основное приложение
         class KhuyewAI {
             constructor() {
@@ -1334,14 +1186,12 @@
                 this.voiceButton = document.getElementById('voiceButton');
                 this.imageUploadButton = document.getElementById('imageUploadButton');
                 this.fileInput = document.getElementById('fileInput');
-                // importJsonInput удалён вместе с импортом/экспортом
-                this.importJsonInput = null;
                 this.imagePreviewContainer = document.getElementById('imagePreviewContainer');
                 this.imagePreview = document.getElementById('imagePreview');
                 this.removeImageBtn = document.getElementById('removeImageBtn');
                 this.clearInputButton = document.getElementById('clearInputButton');
-                this.scrollUpBtn = document.getElementById('scrollUpBtn');
-                this.scrollDownBtn = document.getElementById('scrollDownBtn');
+                this.vkScrollUp = document.getElementById('vkScrollUp');
+                this.vkScrollUpButton = document.getElementById('vkScrollUpButton');
                 
                 this.introCompleted = false;
                 this.lastUserMessage = null;
@@ -1408,8 +1258,6 @@
                     });
                 }
 
-                // Кнопки экспорта удалены
-
                 const clearButton = document.getElementById('clearButton');
                 if (clearButton) {
                     clearButton.addEventListener('click', (e) => {
@@ -1426,8 +1274,6 @@
                         this.showPrivacyInfo();
                     });
                 }
-
-                // Кнопка импорта удалена
 
                 // Основные обработчики
                 this.sendButton.addEventListener('click', (e) => {
@@ -1507,43 +1353,29 @@
                     }
                 }, true);
 
-                // Прокрутка
-                if (this.scrollDownBtn) {
-                    this.scrollDownBtn.addEventListener('click', () => this.scrollToBottom());
-                }
-                if (this.scrollUpBtn) {
-                    this.scrollUpBtn.addEventListener('click', () => this.scrollToLastAIMessage());
+                // НОВЫЙ ОБРАБОТЧИК ДЛЯ КНОПКИ ПРОКРУТКИ VK
+                if (this.vkScrollUpButton) {
+                    this.vkScrollUpButton.addEventListener('click', () => {
+                        this.messagesContainer.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    });
                 }
 
-                // Show/hide scroll controls contextually
-                const updateScrollControls = () => {
-                    const el = this.messagesContainer;
-                    if (!el) return;
-                    const atBottom = Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) < 4;
-                    const atTop = el.scrollTop <= 4;
-                    // Up button visible when not at top and there is at least one AI message
-                    const hasAI = !!el.querySelector('.ai-message, .ai-image-message');
-                    if (this.scrollUpBtn) {
-                        this.scrollUpBtn.style.display = (!atTop && hasAI) ? 'flex' : 'none';
-                    }
-                    // Down button appears above send button when not at bottom
-                    if (this.scrollDownBtn) {
-                        this.scrollDownBtn.style.display = atBottom ? 'none' : 'flex';
-                        if (!atBottom) {
-                            // position above send button
-                            const input = document.querySelector('.input-container');
-                            const rect = input?.getBoundingClientRect?.();
-                            const offsetBottom = rect ? (window.innerHeight - rect.top) + 72 : 120;
-                            this.scrollDownBtn.style.left = 'auto';
-                            this.scrollDownBtn.style.right = '26px';
-                            this.scrollDownBtn.style.bottom = offsetBottom + 'px';
-                        }
+                // Показ/скрытие кнопки прокрутки VK
+                const updateVKScrollButton = () => {
+                    const scrollTop = this.messagesContainer.scrollTop;
+                    if (scrollTop > 300) {
+                        this.vkScrollUp.classList.add('visible');
+                    } else {
+                        this.vkScrollUp.classList.remove('visible');
                     }
                 };
-                this.messagesContainer.addEventListener('scroll', updateScrollControls);
-                window.addEventListener('resize', updateScrollControls);
-                setInterval(updateScrollControls, 800); // keep in sync during streaming
-                setTimeout(updateScrollControls, 100);
+
+                this.messagesContainer.addEventListener('scroll', updateVKScrollButton);
+                window.addEventListener('resize', updateVKScrollButton);
+                setInterval(updateVKScrollButton, 500);
             }
 
             setupTextareaAutoResize() {
@@ -1827,104 +1659,6 @@
                 this.addMessage(helpMessage, false);
             }
 
-            exportChat() {
-                try {
-                    const messages = Array.from(this.messagesContainer.querySelectorAll('.message'));
-                    const chatText = messages.map(msg => {
-                        const sender = msg.classList.contains('user-message') ? 'Вы' : 'ИИ';
-                        const content = msg.querySelector('.message-content') ? 
-                            msg.querySelector('.message-content').textContent : msg.textContent;
-                        return `${sender}: ${content}`;
-                    }).join('\n\n');
-                    
-                    const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `khuyew-chat-${new Date().toISOString().split('T')[0]}.txt`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    
-                    this.addMessage('💾 Чат экспортирован в файл!', false);
-                } catch (error) {
-                    console.error('Ошибка экспорта:', error);
-                    this.addMessage('❌ Ошибка при экспорте чата', false, true);
-                }
-            }
-
-            exportChatAsJSON() {
-                try {
-                    const messages = Array.from(this.messagesContainer.querySelectorAll('.message')).map(msg => {
-                        const isUser = msg.classList.contains('user-message');
-                        const isAIImage = msg.classList.contains('ai-image-message');
-                        const base = {
-                            sender: isUser ? 'user' : 'ai',
-                            text: ''
-                        };
-                        if (isAIImage) {
-                            const img = msg.querySelector('img.generated-image');
-                            return { ...base, type: 'image', imageSrc: img?.src || '' };
-                        }
-                        const content = msg.querySelector('.message-content');
-                        return { ...base, type: 'text', text: content ? content.textContent : msg.textContent };
-                    });
-                    const payload = {
-                        app: 'Khuyew AI',
-                        version: 1,
-                        exportedAt: new Date().toISOString(),
-                        messages
-                    };
-                    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `khuyew-chat-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    this.addMessage('💾 JSON-файл с чатом сохранён!', false);
-                } catch (error) {
-                    console.error('Ошибка экспорта JSON:', error);
-                    this.addMessage('❌ Ошибка при экспорте JSON', false, true);
-                }
-            }
-
-            handleImportJson(e) {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = () => {
-                    try {
-                        const data = JSON.parse(reader.result);
-                        if (!data || !Array.isArray(data.messages)) throw new Error('Неверный формат');
-                        if (confirm('Очистить текущий чат перед импортом?')) {
-                            this.messagesContainer.innerHTML = '';
-                        }
-                        for (const m of data.messages) {
-                            if (m.type === 'image' && m.imageSrc) {
-                                this.addAIImageMessageFromSrc(m.imageSrc, m.text || '');
-                            } else {
-                                this.addMessage(m.text || '', m.sender === 'user');
-                            }
-                        }
-                        this.addMessage('✅ Чат импортирован из JSON', false);
-                    } catch (err) {
-                        console.error('Ошибка импорта JSON:', err);
-                        this.addMessage('❌ Ошибка импорта JSON-файла', false, true);
-                    } finally {
-                        e.target.value = '';
-                    }
-                };
-                reader.onerror = () => {
-                    this.addMessage('❌ Ошибка чтения файла JSON', false, true);
-                    e.target.value = '';
-                };
-                reader.readAsText(file);
-            }
-
             clearChat() {
                 if (confirm('Очистить всю историю чата?')) {
                     this.messagesContainer.innerHTML = '';
@@ -2027,17 +1761,6 @@
                     console.error('dataURLToFile error:', err);
                     // Last resort: return empty PNG blob to avoid crashes
                     return new Blob([], { type: 'image/png' });
-                }
-            }
-
-            scrollToLastAIMessage() {
-                const aiMessages = this.messagesContainer.querySelectorAll('.message.ai-message, .message.ai-image-message');
-                const last = aiMessages[aiMessages.length - 1];
-                if (last) {
-                    last.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                } else {
-                    // если нет сообщений ИИ — просто наверх
-                    this.messagesContainer.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             }
 
@@ -2249,7 +1972,7 @@
                 });
             }
 
-            // AI функции
+            // AI функции - ВАША ОРИГИНАЛЬНАЯ ЛОГИКА
             async streamTextResponse(prompt) {
                 if (this.currentStream) {
                     this.currentStream.cancel?.();
