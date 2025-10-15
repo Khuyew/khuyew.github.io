@@ -1,17 +1,24 @@
 {
-  "name": "Khuyew AI",
-  "short_name": "Khuyew AI",
-  "start_url": "/",
-  "display": "standalone",
-  "theme_color": "#0f0f23",
-  "background_color": "#0f0f23",
-  "description": "Бесплатный ИИ-помощник с генерацией изображений и голосовым вводом.",
-  "icons": [
-    {
-      "src": "/icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
-  ]
+    "name": "Khuyew AI",
+    "short_name": "KhuyewAI",
+    "description": "Бесплатный ИИ-помощник с генерацией изображений",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f0f23",
+    "theme_color": "#0099ff",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "categories": ["productivity", "utilities"],
+    "lang": "ru-RU"
 }
