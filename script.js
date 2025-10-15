@@ -30,6 +30,7 @@ class KhuyewAI {
             "Какие есть способы улучшить производительность веб-сайта?",
             "Создай описание для приложения на основе ИИ..."
         ];
+        this.currentAudio = null; // Текущее воспроизводимое аудио
 
         // Настройка marked для markdown
         this.setupMarked();
@@ -491,10 +492,165 @@ class KhuyewAI {
         modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
         messageContent.appendChild(modelIndicator);
         
+        // Добавляем кнопки действий (озвучивание)
+        this.addMessageActions(messageElement, fullContent);
+        
         // Прикрепляем обработчики для кнопок копирования
         this.attachCopyButtons(messageContent);
         
         this.scrollToBottom();
+    }
+
+    addMessageActions(messageElement, content) {
+        // Создаем контейнер для кнопок действий
+        const actionsContainer = document.createElement('div');
+        actionsContainer.className = 'message-actions';
+        
+        // Кнопка "Озвучить текст"
+        const speakButton = document.createElement('button');
+        speakButton.className = 'action-btn-small';
+        speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить текст';
+        speakButton.addEventListener('click', () => this.speakText(content));
+        
+        // Кнопка "Сгенерировать голос"
+        const generateVoiceButton = document.createElement('button');
+        generateVoiceButton.className = 'action-btn-small';
+        generateVoiceButton.innerHTML = '<i class="ti ti-microphone"></i> Сгенерировать голос';
+        generateVoiceButton.addEventListener('click', () => this.generateVoice(content));
+        
+        actionsContainer.appendChild(speakButton);
+        actionsContainer.appendChild(generateVoiceButton);
+        
+        messageElement.appendChild(actionsContainer);
+    }
+
+    async speakText(text) {
+        try {
+            // Останавливаем текущее воспроизведение
+            if (this.currentAudio) {
+                this.currentAudio.pause();
+                this.currentAudio = null;
+            }
+            
+            // Используем Web Speech API для озвучивания
+            if ('speechSynthesis' in window) {
+                // Останавливаем любое текущее воспроизведение
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ru-RU';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                
+                // Находим кнопку и добавляем класс playing
+                const buttons = document.querySelectorAll('.action-btn-small');
+                buttons.forEach(btn => {
+                    if (btn.innerHTML.includes('Озвучить текст')) {
+                        btn.classList.add('playing');
+                        btn.disabled = true;
+                    }
+                });
+                
+                utterance.onend = () => {
+                    buttons.forEach(btn => {
+                        if (btn.innerHTML.includes('Озвучить текст')) {
+                            btn.classList.remove('playing');
+                            btn.disabled = false;
+                        }
+                    });
+                };
+                
+                utterance.onerror = (error) => {
+                    console.error('Speech synthesis error:', error);
+                    buttons.forEach(btn => {
+                        if (btn.innerHTML.includes('Озвучить текст')) {
+                            btn.classList.remove('playing');
+                            btn.disabled = false;
+                        }
+                    });
+                    this.showNotification('Ошибка при озвучивании текста', 'error');
+                };
+                
+                window.speechSynthesis.speak(utterance);
+                this.showNotification('Озвучивание текста...', 'info');
+                
+            } else {
+                this.showNotification('Озвучивание текста не поддерживается в вашем браузере', 'warning');
+            }
+        } catch (error) {
+            console.error('Error speaking text:', error);
+            this.showNotification('Ошибка при озвучивании текста', 'error');
+        }
+    }
+
+    async generateVoice(text) {
+        try {
+            // Проверяем доступность функции генерации голоса
+            if (typeof puter?.ai?.txt2speech !== 'function') {
+                this.showNotification('Генерация голоса временно недоступна', 'warning');
+                return;
+            }
+            
+            // Останавливаем текущее воспроизведение
+            if (this.currentAudio) {
+                this.currentAudio.pause();
+                this.currentAudio = null;
+            }
+            
+            // Находим кнопку и добавляем класс playing
+            const buttons = document.querySelectorAll('.action-btn-small');
+            buttons.forEach(btn => {
+                if (btn.innerHTML.includes('Сгенерировать голос')) {
+                    btn.classList.add('playing');
+                    btn.disabled = true;
+                }
+            });
+            
+            this.showNotification('Генерация голоса...', 'info');
+            
+            // Генерируем аудио с помощью Puter AI
+            const audio = await puter.ai.txt2speech(text);
+            
+            // Сохраняем ссылку на текущее аудио
+            this.currentAudio = audio;
+            
+            // Воспроизводим аудио
+            audio.play();
+            
+            // Обработчики событий аудио
+            audio.addEventListener('ended', () => {
+                buttons.forEach(btn => {
+                    if (btn.innerHTML.includes('Сгенерировать голос')) {
+                        btn.classList.remove('playing');
+                        btn.disabled = false;
+                    }
+                });
+                this.showNotification('Воспроизведение завершено', 'success');
+            });
+            
+            audio.addEventListener('error', (error) => {
+                console.error('Audio playback error:', error);
+                buttons.forEach(btn => {
+                    if (btn.innerHTML.includes('Сгенерировать голос')) {
+                        btn.classList.remove('playing');
+                        btn.disabled = false;
+                    }
+                });
+                this.showNotification('Ошибка при воспроизведении аудио', 'error');
+            });
+            
+        } catch (error) {
+            console.error('Error generating voice:', error);
+            const buttons = document.querySelectorAll('.action-btn-small');
+            buttons.forEach(btn => {
+                if (btn.innerHTML.includes('Сгенерировать голос')) {
+                    btn.classList.remove('playing');
+                    btn.disabled = false;
+                }
+            });
+            this.showNotification('Ошибка при генерации голоса: ' + error.message, 'error');
+        }
     }
 
     buildContextPrompt(currentMessage) {
@@ -621,6 +777,9 @@ class KhuyewAI {
                 modelIndicator.className = 'model-indicator';
                 modelIndicator.textContent = `Модель: ${this.getModelDisplayName(model)} • ${this.getModelDescription(model)}`;
                 messageContent.appendChild(modelIndicator);
+                
+                // Добавляем кнопки действий для AI сообщений
+                this.addMessageActions(messageElement, content);
             }
         } else {
             // Для пользовательских сообщений тоже обрабатываем markdown
@@ -772,6 +931,8 @@ class KhuyewAI {
 • **Умные ответы на вопросы** - используя различные модели ИИ
 • **Анализ изображений** - извлечение текста и решение задач по фото
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
+• **Озвучивание текста** - слушайте ответы ИИ в аудиоформате
+• **Генерация голоса** - преобразование текста в естественную речь
 • **Контекстный диалог** - помню историю нашего разговора
 • **Подсветка синтаксиса** - красивое отображение кода
 • **Копирование кода** - удобное копирование фрагментов кода
@@ -788,11 +949,15 @@ class KhuyewAI {
 
 **Текущая модель: ${currentModelName}** - ${currentModelDesc}
 
+## 🔊 Аудио возможности:
+• **Озвучить текст** - использует встроенный синтез речи браузера
+• **Сгенерировать голос** - использует передовые ИИ-модели для естественной речи
+
 ## 💡 Примеры использования:
 • Отправьте фото с текстом "Что здесь написано?"
 • Отправьте фото задачи "Реши эту математическую задачу"
-• Отправьте фото документа "Переведи этот текст"
-• Напишите вопрос и прикрепите изображение для контекстного анализа
+• Нажмите "Озвучить текст" чтобы услышать ответ
+• Используйте "Сгенерировать голос" для более естественного звучания
 
 \`\`\`python
 # Пример кода с подсветкой синтаксиса
@@ -821,6 +986,10 @@ def hello_world():
 • **Gemini 2.0 Flash** - лучше для быстрых ответов и работы с мультимодальными данными
 • **Gemini 1.5 Flash** - лучше для эффективного решения различных задач
 • **xAI Grok** - лучше для неформального общения и остроумных ответов
+
+## 🔊 Аудио функции:
+• **Озвучить текст** - использует встроенный синтезатор речи вашего браузера
+• **Сгенерировать голос** - использует ИИ для создания более естественного голоса
 
 ## 🖼️ Работа с изображениями:
 1. **Нажмите кнопку ➕** чтобы прикрепить изображение
