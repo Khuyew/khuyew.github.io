@@ -265,6 +265,8 @@ body {
     transition: var(--transition);
     font-size: 18px;
     flex-shrink: 0;
+    align-self: flex-end;
+    margin-bottom: 4px;
 }
 
 .attach-btn:hover {
@@ -288,6 +290,7 @@ body {
     overflow-y: auto;
     line-height: 1.4;
     font-family: inherit;
+    align-self: stretch;
 }
 
 #userInput::placeholder {
