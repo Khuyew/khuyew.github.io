@@ -402,16 +402,32 @@ class KhuyewAI {
             
             const options = {
                 ...modelOptions[this.currentModel],
-                systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений."
+                systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.",
+                stream: true // Включаем стриминг
             };
             
+            // Создаем сообщение для стриминга
+            const messageId = this.createStreamingMessage();
+            
+            // Получаем стриминг-ответ
             const response = await puter.ai.chat(prompt, options);
             
+            // Убираем индикатор печати
             this.removeTypingIndicator(typingId);
             
-            this.addToConversationHistory('assistant', response);
-            this.addMessage('ai', response, [], this.currentModel);
+            // Обрабатываем стриминг
+            let fullResponse = '';
+            for await (const part of response) {
+                if (part?.text) {
+                    fullResponse += part.text;
+                    this.updateStreamingMessage(messageId, fullResponse);
+                }
+            }
             
+            // Завершаем сообщение
+            this.finalizeStreamingMessage(messageId, fullResponse);
+            
+            this.addToConversationHistory('assistant', fullResponse);
             this.saveMessages();
             this.saveConversationHistory();
             
@@ -422,6 +438,63 @@ class KhuyewAI {
             this.isProcessing = false;
             this.sendBtn.disabled = false;
         }
+    }
+
+    createStreamingMessage() {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message message-ai streaming-message';
+        messageElement.id = 'streaming-' + Date.now();
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content streaming-content';
+        messageContent.innerHTML = '<div class="streaming-cursor">▌</div>';
+        
+        messageElement.appendChild(messageContent);
+        this.messagesContainer.appendChild(messageElement);
+        this.scrollToBottom();
+        
+        return messageElement.id;
+    }
+
+    updateStreamingMessage(messageId, content) {
+        const messageElement = document.getElementById(messageId);
+        if (!messageElement) return;
+        
+        const messageContent = messageElement.querySelector('.message-content');
+        
+        // Обрабатываем markdown для текущего контента
+        const processedContent = this.processCodeBlocks(content);
+        messageContent.innerHTML = processedContent + '<div class="streaming-cursor">▌</div>';
+        
+        // Прикрепляем обработчики для кнопок копирования
+        this.attachCopyButtons(messageContent);
+        
+        this.scrollToBottom();
+    }
+
+    finalizeStreamingMessage(messageId, fullContent) {
+        const messageElement = document.getElementById(messageId);
+        if (!messageElement) return;
+        
+        // Убираем класс стриминга и курсор
+        messageElement.classList.remove('streaming-message');
+        const messageContent = messageElement.querySelector('.message-content');
+        messageContent.classList.remove('streaming-content');
+        
+        // Финальная обработка markdown
+        const processedContent = this.processCodeBlocks(fullContent);
+        messageContent.innerHTML = processedContent;
+        
+        // Добавляем индикатор модели
+        const modelIndicator = document.createElement('div');
+        modelIndicator.className = 'model-indicator';
+        modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
+        messageContent.appendChild(modelIndicator);
+        
+        // Прикрепляем обработчики для кнопок копирования
+        this.attachCopyButtons(messageContent);
+        
+        this.scrollToBottom();
     }
 
     buildContextPrompt(currentMessage) {
@@ -702,6 +775,7 @@ class KhuyewAI {
 • **Контекстный диалог** - помню историю нашего разговора
 • **Подсветка синтаксиса** - красивое отображение кода
 • **Копирование кода** - удобное копирование фрагментов кода
+• **Стриминг ответов** - ответы появляются постепенно, как печатная машинка
 
 ## 🤖 Доступные модели:
 • **GPT-5 Nano** - быстрая и эффективная для повседневных задач
@@ -757,6 +831,11 @@ def hello_world():
 • Я помню предыдущие сообщения в нашей беседе
 • Можете задавать уточняющие вопросы
 • Поддерживаю естественный диалог
+
+## ⚡ Стриминг ответов:
+• Ответы появляются постепенно, как печатная машинка
+• Вы видите ответ по мере его генерации
+• Поддерживается markdown форматирование в реальном времени
 
 ## 📝 Работа с кодом:
 • Используйте markdown для форматирования
@@ -818,7 +897,7 @@ console.log(calculateSum(5, 3));
         try {
             const messages = [];
             this.messagesContainer.querySelectorAll('.message').forEach(message => {
-                if (message.classList.contains('typing-indicator')) return;
+                if (message.classList.contains('typing-indicator') || message.classList.contains('streaming-message')) return;
                 
                 const role = message.classList.contains('message-user') ? 'user' : 
                            message.classList.contains('message-error') ? 'error' : 'ai';
