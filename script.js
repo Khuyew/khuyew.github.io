@@ -31,7 +31,28 @@ class KhuyewAI {
             "Создай описание для приложения на основе ИИ..."
         ];
 
+        // Настройка marked для markdown
+        this.setupMarked();
+        
         this.init();
+    }
+
+    setupMarked() {
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (err) {
+                        console.warn(`Error highlighting ${lang}:`, err);
+                    }
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            langPrefix: 'hljs language-',
+            breaks: true,
+            gfm: true
+        });
     }
 
     init() {
@@ -57,9 +78,23 @@ class KhuyewAI {
         this.clearInputBtn.addEventListener('click', () => this.clearInput());
         this.clearChatBtn.addEventListener('click', () => this.clearChat());
         this.helpBtn.addEventListener('click', () => this.showHelp());
-        this.generateImageBtn.addEventListener('click', () => this.toggleImageMode());
+        this.generateImageBtn.addEventListener('click', (e) => {
+            if (this.generateImageBtn.disabled) {
+                e.preventDefault();
+                this.showNotification('Генерация изображений временно недоступна', 'warning');
+            } else {
+                this.toggleImageMode();
+            }
+        });
         this.themeToggle.addEventListener('click', () => this.toggleTheme());
-        this.modelSelect.addEventListener('change', (e) => this.changeModel(e.target.value));
+        this.modelSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'claude-sonnet') {
+                this.showNotification('Claude Sonnet временно недоступен', 'warning');
+                this.modelSelect.value = this.currentModel;
+                return;
+            }
+            this.changeModel(e.target.value);
+        });
         this.logo.addEventListener('click', () => this.clearChat());
         this.attachFileBtn.addEventListener('click', () => this.fileInput.click());
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
@@ -498,7 +533,12 @@ class KhuyewAI {
         
         if (role === 'ai' || role === 'error') {
             try {
-                messageContent.innerHTML = marked.parse(content);
+                // Обрабатываем markdown с выделением кода
+                const processedContent = this.processCodeBlocks(content);
+                messageContent.innerHTML = processedContent;
+                
+                // Добавляем обработчики для кнопок копирования
+                this.attachCopyButtons(messageContent);
             } catch {
                 messageContent.textContent = content;
             }
@@ -510,7 +550,14 @@ class KhuyewAI {
                 messageContent.appendChild(modelIndicator);
             }
         } else {
-            messageContent.textContent = content;
+            // Для пользовательских сообщений тоже обрабатываем markdown
+            try {
+                const processedContent = this.processCodeBlocks(content);
+                messageContent.innerHTML = processedContent;
+                this.attachCopyButtons(messageContent);
+            } catch {
+                messageContent.textContent = content;
+            }
             
             if (images && images.length > 0) {
                 images.forEach(image => {
@@ -535,6 +582,57 @@ class KhuyewAI {
         this.scrollToBottom();
         
         return messageElement.id;
+    }
+
+    processCodeBlocks(content) {
+        // Сначала обрабатываем markdown
+        let html = marked.parse(content);
+        
+        // Затем добавляем заголовки для блоков кода
+        html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
+            const language = lang || 'text';
+            return `
+                <div class="code-header">
+                    <span class="code-language">${language}</span>
+                    <button class="copy-code-btn" data-language="${language}">
+                        <i class="ti ti-copy"></i>
+                        Копировать
+                    </button>
+                </div>
+                <pre><code class="${lang}">`;
+        });
+        
+        return html;
+    }
+
+    attachCopyButtons(container) {
+        const copyButtons = container.querySelectorAll('.copy-code-btn');
+        copyButtons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const codeBlock = e.target.closest('.code-header')?.nextElementSibling;
+                if (codeBlock) {
+                    const code = codeBlock.textContent;
+                    try {
+                        await navigator.clipboard.writeText(code);
+                        
+                        // Визуальная обратная связь
+                        const originalText = btn.innerHTML;
+                        btn.innerHTML = '<i class="ti ti-check"></i> Скопировано!';
+                        btn.classList.add('copied');
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.classList.remove('copied');
+                        }, 2000);
+                        
+                        this.showNotification('Код скопирован в буфер обмена', 'success');
+                    } catch (err) {
+                        console.error('Failed to copy code:', err);
+                        this.showNotification('Не удалось скопировать код', 'error');
+                    }
+                }
+            });
+        });
     }
 
     showTypingIndicator() {
@@ -599,15 +697,15 @@ class KhuyewAI {
 
 ## 🎯 Основные возможности:
 • **Умные ответы на вопросы** - используя различные модели ИИ
-• **Генерация изображений** - создание уникальных изображений по описанию
 • **Анализ изображений** - извлечение текста и решение задач по фото
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
 • **Контекстный диалог** - помню историю нашего разговора
+• **Подсветка синтаксиса** - красивое отображение кода
+• **Копирование кода** - удобное копирование фрагментов кода
 
 ## 🤖 Доступные модели:
 • **GPT-5 Nano** - быстрая и эффективная для повседневных задач
 • **O3 Mini** - продвинутая модель с улучшенными возможностями рассуждения
-• **Claude Sonnet** - мощная модель от Anthropic для сложных задач
 • **DeepSeek Chat** - универсальная модель для общения и решения задач
 • **DeepSeek Reasoner** - специализированная модель для логических рассуждений
 • **Gemini 2.0 Flash** - новейшая быстрая модель от Google
@@ -621,6 +719,13 @@ class KhuyewAI {
 • Отправьте фото задачи "Реши эту математическую задачу"
 • Отправьте фото документа "Переведи этот текст"
 • Напишите вопрос и прикрепите изображение для контекстного анализа
+
+\`\`\`python
+# Пример кода с подсветкой синтаксиса
+def hello_world():
+    print("Привет, мир!")
+    return "Готов к работе!"
+\`\`\`
 
 **Начните общение, отправив сообщение или изображение!**`;
 
@@ -637,7 +742,6 @@ class KhuyewAI {
 Вы можете переключать модели в верхнем правом углу. Каждая модель имеет свои особенности:
 • **GPT-5 Nano** - лучше для быстрых ответов и простых задач
 • **O3 Mini** - лучше для сложных рассуждений и анализа
-• **Claude Sonnet** - лучше для сложных задач, анализа и творческих заданий
 • **DeepSeek Chat** - универсальная модель для повседневного общения
 • **DeepSeek Reasoner** - лучше для сложных логических и математических задач
 • **Gemini 2.0 Flash** - лучше для быстрых ответов и работы с мультимодальными данными
@@ -653,6 +757,19 @@ class KhuyewAI {
 • Я помню предыдущие сообщения в нашей беседе
 • Можете задавать уточняющие вопросы
 • Поддерживаю естественный диалог
+
+## 📝 Работа с кодом:
+• Используйте markdown для форматирования
+• Код автоматически подсвечивается
+• Нажмите "Копировать" чтобы скопировать код
+
+\`\`\`javascript
+// Пример JavaScript кода
+function calculateSum(a, b) {
+    return a + b;
+}
+console.log(calculateSum(5, 3));
+\`\`\`
 
 ## 📝 Примеры:
 • "Реши эту задачу" + фото математической задачи
@@ -733,6 +850,11 @@ class KhuyewAI {
                     this.messagesContainer.appendChild(messageElement);
                 });
                 
+                // Прикрепляем обработчики для кнопок копирования
+                this.messagesContainer.querySelectorAll('.message-content').forEach(content => {
+                    this.attachCopyButtons(content);
+                });
+                
                 this.scrollToBottom();
             }
         } catch (error) {
@@ -772,7 +894,7 @@ class KhuyewAI {
     loadModelPreference() {
         try {
             const savedModel = localStorage.getItem('khuyew-ai-model');
-            const validModels = ['gpt-5-nano', 'o3-mini', 'claude-sonnet', 'deepseek-chat', 'deepseek-reasoner', 'gemini-2.0-flash', 'gemini-1.5-flash', 'grok-beta'];
+            const validModels = ['gpt-5-nano', 'o3-mini', 'deepseek-chat', 'deepseek-reasoner', 'gemini-2.0-flash', 'gemini-1.5-flash', 'grok-beta'];
             
             if (savedModel && validModels.includes(savedModel)) {
                 this.currentModel = savedModel;
