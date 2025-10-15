@@ -30,6 +30,19 @@
                     <div class="subtitle">Бесплатный ИИ-помощник с генерацией изображений</div>
                 </div>
                 <div class="header-controls">
+                    <div class="chat-selector">
+                        <button class="chat-select-button" id="chatSelectButton">
+                            <i class="ti ti-messages"></i>
+                            <span id="currentChatName">Основной чат</span>
+                            <i class="ti ti-chevron-down"></i>
+                        </button>
+                        <div class="chat-dropdown" id="chatDropdown">
+                            <div class="chat-item active" data-chat-id="default">Основной чат</div>
+                            <div class="chat-item new-chat-btn" id="newChatBtn">
+                                <i class="ti ti-plus"></i> Новый чат
+                            </div>
+                        </div>
+                    </div>
                     <select class="model-select" id="modelSelect">
                         <option value="gpt-5-nano">GPT-5 Nano</option>
                         <option value="o3-mini">O3 Mini</option>
@@ -128,7 +141,7 @@
                         </div>
                         <div class="about-item">
                             <strong>Версия</strong>
-                            <span>Khuyew AI v2.0</span>
+                            <span>Khuyew AI v2.1</span>
                         </div>
                     </div>
                 </details>
