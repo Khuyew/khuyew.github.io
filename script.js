@@ -258,15 +258,13 @@ class KhuyewAI {
             this.attachedImages = [];
             this.renderAttachedFiles();
             
-            // Show typing indicator
-            const typingId = this.showTypingIndicator();
-            
             if (this.isImageMode) {
                 // Generate image
+                const typingId = this.showTypingIndicator();
                 await this.generateImage(message, typingId);
             } else {
                 // Get AI response
-                await this.getAIResponse(message, imagesToProcess, typingId);
+                await this.getAIResponse(message, imagesToProcess);
             }
 
         } catch (error) {
@@ -278,16 +276,14 @@ class KhuyewAI {
         }
     }
 
-    async getAIResponse(userMessage, images, typingId) {
+    async getAIResponse(userMessage, images) {
         try {
-            let prompt = userMessage;
-            
             // Если есть прикрепленные изображения, анализируем их
             if (images.length > 0) {
-                this.removeTypingIndicator(typingId);
-                
                 for (let image of images) {
+                    const analysisTypingId = this.showAnalysisIndicator(image.name);
                     const analysis = await this.analyzeImage(image, userMessage);
+                    this.removeTypingIndicator(analysisTypingId);
                     this.addMessage('ai', analysis);
                 }
                 
@@ -304,7 +300,8 @@ class KhuyewAI {
                 }
             } else {
                 // Обычный текстовый запрос без изображений
-                const response = await puter.ai.chat(prompt, { 
+                const typingId = this.showTypingIndicator();
+                const response = await puter.ai.chat(userMessage, { 
                     model: "gpt-5-nano",
                     systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно."
                 });
@@ -316,7 +313,7 @@ class KhuyewAI {
             this.saveMessages();
             
         } catch (error) {
-            this.removeTypingIndicator(typingId);
+            this.removeTypingIndicator();
             this.addMessage('error', 'Ошибка при получении ответа от ИИ: ' + error.message);
         } finally {
             this.isProcessing = false;
@@ -335,17 +332,15 @@ class KhuyewAI {
 
             // Создаем промпт для анализа изображения
             const analysisPrompt = userContext 
-                ? `Пользователь отправил изображение "${imageData.name}" с комментарием: "${userContext}". Проанализируй это изображение и ответь в контексте комментария пользователя.`
-                : `Пользователь отправил изображение "${imageData.name}". Проанализируй это изображение подробно.`;
+                ? `Пользователь отправил изображение "${imageData.name}" с комментарием: "${userContext}". Проанализируй это изображение и ответь в контексте комментария пользователя. Опиши что изображено на картинке, основные элементы, цвета, настроение, возможный контекст. Будь максимально подробным. Отвечай на русском языке.`
+                : `Пользователь отправил изображение "${imageData.name}". Проанализируй это изображение подробно. Опиши что изображено на картинке, основные элементы, цвета, настроение, возможный контекст. Будь максимально подробным. Отвечай на русском языке.`;
 
-            // Используем Puter AI для анализа изображения
-            // Note: В реальном приложении здесь будет вызов API для анализа изображений
-            // Сейчас используем текстовый анализ на основе описания
+            // Используем Puter AI для анализа изображения с передачей изображения как URL
             const analysis = await puter.ai.chat(
-                `${analysisPrompt} Опиши что изображено на картинке, основные элементы, цвета, настроение, возможный контекст. Будь максимально подробным.`,
+                analysisPrompt,
+                imageData.data, // Передаем data URL изображения
                 { 
-                    model: "gpt-5-nano",
-                    systemPrompt: "Ты эксперт по анализу изображений. Ты внимательно анализируешь картинки и даешь подробные описания на русском языке."
+                    model: "gpt-5-nano"
                 }
             );
 
@@ -478,13 +473,33 @@ class KhuyewAI {
                 <div class="typing-dot"></div>
                 <div class="typing-dot"></div>
             </div>
-            <span>${this.isImageMode ? 'ИИ генерирует изображение...' : 'ИИ печатает...'}</span>
+            <span>ИИ печатает...</span>
         `;
         
         this.messagesContainer.appendChild(typingElement);
         this.scrollToBottom();
         
         return typingElement.id;
+    }
+
+    showAnalysisIndicator(imageName) {
+        const analysisElement = document.createElement('div');
+        analysisElement.className = 'message message-ai typing-indicator';
+        analysisElement.id = 'analysis-' + Date.now();
+        
+        analysisElement.innerHTML = `
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+            <span>ИИ анализирует изображение "${imageName}"...</span>
+        `;
+        
+        this.messagesContainer.appendChild(analysisElement);
+        this.scrollToBottom();
+        
+        return analysisElement.id;
     }
 
     removeTypingIndicator(typingId = null) {
@@ -555,9 +570,10 @@ class KhuyewAI {
 
 ## 🖼️ Анализ изображений:
 • Прикрепляйте до 3 изображений за раз
-• ИИ подробно анализирует каждое изображение
+• ИИ подробно анализирует каждое изображение с помощью GPT-5 nano
 • Анализ сохраняется в памяти для будущих обращений
 • Можно задавать вопросы о прикрепленных изображениях
+• Отдельный индикатор "ИИ анализирует изображение..."
 
 ## 🎤 Голосовой ввод:
 • Нажмите кнопку микрофона и говорите четко
