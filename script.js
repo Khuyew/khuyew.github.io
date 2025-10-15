@@ -283,8 +283,7 @@ class KhuyewAI {
             this.renderAttachedFiles();
             
             if (this.isImageMode) {
-                const typingId = this.showTypingIndicator();
-                await this.generateImage(message, typingId);
+                await this.generateImage(message);
             } else {
                 await this.getAIResponse(message, imagesToProcess);
             }
@@ -305,6 +304,11 @@ class KhuyewAI {
             let prompt;
             
             if (images.length > 0 && userMessage.trim()) {
+                // Проверяем доступность функции img2txt
+                if (typeof puter?.ai?.img2txt !== 'function') {
+                    throw new Error('Функция анализа изображений недоступна');
+                }
+                
                 const extractedText = await puter.ai.img2txt(images[0].data);
                 
                 prompt = `Пользователь отправил изображение "${images[0].name}" с сопроводительным сообщением: "${userMessage}"
@@ -314,6 +318,11 @@ class KhuyewAI {
 Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
             } 
             else if (images.length > 0) {
+                // Проверяем доступность функции img2txt
+                if (typeof puter?.ai?.img2txt !== 'function') {
+                    throw new Error('Функция анализа изображений недоступна');
+                }
+                
                 const extractedText = await puter.ai.img2txt(images[0].data);
                 
                 prompt = `Пользователь отправил изображение "${images[0].name}".
@@ -325,6 +334,11 @@ class KhuyewAI {
             else {
                 const contextPrompt = this.buildContextPrompt(userMessage);
                 prompt = contextPrompt;
+            }
+            
+            // Проверяем доступность функции chat
+            if (typeof puter?.ai?.chat !== 'function') {
+                throw new Error('Функция чата недоступна');
             }
             
             const response = await puter.ai.chat(prompt, { 
@@ -388,9 +402,12 @@ class KhuyewAI {
         }
     }
 
-    async generateImage(prompt, typingId) {
+    async generateImage(prompt) {
         try {
-            this.removeTypingIndicator(typingId);
+            // Проверяем доступность функции генерации изображений
+            if (typeof puter?.ai?.imagine !== 'function') {
+                throw new Error('puter.ai.imagine is not a function - функция генерации изображений недоступна');
+            }
             
             this.addMessage('ai', `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n*Идет процесс создания изображения...*`);
             
@@ -404,7 +421,7 @@ class KhuyewAI {
             if (lastMessage) {
                 lastMessage.querySelector('.message-content').innerHTML = 
                     `🖼️ **Сгенерированное изображение по запросу:** "${prompt}"\n\n` +
-                    `![Generated Image](${imageResult.url})`;
+                    `<img src="${imageResult.url}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`;
             }
             
             this.addToConversationHistory('assistant', `Сгенерировано изображение по запросу: ${prompt}`);
@@ -412,8 +429,16 @@ class KhuyewAI {
             this.saveConversationHistory();
             
         } catch (error) {
-            this.removeTypingIndicator(typingId);
-            this.addMessage('error', 'Ошибка при генерации изображения: ' + error.message);
+            console.error('Image generation error:', error);
+            
+            // Обновляем сообщение об ошибке
+            const messages = this.messagesContainer.querySelectorAll('.message-ai');
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage) {
+                lastMessage.querySelector('.message-content').innerHTML = 
+                    `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n` +
+                    `❌ **Ошибка при генерации изображения:** ${error.message}`;
+            }
         } finally {
             this.isProcessing = false;
             this.sendBtn.disabled = false;
@@ -469,6 +494,9 @@ class KhuyewAI {
                     const img = document.createElement('img');
                     img.src = image.data;
                     img.alt = image.name;
+                    img.style.maxWidth = '200px';
+                    img.style.borderRadius = '8px';
+                    img.style.marginTop = '8px';
                     
                     imageContainer.appendChild(img);
                     messageContent.appendChild(imageContainer);
@@ -716,37 +744,17 @@ class KhuyewAI {
     }
 }
 
+// Проверяем доступность API puter.ai при загрузке
 document.addEventListener('DOMContentLoaded', () => {
+    if (typeof puter === 'undefined') {
+        console.error('Puter.ai не загружен');
+        // Можно показать уведомление пользователю
+        const notification = document.createElement('div');
+        notification.className = 'notification error';
+        notification.textContent = 'Puter.ai не загружен. Некоторые функции могут быть недоступны.';
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+    }
+    
     new KhuyewAI();
 });
-
-document.head.insertAdjacentHTML('beforeend', `
-<style>
-    [data-theme="light"] {
-        --bg-primary: #ffffff;
-        --bg-secondary: rgba(0, 0, 0, 0.03);
-        --bg-tertiary: rgba(0, 0, 0, 0.08);
-        --bg-hover: rgba(0, 0, 0, 0.12);
-        
-        --text-primary: #1a1a1a;
-        --text-secondary: #666666;
-        --text-tertiary: #888888;
-        
-        --border-color: rgba(0, 0, 0, 0.15);
-        
-        --ai-message-bg: rgba(0, 0, 0, 0.05);
-        --ai-message-text: #333333;
-        --ai-message-border: rgba(0, 0, 0, 0.1);
-        
-        --error-bg: rgba(255, 107, 107, 0.15);
-        --error-text: #d32f2f;
-        --error-border: #f44336;
-        
-        --success-bg: rgba(76, 175, 80, 0.15);
-        --success-text: #2e7d32;
-        
-        --warning-bg: rgba(255, 193, 7, 0.15);
-        --warning-text: #f57f17;
-    }
-</style>
-`);
