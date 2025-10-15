@@ -276,36 +276,45 @@ class KhuyewAI {
 
     async getAIResponse(userMessage, images) {
         try {
-            // Если есть прикрепленные изображения
-            if (images.length > 0) {
-                const analysisTypingId = this.showAnalysisIndicator(images[0].name);
+            const typingId = this.showTypingIndicator();
+            
+            let prompt;
+            
+            // Если есть и изображение и текст
+            if (images.length > 0 && userMessage.trim()) {
+                const extractedText = await puter.ai.img2txt(images[0].data);
                 
-                // Анализируем изображение
-                const analysis = await this.analyzeImage(images[0], userMessage);
-                this.removeTypingIndicator(analysisTypingId);
-                
-                // Добавляем анализ в историю и показываем пользователю
-                this.addToConversationHistory('assistant', analysis);
-                this.addMessage('ai', analysis);
+                prompt = `Пользователь отправил изображение "${images[0].name}" с сопроводительным сообщением: "${userMessage}"
 
+Извлеченный текст с изображения: "${extractedText}"
+
+Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
             } 
-            // Если только текстовый запрос
-            else {
-                const typingId = this.showTypingIndicator();
+            // Если только изображение без текста
+            else if (images.length > 0) {
+                const extractedText = await puter.ai.img2txt(images[0].data);
                 
-                // Создаем промпт с историей контекста
-                const contextPrompt = this.buildContextPrompt(userMessage);
-                
-                const response = await puter.ai.chat(contextPrompt, { 
-                    model: "gpt-5-nano",
-                    systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений."
-                });
-                
-                this.removeTypingIndicator(typingId);
-                
-                this.addToConversationHistory('assistant', response);
-                this.addMessage('ai', response);
+                prompt = `Пользователь отправил изображение "${images[0].name}".
+
+Извлеченный текст с изображения: "${extractedText}"
+
+Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
             }
+            // Если только текст
+            else {
+                const contextPrompt = this.buildContextPrompt(userMessage);
+                prompt = contextPrompt;
+            }
+            
+            const response = await puter.ai.chat(prompt, { 
+                model: "gpt-5-nano",
+                systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений."
+            });
+            
+            this.removeTypingIndicator(typingId);
+            
+            this.addToConversationHistory('assistant', response);
+            this.addMessage('ai', response);
             
             this.saveMessages();
             this.saveConversationHistory();
@@ -316,57 +325,6 @@ class KhuyewAI {
         } finally {
             this.isProcessing = false;
             this.sendBtn.disabled = false;
-        }
-    }
-
-    async analyzeImage(imageData, userContext = '') {
-        try {
-            // Сначала извлекаем текст с изображения
-            const extractedText = await puter.ai.img2txt(imageData.data);
-            
-            // Затем создаем промпт для анализа
-            let analysisPrompt;
-            
-            if (userContext.trim()) {
-                // Если есть контекст от пользователя
-                analysisPrompt = `Пользователь отправил изображение "${imageData.name}" с вопросом: "${userContext}"
-
-Извлеченный текст с изображения: "${extractedText}"
-
-Ответь на вопрос пользователя, используя информацию с изображения. Если на изображении есть текст, задачи или другая информация - используй её для ответа. Отвечай подробно на русском языке.`;
-            } else {
-                // Если нет контекста - просто анализируем изображение
-                analysisPrompt = `Пользователь отправил изображение "${imageData.name}".
-
-Извлеченный текст с изображения: "${extractedText}"
-
-Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
-            }
-
-            // Получаем анализ от ИИ
-            const analysis = await puter.ai.chat(analysisPrompt, { 
-                model: "gpt-5-nano"
-            });
-
-            return `🖼️ **Анализ изображения "${imageData.name}"**\n\n${analysis}`;
-
-        } catch (error) {
-            console.error('Image analysis error:', error);
-            
-            // Fallback: пытаемся использовать обычный чат
-            try {
-                const fallbackPrompt = userContext.trim() 
-                    ? `Пользователь отправил изображение "${imageData.name}" с вопросом: "${userContext}". Поскольку не удалось проанализировать изображение, дай общий ответ на вопрос пользователя.`
-                    : `Пользователь отправил изображение "${imageData.name}". Дай общее описание того, что может быть изображено и как можно анализировать такие изображения.`;
-                
-                const fallbackAnalysis = await puter.ai.chat(fallbackPrompt, { 
-                    model: "gpt-5-nano"
-                });
-                
-                return `🖼️ **Анализ изображения "${imageData.name}"**\n\n${fallbackAnalysis}\n\n*Примечание: Использован общий анализ из-за ошибки обработки изображения*`;
-            } catch (fallbackError) {
-                return `🖼️ **Анализ изображения "${imageData.name}"**\n\nНе удалось проанализировать изображение. Ошибка: ${error.message}`;
-            }
         }
     }
 
@@ -519,26 +477,6 @@ class KhuyewAI {
         this.scrollToBottom();
         
         return typingElement.id;
-    }
-
-    showAnalysisIndicator(imageName) {
-        const analysisElement = document.createElement('div');
-        analysisElement.className = 'message message-ai typing-indicator';
-        analysisElement.id = 'analysis-' + Date.now();
-        
-        analysisElement.innerHTML = `
-            <div class="typing-dots">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-            <span>ИИ анализирует изображение "${imageName}"...</span>
-        `;
-        
-        this.messagesContainer.appendChild(analysisElement);
-        this.scrollToBottom();
-        
-        return analysisElement.id;
     }
 
     removeTypingIndicator(typingId = null) {
