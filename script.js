@@ -21,7 +21,6 @@ class KhuyewAI {
         this.isListening = false;
         this.recognition = null;
         this.imageMemory = new Map();
-        this.conversationHistory = []; // Хранит историю разговора для контекста
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
             "Напиши код для сортировки массива на Python...",
@@ -41,7 +40,6 @@ class KhuyewAI {
         this.startPlaceholderAnimation();
         this.showWelcomeMessage();
         this.loadImageMemory();
-        this.loadConversationHistory();
     }
 
     bindEvents() {
@@ -66,7 +64,6 @@ class KhuyewAI {
         window.addEventListener('beforeunload', () => {
             this.saveMessages();
             this.saveImageMemory();
-            this.saveConversationHistory();
         });
     }
 
@@ -251,9 +248,6 @@ class KhuyewAI {
             // Add user message
             this.addMessage('user', message, this.attachedImages);
             
-            // Добавляем сообщение в историю
-            this.addToConversationHistory('user', message, this.attachedImages);
-            
             // Clear input and attached files
             this.userInput.value = '';
             this.userInput.style.height = 'auto';
@@ -279,57 +273,45 @@ class KhuyewAI {
 
     async getAIResponse(userMessage, images) {
         try {
-            let finalResponse = '';
-
-            // Если есть прикрепленные изображения И текст пользователя
-            if (images.length > 0 && userMessage.trim()) {
-                const analysisTypingId = this.showAnalysisIndicator(images[0].name);
-                
-                // Анализируем изображение с учетом текстового запроса
-                const imageAnalysis = await this.analyzeImage(images[0], userMessage);
-                this.removeTypingIndicator(analysisTypingId);
-                
-                // Создаем единый ответ, который включает и анализ изображения и ответ на вопрос
-                finalResponse = imageAnalysis;
-                
-                // Добавляем ответ в историю
-                this.addToConversationHistory('assistant', finalResponse);
-                
-                // Показываем единое сообщение
-                this.addMessage('ai', finalResponse);
-
-            } 
-            // Если есть только изображения без текста
-            else if (images.length > 0) {
+            // Если есть прикрепленные изображения, сначала анализируем их
+            if (images.length > 0) {
                 for (let image of images) {
                     const analysisTypingId = this.showAnalysisIndicator(image.name);
-                    const analysis = await this.analyzeImage(image, '');
+                    const analysis = await this.analyzeImage(image, userMessage);
                     this.removeTypingIndicator(analysisTypingId);
-                    
-                    this.addToConversationHistory('assistant', analysis);
                     this.addMessage('ai', analysis);
                 }
-            } 
-            // Если только текстовый запрос
-            else {
+                
+                // Если был текстовый запрос вместе с изображениями, отвечаем на него
+                if (userMessage.trim()) {
+                    const responseTypingId = this.showTypingIndicator();
+                    
+                    // Создаем контекстный промпт с учетом анализа изображений
+                    const contextPrompt = `Пользователь отправил ${images.length} изображение(й) и задал вопрос: "${userMessage}". 
+                    Учитывай предыдущий анализ изображений при ответе на вопрос. 
+                    Ответь подробно и полезно на русском языке.`;
+                    
+                    const response = await puter.ai.chat(contextPrompt, { 
+                        model: "gpt-5-nano",
+                        systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно."
+                    });
+                    
+                    this.removeTypingIndicator(responseTypingId);
+                    this.addMessage('ai', response);
+                }
+            } else {
+                // Обычный текстовый запрос без изображений
                 const typingId = this.showTypingIndicator();
-                
-                // Создаем промпт с историей контекста
-                const contextPrompt = this.buildContextPrompt(userMessage);
-                
-                const response = await puter.ai.chat(contextPrompt, { 
+                const response = await puter.ai.chat(userMessage, { 
                     model: "gpt-5-nano",
-                    systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений."
+                    systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно."
                 });
                 
                 this.removeTypingIndicator(typingId);
-                
-                this.addToConversationHistory('assistant', response);
                 this.addMessage('ai', response);
             }
             
             this.saveMessages();
-            this.saveConversationHistory();
             
         } catch (error) {
             this.removeTypingIndicator();
@@ -340,51 +322,11 @@ class KhuyewAI {
         }
     }
 
-    buildContextPrompt(currentMessage) {
-        // Берем последние 10 сообщений для контекста (чтобы не превышать лимиты токенов)
-        const recentHistory = this.conversationHistory.slice(-10);
-        
-        if (recentHistory.length === 0) {
-            return currentMessage;
-        }
-
-        let context = "Контекст предыдущего разговора:\n";
-        
-        recentHistory.forEach(msg => {
-            const role = msg.role === 'user' ? 'Пользователь' : 'Ассистент';
-            context += `${role}: ${msg.content}\n`;
-        });
-
-        context += `\nТекущий вопрос пользователя: ${currentMessage}\n\nОтветь, учитывая контекст выше:`;
-
-        return context;
-    }
-
-    addToConversationHistory(role, content, images = []) {
-        let messageContent = content;
-        
-        // Если есть изображения, добавляем информацию о них
-        if (images.length > 0) {
-            messageContent += ` [Прикреплено ${images.length} изображение(й): ${images.map(img => img.name).join(', ')}]`;
-        }
-        
-        this.conversationHistory.push({
-            role: role,
-            content: messageContent,
-            timestamp: Date.now()
-        });
-
-        // Ограничиваем историю 50 сообщениями чтобы не перегружать память
-        if (this.conversationHistory.length > 50) {
-            this.conversationHistory = this.conversationHistory.slice(-40);
-        }
-    }
-
     async analyzeImage(imageData, userContext = '') {
         try {
             // Проверяем, не анализировали ли мы уже это изображение
             const imageHash = this.simpleHash(imageData.data);
-            if (this.imageMemory.has(imageHash) && !userContext.trim()) {
+            if (this.imageMemory.has(imageHash)) {
                 const cachedAnalysis = this.imageMemory.get(imageHash);
                 return this.formatImageAnalysis(imageData.name, cachedAnalysis, true);
             }
@@ -396,13 +338,17 @@ class KhuyewAI {
                 // Используем img2txt для извлечения текста + контекстный анализ
                 const extractedText = await puter.ai.img2txt(imageData.data);
                 
-                // Создаем промпт с учетом контекста истории
-                const contextPrompt = this.buildImageContextPrompt(userContext, extractedText, imageData.name);
-                
-                // Анализируем изображение с учетом контекста пользователя и истории
-                analysis = await puter.ai.chat(contextPrompt, { 
-                    model: "gpt-5-nano"
-                });
+                // Анализируем изображение с учетом контекста пользователя
+                analysis = await puter.ai.chat(
+                    `Пользователь отправил изображение "${imageData.name}" с вопросом/комментарием: "${userContext}".
+                    
+                    Извлеченный текст с изображения: "${extractedText}"
+                    
+                    Проанализируй изображение и ответь на вопрос пользователя. Если на изображении есть текст - расшифруй его и объясни значение. Если это задача - попробуй решить её. Отвечай подробно на русском языке.`,
+                    { 
+                        model: "gpt-5-nano"
+                    }
+                );
             } else {
                 // Базовый анализ изображения без контекста
                 const extractedText = await puter.ai.img2txt(imageData.data);
@@ -419,54 +365,30 @@ class KhuyewAI {
                 );
             }
 
-            // Сохраняем анализ в памяти только если нет пользовательского контекста
-            if (!userContext.trim()) {
-                this.imageMemory.set(imageHash, analysis);
-                this.saveImageMemory();
-            }
+            // Сохраняем анализ в памяти
+            this.imageMemory.set(imageHash, analysis);
+            this.saveImageMemory();
 
-            return this.formatImageAnalysis(imageData.name, analysis, false);
+            return this.formatImageAnalysis(imageData.name, analysis);
 
         } catch (error) {
             console.error('Image analysis error:', error);
             
             // Fallback: базовый анализ без извлечения текста
             try {
-                const contextPrompt = userContext.trim() 
-                    ? this.buildImageContextPrompt(userContext, '', imageData.name)
-                    : `Пользователь отправил изображение "${imageData.name}". Проанализируй изображение. Опиши что может быть изображено, возможный контекст. Отвечай на русском языке.`;
-                
-                const fallbackAnalysis = await puter.ai.chat(contextPrompt, { 
-                    model: "gpt-5-nano"
-                });
+                const fallbackAnalysis = await puter.ai.chat(
+                    `Пользователь отправил изображение "${imageData.name}". ${userContext ? `С вопросом: "${userContext}".` : ''}
+                    Проанализируй изображение. Опиши что может быть изображено, возможный контекст. Отвечай на русском языке.`,
+                    { 
+                        model: "gpt-5-nano"
+                    }
+                );
                 
                 return this.formatImageAnalysis(imageData.name, fallbackAnalysis + "\n\n*Примечание: Использован базовый анализ изображения*");
             } catch (fallbackError) {
                 return `🖼️ **Анализ изображения "${imageData.name}"**\n\nНе удалось проанализировать изображение. Ошибка: ${error.message}`;
             }
         }
-    }
-
-    buildImageContextPrompt(userContext, extractedText, imageName) {
-        // Берем последние 5 сообщений для контекста изображения
-        const recentHistory = this.conversationHistory.slice(-5);
-        
-        let context = "Контекст разговора:\n";
-        
-        recentHistory.forEach(msg => {
-            const role = msg.role === 'user' ? 'Пользователь' : 'Ассистент';
-            context += `${role}: ${msg.content}\n`;
-        });
-
-        context += `\nПользователь отправил изображение "${imageName}" с вопросом: "${userContext}"`;
-        
-        if (extractedText) {
-            context += `\n\nИзвлеченный текст с изображения: "${extractedText}"`;
-        }
-        
-        context += `\n\nПроанализируй изображение и ответь на вопрос пользователя, учитывая контекст разговора. Если на изображении есть текст - расшифруй его и объясни значение. Если это задача - попробуй решить её. Отвечай подробно на русском языке.`;
-
-        return context;
     }
 
     formatImageAnalysis(imageName, analysis, fromCache = false) {
@@ -637,9 +559,7 @@ class KhuyewAI {
             this.messagesContainer.innerHTML = '';
             localStorage.removeItem('khuyew-ai-messages');
             this.imageMemory.clear();
-            this.conversationHistory = [];
             localStorage.removeItem('khuyew-ai-image-memory');
-            localStorage.removeItem('khuyew-ai-conversation-history');
             this.showWelcomeMessage();
             this.showNotification('Чат очищен', 'success');
         }
@@ -656,7 +576,6 @@ class KhuyewAI {
 • **Анализ изображений** - извлечение текста и подробный анализ картинок
 • **Решение задач по фото** - математика, программирование, тексты
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
-• **Контекстный диалог** - помню историю нашего разговора
 
 ## 💡 Примеры использования:
 • "Что написано на этой фотографии?" - отправьте фото с текстом
@@ -667,7 +586,6 @@ class KhuyewAI {
 **Начните общение, отправив сообщение или изображение!**`;
 
         this.addMessage('ai', welcomeMessage);
-        this.addToConversationHistory('assistant', welcomeMessage);
     }
 
     showHelp() {
@@ -677,12 +595,7 @@ class KhuyewAI {
 • **Извлечение текста** - автоматически распознает текст на фото
 • **Решение задач** - помогает с математикой, программированием по фото
 • **Описание изображений** - детально анализирует содержание картинок
-• **Контекстный анализ** - учитывает ваш вопрос и историю разговора
-
-## 💬 Контекстный диалог:
-• Я помню предыдущие сообщения в нашем разговоре
-• Можете задавать уточняющие вопросы
-• Поддерживаю естественную беседу
+• **Контекстный анализ** - учитывает ваш вопрос при анализе
 
 ## 📝 Примеры запросов с изображениями:
 • "Что написано на этом документе?" + фото документа
@@ -690,10 +603,15 @@ class KhuyewAI {
 • "Опиши что происходит на этой картинке" + фото
 • "Переведи текст с этого знака" + фото знака
 
+## ⌨️ Управление:
+• **Кнопка ➕** - прикрепить изображение для анализа
+• **Кнопка ❌** - очистить поле ввода
+• **Кнопка 🎤** - голосовой ввод
+• **Кнопка 🖼️** - переключить режим генерации изображений
+
 **Отправьте изображение с вопросом и я помогу его решить!**`;
 
         this.addMessage('ai', helpMessage);
-        this.addToConversationHistory('assistant', helpMessage);
     }
 
     toggleTheme() {
@@ -790,26 +708,6 @@ class KhuyewAI {
         } catch (error) {
             console.error('Error loading image memory:', error);
             localStorage.removeItem('khuyew-ai-image-memory');
-        }
-    }
-
-    saveConversationHistory() {
-        try {
-            localStorage.setItem('khuyew-ai-conversation-history', JSON.stringify(this.conversationHistory));
-        } catch (error) {
-            console.error('Error saving conversation history:', error);
-        }
-    }
-
-    loadConversationHistory() {
-        try {
-            const saved = localStorage.getItem('khuyew-ai-conversation-history');
-            if (saved) {
-                this.conversationHistory = JSON.parse(saved);
-            }
-        } catch (error) {
-            console.error('Error loading conversation history:', error);
-            localStorage.removeItem('khuyew-ai-conversation-history');
         }
     }
 }
