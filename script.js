@@ -17,6 +17,7 @@ class KhuyewAI {
         this.attachedFiles = document.getElementById('attachedFiles');
         this.chatSelectButton = document.getElementById('chatSelectButton');
         this.chatDropdown = document.getElementById('chatDropdown');
+        this.chatList = document.getElementById('chatList');
         this.currentChatName = document.getElementById('currentChatName');
         this.newChatBtn = document.getElementById('newChatBtn');
 
@@ -42,6 +43,8 @@ class KhuyewAI {
         this.chatSessions = new Map();
         this.currentChatId = 'default';
         this.chatHistory = [];
+        this.activeTypingIndicator = null;
+        this.activeStreamingMessage = null;
 
         // Настройка marked для markdown
         this.setupMarked();
@@ -69,15 +72,13 @@ class KhuyewAI {
 
     init() {
         this.bindEvents();
-        this.loadMessages();
         this.setupAutoResize();
         this.setupVoiceRecognition();
         this.startPlaceholderAnimation();
-        this.showWelcomeMessage();
-        this.loadConversationHistory();
         this.loadModelPreference();
         this.loadChatSessions();
         this.setupChatSelector();
+        this.loadCurrentSession();
     }
 
     bindEvents() {
@@ -110,12 +111,12 @@ class KhuyewAI {
             }
             this.changeModel(e.target.value);
         });
-        this.logo.addEventListener('click', () => this.clearChat());
+        this.logo.addEventListener('click', () => this.showWelcomeMessage());
         this.attachFileBtn.addEventListener('click', () => this.fileInput.click());
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         this.voiceInputBtn.addEventListener('click', () => this.toggleVoiceInput());
 
-        // Новые обработчики для системы чатов
+        // Обработчики для системы чатов
         this.chatSelectButton.addEventListener('click', (e) => {
             e.stopPropagation();
             this.toggleChatDropdown();
@@ -127,15 +128,21 @@ class KhuyewAI {
         });
 
         // Закрытие dropdown при клике вне его
-        document.addEventListener('click', () => {
-            this.chatDropdown.classList.remove('show');
+        document.addEventListener('click', (e) => {
+            if (!this.chatSelectButton.contains(e.target) && !this.chatDropdown.contains(e.target)) {
+                this.chatDropdown.classList.remove('show');
+            }
         });
 
         window.addEventListener('beforeunload', () => {
-            this.saveMessages();
-            this.saveConversationHistory();
+            this.saveCurrentSession();
             this.saveModelPreference();
             this.saveChatSessions();
+        });
+
+        // Обработчики для изменения размера окна
+        window.addEventListener('resize', () => {
+            this.scrollToBottom();
         });
     }
 
@@ -144,6 +151,7 @@ class KhuyewAI {
         if (!this.chatSessions.has('default')) {
             this.createDefaultChat();
         }
+        this.updateChatDropdown();
     }
 
     createDefaultChat() {
@@ -152,7 +160,8 @@ class KhuyewAI {
             name: 'Основной чат',
             messages: [],
             conversationHistory: [],
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            lastActivity: Date.now()
         };
         this.chatSessions.set('default', defaultSession);
         this.currentChatId = 'default';
@@ -236,22 +245,30 @@ class KhuyewAI {
 
     toggleChatDropdown() {
         this.chatDropdown.classList.toggle('show');
-        this.updateChatDropdown();
+        if (this.chatDropdown.classList.contains('show')) {
+            this.updateChatDropdown();
+        }
     }
 
     updateChatDropdown() {
-        const chatList = this.chatDropdown.querySelector('.chat-list') || document.createElement('div');
-        chatList.className = 'chat-list';
-        chatList.innerHTML = '';
+        if (!this.chatList) return;
+        
+        this.chatList.innerHTML = '';
 
-        this.chatSessions.forEach((session, id) => {
+        const sessionsArray = Array.from(this.chatSessions.entries())
+            .sort(([,a], [,b]) => b.lastActivity - a.lastActivity);
+
+        sessionsArray.forEach(([id, session]) => {
             const chatItem = document.createElement('div');
             chatItem.className = `chat-item ${id === this.currentChatId ? 'active' : ''}`;
             chatItem.setAttribute('data-chat-id', id);
+            
             chatItem.innerHTML = `
-                <i class="ti ti-message"></i>
-                ${session.name}
-                ${id !== 'default' ? '<button class="delete-chat-btn"><i class="ti ti-x"></i></button>' : ''}
+                <div class="chat-info">
+                    <i class="ti ti-message"></i>
+                    <span class="chat-name">${session.name}</span>
+                </div>
+                ${id !== 'default' ? '<button class="delete-chat-btn" title="Удалить чат"><i class="ti ti-x"></i></button>' : ''}
             `;
 
             chatItem.addEventListener('click', (e) => {
@@ -270,17 +287,16 @@ class KhuyewAI {
                 });
             }
 
-            chatList.appendChild(chatItem);
+            this.chatList.appendChild(chatItem);
         });
-
-        // Если нет элемента chat-list, добавляем его
-        if (!this.chatDropdown.querySelector('.chat-list')) {
-            this.chatDropdown.insertBefore(chatList, this.newChatBtn);
-        }
     }
 
     createNewChat() {
-        const chatName = `Чат ${this.chatSessions.size}`;
+        const chatNumber = Array.from(this.chatSessions.values()).filter(session => 
+            session.name.startsWith('Чат ')
+        ).length + 1;
+        
+        const chatName = `Чат ${chatNumber}`;
         const chatId = this.createChatSession(chatName);
         this.switchChat(chatId);
         this.chatDropdown.classList.remove('show');
@@ -294,7 +310,8 @@ class KhuyewAI {
             name: name,
             messages: [],
             conversationHistory: [],
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            lastActivity: Date.now()
         };
         
         this.chatSessions.set(chatId, session);
@@ -305,19 +322,25 @@ class KhuyewAI {
     }
 
     switchChat(chatId) {
-        if (this.chatSessions.has(chatId)) {
+        if (this.chatSessions.has(chatId) && chatId !== this.currentChatId) {
             // Сохраняем текущую сессию перед переключением
             this.saveCurrentSession();
             
             this.currentChatId = chatId;
             const session = this.chatSessions.get(chatId);
             
+            // Обновляем активность чата
+            session.lastActivity = Date.now();
+            this.chatSessions.set(chatId, session);
+            
             // Обновляем имя текущего чата
             this.currentChatName.textContent = session.name;
             
             // Загружаем новую сессию
             this.loadSession(session);
-            this.showNotification(`Переключен на чат: ${session.name}`, 'success');
+            this.showNotification(`Переключен на чат: ${session.name}`, 'info');
+            
+            this.saveChatSessions();
         }
     }
 
@@ -347,47 +370,70 @@ class KhuyewAI {
     }
 
     saveCurrentSession() {
-        const messages = [];
-        this.messagesContainer.querySelectorAll('.message').forEach(message => {
-            if (message.classList.contains('typing-indicator') || message.classList.contains('streaming-message')) return;
+        try {
+            const messages = [];
+            this.messagesContainer.querySelectorAll('.message').forEach(message => {
+                if (message.classList.contains('typing-indicator') || 
+                    message.classList.contains('streaming-message')) return;
+                
+                const role = message.classList.contains('message-user') ? 'user' : 
+                           message.classList.contains('message-error') ? 'error' : 'ai';
+                
+                const content = message.querySelector('.message-content')?.innerHTML || '';
+                if (content) {
+                    messages.push({ role, content });
+                }
+            });
             
-            const role = message.classList.contains('message-user') ? 'user' : 
-                       message.classList.contains('message-error') ? 'error' : 'ai';
-            
-            const content = message.querySelector('.message-content').innerHTML;
-            messages.push({ role, content });
-        });
-        
+            const session = this.chatSessions.get(this.currentChatId);
+            if (session) {
+                session.messages = messages;
+                session.conversationHistory = [...this.conversationHistory];
+                session.lastActivity = Date.now();
+                this.chatSessions.set(this.currentChatId, session);
+            }
+        } catch (error) {
+            console.error('Error saving current session:', error);
+        }
+    }
+
+    loadCurrentSession() {
         const session = this.chatSessions.get(this.currentChatId);
         if (session) {
-            session.messages = messages;
-            session.conversationHistory = [...this.conversationHistory];
-            this.chatSessions.set(this.currentChatId, session);
+            this.loadSession(session);
+        } else {
+            this.showWelcomeMessage();
         }
-        
-        this.saveChatSessions();
     }
 
     loadSession(session) {
+        // Очищаем контейнер сообщений
         this.messagesContainer.innerHTML = '';
+        
+        // Загружаем историю сообщений
         this.conversationHistory = session.conversationHistory || [];
         
-        session.messages.forEach(msg => {
-            const messageElement = document.createElement('div');
-            messageElement.className = `message message-${msg.role}`;
+        if (session.messages && session.messages.length > 0) {
+            session.messages.forEach(msg => {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message message-${msg.role}`;
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                messageContent.innerHTML = msg.content;
+                
+                messageElement.appendChild(messageContent);
+                this.messagesContainer.appendChild(messageElement);
+            });
             
-            const messageContent = document.createElement('div');
-            messageContent.className = 'message-content';
-            messageContent.innerHTML = msg.content;
-            
-            messageElement.appendChild(messageContent);
-            this.messagesContainer.appendChild(messageElement);
-        });
-        
-        // Прикрепляем обработчики для кнопок копирования
-        this.messagesContainer.querySelectorAll('.message-content').forEach(content => {
-            this.attachCopyButtons(content);
-        });
+            // Прикрепляем обработчики для кнопок
+            this.messagesContainer.querySelectorAll('.message-content').forEach(content => {
+                this.attachCopyButtons(content);
+                this.attachSpeakButtons(content.closest('.message'));
+            });
+        } else {
+            this.showWelcomeMessage();
+        }
         
         this.scrollToBottom();
     }
@@ -454,7 +500,7 @@ class KhuyewAI {
         
         this.showNotification(
             this.isVoiceMode ? 'Режим генерации голоса включен' : 'Режим генерации голоса выключен',
-            'success'
+            'info'
         );
     }
 
@@ -577,7 +623,11 @@ class KhuyewAI {
 
     async getAIResponse(userMessage, images) {
         try {
-            const typingId = this.showTypingIndicator();
+            // Убираем существующий индикатор печати
+            this.removeTypingIndicator();
+            
+            // Показываем новый индикатор
+            this.activeTypingIndicator = this.showTypingIndicator();
             
             let prompt;
             
@@ -633,28 +683,28 @@ class KhuyewAI {
                 stream: true
             };
             
-            const messageId = this.createStreamingMessage();
+            this.activeStreamingMessage = this.createStreamingMessage();
             
             const response = await puter.ai.chat(prompt, options);
             
-            this.removeTypingIndicator(typingId);
+            this.removeTypingIndicator();
             
             let fullResponse = '';
             for await (const part of response) {
                 if (part?.text) {
                     fullResponse += part.text;
-                    this.updateStreamingMessage(messageId, fullResponse);
+                    this.updateStreamingMessage(this.activeStreamingMessage, fullResponse);
                     
-                    // Замедляем стриминг для лучшего восприятия
-                    await new Promise(resolve => setTimeout(resolve, 20));
+                    // Небольшая задержка для плавного стриминга
+                    await new Promise(resolve => setTimeout(resolve, 10));
                 }
             }
             
-            this.finalizeStreamingMessage(messageId, fullResponse);
+            this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
+            this.activeStreamingMessage = null;
             
             this.addToConversationHistory('assistant', fullResponse);
-            this.saveMessages();
-            this.saveConversationHistory();
+            this.saveCurrentSession();
             
         } catch (error) {
             this.removeTypingIndicator();
@@ -699,14 +749,14 @@ class KhuyewAI {
         const streamingText = messageElement.querySelector('.streaming-text');
         const typingIndicator = messageElement.querySelector('.typing-indicator-inline');
         
-        if (content.length > 50 && typingIndicator) {
-            typingIndicator.style.opacity = '0.7';
-        }
-        if (content.length > 100 && typingIndicator) {
-            typingIndicator.style.opacity = '0.3';
-        }
-        if (content.length > 150 && typingIndicator) {
-            typingIndicator.style.display = 'none';
+        // Плавно скрываем индикатор когда текст становится достаточно длинным
+        if (content.length > 100 && typingIndicator && !typingIndicator.classList.contains('fade-out')) {
+            typingIndicator.classList.add('fade-out');
+            setTimeout(() => {
+                if (typingIndicator.parentNode) {
+                    typingIndicator.style.display = 'none';
+                }
+            }, 300);
         }
         
         const processedContent = this.processCodeBlocks(content);
@@ -724,6 +774,12 @@ class KhuyewAI {
         const messageContent = messageElement.querySelector('.message-content');
         messageContent.classList.remove('streaming-content');
         
+        // Убираем индикатор печати
+        const typingIndicator = messageContent.querySelector('.typing-indicator-inline');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+        
         const processedContent = this.processCodeBlocks(fullContent);
         messageContent.innerHTML = processedContent;
         
@@ -732,28 +788,31 @@ class KhuyewAI {
         modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
         messageContent.appendChild(modelIndicator);
         
-        this.addSpeakButton(messageElement, this.extractPlainText(fullContent));
+        this.attachSpeakButtons(messageElement);
         this.attachCopyButtons(messageContent);
         this.scrollToBottom();
     }
 
-    extractPlainText(markdownText) {
-        return markdownText
-            .replace(/#{1,6}\s?/g, '')
-            .replace(/\*\*(.*?)\*\*/g, '$1')
-            .replace(/\*(.*?)\*/g, '$1')
-            .replace(/`{1,3}(.*?)`{1,3}/g, '$1')
-            .replace(/!\[.*?\]\(.*?\)/g, '')
-            .replace(/\[(.*?)\]\(.*?\)/g, '$1')
-            .replace(/>\s?/g, '')
-            .replace(/\n{3,}/g, '\n\n')
-            .replace(/^\s+|\s+$/g, '')
-            .replace(/\s+/g, ' ');
-    }
-
-    addSpeakButton(messageElement, plainText) {
-        const actionsContainer = document.createElement('div');
-        actionsContainer.className = 'message-actions';
+    attachSpeakButtons(messageElement) {
+        if (!messageElement.classList.contains('message-ai')) return;
+        
+        const messageContent = messageElement.querySelector('.message-content');
+        const plainText = this.extractPlainText(messageContent.textContent || '');
+        
+        if (plainText.trim().length < 10) return; // Не добавляем кнопку для очень коротких сообщений
+        
+        let actionsContainer = messageElement.querySelector('.message-actions');
+        if (!actionsContainer) {
+            actionsContainer = document.createElement('div');
+            actionsContainer.className = 'message-actions';
+            messageElement.appendChild(actionsContainer);
+        }
+        
+        // Убираем существующую кнопку озвучки
+        const existingSpeakBtn = actionsContainer.querySelector('.speak-btn');
+        if (existingSpeakBtn) {
+            existingSpeakBtn.remove();
+        }
         
         const speakButton = document.createElement('button');
         speakButton.className = 'action-btn-small speak-btn';
@@ -767,7 +826,12 @@ class KhuyewAI {
         });
         
         actionsContainer.appendChild(speakButton);
-        messageElement.appendChild(actionsContainer);
+    }
+
+    extractPlainText(htmlText) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlText;
+        return tempDiv.textContent || tempDiv.innerText || '';
     }
 
     toggleTextToSpeech(text, button) {
@@ -862,8 +926,7 @@ class KhuyewAI {
             this.addVoiceMessage(text, audio);
             
             this.addToConversationHistory('user', `Сгенерирован голос для текста: ${text}`);
-            this.saveMessages();
-            this.saveConversationHistory();
+            this.saveCurrentSession();
             
         } catch (error) {
             console.error('Error generating voice:', error);
@@ -935,6 +998,7 @@ class KhuyewAI {
             timestamp: Date.now()
         });
 
+        // Ограничиваем историю 30 сообщениями
         if (this.conversationHistory.length > 30) {
             this.conversationHistory = this.conversationHistory.slice(-25);
         }
@@ -962,8 +1026,7 @@ class KhuyewAI {
             }
             
             this.addToConversationHistory('assistant', `Сгенерировано изображение по запросу: ${prompt}`);
-            this.saveMessages();
-            this.saveConversationHistory();
+            this.saveCurrentSession();
             
         } catch (error) {
             console.error('Image generation error:', error);
@@ -995,7 +1058,7 @@ class KhuyewAI {
         
         this.showNotification(
             this.isImageMode ? 'Режим генерации изображений включен' : 'Режим генерации изображений выключен',
-            'success'
+            'info'
         );
     }
 
@@ -1020,6 +1083,10 @@ class KhuyewAI {
                 modelIndicator.className = 'model-indicator';
                 modelIndicator.textContent = `Модель: ${this.getModelDisplayName(model)} • ${this.getModelDescription(model)}`;
                 messageContent.appendChild(modelIndicator);
+            }
+            
+            if (role === 'ai') {
+                this.attachSpeakButtons(messageElement);
             }
         } else {
             try {
@@ -1052,7 +1119,7 @@ class KhuyewAI {
         this.messagesContainer.appendChild(messageElement);
         this.scrollToBottom();
         
-        return messageElement.id;
+        return messageElement;
     }
 
     processCodeBlocks(content) {
@@ -1104,6 +1171,8 @@ class KhuyewAI {
     }
 
     showTypingIndicator() {
+        this.removeTypingIndicator(); // Убираем существующий индикатор
+        
         const typingElement = document.createElement('div');
         typingElement.className = 'message message-ai typing-indicator';
         typingElement.id = 'typing-' + Date.now();
@@ -1130,6 +1199,7 @@ class KhuyewAI {
         } else {
             const typingElements = this.messagesContainer.querySelectorAll('.typing-indicator');
             typingElements.forEach(el => el.remove());
+            this.activeTypingIndicator = null;
         }
     }
 
@@ -1149,6 +1219,7 @@ class KhuyewAI {
             this.messagesContainer.innerHTML = '';
             this.conversationHistory = [];
             this.showWelcomeMessage();
+            this.saveCurrentSession();
             this.showNotification('Чат очищен', 'success');
         }
     }
@@ -1170,7 +1241,7 @@ class KhuyewAI {
 • **Контекстный диалог** - помню историю нашего разговора
 • **Подсветка синтаксиса** - красивое отображение кода
 • **Копирование кода** - удобное копирование фрагментов кода
-• **Стриминг ответов** - ответы появляются постепенно с плавной анимацией
+• **Стриминг ответов** - ответы появляются постепенно
 • **Мульти-чаты** - создавайте отдельные чаты для разных тем
 
 ## 🤖 Доступные модели:
@@ -1184,29 +1255,10 @@ class KhuyewAI {
 
 **Текущая модель: ${currentModelName}** - ${currentModelDesc}
 
-## 🔊 Аудио возможности:
-• **Генерация голоса** - использует ИИ для создания естественной речи из текста
-• **Озвучить ответ** - слушайте ответы ИИ без markdown разметки
-• **Управление воспроизведением** - нажмите кнопку повторно для остановки
-
 ## 💬 Система чатов:
 • Создавайте отдельные чаты для разных тем
 • Переключайтесь между чатами в верхнем меню
 • Каждый чат сохраняет свою историю и контекст
-
-## 💡 Примеры использования:
-• Отправьте фото с текстом "Что здесь написано?"
-• Отправьте фото задачи "Реши эту математическую задачу"
-• Нажмите "Озвучить ответ" чтобы услышать ответ ИИ
-• Включите "Генерация голоса" для создания речи из текста
-• Создайте отдельный чат для работы и отдельный для развлечений
-
-\`\`\`python
-# Пример кода с подсветкой синтаксиса
-def hello_world():
-    print("Привет, мир!")
-    return "Готов к работе!"
-\`\`\`
 
 **Начните общение, отправив сообщение или изображение!**`;
 
@@ -1220,59 +1272,22 @@ def hello_world():
         const helpMessage = `# 🆘 Помощь по Khuyew AI
 
 ## 🤖 Текущая модель: ${currentModelName}
-Вы можете переключать модели в верхнем правом углу. Каждая модель имеет свои особенности:
-• **GPT-5 Nano** - лучше для быстрых ответов и простых задач
-• **O3 Mini** - лучше для сложных рассуждений и анализа
-• **DeepSeek Chat** - универсальная модель для повседневного общения
-• **DeepSeek Reasoner** - лучше для сложных логических и математических задач
-• **Gemini 2.0 Flash** - лучше для быстрых ответов и работы с мультимодальными данными
-• **Gemini 1.5 Flash** - лучше для эффективного решения различных задач
-• **xAI Grok** - лучше для неформального общения и остроумных ответов
+Вы можете переключать модели в верхнем правом углу.
 
 ## 💬 Система чатов:
 • **Создание нового чата** - нажмите "Новый чат" в выпадающем меню
 • **Переключение между чатами** - выберите чат из списка
 • **Удаление чатов** - нажмите ❌ рядом с названием чата (кроме основного)
-• Каждый чат сохраняет свою историю и контекст
 
 ## 🔊 Аудио функции:
 • **Генерация голоса** - создает аудио из текста с помощью ИИ
-• **Озвучить ответ** - воспроизводит ответ ИИ без markdown разметки
+• **Озвучить ответ** - воспроизводит ответ ИИ
 • **Остановить озвучку** - нажмите кнопку повторно для остановки
 
 ## 🖼️ Работа с изображениями:
 1. **Нажмите кнопку ➕** чтобы прикрепить изображение
 2. **Напишите вопрос** (опционально) - что вы хотите узнать о изображении
-3. **Нажмите Отправить** - ИИ проанализирует изображение и ответит на ваш вопрос
-
-## 💬 Контекстный диалог:
-• Я помню предыдущие сообщения в нашей беседе
-• Можете задавать уточняющие вопросы
-• Поддерживаю естественный диалог
-
-## ⚡ Стриминг ответов:
-• Ответы появляются постепенно с плавной анимацией
-• Вы видите ответ по мере его генерации
-• Поддерживается markdown форматирование в реальном времени
-
-## 📝 Работа с кодом:
-• Используйте markdown для форматирования
-• Код автоматически подсвечивается
-• Нажмите "Копировать" чтобы скопировать код
-
-\`\`\`javascript
-// Пример JavaScript кода
-function calculateSum(a, b) {
-    return a + b;
-}
-console.log(calculateSum(5, 3));
-\`\`\`
-
-## 📝 Примеры:
-• "Реши эту задачу" + фото математической задачи
-• "Что написано на этом знаке?" + фото дорожного знака
-• "Опиши это изображение" + фото пейзажа
-• Просто отправьте фото без текста для общего анализа
+3. **Нажмите Отправить** - ИИ проанализирует изображение и ответит
 
 **Попробуйте отправить изображение с вопросом!**`;
 
@@ -1289,11 +1304,15 @@ console.log(calculateSum(5, 3));
         
         this.showNotification(
             this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
-            'success'
+            'info'
         );
     }
 
     showNotification(message, type = 'info') {
+        // Убираем существующие уведомления
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+        
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.textContent = message;
@@ -1301,87 +1320,16 @@ console.log(calculateSum(5, 3));
         document.body.appendChild(notification);
         
         setTimeout(() => {
-            notification.remove();
+            if (notification.parentNode) {
+                notification.remove();
+            }
         }, 4000);
     }
 
     scrollToBottom() {
         setTimeout(() => {
             this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
-        }, 100);
-    }
-
-    saveMessages() {
-        try {
-            const messages = [];
-            this.messagesContainer.querySelectorAll('.message').forEach(message => {
-                if (message.classList.contains('typing-indicator') || message.classList.contains('streaming-message')) return;
-                
-                const role = message.classList.contains('message-user') ? 'user' : 
-                           message.classList.contains('message-error') ? 'error' : 'ai';
-                
-                const content = message.querySelector('.message-content').innerHTML;
-                messages.push({ role, content });
-            });
-            
-            const session = this.chatSessions.get(this.currentChatId);
-            if (session) {
-                session.messages = messages;
-                this.chatSessions.set(this.currentChatId, session);
-            }
-        } catch (error) {
-            console.error('Error saving messages:', error);
-        }
-    }
-
-    loadMessages() {
-        try {
-            const session = this.chatSessions.get(this.currentChatId);
-            if (session && session.messages) {
-                session.messages.forEach(msg => {
-                    const messageElement = document.createElement('div');
-                    messageElement.className = `message message-${msg.role}`;
-                    
-                    const messageContent = document.createElement('div');
-                    messageContent.className = 'message-content';
-                    messageContent.innerHTML = msg.content;
-                    
-                    messageElement.appendChild(messageContent);
-                    this.messagesContainer.appendChild(messageElement);
-                });
-                
-                this.messagesContainer.querySelectorAll('.message-content').forEach(content => {
-                    this.attachCopyButtons(content);
-                });
-                
-                this.scrollToBottom();
-            }
-        } catch (error) {
-            console.error('Error loading messages:', error);
-        }
-    }
-
-    saveConversationHistory() {
-        try {
-            const session = this.chatSessions.get(this.currentChatId);
-            if (session) {
-                session.conversationHistory = this.conversationHistory;
-                this.chatSessions.set(this.currentChatId, session);
-            }
-        } catch (error) {
-            console.error('Error saving conversation history:', error);
-        }
-    }
-
-    loadConversationHistory() {
-        try {
-            const session = this.chatSessions.get(this.currentChatId);
-            if (session && session.conversationHistory) {
-                this.conversationHistory = session.conversationHistory;
-            }
-        } catch (error) {
-            console.error('Error loading conversation history:', error);
-        }
+        }, 50);
     }
 
     saveModelPreference() {
@@ -1421,7 +1369,6 @@ console.log(calculateSum(5, 3));
             if (saved) {
                 const sessions = JSON.parse(saved);
                 this.chatSessions = new Map(sessions);
-                this.updateChatDropdown();
             }
         } catch (error) {
             console.error('Error loading chat sessions:', error);
