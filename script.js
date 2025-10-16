@@ -1,5 +1,13 @@
 class KhuyewAI {
     constructor() {
+        this.initializeElements();
+        this.initializeState();
+        this.setupMarked();
+        this.init();
+    }
+
+    initializeElements() {
+        // Основные элементы интерфейса
         this.messagesContainer = document.getElementById('messagesContainer');
         this.userInput = document.getElementById('userInput');
         this.sendBtn = document.getElementById('sendBtn');
@@ -21,6 +29,29 @@ class KhuyewAI {
         this.currentChatName = document.getElementById('currentChatName');
         this.newChatBtn = document.getElementById('newChatBtn');
 
+        // Проверяем что все элементы найдены
+        this.validateElements();
+    }
+
+    validateElements() {
+        const requiredElements = [
+            'messagesContainer', 'userInput', 'sendBtn', 'clearInputBtn',
+            'clearChatBtn', 'helpBtn', 'generateVoiceBtn', 'themeToggle',
+            'modelSelect', 'attachFileBtn', 'voiceInputBtn', 'fileInput',
+            'attachedFiles', 'chatSelectButton', 'chatDropdown', 'currentChatName',
+            'newChatBtn'
+        ];
+
+        requiredElements.forEach(elementName => {
+            if (!this[elementName]) {
+                console.error(`Элемент не найден: ${elementName}`);
+                throw new Error(`Required element ${elementName} not found`);
+            }
+        });
+    }
+
+    initializeState() {
+        // Состояние приложения
         this.isProcessing = false;
         this.currentTheme = 'dark';
         this.isImageMode = false;
@@ -30,6 +61,17 @@ class KhuyewAI {
         this.recognition = null;
         this.conversationHistory = [];
         this.currentModel = 'gpt-5-nano';
+        this.currentAudio = null;
+        this.isSpeaking = false;
+        this.currentUtterance = null;
+        this.chatSessions = new Map();
+        this.currentChatId = 'default';
+        this.activeTypingIndicator = null;
+        this.activeStreamingMessage = null;
+        this.activeTimeouts = new Set();
+        this.activeEventListeners = new Map();
+
+        // Конфигурация
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
             "Напиши код для сортировки массива на Python...",
@@ -37,24 +79,46 @@ class KhuyewAI {
             "Какие есть способы улучшить производительность веб-сайта?",
             "Создай описание для приложения на основе ИИ..."
         ];
-        this.currentAudio = null;
-        this.isSpeaking = false;
-        this.currentUtterance = null;
-        this.chatSessions = new Map();
-        this.currentChatId = 'default';
-        this.chatHistory = [];
-        this.activeTypingIndicator = null;
-        this.activeStreamingMessage = null;
 
-        // Настройка marked для markdown
-        this.setupMarked();
-        
-        this.init();
+        this.modelConfig = {
+            'gpt-5-nano': { 
+                name: 'GPT-5 Nano', 
+                description: 'Быстрая и эффективная модель для повседневных задач' 
+            },
+            'o3-mini': { 
+                name: 'O3 Mini', 
+                description: 'Продвинутая модель с улучшенными возможностями рассуждения' 
+            },
+            'claude-sonnet': { 
+                name: 'Claude Sonnet', 
+                description: 'Мощная модель от Anthropic для сложных задач и анализа' 
+            },
+            'deepseek-chat': { 
+                name: 'DeepSeek Chat', 
+                description: 'Универсальная модель для общения и решения задач' 
+            },
+            'deepseek-reasoner': { 
+                name: 'DeepSeek Reasoner', 
+                description: 'Специализированная модель для сложных логических рассуждений' 
+            },
+            'gemini-2.0-flash': { 
+                name: 'Gemini 2.0 Flash', 
+                description: 'Новейшая быстрая модель от Google с улучшенными возможностями' 
+            },
+            'gemini-1.5-flash': { 
+                name: 'Gemini 1.5 Flash', 
+                description: 'Быстрая и эффективная модель от Google для различных задач' 
+            },
+            'grok-beta': { 
+                name: 'xAI Grok', 
+                description: 'Модель от xAI с уникальным характером и остроумными ответами' 
+            }
+        };
     }
 
     setupMarked() {
         marked.setOptions({
-            highlight: function(code, lang) {
+            highlight: (code, lang) => {
                 if (lang && hljs.getLanguage(lang)) {
                     try {
                         return hljs.highlight(code, { language: lang }).value;
@@ -71,112 +135,125 @@ class KhuyewAI {
     }
 
     init() {
-        this.bindEvents();
-        this.setupAutoResize();
-        this.setupVoiceRecognition();
-        this.startPlaceholderAnimation();
-        this.loadModelPreference();
-        this.loadChatSessions();
-        this.setupChatSelector();
-        this.loadCurrentSession();
+        try {
+            this.bindEvents();
+            this.setupAutoResize();
+            this.setupVoiceRecognition();
+            this.startPlaceholderAnimation();
+            this.loadModelPreference();
+            this.loadChatSessions();
+            this.setupChatSelector();
+            this.loadCurrentSession();
+            
+            this.showNotification('Khuyew AI загружен и готов к работе!', 'success');
+        } catch (error) {
+            console.error('Ошибка инициализации:', error);
+            this.showNotification('Ошибка загрузки приложения', 'error');
+        }
     }
 
     bindEvents() {
-        this.sendBtn.addEventListener('click', () => this.sendMessage());
-        this.userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
-            }
-        });
+        // Основные обработчики событий
+        const events = [
+            [this.sendBtn, 'click', () => this.sendMessage()],
+            [this.userInput, 'keydown', (e) => this.handleInputKeydown(e)],
+            [this.clearInputBtn, 'click', () => this.clearInput()],
+            [this.clearChatBtn, 'click', () => this.clearChat()],
+            [this.helpBtn, 'click', () => this.showHelp()],
+            [this.generateImageBtn, 'click', (e) => this.handleImageMode(e)],
+            [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
+            [this.themeToggle, 'click', () => this.toggleTheme()],
+            [this.modelSelect, 'change', (e) => this.handleModelChange(e)],
+            [this.logo, 'click', () => this.showWelcomeMessage()],
+            [this.attachFileBtn, 'click', () => this.fileInput.click()],
+            [this.fileInput, 'change', (e) => this.handleFileSelect(e)],
+            [this.voiceInputBtn, 'click', () => this.toggleVoiceInput()],
+            [this.chatSelectButton, 'click', (e) => this.toggleChatDropdown(e)],
+            [this.newChatBtn, 'click', (e) => this.createNewChat(e)],
+            [document, 'click', (e) => this.handleDocumentClick(e)],
+            [window, 'beforeunload', () => this.handleBeforeUnload()]
+        ];
 
-        this.clearInputBtn.addEventListener('click', () => this.clearInput());
-        this.clearChatBtn.addEventListener('click', () => this.clearChat());
-        this.helpBtn.addEventListener('click', () => this.showHelp());
-        this.generateImageBtn.addEventListener('click', (e) => {
-            if (this.generateImageBtn.disabled) {
-                e.preventDefault();
-                this.showNotification('Генерация изображений временно недоступна', 'warning');
-            } else {
-                this.toggleImageMode();
-            }
-        });
-        this.generateVoiceBtn.addEventListener('click', () => this.toggleVoiceMode());
-        this.themeToggle.addEventListener('click', () => this.toggleTheme());
-        this.modelSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'claude-sonnet') {
-                this.showNotification('Claude Sonnet временно недоступен', 'warning');
-                this.modelSelect.value = this.currentModel;
-                return;
-            }
-            this.changeModel(e.target.value);
-        });
-        this.logo.addEventListener('click', () => this.showWelcomeMessage());
-        this.attachFileBtn.addEventListener('click', () => this.fileInput.click());
-        this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-        this.voiceInputBtn.addEventListener('click', () => this.toggleVoiceInput());
-
-        // Обработчики для системы чатов
-        this.chatSelectButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleChatDropdown();
-        });
-
-        this.newChatBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.createNewChat();
-        });
-
-        // Закрытие dropdown при клике вне его
-        document.addEventListener('click', (e) => {
-            if (!this.chatSelectButton.contains(e.target) && !this.chatDropdown.contains(e.target)) {
-                this.chatDropdown.classList.remove('show');
-            }
-        });
-
-        window.addEventListener('beforeunload', () => {
-            this.saveCurrentSession();
-            this.saveModelPreference();
-            this.saveChatSessions();
-        });
-
-        // Обработчики для изменения размера окна
-        window.addEventListener('resize', () => {
-            this.scrollToBottom();
+        events.forEach(([element, event, handler]) => {
+            this.addEventListener(element, event, handler);
         });
     }
 
-    setupChatSelector() {
-        // Создаем основной чат по умолчанию если его нет
-        if (!this.chatSessions.has('default')) {
-            this.createDefaultChat();
-        }
-        this.updateChatDropdown();
-    }
-
-    createDefaultChat() {
-        const defaultSession = {
-            id: 'default',
-            name: 'Основной чат',
-            messages: [],
-            conversationHistory: [],
-            createdAt: Date.now(),
-            lastActivity: Date.now()
+    addEventListener(element, event, handler) {
+        if (!element) return;
+        
+        const wrappedHandler = (...args) => {
+            try {
+                handler(...args);
+            } catch (error) {
+                console.error(`Error in ${event} handler:`, error);
+                this.showNotification('Произошла ошибка при обработке действия', 'error');
+            }
         };
-        this.chatSessions.set('default', defaultSession);
-        this.currentChatId = 'default';
+
+        element.addEventListener(event, wrappedHandler);
+        
+        // Сохраняем для возможности очистки
+        if (!this.activeEventListeners.has(element)) {
+            this.activeEventListeners.set(element, []);
+        }
+        this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
+    }
+
+    handleInputKeydown(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.sendMessage();
+        }
+    }
+
+    handleImageMode(e) {
+        if (this.generateImageBtn.disabled) {
+            e.preventDefault();
+            this.showNotification('Генерация изображений временно недоступна', 'warning');
+        } else {
+            this.toggleImageMode();
+        }
+    }
+
+    handleModelChange(e) {
+        if (e.target.value === 'claude-sonnet') {
+            this.showNotification('Claude Sonnet временно недоступен', 'warning');
+            this.modelSelect.value = this.currentModel;
+            return;
+        }
+        this.changeModel(e.target.value);
+    }
+
+    handleDocumentClick(e) {
+        if (!this.chatSelectButton.contains(e.target) && !this.chatDropdown.contains(e.target)) {
+            this.chatDropdown.classList.remove('show');
+        }
+    }
+
+    handleBeforeUnload() {
+        this.saveCurrentSession();
+        this.saveModelPreference();
         this.saveChatSessions();
+        
+        // Очистка ресурсов
+        this.cleanup();
     }
 
     setupAutoResize() {
-        this.userInput.addEventListener('input', () => {
+        this.addEventListener(this.userInput, 'input', () => {
             this.userInput.style.height = 'auto';
             this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
         });
     }
 
     setupVoiceRecognition() {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+            this.voiceInputBtn.style.display = 'none';
+            return;
+        }
+
+        try {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.recognition = new SpeechRecognition();
             this.recognition.continuous = false;
@@ -198,14 +275,17 @@ class KhuyewAI {
 
             this.recognition.onerror = (event) => {
                 console.error('Speech recognition error:', event.error);
-                this.showNotification('Ошибка распознавания речи', 'error');
+                this.showNotification(`Ошибка распознавания: ${event.error}`, 'error');
+                this.isListening = false;
+                this.voiceInputBtn.classList.remove('active');
             };
 
             this.recognition.onend = () => {
                 this.isListening = false;
                 this.voiceInputBtn.classList.remove('active');
             };
-        } else {
+        } catch (error) {
+            console.error('Error setting up voice recognition:', error);
             this.voiceInputBtn.style.display = 'none';
         }
     }
@@ -214,36 +294,45 @@ class KhuyewAI {
         let index = 0;
         let charIndex = 0;
         let isDeleting = false;
-        let currentText = '';
 
         const type = () => {
             const currentExample = this.placeholderExamples[index];
             
             if (isDeleting) {
-                currentText = currentExample.substring(0, charIndex - 1);
                 charIndex--;
             } else {
-                currentText = currentExample.substring(0, charIndex + 1);
                 charIndex++;
             }
 
+            const currentText = currentExample.substring(0, charIndex);
             this.userInput.placeholder = currentText + '▌';
 
             if (!isDeleting && charIndex === currentExample.length) {
-                setTimeout(() => isDeleting = true, 2000);
+                isDeleting = true;
+                this.setTimeout(() => {}, 2000);
             } else if (isDeleting && charIndex === 0) {
                 isDeleting = false;
                 index = (index + 1) % this.placeholderExamples.length;
             }
 
             const typeSpeed = isDeleting ? 50 : 100;
-            setTimeout(type, typeSpeed);
+            this.setTimeout(type, typeSpeed);
         };
 
         type();
     }
 
-    toggleChatDropdown() {
+    setTimeout(callback, delay) {
+        const timeoutId = setTimeout(() => {
+            this.activeTimeouts.delete(timeoutId);
+            callback();
+        }, delay);
+        this.activeTimeouts.add(timeoutId);
+        return timeoutId;
+    }
+
+    toggleChatDropdown(e) {
+        e.stopPropagation();
         this.chatDropdown.classList.toggle('show');
         if (this.chatDropdown.classList.contains('show')) {
             this.updateChatDropdown();
@@ -258,40 +347,57 @@ class KhuyewAI {
         const sessionsArray = Array.from(this.chatSessions.entries())
             .sort(([,a], [,b]) => b.lastActivity - a.lastActivity);
 
+        if (sessionsArray.length === 0) {
+            this.createDefaultChat();
+            this.updateChatDropdown();
+            return;
+        }
+
         sessionsArray.forEach(([id, session]) => {
-            const chatItem = document.createElement('div');
-            chatItem.className = `chat-item ${id === this.currentChatId ? 'active' : ''}`;
-            chatItem.setAttribute('data-chat-id', id);
-            
-            chatItem.innerHTML = `
-                <div class="chat-info">
-                    <i class="ti ti-message"></i>
-                    <span class="chat-name">${session.name}</span>
-                </div>
-                ${id !== 'default' ? '<button class="delete-chat-btn" title="Удалить чат"><i class="ti ti-x"></i></button>' : ''}
-            `;
-
-            chatItem.addEventListener('click', (e) => {
-                if (!e.target.closest('.delete-chat-btn')) {
-                    this.switchChat(id);
-                    this.chatDropdown.classList.remove('show');
-                }
-            });
-
-            // Обработчик удаления чата
-            const deleteBtn = chatItem.querySelector('.delete-chat-btn');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.deleteChat(id);
-                });
-            }
-
+            const chatItem = this.createChatItem(id, session);
             this.chatList.appendChild(chatItem);
         });
     }
 
-    createNewChat() {
+    createChatItem(id, session) {
+        const chatItem = document.createElement('div');
+        chatItem.className = `chat-item ${id === this.currentChatId ? 'active' : ''}`;
+        chatItem.setAttribute('data-chat-id', id);
+        
+        chatItem.innerHTML = `
+            <div class="chat-info">
+                <i class="ti ti-message"></i>
+                <span class="chat-name">${this.escapeHtml(session.name)}</span>
+            </div>
+            ${id !== 'default' ? '<button class="delete-chat-btn" title="Удалить чат"><i class="ti ti-x"></i></button>' : ''}
+        `;
+
+        this.addEventListener(chatItem, 'click', (e) => {
+            if (!e.target.closest('.delete-chat-btn')) {
+                this.switchChat(id);
+                this.chatDropdown.classList.remove('show');
+            }
+        });
+
+        const deleteBtn = chatItem.querySelector('.delete-chat-btn');
+        if (deleteBtn) {
+            this.addEventListener(deleteBtn, 'click', (e) => {
+                e.stopPropagation();
+                this.deleteChat(id);
+            });
+        }
+
+        return chatItem;
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    createNewChat(e) {
+        e.stopPropagation();
         const chatNumber = Array.from(this.chatSessions.values()).filter(session => 
             session.name.startsWith('Чат ')
         ).length + 1;
@@ -322,7 +428,11 @@ class KhuyewAI {
     }
 
     switchChat(chatId) {
-        if (this.chatSessions.has(chatId) && chatId !== this.currentChatId) {
+        if (!this.chatSessions.has(chatId) || chatId === this.currentChatId) {
+            return;
+        }
+
+        try {
             // Сохраняем текущую сессию перед переключением
             this.saveCurrentSession();
             
@@ -333,7 +443,7 @@ class KhuyewAI {
             session.lastActivity = Date.now();
             this.chatSessions.set(chatId, session);
             
-            // Обновляем имя текущего чата
+            // Обновляем UI
             this.currentChatName.textContent = session.name;
             
             // Загружаем новую сессию
@@ -341,6 +451,9 @@ class KhuyewAI {
             this.showNotification(`Переключен на чат: ${session.name}`, 'info');
             
             this.saveChatSessions();
+        } catch (error) {
+            console.error('Error switching chat:', error);
+            this.showNotification('Ошибка при переключении чата', 'error');
         }
     }
 
@@ -355,7 +468,10 @@ class KhuyewAI {
             return;
         }
 
-        if (confirm(`Удалить чат "${this.chatSessions.get(chatId).name}"?`)) {
+        const session = this.chatSessions.get(chatId);
+        if (!session) return;
+
+        if (confirm(`Удалить чат "${session.name}"?`)) {
             this.chatSessions.delete(chatId);
             
             // Если удаляем текущий чат, переключаемся на default
@@ -415,21 +531,7 @@ class KhuyewAI {
         
         if (session.messages && session.messages.length > 0) {
             session.messages.forEach(msg => {
-                const messageElement = document.createElement('div');
-                messageElement.className = `message message-${msg.role}`;
-                
-                const messageContent = document.createElement('div');
-                messageContent.className = 'message-content';
-                messageContent.innerHTML = msg.content;
-                
-                messageElement.appendChild(messageContent);
-                this.messagesContainer.appendChild(messageElement);
-            });
-            
-            // Прикрепляем обработчики для кнопок
-            this.messagesContainer.querySelectorAll('.message-content').forEach(content => {
-                this.attachCopyButtons(content);
-                this.attachSpeakButtons(content.closest('.message'));
+                this.renderMessage(msg.role, msg.content);
             });
         } else {
             this.showWelcomeMessage();
@@ -438,39 +540,46 @@ class KhuyewAI {
         this.scrollToBottom();
     }
 
+    renderMessage(role, content) {
+        const messageElement = document.createElement('div');
+        messageElement.className = `message message-${role}`;
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        messageContent.innerHTML = content;
+        
+        messageElement.appendChild(messageContent);
+        this.messagesContainer.appendChild(messageElement);
+        
+        // Прикрепляем обработчики
+        this.attachMessageHandlers(messageElement);
+    }
+
+    attachMessageHandlers(messageElement) {
+        this.attachCopyButtons(messageElement);
+        if (messageElement.classList.contains('message-ai')) {
+            this.attachSpeakButton(messageElement);
+        }
+    }
+
     changeModel(model) {
+        if (!this.modelConfig[model]) {
+            this.showNotification('Неизвестная модель', 'error');
+            return;
+        }
+
         this.currentModel = model;
-        const modelName = this.getModelDisplayName(model);
-        this.showNotification(`Модель изменена на: ${modelName}`, 'success');
+        const modelInfo = this.modelConfig[model];
+        this.showNotification(`Модель изменена на: ${modelInfo.name}`, 'success');
         this.saveModelPreference();
     }
 
     getModelDisplayName(model) {
-        const modelNames = {
-            'gpt-5-nano': 'GPT-5 Nano',
-            'o3-mini': 'O3 Mini',
-            'claude-sonnet': 'Claude Sonnet',
-            'deepseek-chat': 'DeepSeek Chat',
-            'deepseek-reasoner': 'DeepSeek Reasoner',
-            'gemini-2.0-flash': 'Gemini 2.0 Flash',
-            'gemini-1.5-flash': 'Gemini 1.5 Flash',
-            'grok-beta': 'xAI Grok'
-        };
-        return modelNames[model] || model;
+        return this.modelConfig[model]?.name || model;
     }
 
     getModelDescription(model) {
-        const descriptions = {
-            'gpt-5-nano': 'Быстрая и эффективная модель для повседневных задач',
-            'o3-mini': 'Продвинутая модель с улучшенными возможностями рассуждения',
-            'claude-sonnet': 'Мощная модель от Anthropic для сложных задач и анализа',
-            'deepseek-chat': 'Универсальная модель для общения и решения задач',
-            'deepseek-reasoner': 'Специализированная модель для сложных логических рассуждений',
-            'gemini-2.0-flash': 'Новейшая быстрая модель от Google с улучшенными возможностями',
-            'gemini-1.5-flash': 'Быстрая и эффективная модель от Google для различных задач',
-            'grok-beta': 'Модель от xAI с уникальным характером и остроумными ответами'
-        };
-        return descriptions[model] || 'Модель ИИ';
+        return this.modelConfig[model]?.description || 'Модель ИИ';
     }
 
     toggleVoiceInput() {
@@ -482,7 +591,12 @@ class KhuyewAI {
         if (this.isListening) {
             this.recognition.stop();
         } else {
-            this.recognition.start();
+            try {
+                this.recognition.start();
+            } catch (error) {
+                console.error('Error starting voice recognition:', error);
+                this.showNotification('Ошибка запуска голосового ввода', 'error');
+            }
         }
     }
 
@@ -505,18 +619,21 @@ class KhuyewAI {
     }
 
     handleFileSelect(event) {
-        const files = event.target.files;
+        const files = Array.from(event.target.files);
         if (files.length === 0) return;
 
-        for (let file of files) {
-            if (!file.type.startsWith('image/')) {
-                this.showNotification('Пожалуйста, выберите только изображения', 'error');
-                continue;
+        let processedCount = 0;
+        const maxFiles = 3;
+
+        files.forEach(file => {
+            if (processedCount >= maxFiles) {
+                this.showNotification('Можно прикрепить не более 3 изображений', 'warning');
+                return;
             }
 
-            if (this.attachedImages.length >= 3) {
-                this.showNotification('Можно прикрепить не более 3 изображений', 'warning');
-                break;
+            if (!file.type.startsWith('image/')) {
+                this.showNotification('Пожалуйста, выберите только изображения', 'error');
+                return;
             }
 
             const reader = new FileReader();
@@ -531,9 +648,15 @@ class KhuyewAI {
                 this.attachedImages.push(imageData);
                 this.renderAttachedFiles();
                 this.showNotification(`Изображение "${file.name}" прикреплено`, 'success');
+                processedCount++;
             };
+            
+            reader.onerror = () => {
+                this.showNotification(`Ошибка загрузки файла: ${file.name}`, 'error');
+            };
+            
             reader.readAsDataURL(file);
-        }
+        });
 
         event.target.value = '';
     }
@@ -546,7 +669,7 @@ class KhuyewAI {
             fileElement.className = 'attached-file';
             fileElement.innerHTML = `
                 <i class="ti ti-photo"></i>
-                <span>${image.name} (${this.formatFileSize(image.size)})</span>
+                <span>${this.escapeHtml(image.name)} (${this.formatFileSize(image.size)})</span>
                 <button class="remove-file" data-index="${index}">
                     <i class="ti ti-x"></i>
                 </button>
@@ -555,7 +678,7 @@ class KhuyewAI {
         });
 
         this.attachedFiles.querySelectorAll('.remove-file').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            this.addEventListener(btn, 'click', (e) => {
                 const index = parseInt(e.currentTarget.getAttribute('data-index'));
                 this.removeAttachedFile(index);
             });
@@ -571,12 +694,19 @@ class KhuyewAI {
     }
 
     removeAttachedFile(index) {
+        if (index < 0 || index >= this.attachedImages.length) return;
+        
         const removedFile = this.attachedImages.splice(index, 1)[0];
         this.renderAttachedFiles();
         this.showNotification(`Изображение "${removedFile.name}" удалено`, 'info');
     }
 
     async sendMessage() {
+        if (this.isProcessing) {
+            this.showNotification('Подождите завершения предыдущего запроса', 'warning');
+            return;
+        }
+
         const message = this.userInput.value.trim();
         
         if (!message && this.attachedImages.length === 0) {
@@ -584,135 +714,133 @@ class KhuyewAI {
             return;
         }
 
-        if (this.isProcessing) {
-            this.showNotification('Подождите завершения предыдущего запроса', 'warning');
-            return;
-        }
+        this.isProcessing = true;
+        this.sendBtn.disabled = true;
 
         try {
-            this.isProcessing = true;
-            this.sendBtn.disabled = true;
-
             if (this.isVoiceMode) {
                 await this.generateVoice(message);
             } else {
-                this.addMessage('user', message, this.attachedImages);
-                this.addToConversationHistory('user', message, this.attachedImages);
-                
-                this.userInput.value = '';
-                this.userInput.style.height = 'auto';
-                const imagesToProcess = [...this.attachedImages];
-                this.attachedImages = [];
-                this.renderAttachedFiles();
-                
-                if (this.isImageMode) {
-                    await this.generateImage(message);
-                } else {
-                    await this.getAIResponse(message, imagesToProcess);
-                }
+                await this.processUserMessage(message);
             }
-
         } catch (error) {
-            console.error('Error:', error);
-            this.removeTypingIndicator();
-            this.addMessage('error', 'Произошла ошибка при отправке сообщения: ' + error.message);
+            console.error('Error in sendMessage:', error);
+            this.handleError('Произошла ошибка при отправке сообщения', error);
+        } finally {
             this.isProcessing = false;
             this.sendBtn.disabled = false;
         }
     }
 
+    async processUserMessage(message) {
+        // Добавляем сообщение пользователя
+        this.addMessage('user', message, this.attachedImages);
+        this.addToConversationHistory('user', message, this.attachedImages);
+        
+        // Очищаем ввод
+        this.userInput.value = '';
+        this.userInput.style.height = 'auto';
+        const imagesToProcess = [...this.attachedImages];
+        this.attachedImages = [];
+        this.renderAttachedFiles();
+        
+        // Обрабатываем сообщение
+        if (this.isImageMode) {
+            await this.generateImage(message);
+        } else {
+            await this.getAIResponse(message, imagesToProcess);
+        }
+    }
+
     async getAIResponse(userMessage, images) {
+        this.removeTypingIndicator();
+        this.activeTypingIndicator = this.showTypingIndicator();
+        
         try {
-            // Убираем существующий индикатор печати
+            const prompt = await this.buildPrompt(userMessage, images);
+            const response = await this.callAIService(prompt);
+            
             this.removeTypingIndicator();
+            await this.processAIResponse(response);
             
-            // Показываем новый индикатор
-            this.activeTypingIndicator = this.showTypingIndicator();
+        } catch (error) {
+            this.removeTypingIndicator();
+            this.handleError('Ошибка при получении ответа от ИИ', error);
+        }
+    }
+
+    async buildPrompt(userMessage, images) {
+        if (images.length > 0) {
+            if (typeof puter?.ai?.img2txt !== 'function') {
+                throw new Error('Функция анализа изображений недоступна');
+            }
             
-            let prompt;
+            const extractedText = await puter.ai.img2txt(images[0].data);
             
-            if (images.length > 0 && userMessage.trim()) {
-                if (typeof puter?.ai?.img2txt !== 'function') {
-                    throw new Error('Функция анализа изображений недоступна');
-                }
-                
-                const extractedText = await puter.ai.img2txt(images[0].data);
-                
-                prompt = `Пользователь отправил изображение "${images[0].name}" с сопроводительным сообщением: "${userMessage}"
+            if (userMessage.trim()) {
+                return `Пользователь отправил изображение "${images[0].name}" с сопроводительным сообщением: "${userMessage}"
 
 Извлеченный текст с изображения: "${extractedText}"
 
 Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
-            } 
-            else if (images.length > 0) {
-                if (typeof puter?.ai?.img2txt !== 'function') {
-                    throw new Error('Функция анализа изображений недоступна');
-                }
-                
-                const extractedText = await puter.ai.img2txt(images[0].data);
-                
-                prompt = `Пользователь отправил изображение "${images[0].name}".
+            } else {
+                return `Пользователь отправил изображение "${images[0].name}".
 
 Извлеченный текст с изображения: "${extractedText}"
 
 Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
             }
-            else {
-                const contextPrompt = this.buildContextPrompt(userMessage);
-                prompt = contextPrompt;
-            }
-            
-            if (typeof puter?.ai?.chat !== 'function') {
-                throw new Error('Функция чата недоступна');
-            }
-            
-            const modelOptions = {
-                'gpt-5-nano': { model: 'gpt-5-nano' },
-                'o3-mini': { model: 'o3-mini' },
-                'claude-sonnet': { model: 'claude-sonnet' },
-                'deepseek-chat': { model: 'deepseek-chat' },
-                'deepseek-reasoner': { model: 'deepseek-reasoner' },
-                'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
-                'gemini-1.5-flash': { model: 'gemini-1.5-flash' },
-                'grok-beta': { model: 'grok-beta' }
-            };
-            
-            const options = {
-                ...modelOptions[this.currentModel],
-                systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.",
-                stream: true
-            };
-            
-            this.activeStreamingMessage = this.createStreamingMessage();
-            
-            const response = await puter.ai.chat(prompt, options);
-            
-            this.removeTypingIndicator();
-            
-            let fullResponse = '';
-            for await (const part of response) {
-                if (part?.text) {
-                    fullResponse += part.text;
-                    this.updateStreamingMessage(this.activeStreamingMessage, fullResponse);
-                    
-                    // Небольшая задержка для плавного стриминга
-                    await new Promise(resolve => setTimeout(resolve, 10));
-                }
-            }
-            
-            this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
-            this.activeStreamingMessage = null;
-            
-            this.addToConversationHistory('assistant', fullResponse);
-            this.saveCurrentSession();
-            
-        } catch (error) {
-            this.removeTypingIndicator();
-            this.addMessage('error', 'Ошибка при получении ответа от ИИ: ' + error.message);
-        } finally {
-            this.isProcessing = false;
-            this.sendBtn.disabled = false;
+        } else {
+            return this.buildContextPrompt(userMessage);
         }
+    }
+
+    async callAIService(prompt) {
+        if (typeof puter?.ai?.chat !== 'function') {
+            throw new Error('Функция чата недоступна');
+        }
+        
+        const modelOptions = {
+            'gpt-5-nano': { model: 'gpt-5-nano' },
+            'o3-mini': { model: 'o3-mini' },
+            'claude-sonnet': { model: 'claude-sonnet' },
+            'deepseek-chat': { model: 'deepseek-chat' },
+            'deepseek-reasoner': { model: 'deepseek-reasoner' },
+            'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
+            'gemini-1.5-flash': { model: 'gemini-1.5-flash' },
+            'grok-beta': { model: 'grok-beta' }
+        };
+        
+        const options = {
+            ...modelOptions[this.currentModel],
+            systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.",
+            stream: true
+        };
+        
+        return await puter.ai.chat(prompt, options);
+    }
+
+    async processAIResponse(response) {
+        this.activeStreamingMessage = this.createStreamingMessage();
+        
+        let fullResponse = '';
+        for await (const part of response) {
+            if (part?.text) {
+                fullResponse += part.text;
+                this.updateStreamingMessage(this.activeStreamingMessage, fullResponse);
+                await this.delay(10); // Небольшая задержка для плавности
+            }
+        }
+        
+        this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
+        this.activeStreamingMessage = null;
+        
+        this.addToConversationHistory('assistant', fullResponse);
+        this.saveCurrentSession();
+    }
+
+    delay(ms) {
+        return new Promise(resolve => this.setTimeout(resolve, ms));
     }
 
     createStreamingMessage() {
@@ -749,10 +877,9 @@ class KhuyewAI {
         const streamingText = messageElement.querySelector('.streaming-text');
         const typingIndicator = messageElement.querySelector('.typing-indicator-inline');
         
-        // Плавно скрываем индикатор когда текст становится достаточно длинным
         if (content.length > 100 && typingIndicator && !typingIndicator.classList.contains('fade-out')) {
             typingIndicator.classList.add('fade-out');
-            setTimeout(() => {
+            this.setTimeout(() => {
                 if (typingIndicator.parentNode) {
                     typingIndicator.style.display = 'none';
                 }
@@ -774,7 +901,6 @@ class KhuyewAI {
         const messageContent = messageElement.querySelector('.message-content');
         messageContent.classList.remove('streaming-content');
         
-        // Убираем индикатор печати
         const typingIndicator = messageContent.querySelector('.typing-indicator-inline');
         if (typingIndicator) {
             typingIndicator.remove();
@@ -783,23 +909,21 @@ class KhuyewAI {
         const processedContent = this.processCodeBlocks(fullContent);
         messageContent.innerHTML = processedContent;
         
+        // Добавляем информацию о модели
         const modelIndicator = document.createElement('div');
         modelIndicator.className = 'model-indicator';
         modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
         messageContent.appendChild(modelIndicator);
         
-        this.attachSpeakButtons(messageElement);
-        this.attachCopyButtons(messageContent);
+        this.attachMessageHandlers(messageElement);
         this.scrollToBottom();
     }
 
-    attachSpeakButtons(messageElement) {
-        if (!messageElement.classList.contains('message-ai')) return;
-        
+    attachSpeakButton(messageElement) {
         const messageContent = messageElement.querySelector('.message-content');
         const plainText = this.extractPlainText(messageContent.textContent || '');
         
-        if (plainText.trim().length < 10) return; // Не добавляем кнопку для очень коротких сообщений
+        if (plainText.trim().length < 10) return;
         
         let actionsContainer = messageElement.querySelector('.message-actions');
         if (!actionsContainer) {
@@ -808,7 +932,6 @@ class KhuyewAI {
             messageElement.appendChild(actionsContainer);
         }
         
-        // Убираем существующую кнопку озвучки
         const existingSpeakBtn = actionsContainer.querySelector('.speak-btn');
         if (existingSpeakBtn) {
             existingSpeakBtn.remove();
@@ -819,7 +942,7 @@ class KhuyewAI {
         speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
         speakButton.setAttribute('data-text', plainText);
         
-        speakButton.addEventListener('click', (e) => {
+        this.addEventListener(speakButton, 'click', (e) => {
             e.stopPropagation();
             const text = e.currentTarget.getAttribute('data-text');
             this.toggleTextToSpeech(text, speakButton);
@@ -835,85 +958,86 @@ class KhuyewAI {
     }
 
     toggleTextToSpeech(text, button) {
-        if (this.isSpeaking && this.currentUtterance) {
-            window.speechSynthesis.cancel();
-            this.isSpeaking = false;
+        if (this.isSpeaking) {
+            this.stopSpeech();
             button.classList.remove('speaking');
             button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
-            this.showNotification('Озвучивание остановлено', 'info');
         } else {
             this.speakText(text, button);
         }
     }
 
-    async speakText(text, button) {
+    speakText(text, button) {
+        if (!('speechSynthesis' in window)) {
+            this.showNotification('Озвучивание текста не поддерживается в вашем браузере', 'warning');
+            return;
+        }
+
         try {
-            if (this.isSpeaking) {
-                window.speechSynthesis.cancel();
-            }
+            this.stopSpeech(); // Останавливаем предыдущее воспроизведение
+
+            this.currentUtterance = new SpeechSynthesisUtterance(text);
+            this.currentUtterance.lang = 'ru-RU';
+            this.currentUtterance.rate = 0.85;
+            this.currentUtterance.pitch = 1.0;
+            this.currentUtterance.volume = 1.0;
+
+            const voices = speechSynthesis.getVoices();
+            const russianVoice = voices.find(voice => 
+                voice.lang.includes('ru') || voice.lang.includes('RU')
+            );
             
-            if ('speechSynthesis' in window) {
-                this.currentUtterance = new SpeechSynthesisUtterance(text);
-                this.currentUtterance.lang = 'ru-RU';
-                this.currentUtterance.rate = 0.85;
-                this.currentUtterance.pitch = 1.0;
-                this.currentUtterance.volume = 1.0;
-                
-                const voices = window.speechSynthesis.getVoices();
-                const russianVoice = voices.find(voice => 
-                    voice.lang.includes('ru') || voice.lang.includes('RU')
-                );
-                
-                if (russianVoice) {
-                    this.currentUtterance.voice = russianVoice;
-                    this.currentUtterance.rate = 0.8;
-                }
-                
-                button.classList.add('speaking');
-                button.innerHTML = '<i class="ti ti-player-pause"></i> Остановить';
-                this.isSpeaking = true;
-                
-                this.currentUtterance.onend = () => {
-                    this.isSpeaking = false;
-                    button.classList.remove('speaking');
-                    button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
-                    this.showNotification('Озвучивание завершено', 'success');
-                };
-                
-                this.currentUtterance.onerror = (error) => {
-                    console.error('Speech synthesis error:', error);
-                    this.isSpeaking = false;
-                    button.classList.remove('speaking');
-                    button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
-                    this.showNotification('Ошибка при озвучивании текста', 'error');
-                };
-                
-                window.speechSynthesis.speak(this.currentUtterance);
-                this.showNotification('Озвучивание текста...', 'info');
-                
-            } else {
-                this.showNotification('Озвучивание текста не поддерживается в вашем браузере', 'warning');
+            if (russianVoice) {
+                this.currentUtterance.voice = russianVoice;
+                this.currentUtterance.rate = 0.8;
             }
+
+            button.classList.add('speaking');
+            button.innerHTML = '<i class="ti ti-player-pause"></i> Остановить';
+            this.isSpeaking = true;
+
+            this.currentUtterance.onend = () => {
+                this.isSpeaking = false;
+                button.classList.remove('speaking');
+                button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+            };
+
+            this.currentUtterance.onerror = (error) => {
+                console.error('Speech synthesis error:', error);
+                this.isSpeaking = false;
+                button.classList.remove('speaking');
+                button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                this.showNotification('Ошибка при озвучивании текста', 'error');
+            };
+
+            speechSynthesis.speak(this.currentUtterance);
+            this.showNotification('Озвучивание текста...', 'info');
+
         } catch (error) {
             console.error('Error speaking text:', error);
             this.showNotification('Ошибка при озвучивании текста', 'error');
         }
     }
 
+    stopSpeech() {
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+        }
+        this.isSpeaking = false;
+        this.currentUtterance = null;
+    }
+
     async generateVoice(text) {
+        if (typeof puter?.ai?.txt2speech !== 'function') {
+            throw new Error('Функция генерации голоса недоступна');
+        }
+        
+        if (!text.trim()) {
+            this.showNotification('Введите текст для генерации голоса', 'error');
+            return;
+        }
+
         try {
-            if (typeof puter?.ai?.txt2speech !== 'function') {
-                throw new Error('Функция генерации голоса недоступна');
-            }
-            
-            if (!text.trim()) {
-                this.showNotification('Введите текст для генерации голоса', 'error');
-                return;
-            }
-
-            this.isProcessing = true;
-            this.sendBtn.disabled = true;
-
             this.addMessage('user', `🔊 **Генерация голоса:** "${text}"`);
             
             this.userInput.value = '';
@@ -922,18 +1046,13 @@ class KhuyewAI {
             this.showNotification('Генерация голоса...', 'info');
             
             const audio = await puter.ai.txt2speech(text);
-            
             this.addVoiceMessage(text, audio);
             
             this.addToConversationHistory('user', `Сгенерирован голос для текста: ${text}`);
             this.saveCurrentSession();
             
         } catch (error) {
-            console.error('Error generating voice:', error);
-            this.addMessage('error', 'Ошибка при генерации голоса: ' + error.message);
-        } finally {
-            this.isProcessing = false;
-            this.sendBtn.disabled = false;
+            this.handleError('Ошибка при генерации голоса', error);
         }
     }
 
@@ -945,7 +1064,7 @@ class KhuyewAI {
         messageContent.className = 'message-content';
         
         messageContent.innerHTML = `
-            🔊 **Сгенерированный голос для текста:** "${text}"
+            🔊 **Сгенерированный голос для текста:** "${this.escapeHtml(text)}"
             <div class="audio-player" style="margin-top: 12px;">
                 <audio controls style="width: 100%; max-width: 300px;">
                     <source src="${audio.src}" type="audio/mpeg">
@@ -1007,7 +1126,7 @@ class KhuyewAI {
     async generateImage(prompt) {
         try {
             if (typeof puter?.ai?.imagine !== 'function') {
-                throw new Error('puter.ai.imagine is not a function - функция генерации изображений недоступна');
+                throw new Error('Функция генерации изображений недоступна');
             }
             
             this.addMessage('ai', `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n*Идет процесс создания изображения...*`);
@@ -1017,11 +1136,12 @@ class KhuyewAI {
                 size: "1024x1024"
             });
             
+            // Обновляем сообщение с результатом
             const messages = this.messagesContainer.querySelectorAll('.message-ai');
             const lastMessage = messages[messages.length - 1];
             if (lastMessage) {
                 lastMessage.querySelector('.message-content').innerHTML = 
-                    `🖼️ **Сгенерированное изображение по запросу:** "${prompt}"\n\n` +
+                    `🖼️ **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"\n\n` +
                     `<img src="${imageResult.url}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`;
             }
             
@@ -1029,18 +1149,7 @@ class KhuyewAI {
             this.saveCurrentSession();
             
         } catch (error) {
-            console.error('Image generation error:', error);
-            
-            const messages = this.messagesContainer.querySelectorAll('.message-ai');
-            const lastMessage = messages[messages.length - 1];
-            if (lastMessage) {
-                lastMessage.querySelector('.message-content').innerHTML = 
-                    `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n` +
-                    `❌ **Ошибка при генерации изображения:** ${error.message}`;
-            }
-        } finally {
-            this.isProcessing = false;
-            this.sendBtn.disabled = false;
+            this.handleError('Ошибка при генерации изображения', error);
         }
     }
 
@@ -1062,61 +1171,48 @@ class KhuyewAI {
         );
     }
 
-    addMessage(role, content, images = [], model = null) {
+    addMessage(role, content, images = []) {
         const messageElement = document.createElement('div');
         messageElement.className = `message message-${role}`;
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
         
-        if (role === 'ai' || role === 'error') {
-            try {
-                const processedContent = this.processCodeBlocks(content);
-                messageContent.innerHTML = processedContent;
-                this.attachCopyButtons(messageContent);
-            } catch {
-                messageContent.textContent = content;
-            }
-            
-            if (role === 'ai' && model) {
-                const modelIndicator = document.createElement('div');
-                modelIndicator.className = 'model-indicator';
-                modelIndicator.textContent = `Модель: ${this.getModelDisplayName(model)} • ${this.getModelDescription(model)}`;
-                messageContent.appendChild(modelIndicator);
-            }
-            
-            if (role === 'ai') {
-                this.attachSpeakButtons(messageElement);
-            }
-        } else {
-            try {
-                const processedContent = this.processCodeBlocks(content);
-                messageContent.innerHTML = processedContent;
-                this.attachCopyButtons(messageContent);
-            } catch {
-                messageContent.textContent = content;
-            }
-            
-            if (images && images.length > 0) {
-                images.forEach(image => {
-                    const imageContainer = document.createElement('div');
-                    imageContainer.className = 'message-image';
-                    
-                    const img = document.createElement('img');
-                    img.src = image.data;
-                    img.alt = image.name;
-                    img.style.maxWidth = '200px';
-                    img.style.borderRadius = '8px';
-                    img.style.marginTop = '8px';
-                    
-                    imageContainer.appendChild(img);
-                    messageContent.appendChild(imageContainer);
-                });
-            }
+        try {
+            const processedContent = this.processCodeBlocks(content);
+            messageContent.innerHTML = processedContent;
+        } catch {
+            messageContent.textContent = content;
+        }
+        
+        if (role === 'ai') {
+            const modelIndicator = document.createElement('div');
+            modelIndicator.className = 'model-indicator';
+            modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
+            messageContent.appendChild(modelIndicator);
+        }
+        
+        if (images && images.length > 0) {
+            images.forEach(image => {
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'message-image';
+                
+                const img = document.createElement('img');
+                img.src = image.data;
+                img.alt = image.name;
+                img.style.maxWidth = '200px';
+                img.style.borderRadius = '8px';
+                img.style.marginTop = '8px';
+                
+                imageContainer.appendChild(img);
+                messageContent.appendChild(imageContainer);
+            });
         }
         
         messageElement.appendChild(messageContent);
         this.messagesContainer.appendChild(messageElement);
+        
+        this.attachMessageHandlers(messageElement);
         this.scrollToBottom();
         
         return messageElement;
@@ -1125,6 +1221,7 @@ class KhuyewAI {
     processCodeBlocks(content) {
         let html = marked.parse(content);
         
+        // Добавляем заголовки для блоков кода
         html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
             const language = lang || 'text';
             return `
@@ -1144,7 +1241,7 @@ class KhuyewAI {
     attachCopyButtons(container) {
         const copyButtons = container.querySelectorAll('.copy-code-btn');
         copyButtons.forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            this.addEventListener(btn, 'click', async (e) => {
                 const codeBlock = e.target.closest('.code-header')?.nextElementSibling;
                 if (codeBlock) {
                     const code = codeBlock.textContent;
@@ -1155,7 +1252,7 @@ class KhuyewAI {
                         btn.innerHTML = '<i class="ti ti-check"></i> Скопировано!';
                         btn.classList.add('copied');
                         
-                        setTimeout(() => {
+                        this.setTimeout(() => {
                             btn.innerHTML = originalText;
                             btn.classList.remove('copied');
                         }, 2000);
@@ -1171,7 +1268,7 @@ class KhuyewAI {
     }
 
     showTypingIndicator() {
-        this.removeTypingIndicator(); // Убираем существующий индикатор
+        this.removeTypingIndicator();
         
         const typingElement = document.createElement('div');
         typingElement.className = 'message message-ai typing-indicator';
@@ -1213,9 +1310,11 @@ class KhuyewAI {
     }
 
     clearChat() {
-        if (this.messagesContainer.children.length > 0 && 
-            confirm('Вы уверены, что хотите очистить всю историю чата?')) {
-            
+        if (this.messagesContainer.children.length === 0) {
+            return;
+        }
+
+        if (confirm('Вы уверены, что хотите очистить всю историю чата?')) {
             this.messagesContainer.innerHTML = '';
             this.conversationHistory = [];
             this.showWelcomeMessage();
@@ -1244,25 +1343,11 @@ class KhuyewAI {
 • **Стриминг ответов** - ответы появляются постепенно
 • **Мульти-чаты** - создавайте отдельные чаты для разных тем
 
-## 🤖 Доступные модели:
-• **GPT-5 Nano** - быстрая и эффективная для повседневных задач
-• **O3 Mini** - продвинутая модель с улучшенными возможностями рассуждения
-• **DeepSeek Chat** - универсальная модель для общения и решения задач
-• **DeepSeek Reasoner** - специализированная модель для логических рассуждений
-• **Gemini 2.0 Flash** - новейшая быстрая модель от Google
-• **Gemini 1.5 Flash** - быстрая и эффективная модель от Google
-• **xAI Grok** - модель от Илона Маска с уникальным характером
-
 **Текущая модель: ${currentModelName}** - ${currentModelDesc}
-
-## 💬 Система чатов:
-• Создавайте отдельные чаты для разных тем
-• Переключайтесь между чатами в верхнем меню
-• Каждый чат сохраняет свою историю и контекст
 
 **Начните общение, отправив сообщение или изображение!**`;
 
-        this.addMessage('ai', welcomeMessage, [], this.currentModel);
+        this.addMessage('ai', welcomeMessage);
         this.addToConversationHistory('assistant', welcomeMessage);
     }
 
@@ -1291,7 +1376,7 @@ class KhuyewAI {
 
 **Попробуйте отправить изображение с вопросом!**`;
 
-        this.addMessage('ai', helpMessage, [], this.currentModel);
+        this.addMessage('ai', helpMessage);
         this.addToConversationHistory('assistant', helpMessage);
     }
 
@@ -1319,7 +1404,7 @@ class KhuyewAI {
         
         document.body.appendChild(notification);
         
-        setTimeout(() => {
+        this.setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();
             }
@@ -1327,11 +1412,42 @@ class KhuyewAI {
     }
 
     scrollToBottom() {
-        setTimeout(() => {
-            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        this.setTimeout(() => {
+            if (this.messagesContainer) {
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            }
         }, 50);
     }
 
+    handleError(userMessage, error) {
+        console.error(userMessage, error);
+        this.addMessage('error', `${userMessage}: ${error.message}`);
+        this.showNotification(userMessage, 'error');
+    }
+
+    // Система чатов
+    setupChatSelector() {
+        if (!this.chatSessions.has('default')) {
+            this.createDefaultChat();
+        }
+        this.updateChatDropdown();
+    }
+
+    createDefaultChat() {
+        const defaultSession = {
+            id: 'default',
+            name: 'Основной чат',
+            messages: [],
+            conversationHistory: [],
+            createdAt: Date.now(),
+            lastActivity: Date.now()
+        };
+        this.chatSessions.set('default', defaultSession);
+        this.currentChatId = 'default';
+        this.saveChatSessions();
+    }
+
+    // Сохранение и загрузка
     saveModelPreference() {
         try {
             localStorage.setItem('khuyew-ai-model', this.currentModel);
@@ -1343,9 +1459,7 @@ class KhuyewAI {
     loadModelPreference() {
         try {
             const savedModel = localStorage.getItem('khuyew-ai-model');
-            const validModels = ['gpt-5-nano', 'o3-mini', 'deepseek-chat', 'deepseek-reasoner', 'gemini-2.0-flash', 'gemini-1.5-flash', 'grok-beta'];
-            
-            if (savedModel && validModels.includes(savedModel)) {
+            if (savedModel && this.modelConfig[savedModel]) {
                 this.currentModel = savedModel;
                 this.modelSelect.value = savedModel;
             }
@@ -1374,23 +1488,60 @@ class KhuyewAI {
             console.error('Error loading chat sessions:', error);
         }
     }
+
+    // Очистка ресурсов
+    cleanup() {
+        // Останавливаем все таймеры
+        this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+        this.activeTimeouts.clear();
+
+        // Останавливаем речь
+        this.stopSpeech();
+
+        // Останавливаем голосовой ввод
+        if (this.recognition && this.isListening) {
+            this.recognition.stop();
+        }
+
+        // Убираем индикаторы
+        this.removeTypingIndicator();
+
+        // Удаляем обработчики событий
+        this.activeEventListeners.forEach((listeners, element) => {
+            listeners.forEach(({ event, handler }) => {
+                element.removeEventListener(event, handler);
+            });
+        });
+        this.activeEventListeners.clear();
+    }
 }
 
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof puter === 'undefined') {
-        console.error('Puter.ai не загружен');
-        const notification = document.createElement('div');
-        notification.className = 'notification error';
-        notification.textContent = 'Puter.ai не загружен. Некоторые функции могут быть недоступны.';
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 5000);
+    try {
+        // Проверяем наличие Puter.ai
+        if (typeof puter === 'undefined') {
+            console.warn('Puter.ai не загружен, некоторые функции будут недоступны');
+        }
+        
+        // Предзагрузка голосов для синтеза речи
+        if ('speechSynthesis' in window) {
+            speechSynthesis.getVoices();
+        }
+        
+        // Инициализация приложения
+        new KhuyewAI();
+        
+    } catch (error) {
+        console.error('Ошибка при инициализации приложения:', error);
+        const errorNotification = document.createElement('div');
+        errorNotification.className = 'notification error';
+        errorNotification.textContent = 'Критическая ошибка при загрузке приложения';
+        errorNotification.style.position = 'fixed';
+        errorNotification.style.top = '50%';
+        errorNotification.style.left = '50%';
+        errorNotification.style.transform = 'translate(-50%, -50%)';
+        errorNotification.style.zIndex = '10000';
+        document.body.appendChild(errorNotification);
     }
-    
-    // Загружаем голоса при инициализации
-    if ('speechSynthesis' in window) {
-        speechSynthesis.getVoices();
-    }
-    
-    new KhuyewAI();
 });
