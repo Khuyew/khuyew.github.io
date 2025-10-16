@@ -30,21 +30,6 @@
                     <div class="subtitle">Бесплатный ИИ-помощник с генерацией изображений</div>
                 </div>
                 <div class="header-controls">
-                    <div class="chat-selector">
-                        <button class="chat-select-button" id="chatSelectButton">
-                            <i class="ti ti-messages"></i>
-                            <span id="currentChatName">Основной чат</span>
-                            <i class="ti ti-chevron-down"></i>
-                        </button>
-                        <div class="chat-dropdown" id="chatDropdown">
-                            <div class="chat-list" id="chatList">
-                                <!-- Chat items will be dynamically added here -->
-                            </div>
-                            <div class="chat-item new-chat-btn" id="newChatBtn">
-                                <i class="ti ti-plus"></i> Новый чат
-                            </div>
-                        </div>
-                    </div>
                     <select class="model-select" id="modelSelect">
                         <option value="gpt-5-nano">GPT-5 Nano</option>
                         <option value="o3-mini">O3 Mini</option>
@@ -57,6 +42,9 @@
                     </select>
                     <button class="control-btn" id="themeToggle">
                         <i class="ti ti-moon"></i>
+                    </button>
+                    <button class="control-btn menu-toggle" id="menuToggle">
+                        <i class="ti ti-menu-2"></i>
                     </button>
                 </div>
             </div>
@@ -120,39 +108,66 @@
 
         <footer class="app-footer">
             <div class="footer-content">
-                <details class="about-spoiler">
-                    <summary class="about-summary">
-                        <i class="ti ti-info-circle"></i>
-                        О программе
-                    </summary>
-                    <div class="about-content">
-                        <div class="about-item">
-                            <strong>Сделано в Беларуси</strong>
-                            <span>Разработано с ❤️ для сообщества</span>
-                        </div>
-                        <div class="about-item">
-                            <strong>Конфиденциальность</strong>
-                            <span>Ваши данные защищены и не передаются третьим лицам</span>
-                        </div>
-                        <div class="about-item">
-                            <strong>GitHub</strong>
-                            <a href="https://github.com/Khuyew" target="_blank">
-                                <i class="ti ti-brand-github"></i>
-                                Khuyew на GitHub
-                            </a>
-                        </div>
-                        <div class="about-item">
-                            <strong>Версия</strong>
-                            <span>Khuyew AI v2.3</span>
-                        </div>
-                    </div>
-                </details>
+                <div class="current-chat-info">
+                    <i class="ti ti-message"></i>
+                    <span id="currentChatName">Основной чат</span>
+                </div>
             </div>
         </footer>
     </div>
 
     <!-- Hidden file input -->
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h3>Меню</h3>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <h4>Управление чатами</h4>
+                <div class="chat-list" id="chatList">
+                    <!-- Chat items will be dynamically added here -->
+                </div>
+                <button class="sidebar-btn primary" id="newChatBtn">
+                    <i class="ti ti-plus"></i> Новый чат
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h4>О программе</h4>
+                <div class="about-content">
+                    <div class="about-item">
+                        <strong>Сделано в Беларуси</strong>
+                        <span>Разработано с ❤️ для сообщества</span>
+                    </div>
+                    <div class="about-item">
+                        <strong>Конфиденциальность</strong>
+                        <span>Ваши данные защищены и не передаются третьим лицам</span>
+                    </div>
+                    <div class="about-item">
+                        <strong>GitHub</strong>
+                        <a href="https://github.com/Khuyew" target="_blank">
+                            <i class="ti ti-brand-github"></i>
+                            Khuyew на GitHub
+                        </a>
+                    </div>
+                    <div class="about-item">
+                        <strong>Версия</strong>
+                        <span>Khuyew AI v2.3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
