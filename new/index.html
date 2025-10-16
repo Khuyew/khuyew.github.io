@@ -1,0 +1,3849 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Khuyew AI - Бесплатный ИИ-помощник</title>
+    <meta name="description" content="Khuyew AI - полностью бесплатный ИИ-помощник с генерацией изображений">
+    <meta name="theme-color" content="#0f0f23">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Dark theme colors */
+            --bg-primary: #0f0f23;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --bg-tertiary: rgba(255, 255, 255, 0.08);
+            --bg-hover: rgba(255, 255, 255, 0.12);
+            
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --text-tertiary: #8888aa;
+            
+            --border-color: rgba(255, 255, 255, 0.15);
+            
+            --accent-primary: #0099ff;
+            --accent-secondary: #0066ff;
+            --accent-primary-alpha: rgba(0, 153, 255, 0.2);
+            
+            --user-message-bg-start: #667eea;
+            --user-message-bg-end: #764ba2;
+            --user-message-text: #ffffff;
+            
+            --ai-message-bg: rgba(255, 255, 255, 0.08);
+            --ai-message-text: #e8e8ff;
+            --ai-message-border: rgba(255, 255, 255, 0.12);
+            
+            --error-bg: rgba(255, 107, 107, 0.2);
+            --error-text: #ff6b6b;
+            --error-border: #ff4444;
+            
+            --success-bg: rgba(0, 255, 0, 0.2);
+            --success-text: #00ff00;
+            
+            --warning-bg: rgba(255, 193, 7, 0.2);
+            --warning-text: #ffc107;
+            
+            --code-bg: #1a1a2e;
+            --code-border: #2d2d4d;
+            --code-text: #e2e8f0;
+            
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Light theme variables */
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: rgba(0, 0, 0, 0.03);
+            --bg-tertiary: rgba(0, 0, 0, 0.08);
+            --bg-hover: rgba(0, 0, 0, 0.12);
+            
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #888888;
+            
+            --border-color: rgba(0, 0, 0, 0.15);
+            
+            --ai-message-bg: rgba(0, 0, 0, 0.05);
+            --ai-message-text: #333333;
+            --ai-message-border: rgba(0, 0, 0, 0.1);
+            
+            --code-bg: #f8f9fa;
+            --code-border: #e9ecef;
+            --code-text: #495057;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+
+        /* Header */
+        .app-header {
+            padding: 12px 20px;
+            padding-top: max(12px, env(safe-area-inset-top));
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #0099ff, #00d4ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Header Controls */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Строка поиска */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-width: 200px;
+        }
+
+        .search-input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            transition: var(--transition);
+            outline: none;
+            width: 100%;
+            height: 32px;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-primary-alpha);
+        }
+
+        .search-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 10px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 32px;
+            margin-left: 8px;
+        }
+
+        .search-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* Результаты поиска */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 4px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1001;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+            animation: slideDown 0.2s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+            animation: fadeInUp 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .search-result-desc {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            line-height: 1.3;
+        }
+
+        .model-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 10px;
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            cursor: pointer;
+            transition: var(--transition);
+            outline: none;
+            min-width: 140px;
+            height: 32px;
+        }
+
+        .model-select:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-primary);
+        }
+
+        .model-select:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-primary-alpha);
+        }
+
+        .model-select option {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .model-select option:disabled {
+            color: var(--text-tertiary);
+            background: var(--bg-secondary);
+        }
+
+        .control-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 10px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 32px;
+        }
+
+        .control-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .menu-toggle {
+            display: flex !important;
+        }
+
+        /* Ensure theme toggle works */
+        body[data-theme="light"] .control-btn#themeToggle i::before {
+            content: "\ebd4"; /* ti-sun */
+        }
+
+        body[data-theme="dark"] .control-btn#themeToggle i::before {
+            content: "\eb8c"; /* ti-moon */
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Chat area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 16px 20px;
+            border-radius: var(--radius-xl);
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .message-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
+            color: var(--user-message-text);
+            margin-left: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .message-ai {
+            align-self: flex-start;
+            background: var(--ai-message-bg);
+            color: var(--ai-message-text);
+            border: 1px solid var(--ai-message-border);
+            margin-right: auto;
+        }
+
+        .message-error {
+            align-self: flex-start;
+            background: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid var(--error-border);
+        }
+
+        .message-image {
+            max-width: 300px;
+            margin-top: 8px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .message-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Markdown Styles */
+        .message-content {
+            line-height: 1.6;
+        }
+
+        .message-content h1,
+        .message-content h2,
+        .message-content h3,
+        .message-content h4,
+        .message-content h5,
+        .message-content h6 {
+            margin: 1.2em 0 0.6em 0;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .message-content h1 {
+            font-size: 1.5em;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.3em;
+        }
+
+        .message-content h2 {
+            font-size: 1.3em;
+        }
+
+        .message-content h3 {
+            font-size: 1.1em;
+        }
+
+        .message-content p {
+            margin: 0.8em 0;
+        }
+
+        .message-content ul,
+        .message-content ol {
+            margin: 0.8em 0;
+            padding-left: 1.5em;
+        }
+
+        .message-content li {
+            margin: 0.3em 0;
+        }
+
+        .message-content blockquote {
+            margin: 1em 0;
+            padding: 0.5em 1em;
+            border-left: 4px solid var(--accent-primary);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            font-style: italic;
+        }
+
+        .message-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+        }
+
+        .message-content th,
+        .message-content td {
+            padding: 0.5em;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .message-content th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+        }
+
+        .message-content strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .message-content em {
+            font-style: italic;
+        }
+
+        .message-content code {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 0.2em 0.4em;
+            border-radius: var(--radius-sm);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+            border: 1px solid var(--code-border);
+        }
+
+        .message-content pre {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: var(--radius-md);
+            padding: 1em;
+            margin: 1em 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .message-content pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            border-radius: 0;
+            color: inherit;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8em;
+            padding-bottom: 0.5em;
+            border-bottom: 1px solid var(--code-border);
+        }
+
+        .code-language {
+            font-size: 0.8em;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .copy-code-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.3em 0.6em;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.7em;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.3em;
+        }
+
+        .copy-code-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .copy-code-btn.copied {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border-color: var(--success-text);
+        }
+
+        /* Highlight.js overrides */
+        .hljs {
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
+        /* Model indicator in messages */
+        .model-indicator {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            margin-top: 8px;
+            font-style: italic;
+            border-top: 1px solid var(--border-color);
+            padding-top: 6px;
+        }
+
+        /* Message actions */
+        .message-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            justify-content: flex-start;
+        }
+
+        .action-btn-small {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+        }
+
+        .action-btn-small:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .action-btn-small:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Стили для кнопки озвучки */
+        .speak-btn.speaking {
+            background: var(--accent-primary-alpha) !important;
+            color: var(--accent-primary) !important;
+            border-color: var(--accent-primary) !important;
+            animation: gentlePulse 2s ease-in-out infinite;
+        }
+
+        .speak-btn.speaking:hover {
+            background: var(--error-bg) !important;
+            color: var(--error-text) !important;
+            border-color: var(--error-text) !important;
+            animation: none;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Input area */
+        .input-section {
+            padding: 16px 20px;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .attach-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 18px;
+            flex-shrink: 0;
+            align-self: flex-end;
+            margin-bottom: 4px;
+        }
+
+        .attach-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 14px 120px 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+            resize: none;
+            min-height: 52px;
+            max-height: 120px;
+            overflow-y: auto;
+            line-height: 1.4;
+            font-family: inherit;
+            align-self: stretch;
+        }
+
+        #userInput::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        #userInput:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-primary-alpha);
+        }
+
+        .input-controls {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .input-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 16px;
+        }
+
+        .input-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .input-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 16px;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Attached files */
+        .attached-files {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            flex-wrap: wrap;
+        }
+
+        .attached-file {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .remove-file:hover {
+            background: var(--error-bg);
+            color: var(--error-text);
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            justify-content: center;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 32px;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            color: var(--text-tertiary);
+        }
+
+        .action-btn.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        /* Voice mode indicator */
+        .voice-mode-active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+            color: white !important;
+        }
+
+        /* Footer */
+        .app-footer {
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            flex-shrink: 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .current-chat-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        .current-chat-info i {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* Кнопка редактирования чата */
+        .edit-chat-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            margin-left: 8px;
+        }
+
+        .edit-chat-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .notification.info {
+            background: var(--accent-primary-alpha);
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .notification.success {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-text);
+        }
+
+        .notification.warning {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+            border: 1px solid var(--warning-text);
+        }
+
+        .notification.error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid var(--error-border);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Image analysis styles */
+        .image-analysis {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .analysis-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-primary);
+        }
+
+        .analysis-content {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: var(--radius-sm);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Упрощенные стили для стриминговых сообщений */
+        .streaming-message {
+            position: relative;
+        }
+
+        .streaming-content {
+            position: relative;
+        }
+
+        .typing-indicator-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            transition: opacity 0.3s ease;
+        }
+
+        .typing-indicator-inline.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .typing-indicator-inline .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-indicator-inline .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .streaming-text {
+            line-height: 1.6;
+        }
+
+        /* Улучшенная анимация пульсации */
+        @keyframes gentlePulse {
+            0% { 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(0, 153, 255, 0.4);
+            }
+            50% { 
+                transform: scale(1.02); 
+                box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.2);
+            }
+            100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(0, 153, 255, 0);
+            }
+        }
+
+        /* Убираем мерцание при стриминге */
+        .message-ai {
+            opacity: 1 !important;
+            transform: none !important;
+        }
+
+        /* Улучшаем отображение индикатора печати */
+        .typing-indicator-inline .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator-inline .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* Sidebar Menu */
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100vh;
+            background: var(--bg-primary);
+            border-left: 1px solid var(--border-color);
+            z-index: 1000;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-menu.active {
+            right: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .sidebar-header h3 {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        .sidebar-close:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-section h4 {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-btn {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 13px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .sidebar-btn.primary {
+            background: var(--accent-primary-alpha);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .sidebar-btn.primary:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* Chat list in sidebar */
+        .sidebar-section .chat-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+
+        .sidebar-section .chat-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-section .chat-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .sidebar-section .chat-item:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-section .chat-item.active {
+            background: var(--accent-primary-alpha);
+            color: var(--accent-primary);
+        }
+
+        .sidebar-section .chat-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        /* Кнопка редактирования в сайдбаре */
+        .edit-chat-sidebar-btn {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+        }
+
+        .edit-chat-sidebar-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .sidebar-section .delete-chat-btn {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+        }
+
+        .sidebar-section .delete-chat-btn:hover {
+            background: var(--error-bg);
+            color: var(--error-text);
+        }
+
+        /* About section in sidebar */
+        .sidebar-section .about-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-section .about-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-section .about-item:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-section .about-item strong {
+            font-size: 12px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .sidebar-section .about-item span {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1.4;
+        }
+
+        .sidebar-section .about-item a {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .sidebar-section .about-item a:hover {
+            color: var(--accent-primary);
+        }
+
+        /* Новые стили для улучшенного управления чатами */
+        .chat-management {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .chat-action-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 10px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .chat-action-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .empty-chat-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-chat-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-chat-state h3 {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .empty-chat-state p {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Стили для состояния загрузки */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-tertiary);
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Модальное окно переименования */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border-color);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 20px 0 20px;
+        }
+
+        .modal-header h3 {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+
+        .modal-input {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .modal-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-primary-alpha);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            padding: 0 20px 20px 20px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 13px;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.primary {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--accent-secondary);
+            border-color: var(--accent-secondary);
+        }
+
+        .modal-btn.secondary:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 10px 16px;
+                padding-top: max(10px, env(safe-area-inset-top));
+                padding-left: calc(16px + env(safe-area-inset-left));
+                padding-right: calc(16px + env(safe-area-inset-right));
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            
+            .header-controls {
+                gap: 6px;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-container {
+                flex: 1;
+                min-width: auto;
+                margin-right: 8px;
+            }
+            
+            .search-input {
+                font-size: 14px;
+                height: 36px;
+            }
+            
+            .search-btn {
+                height: 36px;
+                min-width: 36px;
+            }
+            
+            .model-select {
+                min-width: 120px;
+                font-size: 12px;
+                padding: 4px 8px;
+                height: 36px;
+            }
+            
+            .control-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+                height: 36px;
+                width: 36px;
+            }
+            
+            .messages-container {
+                padding: 16px;
+                gap: 12px;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 14px 16px;
+                font-size: 13px;
+            }
+            
+            .input-section {
+                padding: 12px 16px;
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
+                padding-left: calc(16px + env(safe-area-inset-left));
+                padding-right: calc(16px + env(safe-area-inset-right));
+            }
+            
+            .attach-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            #userInput {
+                padding: 12px 110px 12px 14px;
+                font-size: 13px;
+            }
+            
+            .input-btn,
+            .send-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            
+            .action-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+                height: 28px;
+            }
+            
+            .app-footer {
+                padding: 10px 16px;
+                font-size: 10px;
+                padding-left: calc(16px + env(safe-area-inset-left));
+                padding-right: calc(16px + env(safe-area-inset-right));
+            }
+            
+            .message-actions {
+                gap: 6px;
+            }
+            
+            .action-btn-small {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
+            /* Sidebar адаптивность */
+            .sidebar-menu {
+                width: 300px;
+                right: -300px;
+            }
+            
+            .sidebar-section {
+                padding: 16px;
+            }
+            
+            .menu-toggle {
+                display: flex !important;
+            }
+
+            /* Оптимизация для портретного режима */
+            body.portrait .messages-container {
+                max-height: calc(100vh - 200px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-container {
+                min-width: 150px;
+            }
+            
+            .search-input {
+                font-size: 12px;
+            }
+            
+            .model-select {
+                min-width: 110px;
+                font-size: 11px;
+            }
+            
+            .message {
+                max-width: 95%;
+                font-size: 12px;
+            }
+            
+            .input-wrapper {
+                gap: 6px;
+            }
+            
+            .attach-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+            
+            #userInput {
+                padding: 12px 100px 12px 12px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .action-btn {
+                flex: 1;
+                min-width: 100px;
+                justify-content: center;
+                font-size: 9px;
+            }
+            
+            /* Sidebar адаптивность для мобильных */
+            .sidebar-menu {
+                width: 280px;
+                right: -280px;
+            }
+            
+            .sidebar-header {
+                padding: 12px 16px;
+            }
+            
+            .sidebar-section {
+                padding: 12px;
+            }
+            
+            .sidebar-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .modal {
+                margin: 10px;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .modal-btn {
+                width: 100%;
+            }
+        }
+
+        /* Улучшения для планшетов */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .search-container {
+                min-width: 180px;
+            }
+        }
+
+        /* Улучшенная поддержка темной темы для модальных окон */
+        @media (prefers-color-scheme: dark) {
+            .modal {
+                background: var(--bg-primary);
+            }
+            
+            .search-results {
+                background: var(--bg-primary);
+                border-color: var(--border-color);
+            }
+        }
+
+        /* Улучшенная доступность */
+        .search-input:focus-visible,
+        .modal-input:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        /* Высококонтрастный режим */
+        @media (prefers-contrast: high) {
+            .search-input,
+            .modal-input {
+                border-width: 2px;
+            }
+            
+            .search-result-item:hover {
+                outline: 2px solid currentColor;
+            }
+        }
+
+        /* Уменьшение движения для пользователей с настройками */
+        @media (prefers-reduced-motion: reduce) {
+            .search-results,
+            .modal,
+            .search-result-item {
+                animation: none;
+                transition: none;
+            }
+        }
+    </style>
+    
+    <!-- Puter AI SDK -->
+    <script src="https://js.puter.com/v2/"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <div class="logo">Khuyew AI</div>
+                    <div class="subtitle">Бесплатный ИИ-помощник с генерацией изображений</div>
+                </div>
+                <div class="header-controls">
+                    <!-- Новая строка поиска -->
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Поиск по функциям..." class="search-input">
+                        <button class="search-btn" id="searchBtn">
+                            <i class="ti ti-search"></i>
+                        </button>
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                    
+                    <select class="model-select" id="modelSelect">
+                        <option value="gpt-5-nano">GPT-5 Nano</option>
+                        <option value="o3-mini">O3 Mini</option>
+                        <option value="claude-sonnet" disabled>Claude Sonnet (скоро)</option>
+                        <option value="deepseek-chat">DeepSeek Chat</option>
+                        <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                        <option value="grok-beta">xAI Grok</option>
+                    </select>
+                    <button class="control-btn" id="themeToggle">
+                        <i class="ti ti-moon"></i>
+                    </button>
+                    <button class="control-btn menu-toggle" id="menuToggle">
+                        <i class="ti ti-menu-2"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="chat-main">
+            <div class="messages-container" id="messagesContainer">
+                <!-- Messages will be added here -->
+            </div>
+
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
+                        <i class="ti ti-plus"></i>
+                    </button>
+                    
+                    <textarea 
+                        id="userInput" 
+                        placeholder="Задайте вопрос или опишите изображение..." 
+                        autocomplete="off" 
+                        rows="1"
+                    ></textarea>
+                    
+                    <div class="input-controls">
+                        <button class="input-btn" id="clearInputBtn" title="Очистить ввод">
+                            <i class="ti ti-x"></i>
+                        </button>
+                        <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
+                            <i class="ti ti-microphone"></i>
+                        </button>
+                        <button class="send-btn" id="sendBtn" title="Отправить сообщение">
+                            <i class="ti ti-send"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="attached-files" id="attachedFiles">
+                    <!-- Attached files will appear here -->
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn" id="helpBtn">
+                        <i class="ti ti-help"></i>
+                        Помощь
+                    </button>
+                    <button class="action-btn" id="clearChatBtn">
+                        <i class="ti ti-trash"></i>
+                        Очистить чат
+                    </button>
+                    <button class="action-btn" id="generateImageBtn" disabled title="Скоро будет доступно">
+                        <i class="ti ti-photo"></i>
+                        Генерация изображения
+                    </button>
+                    <button class="action-btn" id="generateVoiceBtn">
+                        <i class="ti ti-microphone"></i>
+                        Генерация голоса
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="current-chat-info">
+                    <i class="ti ti-message"></i>
+                    <span id="currentChatName">Основной чат</span>
+                    <!-- Кнопка редактирования чата -->
+                    <button class="edit-chat-btn" id="editChatBtn" title="Переименовать чат">
+                        <i class="ti ti-pencil"></i>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h3>Меню</h3>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <h4>Управление чатами</h4>
+                <div class="chat-list" id="chatList">
+                    <!-- Chat items will be dynamically added here -->
+                </div>
+                <button class="sidebar-btn primary" id="newChatBtn">
+                    <i class="ti ti-plus"></i> Новый чат
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h4>О программе</h4>
+                <div class="about-content">
+                    <div class="about-item">
+                        <strong>Сделано в Беларуси</strong>
+                        <span>Разработано с ❤️ для сообщества</span>
+                    </div>
+                    <div class="about-item">
+                        <strong>Конфиденциальность</strong>
+                        <span>Ваши данные защищены и не передаются третьим лицам</span>
+                    </div>
+                    <div class="about-item">
+                        <strong>GitHub</strong>
+                        <a href="https://github.com/Khuyew" target="_blank">
+                            <i class="ti ti-brand-github"></i>
+                            Khuyew на GitHub
+                        </a>
+                    </div>
+                    <div class="about-item">
+                        <strong>Версия</strong>
+                        <span>Khuyew AI v2.3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Модальное окно для переименования чата -->
+    <div class="modal-overlay" id="renameModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Переименовать чат</h3>
+                <button class="modal-close" id="renameModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <input type="text" id="renameChatInput" placeholder="Введите новое название чата..." class="modal-input">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="renameModalCancel">Отмена</button>
+                <button class="modal-btn primary" id="renameModalSave">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        class KhuyewAI {
+            constructor() {
+                this.initializeElements();
+                this.initializeState();
+                this.setupMarked();
+                this.init();
+            }
+
+            initializeElements() {
+                // Основные элементы интерфейса
+                this.messagesContainer = document.getElementById('messagesContainer');
+                this.userInput = document.getElementById('userInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.clearInputBtn = document.getElementById('clearInputBtn');
+                this.clearChatBtn = document.getElementById('clearChatBtn');
+                this.helpBtn = document.getElementById('helpBtn');
+                this.generateImageBtn = document.getElementById('generateImageBtn');
+                this.generateVoiceBtn = document.getElementById('generateVoiceBtn');
+                this.themeToggle = document.getElementById('themeToggle');
+                this.modelSelect = document.getElementById('modelSelect');
+                this.logo = document.querySelector('.logo');
+                this.attachFileBtn = document.getElementById('attachFileBtn');
+                this.voiceInputBtn = document.getElementById('voiceInputBtn');
+                this.fileInput = document.getElementById('fileInput');
+                this.attachedFiles = document.getElementById('attachedFiles');
+                this.currentChatName = document.getElementById('currentChatName');
+                this.editChatBtn = document.getElementById('editChatBtn');
+                
+                // Новые элементы для поиска
+                this.searchInput = document.getElementById('searchInput');
+                this.searchBtn = document.getElementById('searchBtn');
+                this.searchResults = document.getElementById('searchResults');
+                
+                // Элементы меню
+                this.menuToggle = document.getElementById('menuToggle');
+                this.sidebarMenu = document.getElementById('sidebarMenu');
+                this.sidebarOverlay = document.getElementById('sidebarOverlay');
+                this.sidebarClose = document.getElementById('sidebarClose');
+                this.chatList = document.getElementById('chatList');
+                this.newChatBtn = document.getElementById('newChatBtn');
+
+                // Элементы модального окна переименования
+                this.renameModalOverlay = document.getElementById('renameModalOverlay');
+                this.renameModalClose = document.getElementById('renameModalClose');
+                this.renameModalCancel = document.getElementById('renameModalCancel');
+                this.renameModalSave = document.getElementById('renameModalSave');
+                this.renameChatInput = document.getElementById('renameChatInput');
+
+                // Проверяем что все элементы найдены
+                this.validateElements();
+            }
+
+            validateElements() {
+                const requiredElements = [
+                    'messagesContainer', 'userInput', 'sendBtn', 'clearInputBtn',
+                    'clearChatBtn', 'helpBtn', 'generateVoiceBtn', 'themeToggle',
+                    'modelSelect', 'attachFileBtn', 'voiceInputBtn', 'fileInput',
+                    'attachedFiles', 'currentChatName', 'editChatBtn', 'searchInput',
+                    'searchBtn', 'searchResults', 'menuToggle', 'sidebarMenu',
+                    'sidebarOverlay', 'sidebarClose', 'chatList', 'newChatBtn',
+                    'renameModalOverlay', 'renameModalClose', 'renameModalCancel',
+                    'renameModalSave', 'renameChatInput'
+                ];
+
+                requiredElements.forEach(elementName => {
+                    if (!this[elementName]) {
+                        console.error(`Элемент не найден: ${elementName}`);
+                        throw new Error(`Required element ${elementName} not found`);
+                    }
+                });
+            }
+
+            initializeState() {
+                // Состояние приложения
+                this.isProcessing = false;
+                this.currentTheme = 'dark';
+                this.isImageMode = false;
+                this.isVoiceMode = false;
+                this.attachedImages = [];
+                this.isListening = false;
+                this.recognition = null;
+                this.conversationHistory = [];
+                this.currentModel = 'gpt-5-nano';
+                this.currentAudio = null;
+                this.isSpeaking = false;
+                this.currentUtterance = null;
+                this.chatSessions = new Map();
+                this.currentChatId = 'default';
+                this.activeTypingIndicator = null;
+                this.activeStreamingMessage = null;
+                this.activeTimeouts = new Set();
+                this.activeEventListeners = new Map();
+                this.isSearchOpen = false;
+
+                // Конфигурация поиска
+                this.searchFeatures = [
+                    {
+                        keywords: ['изображение', 'фото', 'картинка', 'анализ изображения', 'img', 'image'],
+                        title: 'Анализ изображений',
+                        description: 'Прикрепите изображение и задайте вопрос о нем',
+                        action: () => this.showNotification('Прикрепите изображение кнопкой ➕ и задайте вопрос', 'info')
+                    },
+                    {
+                        keywords: ['голос', 'озвучка', 'аудио', 'speech', 'voice', 'микрофон'],
+                        title: 'Голосовые функции',
+                        description: 'Голосовой ввод и озвучка ответов',
+                        action: () => {
+                            this.toggleVoiceMode();
+                            this.closeSearch();
+                        }
+                    },
+                    {
+                        keywords: ['код', 'программирование', 'code', 'программа', 'синтаксис'],
+                        title: 'Помощь с кодом',
+                        description: 'Напишите код с подсветкой синтаксиса',
+                        action: () => {
+                            this.userInput.value = 'Напиши код для ';
+                            this.userInput.focus();
+                            this.closeSearch();
+                        }
+                    },
+                    {
+                        keywords: ['чат', 'беседа', 'разговор', 'общение', 'chat'],
+                        title: 'Управление чатами',
+                        description: 'Создавайте и переключайтесь между чатами',
+                        action: () => {
+                            this.toggleSidebar();
+                            this.closeSearch();
+                        }
+                    },
+                    {
+                        keywords: ['помощь', 'help', 'справка', 'функции', 'возможности'],
+                        title: 'Помощь по функциям',
+                        description: 'Узнайте обо всех возможностях Khuyew AI',
+                        action: () => {
+                            this.showHelp();
+                            this.closeSearch();
+                        }
+                    },
+                    {
+                        keywords: ['тема', 'оформление', 'dark', 'light', 'внешний вид'],
+                        title: 'Смена темы',
+                        description: 'Переключение между темной и светлой темой',
+                        action: () => {
+                            this.toggleTheme();
+                            this.closeSearch();
+                        }
+                    },
+                    {
+                        keywords: ['модель', 'gpt', 'ai', 'нейросеть', 'model'],
+                        title: 'Смена модели ИИ',
+                        description: 'Выберите подходящую модель ИИ для ваших задач',
+                        action: () => {
+                            this.modelSelect.focus();
+                            this.closeSearch();
+                        }
+                    },
+                    {
+                        keywords: ['очистить', 'удалить', 'clear', 'стереть'],
+                        title: 'Очистка чата',
+                        description: 'Очистить текущую историю сообщений',
+                        action: () => {
+                            this.clearChat();
+                            this.closeSearch();
+                        }
+                    }
+                ];
+
+                this.placeholderExamples = [
+                    "Расскажи о возможностях искусственного интеллекта...",
+                    "Напиши код для сортировки массива на Python...",
+                    "Объясни теорию относительности простыми словами...",
+                    "Какие есть способы улучшить производительность веб-сайта?",
+                    "Создай описание для приложения на основе ИИ..."
+                ];
+
+                this.modelConfig = {
+                    'gpt-5-nano': { 
+                        name: 'GPT-5 Nano', 
+                        description: 'Быстрая и эффективная модель для повседневных задач' 
+                    },
+                    'o3-mini': { 
+                        name: 'O3 Mini', 
+                        description: 'Продвинутая модель с улучшенными возможностями рассуждения' 
+                    },
+                    'claude-sonnet': { 
+                        name: 'Claude Sonnet', 
+                        description: 'Мощная модель от Anthropic для сложных задач и анализа' 
+                    },
+                    'deepseek-chat': { 
+                        name: 'DeepSeek Chat', 
+                        description: 'Универсальная модель для общения и решения задач' 
+                    },
+                    'deepseek-reasoner': { 
+                        name: 'DeepSeek Reasoner', 
+                        description: 'Специализированная модель для сложных логических рассуждений' 
+                    },
+                    'gemini-2.0-flash': { 
+                        name: 'Gemini 2.0 Flash', 
+                        description: 'Новейшая быстрая модель от Google с улучшенными возможностями' 
+                    },
+                    'gemini-1.5-flash': { 
+                        name: 'Gemini 1.5 Flash', 
+                        description: 'Быстрая и эффективная модель от Google для различных задач' 
+                    },
+                    'grok-beta': { 
+                        name: 'xAI Grok', 
+                        description: 'Модель от xAI с уникальным характером и остроумными ответами' 
+                    }
+                };
+            }
+
+            setupMarked() {
+                marked.setOptions({
+                    highlight: (code, lang) => {
+                        if (lang && hljs.getLanguage(lang)) {
+                            try {
+                                return hljs.highlight(code, { language: lang }).value;
+                            } catch (err) {
+                                console.warn(`Error highlighting ${lang}:`, err);
+                            }
+                        }
+                        return hljs.highlightAuto(code).value;
+                    },
+                    langPrefix: 'hljs language-',
+                    breaks: true,
+                    gfm: true
+                });
+            }
+
+            init() {
+                try {
+                    this.bindEvents();
+                    this.setupAutoResize();
+                    this.setupVoiceRecognition();
+                    this.startPlaceholderAnimation();
+                    this.loadModelPreference();
+                    this.loadThemePreference();
+                    this.loadChatSessions();
+                    this.setupChatSelector();
+                    this.loadCurrentSession();
+                    
+                    this.showNotification('Khuyew AI загружен и готов к работе!', 'success');
+                } catch (error) {
+                    console.error('Ошибка инициализации:', error);
+                    this.showNotification('Ошибка загрузки приложения', 'error');
+                }
+            }
+
+            bindEvents() {
+                // Основные обработчики событий
+                const events = [
+                    [this.sendBtn, 'click', () => this.sendMessage()],
+                    [this.userInput, 'keydown', (e) => this.handleInputKeydown(e)],
+                    [this.clearInputBtn, 'click', () => this.clearInput()],
+                    [this.clearChatBtn, 'click', () => this.clearChat()],
+                    [this.helpBtn, 'click', () => this.showHelp()],
+                    [this.generateImageBtn, 'click', (e) => this.handleImageMode(e)],
+                    [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
+                    [this.themeToggle, 'click', () => this.toggleTheme()],
+                    [this.modelSelect, 'change', (e) => this.handleModelChange(e)],
+                    [this.logo, 'click', () => this.showWelcomeMessage()],
+                    [this.attachFileBtn, 'click', () => this.fileInput.click()],
+                    [this.fileInput, 'change', (e) => this.handleFileSelect(e)],
+                    [this.voiceInputBtn, 'click', () => this.toggleVoiceInput()],
+                    [this.menuToggle, 'click', () => this.toggleSidebar()],
+                    [this.sidebarClose, 'click', () => this.closeSidebar()],
+                    [this.sidebarOverlay, 'click', () => this.closeSidebar()],
+                    [this.newChatBtn, 'click', () => this.createNewChat()],
+                    [this.editChatBtn, 'click', () => this.showRenameModal()],
+                    [this.renameModalClose, 'click', () => this.closeRenameModal()],
+                    [this.renameModalCancel, 'click', () => this.closeRenameModal()],
+                    [this.renameModalSave, 'click', () => this.renameCurrentChat()],
+                    [this.renameChatInput, 'keydown', (e) => this.handleRenameInputKeydown(e)],
+                    [this.searchInput, 'input', (e) => this.handleSearchInput(e)],
+                    [this.searchInput, 'focus', () => this.openSearch()],
+                    [this.searchBtn, 'click', () => this.toggleSearch()],
+                    [document, 'click', (e) => this.handleDocumentClick(e)],
+                    [window, 'beforeunload', () => this.handleBeforeUnload()],
+                    [window, 'resize', () => this.handleResize()]
+                ];
+
+                events.forEach(([element, event, handler]) => {
+                    this.addEventListener(element, event, handler);
+                });
+
+                // Инициализация адаптации под мобильные устройства
+                this.setupMobileAdaptation();
+            }
+
+            addEventListener(element, event, handler) {
+                if (!element) return;
+                
+                const wrappedHandler = (...args) => {
+                    try {
+                        handler(...args);
+                    } catch (error) {
+                        console.error(`Error in ${event} handler:`, error);
+                        this.showNotification('Произошла ошибка при обработке действия', 'error');
+                    }
+                };
+
+                element.addEventListener(event, wrappedHandler);
+                
+                // Сохраняем для возможности очистки
+                if (!this.activeEventListeners.has(element)) {
+                    this.activeEventListeners.set(element, []);
+                }
+                this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
+            }
+
+            handleInputKeydown(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            }
+
+            handleImageMode(e) {
+                if (this.generateImageBtn.disabled) {
+                    e.preventDefault();
+                    this.showNotification('Генерация изображений временно недоступна', 'warning');
+                } else {
+                    this.toggleImageMode();
+                }
+            }
+
+            handleModelChange(e) {
+                if (e.target.value === 'claude-sonnet') {
+                    this.showNotification('Claude Sonnet временно недоступен', 'warning');
+                    this.modelSelect.value = this.currentModel;
+                    return;
+                }
+                this.changeModel(e.target.value);
+            }
+
+            handleBeforeUnload() {
+                this.saveCurrentSession();
+                this.saveModelPreference();
+                this.saveChatSessions();
+                
+                // Очистка ресурсов
+                this.cleanup();
+            }
+
+            setupAutoResize() {
+                this.addEventListener(this.userInput, 'input', () => {
+                    this.userInput.style.height = 'auto';
+                    this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+                });
+            }
+
+            setupVoiceRecognition() {
+                if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                    this.voiceInputBtn.style.display = 'none';
+                    return;
+                }
+
+                try {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = false;
+                    this.recognition.lang = 'ru-RU';
+
+                    this.recognition.onstart = () => {
+                        this.isListening = true;
+                        this.voiceInputBtn.classList.add('active');
+                        this.showNotification('Слушаю...', 'info');
+                    };
+
+                    this.recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        this.userInput.value = transcript;
+                        this.userInput.focus();
+                        this.showNotification('Текст распознан', 'success');
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                        this.showNotification(`Ошибка распознавания: ${event.error}`, 'error');
+                        this.isListening = false;
+                        this.voiceInputBtn.classList.remove('active');
+                    };
+
+                    this.recognition.onend = () => {
+                        this.isListening = false;
+                        this.voiceInputBtn.classList.remove('active');
+                    };
+                } catch (error) {
+                    console.error('Error setting up voice recognition:', error);
+                    this.voiceInputBtn.style.display = 'none';
+                }
+            }
+
+            startPlaceholderAnimation() {
+                let index = 0;
+                let charIndex = 0;
+                let isDeleting = false;
+
+                const type = () => {
+                    const currentExample = this.placeholderExamples[index];
+                    
+                    if (isDeleting) {
+                        charIndex--;
+                    } else {
+                        charIndex++;
+                    }
+
+                    const currentText = currentExample.substring(0, charIndex);
+                    this.userInput.placeholder = currentText + '▌';
+
+                    if (!isDeleting && charIndex === currentExample.length) {
+                        isDeleting = true;
+                        this.setTimeout(() => {}, 2000);
+                    } else if (isDeleting && charIndex === 0) {
+                        isDeleting = false;
+                        index = (index + 1) % this.placeholderExamples.length;
+                    }
+
+                    const typeSpeed = isDeleting ? 50 : 100;
+                    this.setTimeout(type, typeSpeed);
+                };
+
+                type();
+            }
+
+            setTimeout(callback, delay) {
+                const timeoutId = setTimeout(() => {
+                    this.activeTimeouts.delete(timeoutId);
+                    callback();
+                }, delay);
+                this.activeTimeouts.add(timeoutId);
+                return timeoutId;
+            }
+
+            // Поиск функций
+            handleSearchInput(e) {
+                const query = e.target.value.toLowerCase().trim();
+                if (query.length < 1) {
+                    this.closeSearch();
+                    return;
+                }
+
+                const results = this.searchFeatures.filter(feature =>
+                    feature.keywords.some(keyword => keyword.includes(query)) ||
+                    feature.title.toLowerCase().includes(query) ||
+                    feature.description.toLowerCase().includes(query)
+                );
+
+                this.displaySearchResults(results);
+            }
+
+            displaySearchResults(results) {
+                if (results.length === 0) {
+                    this.searchResults.innerHTML = '<div class="search-result-item">Ничего не найдено</div>';
+                    this.searchResults.classList.add('active');
+                    return;
+                }
+
+                this.searchResults.innerHTML = results.map(result => `
+                    <div class="search-result-item" data-action="${result.title}">
+                        <div class="search-result-title">${result.title}</div>
+                        <div class="search-result-desc">${result.description}</div>
+                    </div>
+                `).join('');
+
+                this.searchResults.classList.add('active');
+
+                // Добавляем обработчики для результатов поиска
+                this.searchResults.querySelectorAll('.search-result-item').forEach((item, index) => {
+                    this.addEventListener(item, 'click', () => {
+                        results[index].action();
+                    });
+                });
+            }
+
+            openSearch() {
+                this.isSearchOpen = true;
+                this.searchResults.classList.add('active');
+            }
+
+            closeSearch() {
+                this.isSearchOpen = false;
+                this.searchResults.classList.remove('active');
+                this.searchInput.value = '';
+            }
+
+            toggleSearch() {
+                if (this.isSearchOpen) {
+                    this.closeSearch();
+                } else {
+                    this.openSearch();
+                    this.searchInput.focus();
+                }
+            }
+
+            handleDocumentClick(e) {
+                if (!this.searchInput.contains(e.target) && 
+                    !this.searchResults.contains(e.target) && 
+                    !this.searchBtn.contains(e.target)) {
+                    this.closeSearch();
+                }
+            }
+
+            // Переименование чатов
+            showRenameModal() {
+                const currentSession = this.chatSessions.get(this.currentChatId);
+                if (currentSession) {
+                    this.renameChatInput.value = currentSession.name;
+                    this.renameModalOverlay.classList.add('active');
+                    this.renameChatInput.focus();
+                    this.renameChatInput.select();
+                }
+            }
+
+            closeRenameModal() {
+                this.renameModalOverlay.classList.remove('active');
+                this.renameChatInput.value = '';
+            }
+
+            handleRenameInputKeydown(e) {
+                if (e.key === 'Enter') {
+                    this.renameCurrentChat();
+                } else if (e.key === 'Escape') {
+                    this.closeRenameModal();
+                }
+            }
+
+            renameCurrentChat() {
+                const newName = this.renameChatInput.value.trim();
+                if (!newName) {
+                    this.showNotification('Введите название чата', 'error');
+                    return;
+                }
+
+                const session = this.chatSessions.get(this.currentChatId);
+                if (session) {
+                    session.name = newName;
+                    session.lastActivity = Date.now();
+                    this.chatSessions.set(this.currentChatId, session);
+                    
+                    this.currentChatName.textContent = newName;
+                    this.saveChatSessions();
+                    this.updateChatDropdown();
+                    
+                    this.showNotification(`Чат переименован в "${newName}"`, 'success');
+                    this.closeRenameModal();
+                }
+            }
+
+            // Адаптация под мобильные устройства
+            setupMobileAdaptation() {
+                this.handleResize();
+                
+                // Определяем тип устройства
+                this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (this.isMobile) {
+                    document.body.classList.add('mobile');
+                }
+            }
+
+            handleResize() {
+                const isPortrait = window.innerHeight > window.innerWidth;
+                const isSmallScreen = window.innerWidth <= 768;
+                
+                document.body.classList.toggle('portrait', isPortrait);
+                document.body.classList.toggle('landscape', !isPortrait);
+                document.body.classList.toggle('small-screen', isSmallScreen);
+                
+                // Обновляем высоту элементов для мобильных устройств
+                this.updateMobileLayout();
+            }
+
+            updateMobileLayout() {
+                if (!this.isMobile) return;
+
+                const viewportHeight = window.innerHeight;
+                const headerHeight = document.querySelector('.app-header')?.offsetHeight || 60;
+                const footerHeight = document.querySelector('.app-footer')?.offsetHeight || 40;
+                
+                // Устанавливаем высоту контейнера сообщений
+                if (this.messagesContainer) {
+                    const availableHeight = viewportHeight - headerHeight - footerHeight - 100;
+                    this.messagesContainer.style.maxHeight = `${availableHeight}px`;
+                }
+            }
+
+            toggleSidebar() {
+                this.sidebarMenu.classList.toggle('active');
+                this.sidebarOverlay.classList.toggle('active');
+                if (this.sidebarMenu.classList.contains('active')) {
+                    this.updateChatDropdown();
+                }
+            }
+
+            closeSidebar() {
+                this.sidebarMenu.classList.remove('active');
+                this.sidebarOverlay.classList.remove('active');
+            }
+
+            updateChatDropdown() {
+                if (!this.chatList) return;
+                
+                this.chatList.innerHTML = '';
+
+                const sessionsArray = Array.from(this.chatSessions.entries())
+                    .sort(([,a], [,b]) => b.lastActivity - a.lastActivity);
+
+                if (sessionsArray.length === 0) {
+                    this.createDefaultChat();
+                    this.updateChatDropdown();
+                    return;
+                }
+
+                sessionsArray.forEach(([id, session]) => {
+                    const chatItem = this.createChatItem(id, session);
+                    this.chatList.appendChild(chatItem);
+                });
+            }
+
+            createChatItem(id, session) {
+                const chatItem = document.createElement('div');
+                chatItem.className = `chat-item ${id === this.currentChatId ? 'active' : ''}`;
+                chatItem.setAttribute('data-chat-id', id);
+                
+                chatItem.innerHTML = `
+                    <div class="chat-info">
+                        <i class="ti ti-message"></i>
+                        <span class="chat-name">${this.escapeHtml(session.name)}</span>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="edit-chat-sidebar-btn" title="Переименовать чат">
+                            <i class="ti ti-pencil"></i>
+                        </button>
+                        ${id !== 'default' ? '<button class="delete-chat-btn" title="Удалить чат"><i class="ti ti-x"></i></button>' : ''}
+                    </div>
+                `;
+
+                this.addEventListener(chatItem, 'click', (e) => {
+                    if (!e.target.closest('.chat-actions')) {
+                        this.switchChat(id);
+                        this.closeSidebar();
+                    }
+                });
+
+                const editBtn = chatItem.querySelector('.edit-chat-sidebar-btn');
+                if (editBtn) {
+                    this.addEventListener(editBtn, 'click', (e) => {
+                        e.stopPropagation();
+                        this.switchChat(id);
+                        this.closeSidebar();
+                        this.setTimeout(() => this.showRenameModal(), 300);
+                    });
+                }
+
+                const deleteBtn = chatItem.querySelector('.delete-chat-btn');
+                if (deleteBtn) {
+                    this.addEventListener(deleteBtn, 'click', (e) => {
+                        e.stopPropagation();
+                        this.deleteChat(id);
+                    });
+                }
+
+                return chatItem;
+            }
+
+            createNewChat() {
+                const chatNumber = Array.from(this.chatSessions.values()).filter(session => 
+                    session.name.startsWith('Чат ')
+                ).length + 1;
+                
+                const chatName = `Чат ${chatNumber}`;
+                const chatId = this.createChatSession(chatName);
+                this.switchChat(chatId);
+                this.closeSidebar();
+                this.showNotification(`Создан новый чат: ${chatName}`, 'success');
+            }
+
+            createChatSession(name = 'Новый чат') {
+                const chatId = 'chat-' + Date.now();
+                const session = {
+                    id: chatId,
+                    name: name,
+                    messages: [],
+                    conversationHistory: [],
+                    createdAt: Date.now(),
+                    lastActivity: Date.now()
+                };
+                
+                this.chatSessions.set(chatId, session);
+                this.saveChatSessions();
+                this.updateChatDropdown();
+                
+                return chatId;
+            }
+
+            switchChat(chatId) {
+                if (!this.chatSessions.has(chatId) || chatId === this.currentChatId) {
+                    return;
+                }
+
+                try {
+                    // Сохраняем текущую сессию перед переключением
+                    this.saveCurrentSession();
+                    
+                    this.currentChatId = chatId;
+                    const session = this.chatSessions.get(chatId);
+                    
+                    // Обновляем активность чата
+                    session.lastActivity = Date.now();
+                    this.chatSessions.set(chatId, session);
+                    
+                    // Обновляем UI
+                    this.currentChatName.textContent = session.name;
+                    
+                    // Загружаем новую сессию
+                    this.loadSession(session);
+                    this.showNotification(`Переключен на чат: ${session.name}`, 'info');
+                    
+                    this.saveChatSessions();
+                } catch (error) {
+                    console.error('Error switching chat:', error);
+                    this.showNotification('Ошибка при переключении чата', 'error');
+                }
+            }
+
+            deleteChat(chatId) {
+                if (chatId === 'default') {
+                    this.showNotification('Основной чат нельзя удалить', 'warning');
+                    return;
+                }
+
+                if (this.chatSessions.size <= 1) {
+                    this.showNotification('Нельзя удалить последний чат', 'warning');
+                    return;
+                }
+
+                const session = this.chatSessions.get(chatId);
+                if (!session) return;
+
+                if (confirm(`Удалить чат "${session.name}"?`)) {
+                    this.chatSessions.delete(chatId);
+                    
+                    // Если удаляем текущий чат, переключаемся на default
+                    if (this.currentChatId === chatId) {
+                        this.switchChat('default');
+                    }
+                    
+                    this.saveChatSessions();
+                    this.updateChatDropdown();
+                    this.showNotification('Чат удален', 'success');
+                }
+            }
+
+            saveCurrentSession() {
+                try {
+                    const messages = [];
+                    this.messagesContainer.querySelectorAll('.message').forEach(message => {
+                        if (message.classList.contains('typing-indicator') || 
+                            message.classList.contains('streaming-message')) return;
+                        
+                        const role = message.classList.contains('message-user') ? 'user' : 
+                                   message.classList.contains('message-error') ? 'error' : 'ai';
+                        
+                        const content = message.querySelector('.message-content')?.innerHTML || '';
+                        if (content) {
+                            messages.push({ role, content });
+                        }
+                    });
+                    
+                    const session = this.chatSessions.get(this.currentChatId);
+                    if (session) {
+                        session.messages = messages;
+                        session.conversationHistory = [...this.conversationHistory];
+                        session.lastActivity = Date.now();
+                        this.chatSessions.set(this.currentChatId, session);
+                    }
+                } catch (error) {
+                    console.error('Error saving current session:', error);
+                }
+            }
+
+            loadCurrentSession() {
+                const session = this.chatSessions.get(this.currentChatId);
+                if (session) {
+                    this.loadSession(session);
+                } else {
+                    this.showWelcomeMessage();
+                }
+            }
+
+            loadSession(session) {
+                // Очищаем контейнер сообщений
+                this.messagesContainer.innerHTML = '';
+                
+                // Загружаем историю сообщений
+                this.conversationHistory = session.conversationHistory || [];
+                
+                if (session.messages && session.messages.length > 0) {
+                    session.messages.forEach(msg => {
+                        this.renderMessage(msg.role, msg.content);
+                    });
+                } else {
+                    this.showWelcomeMessage();
+                }
+                
+                this.scrollToBottom();
+            }
+
+            renderMessage(role, content) {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message message-${role}`;
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                messageContent.innerHTML = content;
+                
+                messageElement.appendChild(messageContent);
+                this.messagesContainer.appendChild(messageElement);
+                
+                // Прикрепляем обработчики
+                this.attachMessageHandlers(messageElement);
+            }
+
+            attachMessageHandlers(messageElement) {
+                this.attachCopyButtons(messageElement);
+                if (messageElement.classList.contains('message-ai')) {
+                    this.attachSpeakButton(messageElement);
+                }
+            }
+
+            changeModel(model) {
+                if (!this.modelConfig[model]) {
+                    this.showNotification('Неизвестная модель', 'error');
+                    return;
+                }
+
+                this.currentModel = model;
+                const modelInfo = this.modelConfig[model];
+                this.showNotification(`Модель изменена на: ${modelInfo.name}`, 'success');
+                this.saveModelPreference();
+            }
+
+            getModelDisplayName(model) {
+                return this.modelConfig[model]?.name || model;
+            }
+
+            getModelDescription(model) {
+                return this.modelConfig[model]?.description || 'Модель ИИ';
+            }
+
+            toggleVoiceInput() {
+                if (!this.recognition) {
+                    this.showNotification('Голосовой ввод не поддерживается', 'error');
+                    return;
+                }
+
+                if (this.isListening) {
+                    this.recognition.stop();
+                } else {
+                    try {
+                        this.recognition.start();
+                    } catch (error) {
+                        console.error('Error starting voice recognition:', error);
+                        this.showNotification('Ошибка запуска голосового ввода', 'error');
+                    }
+                }
+            }
+
+            toggleVoiceMode() {
+                this.isVoiceMode = !this.isVoiceMode;
+                const placeholder = this.isVoiceMode 
+                    ? "Введите текст для генерации голоса..." 
+                    : "Задайте вопрос или опишите изображение...";
+                
+                this.userInput.placeholder = placeholder;
+                this.generateVoiceBtn.classList.toggle('voice-mode-active', this.isVoiceMode);
+                
+                const icon = this.generateVoiceBtn.querySelector('i');
+                icon.className = this.isVoiceMode ? 'ti ti-microphone-off' : 'ti ti-microphone';
+                
+                this.showNotification(
+                    this.isVoiceMode ? 'Режим генерации голоса включен' : 'Режим генерации голоса выключен',
+                    'info'
+                );
+            }
+
+            handleFileSelect(event) {
+                const files = Array.from(event.target.files);
+                if (files.length === 0) return;
+
+                let processedCount = 0;
+                const maxFiles = 3;
+
+                files.forEach(file => {
+                    if (processedCount >= maxFiles) {
+                        this.showNotification('Можно прикрепить не более 3 изображений', 'warning');
+                        return;
+                    }
+
+                    if (!file.type.startsWith('image/')) {
+                        this.showNotification('Пожалуйста, выберите только изображения', 'error');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageData = {
+                            name: file.name,
+                            data: e.target.result,
+                            type: file.type,
+                            size: file.size
+                        };
+                        
+                        this.attachedImages.push(imageData);
+                        this.renderAttachedFiles();
+                        this.showNotification(`Изображение "${file.name}" прикреплено`, 'success');
+                        processedCount++;
+                    };
+                    
+                    reader.onerror = () => {
+                        this.showNotification(`Ошибка загрузки файла: ${file.name}`, 'error');
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+
+                event.target.value = '';
+            }
+
+            renderAttachedFiles() {
+                this.attachedFiles.innerHTML = '';
+                
+                this.attachedImages.forEach((image, index) => {
+                    const fileElement = document.createElement('div');
+                    fileElement.className = 'attached-file';
+                    fileElement.innerHTML = `
+                        <i class="ti ti-photo"></i>
+                        <span>${this.escapeHtml(image.name)} (${this.formatFileSize(image.size)})</span>
+                        <button class="remove-file" data-index="${index}">
+                            <i class="ti ti-x"></i>
+                        </button>
+                    `;
+                    this.attachedFiles.appendChild(fileElement);
+                });
+
+                this.attachedFiles.querySelectorAll('.remove-file').forEach(btn => {
+                    this.addEventListener(btn, 'click', (e) => {
+                        const index = parseInt(e.currentTarget.getAttribute('data-index'));
+                        this.removeAttachedFile(index);
+                    });
+                });
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            removeAttachedFile(index) {
+                if (index < 0 || index >= this.attachedImages.length) return;
+                
+                const removedFile = this.attachedImages.splice(index, 1)[0];
+                this.renderAttachedFiles();
+                this.showNotification(`Изображение "${removedFile.name}" удалено`, 'info');
+            }
+
+            async sendMessage() {
+                if (this.isProcessing) {
+                    this.showNotification('Подождите завершения предыдущего запроса', 'warning');
+                    return;
+                }
+
+                const message = this.userInput.value.trim();
+                
+                if (!message && this.attachedImages.length === 0) {
+                    this.showNotification('Введите сообщение или прикрепите изображение', 'error');
+                    return;
+                }
+
+                this.isProcessing = true;
+                this.sendBtn.disabled = true;
+
+                try {
+                    if (this.isVoiceMode) {
+                        await this.generateVoice(message);
+                    } else {
+                        await this.processUserMessage(message);
+                    }
+                } catch (error) {
+                    console.error('Error in sendMessage:', error);
+                    this.handleError('Произошла ошибка при отправке сообщения', error);
+                } finally {
+                    this.isProcessing = false;
+                    this.sendBtn.disabled = false;
+                }
+            }
+
+            async processUserMessage(message) {
+                // Добавляем сообщение пользователя
+                this.addMessage('user', message, this.attachedImages);
+                this.addToConversationHistory('user', message, this.attachedImages);
+                
+                // Очищаем ввод
+                this.userInput.value = '';
+                this.userInput.style.height = 'auto';
+                const imagesToProcess = [...this.attachedImages];
+                this.attachedImages = [];
+                this.renderAttachedFiles();
+                
+                // Обрабатываем сообщение
+                if (this.isImageMode) {
+                    await this.generateImage(message);
+                } else {
+                    await this.getAIResponse(message, imagesToProcess);
+                }
+            }
+
+            async getAIResponse(userMessage, images) {
+                this.removeTypingIndicator();
+                this.activeTypingIndicator = this.showTypingIndicator();
+                
+                try {
+                    const prompt = await this.buildPrompt(userMessage, images);
+                    const response = await this.callAIService(prompt);
+                    
+                    this.removeTypingIndicator();
+                    await this.processAIResponse(response);
+                    
+                } catch (error) {
+                    this.removeTypingIndicator();
+                    this.handleError('Ошибка при получении ответа от ИИ', error);
+                }
+            }
+
+            async buildPrompt(userMessage, images) {
+                if (images.length > 0) {
+                    if (typeof puter?.ai?.img2txt !== 'function') {
+                        throw new Error('Функция анализа изображений недоступна');
+                    }
+                    
+                    const extractedText = await puter.ai.img2txt(images[0].data);
+                    
+                    if (userMessage.trim()) {
+                        return `Пользователь отправил изображение "${images[0].name}" с сопроводительным сообщением: "${userMessage}"
+
+Извлеченный текст с изображения: "${extractedText}"
+
+Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
+                    } else {
+                        return `Пользователь отправил изображение "${images[0].name}".
+
+Извлеченный текст с изображения: "${extractedText}"
+
+Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
+                    }
+                } else {
+                    return this.buildContextPrompt(userMessage);
+                }
+            }
+
+            async callAIService(prompt) {
+                if (typeof puter?.ai?.chat !== 'function') {
+                    throw new Error('Функция чата недоступна');
+                }
+                
+                const modelOptions = {
+                    'gpt-5-nano': { model: 'gpt-5-nano' },
+                    'o3-mini': { model: 'o3-mini' },
+                    'claude-sonnet': { model: 'claude-sonnet' },
+                    'deepseek-chat': { model: 'deepseek-chat' },
+                    'deepseek-reasoner': { model: 'deepseek-reasoner' },
+                    'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
+                    'gemini-1.5-flash': { model: 'gemini-1.5-flash' },
+                    'grok-beta': { model: 'grok-beta' }
+                };
+                
+                const options = {
+                    ...modelOptions[this.currentModel],
+                    systemPrompt: "Ты полезный AI-ассистент Khuyew AI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.",
+                    stream: true
+                };
+                
+                return await puter.ai.chat(prompt, options);
+            }
+
+            async processAIResponse(response) {
+                this.activeStreamingMessage = this.createStreamingMessage();
+                
+                let fullResponse = '';
+                for await (const part of response) {
+                    if (part?.text) {
+                        fullResponse += part.text;
+                        this.updateStreamingMessage(this.activeStreamingMessage, fullResponse);
+                        await this.delay(10); // Небольшая задержка для плавности
+                    }
+                }
+                
+                this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
+                this.activeStreamingMessage = null;
+                
+                this.addToConversationHistory('assistant', fullResponse);
+                this.saveCurrentSession();
+            }
+
+            delay(ms) {
+                return new Promise(resolve => this.setTimeout(resolve, ms));
+            }
+
+            createStreamingMessage() {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-ai streaming-message';
+                messageElement.id = 'streaming-' + Date.now();
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content streaming-content';
+                
+                messageContent.innerHTML = `
+                    <div class="typing-indicator-inline">
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                        <span>ИИ печатает...</span>
+                    </div>
+                    <div class="streaming-text"></div>
+                `;
+                
+                messageElement.appendChild(messageContent);
+                this.messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+                
+                return messageElement.id;
+            }
+
+            updateStreamingMessage(messageId, content) {
+                const messageElement = document.getElementById(messageId);
+                if (!messageElement) return;
+                
+                const streamingText = messageElement.querySelector('.streaming-text');
+                const typingIndicator = messageElement.querySelector('.typing-indicator-inline');
+                
+                if (content.length > 100 && typingIndicator && !typingIndicator.classList.contains('fade-out')) {
+                    typingIndicator.classList.add('fade-out');
+                    this.setTimeout(() => {
+                        if (typingIndicator.parentNode) {
+                            typingIndicator.style.display = 'none';
+                        }
+                    }, 300);
+                }
+                
+                const processedContent = this.processCodeBlocks(content);
+                streamingText.innerHTML = processedContent;
+                
+                this.attachCopyButtons(streamingText);
+                this.scrollToBottom();
+            }
+
+            finalizeStreamingMessage(messageId, fullContent) {
+                const messageElement = document.getElementById(messageId);
+                if (!messageElement) return;
+                
+                messageElement.classList.remove('streaming-message');
+                const messageContent = messageElement.querySelector('.message-content');
+                messageContent.classList.remove('streaming-content');
+                
+                const typingIndicator = messageContent.querySelector('.typing-indicator-inline');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                const processedContent = this.processCodeBlocks(fullContent);
+                messageContent.innerHTML = processedContent;
+                
+                // Добавляем информацию о модели
+                const modelIndicator = document.createElement('div');
+                modelIndicator.className = 'model-indicator';
+                modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
+                messageContent.appendChild(modelIndicator);
+                
+                this.attachMessageHandlers(messageElement);
+                this.scrollToBottom();
+            }
+
+            attachSpeakButton(messageElement) {
+                const messageContent = messageElement.querySelector('.message-content');
+                const plainText = this.extractPlainText(messageContent.textContent || '');
+                
+                if (plainText.trim().length < 10) return;
+                
+                let actionsContainer = messageElement.querySelector('.message-actions');
+                if (!actionsContainer) {
+                    actionsContainer = document.createElement('div');
+                    actionsContainer.className = 'message-actions';
+                    messageElement.appendChild(actionsContainer);
+                }
+                
+                const existingSpeakBtn = actionsContainer.querySelector('.speak-btn');
+                if (existingSpeakBtn) {
+                    existingSpeakBtn.remove();
+                }
+                
+                const speakButton = document.createElement('button');
+                speakButton.className = 'action-btn-small speak-btn';
+                speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                speakButton.setAttribute('data-text', plainText);
+                
+                this.addEventListener(speakButton, 'click', (e) => {
+                    e.stopPropagation();
+                    const text = e.currentTarget.getAttribute('data-text');
+                    this.toggleTextToSpeech(text, speakButton);
+                });
+                
+                actionsContainer.appendChild(speakButton);
+            }
+
+            extractPlainText(htmlText) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlText;
+                return tempDiv.textContent || tempDiv.innerText || '';
+            }
+
+            toggleTextToSpeech(text, button) {
+                if (this.isSpeaking) {
+                    this.stopSpeech();
+                    button.classList.remove('speaking');
+                    button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                } else {
+                    this.speakText(text, button);
+                }
+            }
+
+            speakText(text, button) {
+                if (!('speechSynthesis' in window)) {
+                    this.showNotification('Озвучивание текста не поддерживается в вашем браузере', 'warning');
+                    return;
+                }
+
+                try {
+                    this.stopSpeech(); // Останавливаем предыдущее воспроизведение
+
+                    this.currentUtterance = new SpeechSynthesisUtterance(text);
+                    this.currentUtterance.lang = 'ru-RU';
+                    this.currentUtterance.rate = 0.85;
+                    this.currentUtterance.pitch = 1.0;
+                    this.currentUtterance.volume = 1.0;
+
+                    const voices = speechSynthesis.getVoices();
+                    const russianVoice = voices.find(voice => 
+                        voice.lang.includes('ru') || voice.lang.includes('RU')
+                    );
+                    
+                    if (russianVoice) {
+                        this.currentUtterance.voice = russianVoice;
+                        this.currentUtterance.rate = 0.8;
+                    }
+
+                    button.classList.add('speaking');
+                    button.innerHTML = '<i class="ti ti-player-pause"></i> Остановить';
+                    this.isSpeaking = true;
+
+                    this.currentUtterance.onend = () => {
+                        this.isSpeaking = false;
+                        button.classList.remove('speaking');
+                        button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                    };
+
+                    this.currentUtterance.onerror = (error) => {
+                        console.error('Speech synthesis error:', error);
+                        this.isSpeaking = false;
+                        button.classList.remove('speaking');
+                        button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                        this.showNotification('Ошибка при озвучивании текста', 'error');
+                    };
+
+                    speechSynthesis.speak(this.currentUtterance);
+                    this.showNotification('Озвучивание текста...', 'info');
+
+                } catch (error) {
+                    console.error('Error speaking text:', error);
+                    this.showNotification('Ошибка при озвучивании текста', 'error');
+                }
+            }
+
+            stopSpeech() {
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                }
+                this.isSpeaking = false;
+                this.currentUtterance = null;
+            }
+
+            async generateVoice(text) {
+                if (typeof puter?.ai?.txt2speech !== 'function') {
+                    throw new Error('Функция генерации голоса недоступна');
+                }
+                
+                if (!text.trim()) {
+                    this.showNotification('Введите текст для генерации голоса', 'error');
+                    return;
+                }
+
+                try {
+                    this.addMessage('user', `🔊 **Генерация голоса:** "${text}"`);
+                    
+                    this.userInput.value = '';
+                    this.userInput.style.height = 'auto';
+                    
+                    this.showNotification('Генерация голоса...', 'info');
+                    
+                    const audio = await puter.ai.txt2speech(text);
+                    this.addVoiceMessage(text, audio);
+                    
+                    this.addToConversationHistory('user', `Сгенерирован голос для текста: ${text}`);
+                    this.saveCurrentSession();
+                    
+                } catch (error) {
+                    this.handleError('Ошибка при генерации голоса', error);
+                }
+            }
+
+            addVoiceMessage(text, audio) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-ai';
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                messageContent.innerHTML = `
+                    🔊 **Сгенерированный голос для текста:** "${this.escapeHtml(text)}"
+                    <div class="audio-player" style="margin-top: 12px;">
+                        <audio controls style="width: 100%; max-width: 300px;">
+                            <source src="${audio.src}" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио элементы.
+                        </audio>
+                    </div>
+                `;
+                
+                messageElement.appendChild(messageContent);
+                this.messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+                
+                const audioElement = messageContent.querySelector('audio');
+                audioElement.play().catch(e => {
+                    console.log('Autoplay prevented:', e);
+                });
+            }
+
+            buildContextPrompt(currentMessage) {
+                const recentHistory = this.conversationHistory.slice(-6);
+                
+                if (recentHistory.length === 0) {
+                    return currentMessage;
+                }
+
+                let context = "Контекст предыдущего разговора:\n";
+                
+                recentHistory.forEach(msg => {
+                    const role = msg.role === 'user' ? 'Пользователь' : 'Ассистент';
+                    const content = msg.content.length > 500 ? msg.content.substring(0, 500) + '...' : msg.content;
+                    context += `${role}: ${content}\n`;
+                });
+
+                context += `\nТекущий вопрос пользователя: ${currentMessage}\n\nОтветь, учитывая контекст выше:`;
+
+                return context;
+            }
+
+            addToConversationHistory(role, content, images = []) {
+                let messageContent = content;
+                
+                if (images && images.length > 0) {
+                    const imageNames = images.map(img => img.name).join(', ');
+                    messageContent += ` [Прикреплено изображение: ${imageNames}]`;
+                }
+                
+                this.conversationHistory.push({
+                    role: role,
+                    content: messageContent,
+                    timestamp: Date.now()
+                });
+
+                // Ограничиваем историю 30 сообщениями
+                if (this.conversationHistory.length > 30) {
+                    this.conversationHistory = this.conversationHistory.slice(-25);
+                }
+            }
+
+            async generateImage(prompt) {
+                try {
+                    if (typeof puter?.ai?.imagine !== 'function') {
+                        throw new Error('Функция генерации изображений недоступна');
+                    }
+                    
+                    this.addMessage('ai', `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n*Идет процесс создания изображения...*`);
+                    
+                    const imageResult = await puter.ai.imagine(prompt, {
+                        model: "dall-e-3",
+                        size: "1024x1024"
+                    });
+                    
+                    // Обновляем сообщение с результатом
+                    const messages = this.messagesContainer.querySelectorAll('.message-ai');
+                    const lastMessage = messages[messages.length - 1];
+                    if (lastMessage) {
+                        lastMessage.querySelector('.message-content').innerHTML = 
+                            `🖼️ **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"\n\n` +
+                            `<img src="${imageResult.url}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`;
+                    }
+                    
+                    this.addToConversationHistory('assistant', `Сгенерировано изображение по запросу: ${prompt}`);
+                    this.saveCurrentSession();
+                    
+                } catch (error) {
+                    this.handleError('Ошибка при генерации изображения', error);
+                }
+            }
+
+            toggleImageMode() {
+                this.isImageMode = !this.isImageMode;
+                const placeholder = this.isImageMode 
+                    ? "Опишите изображение для генерации..." 
+                    : "Задайте вопрос или опишите изображение...";
+                
+                this.userInput.placeholder = placeholder;
+                this.generateImageBtn.classList.toggle('active', this.isImageMode);
+                
+                const icon = this.generateImageBtn.querySelector('i');
+                icon.className = this.isImageMode ? 'ti ti-photo-off' : 'ti ti-photo';
+                
+                this.showNotification(
+                    this.isImageMode ? 'Режим генерации изображений включен' : 'Режим генерации изображений выключен',
+                    'info'
+                );
+            }
+
+            addMessage(role, content, images = []) {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message message-${role}`;
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                try {
+                    const processedContent = this.processCodeBlocks(content);
+                    messageContent.innerHTML = processedContent;
+                } catch {
+                    messageContent.textContent = content;
+                }
+                
+                if (role === 'ai') {
+                    const modelIndicator = document.createElement('div');
+                    modelIndicator.className = 'model-indicator';
+                    modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
+                    messageContent.appendChild(modelIndicator);
+                }
+                
+                if (images && images.length > 0) {
+                    images.forEach(image => {
+                        const imageContainer = document.createElement('div');
+                        imageContainer.className = 'message-image';
+                        
+                        const img = document.createElement('img');
+                        img.src = image.data;
+                        img.alt = image.name;
+                        img.style.maxWidth = '200px';
+                        img.style.borderRadius = '8px';
+                        img.style.marginTop = '8px';
+                        
+                        imageContainer.appendChild(img);
+                        messageContent.appendChild(imageContainer);
+                    });
+                }
+                
+                messageElement.appendChild(messageContent);
+                this.messagesContainer.appendChild(messageElement);
+                
+                this.attachMessageHandlers(messageElement);
+                this.scrollToBottom();
+                
+                return messageElement;
+            }
+
+            processCodeBlocks(content) {
+                let html = marked.parse(content);
+                
+                // Добавляем заголовки для блоков кода
+                html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
+                    const language = lang || 'text';
+                    return `
+                        <div class="code-header">
+                            <span class="code-language">${language}</span>
+                            <button class="copy-code-btn" data-language="${language}">
+                                <i class="ti ti-copy"></i>
+                                Копировать
+                            </button>
+                        </div>
+                        <pre><code class="${lang}">`;
+                });
+                
+                return html;
+            }
+
+            attachCopyButtons(container) {
+                const copyButtons = container.querySelectorAll('.copy-code-btn');
+                copyButtons.forEach(btn => {
+                    this.addEventListener(btn, 'click', async (e) => {
+                        const codeBlock = e.target.closest('.code-header')?.nextElementSibling;
+                        if (codeBlock) {
+                            const code = codeBlock.textContent;
+                            try {
+                                await navigator.clipboard.writeText(code);
+                                
+                                const originalText = btn.innerHTML;
+                                btn.innerHTML = '<i class="ti ti-check"></i> Скопировано!';
+                                btn.classList.add('copied');
+                                
+                                this.setTimeout(() => {
+                                    btn.innerHTML = originalText;
+                                    btn.classList.remove('copied');
+                                }, 2000);
+                                
+                                this.showNotification('Код скопирован в буфер обмена', 'success');
+                            } catch (err) {
+                                console.error('Failed to copy code:', err);
+                                this.showNotification('Не удалось скопировать код', 'error');
+                            }
+                        }
+                    });
+                });
+            }
+
+            showTypingIndicator() {
+                this.removeTypingIndicator();
+                
+                const typingElement = document.createElement('div');
+                typingElement.className = 'message message-ai typing-indicator';
+                typingElement.id = 'typing-' + Date.now();
+                
+                typingElement.innerHTML = `
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                    <span>ИИ печатает...</span>
+                `;
+                
+                this.messagesContainer.appendChild(typingElement);
+                this.scrollToBottom();
+                
+                return typingElement.id;
+            }
+
+            removeTypingIndicator(typingId = null) {
+                if (typingId) {
+                    const element = document.getElementById(typingId);
+                    if (element) element.remove();
+                } else {
+                    const typingElements = this.messagesContainer.querySelectorAll('.typing-indicator');
+                    typingElements.forEach(el => el.remove());
+                    this.activeTypingIndicator = null;
+                }
+            }
+
+            clearInput() {
+                this.userInput.value = '';
+                this.userInput.style.height = 'auto';
+                this.attachedImages = [];
+                this.renderAttachedFiles();
+                this.userInput.focus();
+                this.showNotification('Ввод очищен', 'success');
+            }
+
+            clearChat() {
+                if (this.messagesContainer.children.length === 0) {
+                    return;
+                }
+
+                if (confirm('Вы уверены, что хотите очистить всю историю чата?')) {
+                    this.messagesContainer.innerHTML = '';
+                    this.conversationHistory = [];
+                    this.showWelcomeMessage();
+                    this.saveCurrentSession();
+                    this.showNotification('Чат очищен', 'success');
+                }
+            }
+
+            showWelcomeMessage() {
+                const currentModelName = this.getModelDisplayName(this.currentModel);
+                const currentModelDesc = this.getModelDescription(this.currentModel);
+                
+                const welcomeMessage = `# 👋 Добро пожаловать в Khuyew AI!
+
+Я ваш бесплатный ИИ-помощник с использованием передовых моделей AI. 
+
+## 🎯 Основные возможности:
+• **Умные ответы на вопросы** - используя различные модели ИИ
+• **Анализ изображений** - извлечение текста и решение задач по фото
+• **Голосовой ввод** - говорите вместо того, чтобы печатать
+• **Генерация голоса** - преобразование текста в естественную речь
+• **Озвучивание ответов** - слушайте ответы ИИ в аудиоформате
+• **Контекстный диалог** - помню историю нашего разговора
+• **Подсветка синтаксиса** - красивое отображение кода
+• **Копирование кода** - удобное копирование фрагментов кода
+• **Стриминг ответов** - ответы появляются постепенно
+• **Мульти-чаты** - создавайте отдельные чаты для разных тем
+
+**Текущая модель: ${currentModelName}** - ${currentModelDesc}
+
+**Начните общение, отправив сообщение или изображение!**`;
+
+                this.addMessage('ai', welcomeMessage);
+                this.addToConversationHistory('assistant', welcomeMessage);
+            }
+
+            showHelp() {
+                const currentModelName = this.getModelDisplayName(this.currentModel);
+                
+                const helpMessage = `# 🆘 Помощь по Khuyew AI
+
+## 🤖 Текущая модель: ${currentModelName}
+Вы можете переключать модели в верхнем правом углу.
+
+## 💬 Система чатов:
+• **Создание нового чата** - нажмите "Новый чат" в меню
+• **Переключение между чатами** - выберите чат из списка в меню
+• **Удаление чатов** - нажмите ❌ рядом с названием чата (кроме основного)
+
+## 🔊 Аудио функции:
+• **Генерация голоса** - создает аудио из текста с помощью ИИ
+• **Озвучить ответ** - воспроизводит ответ ИИ
+• **Остановить озвучку** - нажмите кнопку повторно для остановки
+
+## 🖼️ Работа с изображениями:
+1. **Нажмите кнопку ➕** чтобы прикрепить изображение
+2. **Напишите вопрос** (опционально) - что вы хотите узнать о изображении
+3. **Нажмите Отправить** - ИИ проанализирует изображение и ответит
+
+**Попробуйте отправить изображение с вопросом!**`;
+
+                this.addMessage('ai', helpMessage);
+                this.addToConversationHistory('assistant', helpMessage);
+            }
+
+            toggleTheme() {
+                this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+                document.body.setAttribute('data-theme', this.currentTheme);
+                
+                // Сохраняем тему в localStorage
+                try {
+                    localStorage.setItem('khuyew-ai-theme', this.currentTheme);
+                } catch (error) {
+                    console.error('Error saving theme preference:', error);
+                }
+                
+                this.showNotification(
+                    this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
+                    'info'
+                );
+            }
+
+            loadThemePreference() {
+                try {
+                    const savedTheme = localStorage.getItem('khuyew-ai-theme');
+                    if (savedTheme === 'light' || savedTheme === 'dark') {
+                        this.currentTheme = savedTheme;
+                        document.body.setAttribute('data-theme', this.currentTheme);
+                    }
+                } catch (error) {
+                    console.error('Error loading theme preference:', error);
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                // Убираем существующие уведомления
+                const existingNotifications = document.querySelectorAll('.notification');
+                existingNotifications.forEach(notification => notification.remove());
+                
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                this.setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 4000);
+            }
+
+            scrollToBottom() {
+                this.setTimeout(() => {
+                    if (this.messagesContainer) {
+                        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                    }
+                }, 50);
+            }
+
+            handleError(userMessage, error) {
+                console.error(userMessage, error);
+                this.addMessage('error', `${userMessage}: ${error.message}`);
+                this.showNotification(userMessage, 'error');
+            }
+
+            // Система чатов
+            setupChatSelector() {
+                if (!this.chatSessions.has('default')) {
+                    this.createDefaultChat();
+                }
+                this.updateChatDropdown();
+            }
+
+            createDefaultChat() {
+                const defaultSession = {
+                    id: 'default',
+                    name: 'Основной чат',
+                    messages: [],
+                    conversationHistory: [],
+                    createdAt: Date.now(),
+                    lastActivity: Date.now()
+                };
+                this.chatSessions.set('default', defaultSession);
+                this.currentChatId = 'default';
+                this.saveChatSessions();
+            }
+
+            // Сохранение и загрузка
+            saveModelPreference() {
+                try {
+                    localStorage.setItem('khuyew-ai-model', this.currentModel);
+                } catch (error) {
+                    console.error('Error saving model preference:', error);
+                }
+            }
+
+            loadModelPreference() {
+                try {
+                    const savedModel = localStorage.getItem('khuyew-ai-model');
+                    if (savedModel && this.modelConfig[savedModel]) {
+                        this.currentModel = savedModel;
+                        this.modelSelect.value = savedModel;
+                    }
+                } catch (error) {
+                    console.error('Error loading model preference:', error);
+                }
+            }
+
+            saveChatSessions() {
+                try {
+                    const sessions = Array.from(this.chatSessions.entries());
+                    localStorage.setItem('khuyew-ai-chat-sessions', JSON.stringify(sessions));
+                } catch (error) {
+                    console.error('Error saving chat sessions:', error);
+                }
+            }
+
+            loadChatSessions() {
+                try {
+                    const saved = localStorage.getItem('khuyew-ai-chat-sessions');
+                    if (saved) {
+                        const sessions = JSON.parse(saved);
+                        this.chatSessions = new Map(sessions);
+                    }
+                } catch (error) {
+                    console.error('Error loading chat sessions:', error);
+                }
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Очистка ресурсов
+            cleanup() {
+                // Останавливаем все таймеры
+                this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+                this.activeTimeouts.clear();
+
+                // Останавливаем речь
+                this.stopSpeech();
+
+                // Останавливаем голосовой ввод
+                if (this.recognition && this.isListening) {
+                    this.recognition.stop();
+                }
+
+                // Убираем индикаторы
+                this.removeTypingIndicator();
+
+                // Удаляем обработчики событий
+                this.activeEventListeners.forEach((listeners, element) => {
+                    listeners.forEach(({ event, handler }) => {
+                        element.removeEventListener(event, handler);
+                    });
+                });
+                this.activeEventListeners.clear();
+            }
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // Проверяем наличие Puter.ai
+                if (typeof puter === 'undefined') {
+                    console.warn('Puter.ai не загружен, некоторые функции будут недоступны');
+                }
+                
+                // Предзагрузка голосов для синтеза речи
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.getVoices();
+                }
+                
+                // Инициализация приложения
+                new KhuyewAI();
+                
+            } catch (error) {
+                console.error('Ошибка при инициализации приложения:', error);
+                const errorNotification = document.createElement('div');
+                errorNotification.className = 'notification error';
+                errorNotification.textContent = 'Критическая ошибка при загрузке приложения';
+                errorNotification.style.position = 'fixed';
+                errorNotification.style.top = '50%';
+                errorNotification.style.left = '50%';
+                errorNotification.style.transform = 'translate(-50%, -50%)';
+                errorNotification.style.zIndex = '10000';
+                document.body.appendChild(errorNotification);
+            }
+        });
+    </script>
+</body>
+</html>
