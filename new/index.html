@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <style>
-        /* Reset and base styles */
+        /* Reset and optimized base styles */
         * {
             margin: 0;
             padding: 0;
@@ -67,6 +67,7 @@
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.15s ease;
         }
 
         /* Light theme variables */
@@ -89,10 +90,6 @@
             --code-bg: #f8f9fa;
             --code-border: #e9ecef;
             --code-text: #495057;
-            
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
 
         body {
@@ -126,8 +123,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
         }
 
         .logo {
@@ -153,32 +158,31 @@
             font-weight: 500;
         }
 
-        /* Header Controls */
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        /* Header Center - Search */
+        .header-center {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
         }
 
-        /* Строка поиска */
         .search-container {
             position: relative;
             display: flex;
             align-items: center;
-            min-width: 200px;
+            width: 100%;
         }
 
         .search-input {
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            padding: 6px 12px;
-            border-radius: var(--radius-md);
-            font-size: 11px;
+            padding: 8px 45px 8px 16px;
+            border-radius: var(--radius-lg);
+            font-size: 13px;
             transition: var(--transition);
             outline: none;
             width: 100%;
-            height: 32px;
+            height: 40px;
         }
 
         .search-input::placeholder {
@@ -187,31 +191,36 @@
 
         .search-input:focus {
             border-color: var(--accent-primary);
-            box-shadow: 0 0 0 2px var(--accent-primary-alpha);
+            box-shadow: 0 0 0 3px var(--accent-primary-alpha);
+            transform: translateY(-1px);
         }
 
         .search-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
             color: var(--text-secondary);
-            padding: 6px 10px;
-            border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 11px;
+            padding: 6px;
+            border-radius: var(--radius-sm);
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 4px;
-            height: 32px;
-            margin-left: 8px;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
         }
 
         .search-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: translateY(-50%) scale(1.1);
         }
 
-        /* Результаты поиска */
+        /* Search Results */
         .search-results {
             position: absolute;
             top: 100%;
@@ -220,12 +229,13 @@
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            margin-top: 4px;
+            margin-top: 8px;
             box-shadow: var(--shadow-lg);
             z-index: 1001;
             max-height: 300px;
             overflow-y: auto;
             display: none;
+            backdrop-filter: blur(10px);
         }
 
         .search-results.active {
@@ -242,12 +252,13 @@
             padding: 12px 16px;
             cursor: pointer;
             border-bottom: 1px solid var(--border-color);
-            transition: var(--transition);
+            transition: var(--transition-fast);
             animation: fadeInUp 0.2s ease;
         }
 
         .search-result-item:hover {
             background: var(--bg-hover);
+            transform: translateX(4px);
         }
 
         .search-result-item:last-child {
@@ -256,34 +267,46 @@
 
         .search-result-title {
             font-weight: 600;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-primary);
             margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .search-result-desc {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-tertiary);
-            line-height: 1.3;
+            line-height: 1.4;
+        }
+
+        /* Header Right */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .model-select {
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            padding: 6px 10px;
+            padding: 8px 12px;
             border-radius: var(--radius-md);
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             transition: var(--transition);
             outline: none;
             min-width: 140px;
-            height: 32px;
+            height: 40px;
         }
 
         .model-select:hover {
             background: var(--bg-hover);
             border-color: var(--accent-primary);
+            transform: translateY(-1px);
         }
 
         .model-select:focus {
@@ -291,47 +314,26 @@
             box-shadow: 0 0 0 2px var(--accent-primary-alpha);
         }
 
-        .model-select option {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-        }
-
-        .model-select option:disabled {
-            color: var(--text-tertiary);
-            background: var(--bg-secondary);
-        }
-
         .control-btn {
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            padding: 6px 10px;
+            padding: 8px 12px;
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 11px;
+            font-size: 12px;
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 4px;
-            height: 32px;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
         }
 
         .control-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-        }
-
-        .menu-toggle {
-            display: flex !important;
-        }
-
-        /* Ensure theme toggle works */
-        body[data-theme="light"] .control-btn#themeToggle i::before {
-            content: "\ebd4"; /* ti-sun */
-        }
-
-        body[data-theme="dark"] .control-btn#themeToggle i::before {
-            content: "\eb8c"; /* ti-moon */
+            transform: translateY(-1px) scale(1.05);
         }
 
         @keyframes gradientShift {
@@ -365,10 +367,22 @@
             padding: 16px 20px;
             border-radius: var(--radius-xl);
             line-height: 1.6;
-            animation: fadeIn 0.3s ease;
+            animation: messageSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
             font-size: 14px;
             word-wrap: break-word;
+            transform-origin: center bottom;
+        }
+
+        @keyframes messageSlideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
         }
 
         .message-user {
@@ -377,6 +391,7 @@
             color: var(--user-message-text);
             margin-left: auto;
             box-shadow: var(--shadow-md);
+            animation: messageSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .message-ai {
@@ -385,6 +400,7 @@
             color: var(--ai-message-text);
             border: 1px solid var(--ai-message-border);
             margin-right: auto;
+            animation: messageSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .message-error {
@@ -399,12 +415,18 @@
             margin-top: 8px;
             border-radius: var(--radius-md);
             overflow: hidden;
+            animation: fadeIn 0.5s ease;
         }
 
         .message-image img {
             width: 100%;
             height: auto;
             display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .message-image img:hover {
+            transform: scale(1.02);
         }
 
         /* Markdown Styles */
@@ -458,6 +480,11 @@
             background: var(--bg-secondary);
             border-radius: var(--radius-sm);
             font-style: italic;
+            transition: var(--transition);
+        }
+
+        .message-content blockquote:hover {
+            transform: translateX(4px);
         }
 
         .message-content table {
@@ -495,6 +522,11 @@
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 0.9em;
             border: 1px solid var(--code-border);
+            transition: var(--transition-fast);
+        }
+
+        .message-content code:hover {
+            background: var(--bg-hover);
         }
 
         .message-content pre {
@@ -505,6 +537,12 @@
             margin: 1em 0;
             overflow-x: auto;
             position: relative;
+            transition: var(--transition);
+        }
+
+        .message-content pre:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .message-content pre code {
@@ -549,18 +587,19 @@
         .copy-code-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: scale(1.05);
         }
 
         .copy-code-btn.copied {
             background: var(--success-bg);
             color: var(--success-text);
             border-color: var(--success-text);
+            animation: bounce 0.5s ease;
         }
 
-        /* Highlight.js overrides */
-        .hljs {
-            background: transparent !important;
-            padding: 0 !important;
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         /* Model indicator in messages */
@@ -601,11 +640,13 @@
         .action-btn-small:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: translateY(-1px);
         }
 
         .action-btn-small:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none !important;
         }
 
         /* Стили для кнопки озвучки */
@@ -630,6 +671,7 @@
             padding: 12px 16px;
             color: var(--text-secondary);
             font-size: 13px;
+            animation: fadeIn 0.3s ease;
         }
 
         .typing-dots {
@@ -654,8 +696,8 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* Input area */
@@ -697,6 +739,7 @@
         .attach-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: scale(1.1) rotate(5deg);
         }
 
         #userInput {
@@ -725,6 +768,7 @@
         #userInput:focus {
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 3px var(--accent-primary-alpha);
+            transform: translateY(-2px);
         }
 
         .input-controls {
@@ -754,11 +798,19 @@
         .input-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: scale(1.1);
         }
 
         .input-btn.active {
             background: var(--accent-primary);
             color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 153, 255, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(0, 153, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 153, 255, 0); }
         }
 
         .send-btn {
@@ -777,12 +829,14 @@
         }
 
         .send-btn:hover:not(:disabled) {
-            transform: scale(1.05);
+            transform: scale(1.1);
+            filter: brightness(1.1);
         }
 
         .send-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none !important;
         }
 
         /* Attached files */
@@ -806,6 +860,18 @@
             border-radius: var(--radius-md);
             font-size: 12px;
             color: var(--text-secondary);
+            transition: var(--transition);
+            animation: slideInLeft 0.3s ease;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .attached-file:hover {
+            background: var(--bg-hover);
+            transform: translateY(-1px);
         }
 
         .remove-file {
@@ -825,6 +891,7 @@
         .remove-file:hover {
             background: var(--error-bg);
             color: var(--error-text);
+            transform: scale(1.2);
         }
 
         /* Action buttons */
@@ -858,17 +925,25 @@
         .action-btn:hover:not(:disabled) {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: translateY(-1px);
         }
 
         .action-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             color: var(--text-tertiary);
+            transform: none !important;
         }
 
         .action-btn.active {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
+            animation: gentleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes gentleGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 153, 255, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(0, 153, 255, 0.5); }
         }
 
         /* Voice mode indicator */
@@ -903,11 +978,22 @@
             gap: 6px;
             color: var(--text-secondary);
             font-size: 11px;
+            transition: var(--transition);
+        }
+
+        .current-chat-info:hover {
+            color: var(--text-primary);
         }
 
         .current-chat-info i {
             font-size: 14px;
             opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .current-chat-info:hover i {
+            opacity: 1;
+            transform: scale(1.1);
         }
 
         /* Кнопка редактирования чата */
@@ -930,6 +1016,7 @@
         .edit-chat-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: scale(1.1) rotate(5deg);
         }
 
         /* Notifications */
@@ -941,9 +1028,10 @@
             border-radius: var(--radius-md);
             font-size: 14px;
             z-index: 1000;
-            animation: slideIn 0.3s ease;
+            animation: slideInRight 0.3s ease;
             max-width: 300px;
             box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
         }
 
         .notification.info {
@@ -970,7 +1058,7 @@
             border: 1px solid var(--error-border);
         }
 
-        @keyframes slideIn {
+        @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
@@ -982,6 +1070,7 @@
             background: var(--bg-secondary);
             border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
+            animation: fadeIn 0.5s ease;
         }
 
         .analysis-title {
@@ -1008,6 +1097,7 @@
         ::-webkit-scrollbar-thumb {
             background: var(--border-color);
             border-radius: var(--radius-sm);
+            transition: var(--transition);
         }
 
         ::-webkit-scrollbar-thumb:hover {
@@ -1099,6 +1189,7 @@
 
         .sidebar-menu.active {
             right: 0;
+            animation: slideInRight 0.3s ease;
         }
 
         .sidebar-overlay {
@@ -1152,6 +1243,7 @@
         .sidebar-close:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: scale(1.1);
         }
 
         .sidebar-content {
@@ -1198,6 +1290,7 @@
         .sidebar-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: translateX(4px);
         }
 
         .sidebar-btn.primary {
@@ -1209,6 +1302,7 @@
         .sidebar-btn.primary:hover {
             background: var(--accent-primary);
             color: white;
+            transform: translateX(4px) scale(1.02);
         }
 
         /* Chat list in sidebar */
@@ -1233,6 +1327,7 @@
 
         .sidebar-section .chat-item:hover {
             background: var(--bg-hover);
+            transform: translateX(4px);
         }
 
         .sidebar-section .chat-item:last-child {
@@ -1270,6 +1365,7 @@
         .edit-chat-sidebar-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: scale(1.1) rotate(5deg);
         }
 
         .sidebar-section .delete-chat-btn {
@@ -1290,6 +1386,7 @@
         .sidebar-section .delete-chat-btn:hover {
             background: var(--error-bg);
             color: var(--error-text);
+            transform: scale(1.1);
         }
 
         /* About section in sidebar */
@@ -1305,6 +1402,11 @@
             gap: 4px;
             padding: 8px 0;
             border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .sidebar-section .about-item:hover {
+            transform: translateX(4px);
         }
 
         .sidebar-section .about-item:last-child {
@@ -1335,83 +1437,7 @@
 
         .sidebar-section .about-item a:hover {
             color: var(--accent-primary);
-        }
-
-        /* Новые стили для улучшенного управления чатами */
-        .chat-management {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .chat-actions {
-            display: flex;
-            gap: 4px;
-        }
-
-        .chat-action-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 4px 8px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 10px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .chat-action-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .empty-chat-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-tertiary);
-        }
-
-        .empty-chat-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-chat-state h3 {
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-        }
-
-        .empty-chat-state p {
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        /* Стили для состояния загрузки */
-        .loading-state {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            color: var(--text-tertiary);
-        }
-
-        .loading-spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-top: 2px solid var(--accent-primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            transform: translateX(4px);
         }
 
         /* Модальное окно переименования */
@@ -1430,6 +1456,7 @@
             visibility: hidden;
             transition: var(--transition);
             padding: 20px;
+            backdrop-filter: blur(5px);
         }
 
         .modal-overlay.active {
@@ -1444,12 +1471,13 @@
             width: 100%;
             max-width: 400px;
             border: 1px solid var(--border-color);
-            animation: modalSlideIn 0.3s ease;
+            animation: modalSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-origin: center center;
         }
 
         @keyframes modalSlideIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+            from { opacity: 0; transform: scale(0.8) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         .modal-header {
@@ -1483,6 +1511,7 @@
         .modal-close:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: scale(1.1);
         }
 
         .modal-content {
@@ -1504,6 +1533,7 @@
         .modal-input:focus {
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 2px var(--accent-primary-alpha);
+            transform: translateY(-1px);
         }
 
         .modal-actions {
@@ -1533,11 +1563,13 @@
         .modal-btn.primary:hover {
             background: var(--accent-secondary);
             border-color: var(--accent-secondary);
+            transform: translateY(-1px);
         }
 
         .modal-btn.secondary:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
+            transform: translateY(-1px);
         }
 
         @keyframes fadeInUp {
@@ -1551,55 +1583,68 @@
             }
         }
 
+        /* Анимация для появления элементов */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .slide-in-up {
+            animation: slideInUp 0.4s ease;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Адаптивность */
         @media (max-width: 768px) {
             .app-header {
                 padding: 10px 16px;
                 padding-top: max(10px, env(safe-area-inset-top));
-                padding-left: calc(16px + env(safe-area-inset-left));
-                padding-right: calc(16px + env(safe-area-inset-right));
             }
             
             .header-content {
                 flex-direction: column;
                 gap: 12px;
-                align-items: flex-start;
+                align-items: stretch;
             }
             
-            .header-controls {
-                gap: 6px;
-                width: 100%;
-                justify-content: space-between;
+            .header-left {
+                justify-content: center;
+                text-align: center;
             }
             
-            .search-container {
-                flex: 1;
-                min-width: auto;
-                margin-right: 8px;
+            .header-center {
+                max-width: none;
+                order: 3;
+            }
+            
+            .header-right {
+                justify-content: center;
+                order: 2;
             }
             
             .search-input {
                 font-size: 14px;
-                height: 36px;
-            }
-            
-            .search-btn {
-                height: 36px;
-                min-width: 36px;
+                height: 44px;
             }
             
             .model-select {
-                min-width: 120px;
-                font-size: 12px;
-                padding: 4px 8px;
-                height: 36px;
+                font-size: 13px;
+                height: 44px;
+                flex: 1;
             }
             
             .control-btn {
-                padding: 4px 8px;
-                font-size: 12px;
-                height: 36px;
-                width: 36px;
+                width: 44px;
+                height: 44px;
             }
             
             .messages-container {
@@ -1616,8 +1661,6 @@
             .input-section {
                 padding: 12px 16px;
                 padding-bottom: max(12px, env(safe-area-inset-bottom));
-                padding-left: calc(16px + env(safe-area-inset-left));
-                padding-right: calc(16px + env(safe-area-inset-right));
             }
             
             .attach-btn {
@@ -1647,17 +1690,6 @@
             .app-footer {
                 padding: 10px 16px;
                 font-size: 10px;
-                padding-left: calc(16px + env(safe-area-inset-left));
-                padding-right: calc(16px + env(safe-area-inset-right));
-            }
-            
-            .message-actions {
-                gap: 6px;
-            }
-            
-            .action-btn-small {
-                padding: 4px 8px;
-                font-size: 10px;
             }
             
             /* Sidebar адаптивность */
@@ -1669,39 +1701,28 @@
             .sidebar-section {
                 padding: 16px;
             }
-            
-            .menu-toggle {
-                display: flex !important;
-            }
-
-            /* Оптимизация для портретного режима */
-            body.portrait .messages-container {
-                max-height: calc(100vh - 200px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-            }
         }
 
         @media (max-width: 480px) {
             .header-content {
-                flex-wrap: wrap;
                 gap: 8px;
             }
             
-            .header-controls {
-                width: 100%;
-                justify-content: space-between;
+            .logo {
+                font-size: 20px;
             }
             
-            .search-container {
-                min-width: 150px;
+            .subtitle {
+                font-size: 11px;
             }
             
             .search-input {
-                font-size: 12px;
+                font-size: 13px;
             }
             
             .model-select {
-                min-width: 110px;
-                font-size: 11px;
+                min-width: 120px;
+                font-size: 12px;
             }
             
             .message {
@@ -1771,14 +1792,7 @@
             }
         }
 
-        /* Улучшения для планшетов */
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .search-container {
-                min-width: 180px;
-            }
-        }
-
-        /* Улучшенная поддержка темной темы для модальных окон */
+        /* Улучшенная поддержка темной темы */
         @media (prefers-color-scheme: dark) {
             .modal {
                 background: var(--bg-primary);
@@ -1811,12 +1825,35 @@
 
         /* Уменьшение движения для пользователей с настройками */
         @media (prefers-reduced-motion: reduce) {
-            .search-results,
-            .modal,
-            .search-result-item {
-                animation: none;
-                transition: none;
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
+        }
+
+        /* Специальные классы для анимаций */
+        .bounce-in {
+            animation: bounce 0.6s ease;
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
     </style>
     
@@ -1827,12 +1864,12 @@
     <div class="app-container">
         <header class="app-header">
             <div class="header-content">
-                <div>
+                <div class="header-left">
                     <div class="logo">Khuyew AI</div>
                     <div class="subtitle">Бесплатный ИИ-помощник с генерацией изображений</div>
                 </div>
-                <div class="header-controls">
-                    <!-- Новая строка поиска -->
+                
+                <div class="header-center">
                     <div class="search-container">
                         <input type="text" id="searchInput" placeholder="Поиск по функциям..." class="search-input">
                         <button class="search-btn" id="searchBtn">
@@ -1840,7 +1877,9 @@
                         </button>
                         <div class="search-results" id="searchResults"></div>
                     </div>
-                    
+                </div>
+                
+                <div class="header-right">
                     <select class="model-select" id="modelSelect">
                         <option value="gpt-5-nano">GPT-5 Nano</option>
                         <option value="o3-mini">O3 Mini</option>
@@ -1974,7 +2013,7 @@
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>Khuyew AI v2.3</span>
+                        <span>Khuyew AI v2.4</span>
                     </div>
                 </div>
             </div>
@@ -2034,7 +2073,7 @@
                 this.currentChatName = document.getElementById('currentChatName');
                 this.editChatBtn = document.getElementById('editChatBtn');
                 
-                // Новые элементы для поиска
+                // Элементы поиска
                 this.searchInput = document.getElementById('searchInput');
                 this.searchBtn = document.getElementById('searchBtn');
                 this.searchResults = document.getElementById('searchResults');
@@ -2054,7 +2093,6 @@
                 this.renameModalSave = document.getElementById('renameModalSave');
                 this.renameChatInput = document.getElementById('renameChatInput');
 
-                // Проверяем что все элементы найдены
                 this.validateElements();
             }
 
@@ -2073,7 +2111,6 @@
                 requiredElements.forEach(elementName => {
                     if (!this[elementName]) {
                         console.error(`Элемент не найден: ${elementName}`);
-                        throw new Error(`Required element ${elementName} not found`);
                     }
                 });
             }
@@ -2081,7 +2118,7 @@
             initializeState() {
                 // Состояние приложения
                 this.isProcessing = false;
-                this.currentTheme = 'dark';
+                this.currentTheme = this.detectSystemTheme();
                 this.isImageMode = false;
                 this.isVoiceMode = false;
                 this.attachedImages = [];
@@ -2104,13 +2141,17 @@
                 this.searchFeatures = [
                     {
                         keywords: ['изображение', 'фото', 'картинка', 'анализ изображения', 'img', 'image'],
-                        title: 'Анализ изображений',
+                        title: '📷 Анализ изображений',
                         description: 'Прикрепите изображение и задайте вопрос о нем',
-                        action: () => this.showNotification('Прикрепите изображение кнопкой ➕ и задайте вопрос', 'info')
+                        action: () => {
+                            this.animateElement(this.attachFileBtn, 'bounce-in');
+                            this.showNotification('Прикрепите изображение кнопкой ➕ и задайте вопрос', 'info');
+                            this.closeSearch();
+                        }
                     },
                     {
                         keywords: ['голос', 'озвучка', 'аудио', 'speech', 'voice', 'микрофон'],
-                        title: 'Голосовые функции',
+                        title: '🎤 Голосовые функции',
                         description: 'Голосовой ввод и озвучка ответов',
                         action: () => {
                             this.toggleVoiceMode();
@@ -2119,17 +2160,18 @@
                     },
                     {
                         keywords: ['код', 'программирование', 'code', 'программа', 'синтаксис'],
-                        title: 'Помощь с кодом',
+                        title: '💻 Помощь с кодом',
                         description: 'Напишите код с подсветкой синтаксиса',
                         action: () => {
                             this.userInput.value = 'Напиши код для ';
                             this.userInput.focus();
+                            this.animateElement(this.userInput, 'pulse');
                             this.closeSearch();
                         }
                     },
                     {
                         keywords: ['чат', 'беседа', 'разговор', 'общение', 'chat'],
-                        title: 'Управление чатами',
+                        title: '💬 Управление чатами',
                         description: 'Создавайте и переключайтесь между чатами',
                         action: () => {
                             this.toggleSidebar();
@@ -2138,7 +2180,7 @@
                     },
                     {
                         keywords: ['помощь', 'help', 'справка', 'функции', 'возможности'],
-                        title: 'Помощь по функциям',
+                        title: '❓ Помощь по функциям',
                         description: 'Узнайте обо всех возможностях Khuyew AI',
                         action: () => {
                             this.showHelp();
@@ -2147,7 +2189,7 @@
                     },
                     {
                         keywords: ['тема', 'оформление', 'dark', 'light', 'внешний вид'],
-                        title: 'Смена темы',
+                        title: '🎨 Смена темы',
                         description: 'Переключение между темной и светлой темой',
                         action: () => {
                             this.toggleTheme();
@@ -2156,16 +2198,17 @@
                     },
                     {
                         keywords: ['модель', 'gpt', 'ai', 'нейросеть', 'model'],
-                        title: 'Смена модели ИИ',
+                        title: '🤖 Смена модели ИИ',
                         description: 'Выберите подходящую модель ИИ для ваших задач',
                         action: () => {
+                            this.animateElement(this.modelSelect, 'bounce-in');
                             this.modelSelect.focus();
                             this.closeSearch();
                         }
                     },
                     {
                         keywords: ['очистить', 'удалить', 'clear', 'стереть'],
-                        title: 'Очистка чата',
+                        title: '🗑️ Очистка чата',
                         description: 'Очистить текущую историю сообщений',
                         action: () => {
                             this.clearChat();
@@ -2174,66 +2217,75 @@
                     }
                 ];
 
-                this.placeholderExamples = [
-                    "Расскажи о возможностях искусственного интеллекта...",
-                    "Напиши код для сортировки массива на Python...",
-                    "Объясни теорию относительности простыми словами...",
-                    "Какие есть способы улучшить производительность веб-сайта?",
-                    "Создай описание для приложения на основе ИИ..."
-                ];
-
                 this.modelConfig = {
                     'gpt-5-nano': { 
                         name: 'GPT-5 Nano', 
-                        description: 'Быстрая и эффективная модель для повседневных задач' 
+                        description: 'Быстрая и эффективная модель для повседневных задач',
+                        icon: '🚀'
                     },
                     'o3-mini': { 
                         name: 'O3 Mini', 
-                        description: 'Продвинутая модель с улучшенными возможностями рассуждения' 
+                        description: 'Продвинутая модель с улучшенными возможностями рассуждения',
+                        icon: '🧠'
                     },
                     'claude-sonnet': { 
                         name: 'Claude Sonnet', 
-                        description: 'Мощная модель от Anthropic для сложных задач и анализа' 
+                        description: 'Мощная модель от Anthropic для сложных задач и анализа',
+                        icon: '🎯'
                     },
                     'deepseek-chat': { 
                         name: 'DeepSeek Chat', 
-                        description: 'Универсальная модель для общения и решения задач' 
+                        description: 'Универсальная модель для общения и решения задач',
+                        icon: '🔍'
                     },
                     'deepseek-reasoner': { 
                         name: 'DeepSeek Reasoner', 
-                        description: 'Специализированная модель для сложных логических рассуждений' 
+                        description: 'Специализированная модель для сложных логических рассуждений',
+                        icon: '⚡'
                     },
                     'gemini-2.0-flash': { 
                         name: 'Gemini 2.0 Flash', 
-                        description: 'Новейшая быстрая модель от Google с улучшенными возможностями' 
+                        description: 'Новейшая быстрая модель от Google с улучшенными возможностями',
+                        icon: '✨'
                     },
                     'gemini-1.5-flash': { 
                         name: 'Gemini 1.5 Flash', 
-                        description: 'Быстрая и эффективная модель от Google для различных задач' 
+                        description: 'Быстрая и эффективная модель от Google для различных задач',
+                        icon: '🌟'
                     },
                     'grok-beta': { 
                         name: 'xAI Grok', 
-                        description: 'Модель от xAI с уникальным характером и остроумными ответами' 
+                        description: 'Модель от xAI с уникальным характером и остроумными ответами',
+                        icon: '😄'
                     }
                 };
             }
 
+            detectSystemTheme() {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    return 'light';
+                }
+                return 'dark';
+            }
+
             setupMarked() {
-                marked.setOptions({
-                    highlight: (code, lang) => {
-                        if (lang && hljs.getLanguage(lang)) {
-                            try {
-                                return hljs.highlight(code, { language: lang }).value;
-                            } catch (err) {
-                                console.warn(`Error highlighting ${lang}:`, err);
+                if (typeof marked !== 'undefined') {
+                    marked.setOptions({
+                        highlight: (code, lang) => {
+                            if (lang && hljs.getLanguage(lang)) {
+                                try {
+                                    return hljs.highlight(code, { language: lang }).value;
+                                } catch (err) {
+                                    console.warn(`Error highlighting ${lang}:`, err);
+                                }
                             }
-                        }
-                        return hljs.highlightAuto(code).value;
-                    },
-                    langPrefix: 'hljs language-',
-                    breaks: true,
-                    gfm: true
-                });
+                            return hljs.highlightAuto(code).value;
+                        },
+                        langPrefix: 'hljs language-',
+                        breaks: true,
+                        gfm: true
+                    });
+                }
             }
 
             init() {
@@ -2248,7 +2300,13 @@
                     this.setupChatSelector();
                     this.loadCurrentSession();
                     
-                    this.showNotification('Khuyew AI загружен и готов к работе!', 'success');
+                    this.showNotification('Khuyew AI загружен и готов к работе! 🚀', 'success');
+                    
+                    // Добавляем начальную анимацию
+                    setTimeout(() => {
+                        this.animateElement(this.logo, 'floating');
+                    }, 1000);
+                    
                 } catch (error) {
                     console.error('Ошибка инициализации:', error);
                     this.showNotification('Ошибка загрузки приложения', 'error');
@@ -2285,14 +2343,14 @@
                     [this.searchBtn, 'click', () => this.toggleSearch()],
                     [document, 'click', (e) => this.handleDocumentClick(e)],
                     [window, 'beforeunload', () => this.handleBeforeUnload()],
-                    [window, 'resize', () => this.handleResize()]
+                    [window, 'resize', () => this.handleResize()],
+                    [this.messagesContainer, 'scroll', () => this.handleScroll()]
                 ];
 
                 events.forEach(([element, event, handler]) => {
                     this.addEventListener(element, event, handler);
                 });
 
-                // Инициализация адаптации под мобильные устройства
                 this.setupMobileAdaptation();
             }
 
@@ -2310,13 +2368,13 @@
 
                 element.addEventListener(event, wrappedHandler);
                 
-                // Сохраняем для возможности очистки
                 if (!this.activeEventListeners.has(element)) {
                     this.activeEventListeners.set(element, []);
                 }
                 this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
             }
 
+            // Оптимизированные методы
             handleInputKeydown(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -2328,6 +2386,7 @@
                 if (this.generateImageBtn.disabled) {
                     e.preventDefault();
                     this.showNotification('Генерация изображений временно недоступна', 'warning');
+                    this.animateElement(this.generateImageBtn, 'shake');
                 } else {
                     this.toggleImageMode();
                 }
@@ -2337,6 +2396,7 @@
                 if (e.target.value === 'claude-sonnet') {
                     this.showNotification('Claude Sonnet временно недоступен', 'warning');
                     this.modelSelect.value = this.currentModel;
+                    this.animateElement(this.modelSelect, 'shake');
                     return;
                 }
                 this.changeModel(e.target.value);
@@ -2346,8 +2406,6 @@
                 this.saveCurrentSession();
                 this.saveModelPreference();
                 this.saveChatSessions();
-                
-                // Очистка ресурсов
                 this.cleanup();
             }
 
@@ -2374,14 +2432,15 @@
                     this.recognition.onstart = () => {
                         this.isListening = true;
                         this.voiceInputBtn.classList.add('active');
-                        this.showNotification('Слушаю...', 'info');
+                        this.animateElement(this.voiceInputBtn, 'pulse');
+                        this.showNotification('Слушаю... 🎤', 'info');
                     };
 
                     this.recognition.onresult = (event) => {
                         const transcript = event.results[0][0].transcript;
                         this.userInput.value = transcript;
                         this.userInput.focus();
-                        this.showNotification('Текст распознан', 'success');
+                        this.showNotification('Текст распознан ✅', 'success');
                     };
 
                     this.recognition.onerror = (event) => {
@@ -2402,12 +2461,20 @@
             }
 
             startPlaceholderAnimation() {
+                const examples = [
+                    "Расскажи о возможностях искусственного интеллекта...",
+                    "Напиши код для сортировки массива на Python...",
+                    "Объясни теорию относительности простыми словами...",
+                    "Какие есть способы улучшить производительность веб-сайта?",
+                    "Создай описание для приложения на основе ИИ..."
+                ];
+
                 let index = 0;
                 let charIndex = 0;
                 let isDeleting = false;
 
                 const type = () => {
-                    const currentExample = this.placeholderExamples[index];
+                    const currentExample = examples[index];
                     
                     if (isDeleting) {
                         charIndex--;
@@ -2423,7 +2490,7 @@
                         this.setTimeout(() => {}, 2000);
                     } else if (isDeleting && charIndex === 0) {
                         isDeleting = false;
-                        index = (index + 1) % this.placeholderExamples.length;
+                        index = (index + 1) % examples.length;
                     }
 
                     const typeSpeed = isDeleting ? 50 : 100;
@@ -2475,7 +2542,6 @@
 
                 this.searchResults.classList.add('active');
 
-                // Добавляем обработчики для результатов поиска
                 this.searchResults.querySelectorAll('.search-result-item').forEach((item, index) => {
                     this.addEventListener(item, 'click', () => {
                         results[index].action();
@@ -2539,6 +2605,7 @@
                 const newName = this.renameChatInput.value.trim();
                 if (!newName) {
                     this.showNotification('Введите название чата', 'error');
+                    this.animateElement(this.renameChatInput, 'shake');
                     return;
                 }
 
@@ -2552,7 +2619,7 @@
                     this.saveChatSessions();
                     this.updateChatDropdown();
                     
-                    this.showNotification(`Чат переименован в "${newName}"`, 'success');
+                    this.showNotification(`Чат переименован в "${newName}" ✅`, 'success');
                     this.closeRenameModal();
                 }
             }
@@ -2560,8 +2627,6 @@
             // Адаптация под мобильные устройства
             setupMobileAdaptation() {
                 this.handleResize();
-                
-                // Определяем тип устройства
                 this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 
                 if (this.isMobile) {
@@ -2577,8 +2642,17 @@
                 document.body.classList.toggle('landscape', !isPortrait);
                 document.body.classList.toggle('small-screen', isSmallScreen);
                 
-                // Обновляем высоту элементов для мобильных устройств
                 this.updateMobileLayout();
+            }
+
+            handleScroll() {
+                // Можно добавить параллакс-эффект или другие скролл-анимации
+                const scrollTop = this.messagesContainer.scrollTop;
+                if (scrollTop > 100) {
+                    this.messagesContainer.classList.add('scrolled');
+                } else {
+                    this.messagesContainer.classList.remove('scrolled');
+                }
             }
 
             updateMobileLayout() {
@@ -2588,11 +2662,20 @@
                 const headerHeight = document.querySelector('.app-header')?.offsetHeight || 60;
                 const footerHeight = document.querySelector('.app-footer')?.offsetHeight || 40;
                 
-                // Устанавливаем высоту контейнера сообщений
                 if (this.messagesContainer) {
                     const availableHeight = viewportHeight - headerHeight - footerHeight - 100;
                     this.messagesContainer.style.maxHeight = `${availableHeight}px`;
                 }
+            }
+
+            // Анимации
+            animateElement(element, animation) {
+                if (!element) return;
+                
+                element.classList.add(animation);
+                element.addEventListener('animationend', () => {
+                    element.classList.remove(animation);
+                }, { once: true });
             }
 
             toggleSidebar() {
@@ -2683,7 +2766,7 @@
                 const chatId = this.createChatSession(chatName);
                 this.switchChat(chatId);
                 this.closeSidebar();
-                this.showNotification(`Создан новый чат: ${chatName}`, 'success');
+                this.showNotification(`Создан новый чат: ${chatName} ✅`, 'success');
             }
 
             createChatSession(name = 'Новый чат') {
@@ -2710,22 +2793,18 @@
                 }
 
                 try {
-                    // Сохраняем текущую сессию перед переключением
                     this.saveCurrentSession();
                     
                     this.currentChatId = chatId;
                     const session = this.chatSessions.get(chatId);
                     
-                    // Обновляем активность чата
                     session.lastActivity = Date.now();
                     this.chatSessions.set(chatId, session);
                     
-                    // Обновляем UI
                     this.currentChatName.textContent = session.name;
                     
-                    // Загружаем новую сессию
                     this.loadSession(session);
-                    this.showNotification(`Переключен на чат: ${session.name}`, 'info');
+                    this.showNotification(`Переключен на чат: ${session.name} 🔄`, 'info');
                     
                     this.saveChatSessions();
                 } catch (error) {
@@ -2751,14 +2830,13 @@
                 if (confirm(`Удалить чат "${session.name}"?`)) {
                     this.chatSessions.delete(chatId);
                     
-                    // Если удаляем текущий чат, переключаемся на default
                     if (this.currentChatId === chatId) {
                         this.switchChat('default');
                     }
                     
                     this.saveChatSessions();
                     this.updateChatDropdown();
-                    this.showNotification('Чат удален', 'success');
+                    this.showNotification('Чат удален ✅', 'success');
                 }
             }
 
@@ -2800,10 +2878,7 @@
             }
 
             loadSession(session) {
-                // Очищаем контейнер сообщений
                 this.messagesContainer.innerHTML = '';
-                
-                // Загружаем историю сообщений
                 this.conversationHistory = session.conversationHistory || [];
                 
                 if (session.messages && session.messages.length > 0) {
@@ -2828,7 +2903,6 @@
                 messageElement.appendChild(messageContent);
                 this.messagesContainer.appendChild(messageElement);
                 
-                // Прикрепляем обработчики
                 this.attachMessageHandlers(messageElement);
             }
 
@@ -2847,12 +2921,13 @@
 
                 this.currentModel = model;
                 const modelInfo = this.modelConfig[model];
-                this.showNotification(`Модель изменена на: ${modelInfo.name}`, 'success');
+                this.showNotification(`Модель изменена на: ${modelInfo.name} ${modelInfo.icon}`, 'success');
                 this.saveModelPreference();
             }
 
             getModelDisplayName(model) {
-                return this.modelConfig[model]?.name || model;
+                const config = this.modelConfig[model];
+                return config ? `${config.icon} ${config.name}` : model;
             }
 
             getModelDescription(model) {
@@ -2890,7 +2965,7 @@
                 icon.className = this.isVoiceMode ? 'ti ti-microphone-off' : 'ti ti-microphone';
                 
                 this.showNotification(
-                    this.isVoiceMode ? 'Режим генерации голоса включен' : 'Режим генерации голоса выключен',
+                    this.isVoiceMode ? 'Режим генерации голоса включен 🎤' : 'Режим генерации голоса выключен',
                     'info'
                 );
             }
@@ -2924,7 +2999,7 @@
                         
                         this.attachedImages.push(imageData);
                         this.renderAttachedFiles();
-                        this.showNotification(`Изображение "${file.name}" прикреплено`, 'success');
+                        this.showNotification(`Изображение "${file.name}" прикреплено ✅`, 'success');
                         processedCount++;
                     };
                     
@@ -2988,11 +3063,13 @@
                 
                 if (!message && this.attachedImages.length === 0) {
                     this.showNotification('Введите сообщение или прикрепите изображение', 'error');
+                    this.animateElement(this.userInput, 'shake');
                     return;
                 }
 
                 this.isProcessing = true;
                 this.sendBtn.disabled = true;
+                this.animateElement(this.sendBtn, 'bounce-in');
 
                 try {
                     if (this.isVoiceMode) {
@@ -3010,18 +3087,15 @@
             }
 
             async processUserMessage(message) {
-                // Добавляем сообщение пользователя
                 this.addMessage('user', message, this.attachedImages);
                 this.addToConversationHistory('user', message, this.attachedImages);
                 
-                // Очищаем ввод
                 this.userInput.value = '';
                 this.userInput.style.height = 'auto';
                 const imagesToProcess = [...this.attachedImages];
                 this.attachedImages = [];
                 this.renderAttachedFiles();
                 
-                // Обрабатываем сообщение
                 if (this.isImageMode) {
                     await this.generateImage(message);
                 } else {
@@ -3105,7 +3179,7 @@
                     if (part?.text) {
                         fullResponse += part.text;
                         this.updateStreamingMessage(this.activeStreamingMessage, fullResponse);
-                        await this.delay(10); // Небольшая задержка для плавности
+                        await this.delay(10);
                     }
                 }
                 
@@ -3186,7 +3260,6 @@
                 const processedContent = this.processCodeBlocks(fullContent);
                 messageContent.innerHTML = processedContent;
                 
-                // Добавляем информацию о модели
                 const modelIndicator = document.createElement('div');
                 modelIndicator.className = 'model-indicator';
                 modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
@@ -3251,7 +3324,7 @@
                 }
 
                 try {
-                    this.stopSpeech(); // Останавливаем предыдущее воспроизведение
+                    this.stopSpeech();
 
                     this.currentUtterance = new SpeechSynthesisUtterance(text);
                     this.currentUtterance.lang = 'ru-RU';
@@ -3288,7 +3361,7 @@
                     };
 
                     speechSynthesis.speak(this.currentUtterance);
-                    this.showNotification('Озвучивание текста...', 'info');
+                    this.showNotification('Озвучивание текста... 🎵', 'info');
 
                 } catch (error) {
                     console.error('Error speaking text:', error);
@@ -3320,7 +3393,7 @@
                     this.userInput.value = '';
                     this.userInput.style.height = 'auto';
                     
-                    this.showNotification('Генерация голоса...', 'info');
+                    this.showNotification('Генерация голоса... 🎵', 'info');
                     
                     const audio = await puter.ai.txt2speech(text);
                     this.addVoiceMessage(text, audio);
@@ -3394,7 +3467,6 @@
                     timestamp: Date.now()
                 });
 
-                // Ограничиваем историю 30 сообщениями
                 if (this.conversationHistory.length > 30) {
                     this.conversationHistory = this.conversationHistory.slice(-25);
                 }
@@ -3413,7 +3485,6 @@
                         size: "1024x1024"
                     });
                     
-                    // Обновляем сообщение с результатом
                     const messages = this.messagesContainer.querySelectorAll('.message-ai');
                     const lastMessage = messages[messages.length - 1];
                     if (lastMessage) {
@@ -3443,7 +3514,7 @@
                 icon.className = this.isImageMode ? 'ti ti-photo-off' : 'ti ti-photo';
                 
                 this.showNotification(
-                    this.isImageMode ? 'Режим генерации изображений включен' : 'Режим генерации изображений выключен',
+                    this.isImageMode ? 'Режим генерации изображений включен 🖼️' : 'Режим генерации изображений выключен',
                     'info'
                 );
             }
@@ -3496,9 +3567,12 @@
             }
 
             processCodeBlocks(content) {
+                if (typeof marked === 'undefined') {
+                    return content;
+                }
+                
                 let html = marked.parse(content);
                 
-                // Добавляем заголовки для блоков кода
                 html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
                     const language = lang || 'text';
                     return `
@@ -3534,7 +3608,7 @@
                                     btn.classList.remove('copied');
                                 }, 2000);
                                 
-                                this.showNotification('Код скопирован в буфер обмена', 'success');
+                                this.showNotification('Код скопирован в буфер обмена ✅', 'success');
                             } catch (err) {
                                 console.error('Failed to copy code:', err);
                                 this.showNotification('Не удалось скопировать код', 'error');
@@ -3583,7 +3657,7 @@
                 this.attachedImages = [];
                 this.renderAttachedFiles();
                 this.userInput.focus();
-                this.showNotification('Ввод очищен', 'success');
+                this.showNotification('Ввод очищен ✅', 'success');
             }
 
             clearChat() {
@@ -3596,7 +3670,7 @@
                     this.conversationHistory = [];
                     this.showWelcomeMessage();
                     this.saveCurrentSession();
-                    this.showNotification('Чат очищен', 'success');
+                    this.showNotification('Чат очищен ✅', 'success');
                 }
             }
 
@@ -3661,7 +3735,6 @@
                 this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
                 document.body.setAttribute('data-theme', this.currentTheme);
                 
-                // Сохраняем тему в localStorage
                 try {
                     localStorage.setItem('khuyew-ai-theme', this.currentTheme);
                 } catch (error) {
@@ -3669,7 +3742,7 @@
                 }
                 
                 this.showNotification(
-                    this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
+                    this.currentTheme === 'dark' ? 'Темная тема включена 🌙' : 'Светлая тема включена ☀️',
                     'info'
                 );
             }
@@ -3687,7 +3760,6 @@
             }
 
             showNotification(message, type = 'info') {
-                // Убираем существующие уведомления
                 const existingNotifications = document.querySelectorAll('.notification');
                 existingNotifications.forEach(notification => notification.remove());
                 
@@ -3790,22 +3862,17 @@
 
             // Очистка ресурсов
             cleanup() {
-                // Останавливаем все таймеры
                 this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
                 this.activeTimeouts.clear();
 
-                // Останавливаем речь
                 this.stopSpeech();
 
-                // Останавливаем голосовой ввод
                 if (this.recognition && this.isListening) {
                     this.recognition.stop();
                 }
 
-                // Убираем индикаторы
                 this.removeTypingIndicator();
 
-                // Удаляем обработчики событий
                 this.activeEventListeners.forEach((listeners, element) => {
                     listeners.forEach(({ event, handler }) => {
                         element.removeEventListener(event, handler);
@@ -3818,17 +3885,14 @@
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                // Проверяем наличие Puter.ai
                 if (typeof puter === 'undefined') {
                     console.warn('Puter.ai не загружен, некоторые функции будут недоступны');
                 }
                 
-                // Предзагрузка голосов для синтеза речи
                 if ('speechSynthesis' in window) {
                     speechSynthesis.getVoices();
                 }
                 
-                // Инициализация приложения
                 new KhuyewAI();
                 
             } catch (error) {
