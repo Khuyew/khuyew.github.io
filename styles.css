@@ -1037,16 +1037,13 @@ body {
     color: var(--accent-primary);
 }
 
-/* Стили для стриминговых сообщений */
+/* Упрощенные стили для стриминговых сообщений */
 .streaming-message {
     position: relative;
-    opacity: 1 !important;
-    transform: none !important;
 }
 
 .streaming-content {
     position: relative;
-    min-height: 20px;
 }
 
 .typing-indicator-inline {
@@ -1054,10 +1051,14 @@ body {
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
-    opacity: 1;
-    transition: opacity 0.5s ease;
     color: var(--text-secondary);
     font-size: 13px;
+    transition: opacity 0.3s ease;
+}
+
+.typing-indicator-inline.fade-out {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .typing-indicator-inline .typing-dots {
@@ -1074,35 +1075,7 @@ body {
 }
 
 .streaming-text {
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-.streaming-text p,
-.streaming-text li,
-.streaming-text code,
-.streaming-text pre {
-    animation: gentleAppear 0.8s ease-out;
-}
-
-@keyframes gentleAppear {
-    from {
-        opacity: 0;
-        transform: translateY(3px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Плавное появление символов */
-.streaming-text {
     line-height: 1.6;
-}
-
-.streaming-text > * {
-    animation-delay: 0.1s;
 }
 
 /* Улучшенная анимация пульсации */
@@ -1127,20 +1100,9 @@ body {
     transform: none !important;
 }
 
-.streaming-message .message-content {
-    opacity: 1 !important;
-}
-
 /* Улучшаем отображение индикатора печати */
 .typing-indicator-inline .typing-dot:nth-child(1) { animation-delay: -0.32s; }
 .typing-indicator-inline .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-/* Плавное исчезновение индикатора печати */
-.typing-indicator-inline.fade-out {
-    opacity: 0;
-    transform: translateY(-5px);
-    pointer-events: none;
-}
 
 /* Адаптивность для новых элементов */
 @media (max-width: 768px) {
@@ -1323,4 +1285,57 @@ body {
         left: 50%;
         transform: translateX(-50%);
     }
+}
+
+/* Новые стили для улучшенного управления чатами */
+.chat-management {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.chat-action-btn {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 10px;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.chat-action-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.empty-chat-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-tertiary);
+}
+
+.empty-chat-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-chat-state h3 {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.empty-chat-state p {
+    font-size: 13px;
+    line-height: 1.5;
 }
