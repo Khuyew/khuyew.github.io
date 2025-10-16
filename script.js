@@ -23,10 +23,14 @@ class KhuyewAI {
         this.voiceInputBtn = document.getElementById('voiceInputBtn');
         this.fileInput = document.getElementById('fileInput');
         this.attachedFiles = document.getElementById('attachedFiles');
-        this.chatSelectButton = document.getElementById('chatSelectButton');
-        this.chatDropdown = document.getElementById('chatDropdown');
-        this.chatList = document.getElementById('chatList');
         this.currentChatName = document.getElementById('currentChatName');
+        
+        // Новые элементы для меню
+        this.menuToggle = document.getElementById('menuToggle');
+        this.sidebarMenu = document.getElementById('sidebarMenu');
+        this.sidebarOverlay = document.getElementById('sidebarOverlay');
+        this.sidebarClose = document.getElementById('sidebarClose');
+        this.chatList = document.getElementById('chatList');
         this.newChatBtn = document.getElementById('newChatBtn');
 
         // Проверяем что все элементы найдены
@@ -38,8 +42,8 @@ class KhuyewAI {
             'messagesContainer', 'userInput', 'sendBtn', 'clearInputBtn',
             'clearChatBtn', 'helpBtn', 'generateVoiceBtn', 'themeToggle',
             'modelSelect', 'attachFileBtn', 'voiceInputBtn', 'fileInput',
-            'attachedFiles', 'chatSelectButton', 'chatDropdown', 'currentChatName',
-            'newChatBtn'
+            'attachedFiles', 'currentChatName', 'menuToggle', 'sidebarMenu',
+            'sidebarOverlay', 'sidebarClose', 'chatList', 'newChatBtn'
         ];
 
         requiredElements.forEach(elementName => {
@@ -53,7 +57,7 @@ class KhuyewAI {
     initializeState() {
         // Состояние приложения
         this.isProcessing = false;
-        this.currentTheme = 'dark';
+        this.currentTheme = 'dark'; // По умолчанию темная тема
         this.isImageMode = false;
         this.isVoiceMode = false;
         this.attachedImages = [];
@@ -141,6 +145,7 @@ class KhuyewAI {
             this.setupVoiceRecognition();
             this.startPlaceholderAnimation();
             this.loadModelPreference();
+            this.loadThemePreference();
             this.loadChatSessions();
             this.setupChatSelector();
             this.loadCurrentSession();
@@ -168,9 +173,10 @@ class KhuyewAI {
             [this.attachFileBtn, 'click', () => this.fileInput.click()],
             [this.fileInput, 'change', (e) => this.handleFileSelect(e)],
             [this.voiceInputBtn, 'click', () => this.toggleVoiceInput()],
-            [this.chatSelectButton, 'click', (e) => this.toggleChatDropdown(e)],
-            [this.newChatBtn, 'click', (e) => this.createNewChat(e)],
-            [document, 'click', (e) => this.handleDocumentClick(e)],
+            [this.menuToggle, 'click', () => this.toggleSidebar()],
+            [this.sidebarClose, 'click', () => this.closeSidebar()],
+            [this.sidebarOverlay, 'click', () => this.closeSidebar()],
+            [this.newChatBtn, 'click', () => this.createNewChat()],
             [window, 'beforeunload', () => this.handleBeforeUnload()]
         ];
 
@@ -223,12 +229,6 @@ class KhuyewAI {
             return;
         }
         this.changeModel(e.target.value);
-    }
-
-    handleDocumentClick(e) {
-        if (!this.chatSelectButton.contains(e.target) && !this.chatDropdown.contains(e.target)) {
-            this.chatDropdown.classList.remove('show');
-        }
     }
 
     handleBeforeUnload() {
@@ -331,12 +331,17 @@ class KhuyewAI {
         return timeoutId;
     }
 
-    toggleChatDropdown(e) {
-        e.stopPropagation();
-        this.chatDropdown.classList.toggle('show');
-        if (this.chatDropdown.classList.contains('show')) {
+    toggleSidebar() {
+        this.sidebarMenu.classList.toggle('active');
+        this.sidebarOverlay.classList.toggle('active');
+        if (this.sidebarMenu.classList.contains('active')) {
             this.updateChatDropdown();
         }
+    }
+
+    closeSidebar() {
+        this.sidebarMenu.classList.remove('active');
+        this.sidebarOverlay.classList.remove('active');
     }
 
     updateChatDropdown() {
@@ -375,7 +380,7 @@ class KhuyewAI {
         this.addEventListener(chatItem, 'click', (e) => {
             if (!e.target.closest('.delete-chat-btn')) {
                 this.switchChat(id);
-                this.chatDropdown.classList.remove('show');
+                this.closeSidebar();
             }
         });
 
@@ -396,8 +401,7 @@ class KhuyewAI {
         return div.innerHTML;
     }
 
-    createNewChat(e) {
-        e.stopPropagation();
+    createNewChat() {
         const chatNumber = Array.from(this.chatSessions.values()).filter(session => 
             session.name.startsWith('Чат ')
         ).length + 1;
@@ -405,7 +409,7 @@ class KhuyewAI {
         const chatName = `Чат ${chatNumber}`;
         const chatId = this.createChatSession(chatName);
         this.switchChat(chatId);
-        this.chatDropdown.classList.remove('show');
+        this.closeSidebar();
         this.showNotification(`Создан новый чат: ${chatName}`, 'success');
     }
 
@@ -1360,8 +1364,8 @@ class KhuyewAI {
 Вы можете переключать модели в верхнем правом углу.
 
 ## 💬 Система чатов:
-• **Создание нового чата** - нажмите "Новый чат" в выпадающем меню
-• **Переключение между чатами** - выберите чат из списка
+• **Создание нового чата** - нажмите "Новый чат" в меню
+• **Переключение между чатами** - выберите чат из списка в меню
 • **Удаление чатов** - нажмите ❌ рядом с названием чата (кроме основного)
 
 ## 🔊 Аудио функции:
@@ -1384,13 +1388,29 @@ class KhuyewAI {
         this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
         document.body.setAttribute('data-theme', this.currentTheme);
         
-        const icon = this.themeToggle.querySelector('i');
-        icon.className = this.currentTheme === 'dark' ? 'ti ti-moon' : 'ti ti-sun';
+        // Сохраняем тему в localStorage
+        try {
+            localStorage.setItem('khuyew-ai-theme', this.currentTheme);
+        } catch (error) {
+            console.error('Error saving theme preference:', error);
+        }
         
         this.showNotification(
             this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
             'info'
         );
+    }
+
+    loadThemePreference() {
+        try {
+            const savedTheme = localStorage.getItem('khuyew-ai-theme');
+            if (savedTheme === 'light' || savedTheme === 'dark') {
+                this.currentTheme = savedTheme;
+                document.body.setAttribute('data-theme', this.currentTheme);
+            }
+        } catch (error) {
+            console.error('Error loading theme preference:', error);
+        }
     }
 
     showNotification(message, type = 'info') {
