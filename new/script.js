@@ -18,7 +18,7 @@ class KhuyewAI {
         this.generateVoiceBtn = document.getElementById('generateVoiceBtn');
         this.themeToggle = document.getElementById('themeToggle');
         this.modelSelect = document.getElementById('modelSelect');
-        this.logo = document.querySelector('.logo');
+        this.logo = document.querySelector('.logo-image');
         this.attachFileBtn = document.getElementById('attachFileBtn');
         this.voiceInputBtn = document.getElementById('voiceInputBtn');
         this.fileInput = document.getElementById('fileInput');
@@ -33,6 +33,13 @@ class KhuyewAI {
         this.chatList = document.getElementById('chatList');
         this.newChatBtn = document.getElementById('newChatBtn');
 
+        // Элементы модального окна редактирования чата
+        this.editChatModal = document.getElementById('editChatModal');
+        this.editChatModalClose = document.getElementById('editChatModalClose');
+        this.editChatModalCancel = document.getElementById('editChatModalCancel');
+        this.editChatModalSave = document.getElementById('editChatModalSave');
+        this.editChatNameInput = document.getElementById('editChatNameInput');
+
         // Проверяем что все элементы найдены
         this.validateElements();
     }
@@ -43,7 +50,9 @@ class KhuyewAI {
             'clearChatBtn', 'helpBtn', 'generateVoiceBtn', 'themeToggle',
             'modelSelect', 'attachFileBtn', 'voiceInputBtn', 'fileInput',
             'attachedFiles', 'currentChatName', 'menuToggle', 'sidebarMenu',
-            'sidebarOverlay', 'sidebarClose', 'chatList', 'newChatBtn'
+            'sidebarOverlay', 'sidebarClose', 'chatList', 'newChatBtn',
+            'editChatModal', 'editChatModalClose', 'editChatModalCancel',
+            'editChatModalSave', 'editChatNameInput'
         ];
 
         requiredElements.forEach(elementName => {
@@ -60,7 +69,7 @@ class KhuyewAI {
         this.currentTheme = 'dark'; // По умолчанию темная тема
         this.isImageMode = false;
         this.isVoiceMode = false;
-        this.attachedImages = [];
+        this.attachedFilesList = [];
         this.isListening = false;
         this.recognition = null;
         this.conversationHistory = [];
@@ -74,6 +83,7 @@ class KhuyewAI {
         this.activeStreamingMessage = null;
         this.activeTimeouts = new Set();
         this.activeEventListeners = new Map();
+        this.editingChatId = null;
 
         // Конфигурация
         this.placeholderExamples = [
@@ -117,6 +127,17 @@ class KhuyewAI {
                 name: 'xAI Grok', 
                 description: 'Модель от xAI с уникальным характером и остроумными ответами' 
             }
+        };
+
+        this.fileTypeIcons = {
+            'image': 'ti-photo',
+            'text': 'ti-file-text',
+            'pdf': 'ti-file-text',
+            'audio': 'ti-music',
+            'video': 'ti-video',
+            'archive': 'ti-zip',
+            'document': 'ti-file',
+            'default': 'ti-file'
         };
     }
 
@@ -165,7 +186,7 @@ class KhuyewAI {
             [this.clearInputBtn, 'click', () => this.clearInput()],
             [this.clearChatBtn, 'click', () => this.clearChat()],
             [this.helpBtn, 'click', () => this.showHelp()],
-            [this.generateImageBtn, 'click', (e) => this.handleImageMode(e)],
+            [this.generateImageBtn, 'click', () => this.toggleImageMode()],
             [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
             [this.themeToggle, 'click', () => this.toggleTheme()],
             [this.modelSelect, 'change', (e) => this.handleModelChange(e)],
@@ -177,7 +198,11 @@ class KhuyewAI {
             [this.sidebarClose, 'click', () => this.closeSidebar()],
             [this.sidebarOverlay, 'click', () => this.closeSidebar()],
             [this.newChatBtn, 'click', () => this.createNewChat()],
-            [window, 'beforeunload', () => this.handleBeforeUnload()]
+            [window, 'beforeunload', () => this.handleBeforeUnload()],
+            [this.editChatModalClose, 'click', () => this.closeEditChatModal()],
+            [this.editChatModalCancel, 'click', () => this.closeEditChatModal()],
+            [this.editChatModalSave, 'click', () => this.saveChatName()],
+            [this.editChatNameInput, 'keydown', (e) => this.handleEditChatKeydown(e)]
         ];
 
         events.forEach(([element, event, handler]) => {
@@ -213,21 +238,17 @@ class KhuyewAI {
         }
     }
 
-    handleImageMode(e) {
-        if (this.generateImageBtn.disabled) {
+    handleEditChatKeydown(e) {
+        if (e.key === 'Enter') {
             e.preventDefault();
-            this.showNotification('Генерация изображений временно недоступна', 'warning');
-        } else {
-            this.toggleImageMode();
+            this.saveChatName();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            this.closeEditChatModal();
         }
     }
 
     handleModelChange(e) {
-        if (e.target.value === 'claude-sonnet') {
-            this.showNotification('Claude Sonnet временно недоступен', 'warning');
-            this.modelSelect.value = this.currentModel;
-            return;
-        }
         this.changeModel(e.target.value);
     }
 
@@ -374,15 +395,28 @@ class KhuyewAI {
                 <i class="ti ti-message"></i>
                 <span class="chat-name">${this.escapeHtml(session.name)}</span>
             </div>
-            ${id !== 'default' ? '<button class="delete-chat-btn" title="Удалить чат"><i class="ti ti-x"></i></button>' : ''}
+            <div class="chat-actions">
+                <button class="edit-chat-btn" title="Редактировать название чата">
+                    <i class="ti ti-edit"></i>
+                </button>
+                ${id !== 'default' ? '<button class="delete-chat-btn" title="Удалить чат"><i class="ti ti-x"></i></button>' : ''}
+            </div>
         `;
 
         this.addEventListener(chatItem, 'click', (e) => {
-            if (!e.target.closest('.delete-chat-btn')) {
+            if (!e.target.closest('.chat-actions')) {
                 this.switchChat(id);
                 this.closeSidebar();
             }
         });
+
+        const editBtn = chatItem.querySelector('.edit-chat-btn');
+        if (editBtn) {
+            this.addEventListener(editBtn, 'click', (e) => {
+                e.stopPropagation();
+                this.openEditChatModal(id);
+            });
+        }
 
         const deleteBtn = chatItem.querySelector('.delete-chat-btn');
         if (deleteBtn) {
@@ -393,6 +427,48 @@ class KhuyewAI {
         }
 
         return chatItem;
+    }
+
+    openEditChatModal(chatId) {
+        const session = this.chatSessions.get(chatId);
+        if (!session) return;
+        
+        this.editingChatId = chatId;
+        this.editChatNameInput.value = session.name;
+        this.editChatModal.classList.add('active');
+        this.editChatNameInput.focus();
+        this.editChatNameInput.select();
+    }
+
+    closeEditChatModal() {
+        this.editChatModal.classList.remove('active');
+        this.editingChatId = null;
+    }
+
+    saveChatName() {
+        if (!this.editingChatId) return;
+        
+        const newName = this.editChatNameInput.value.trim();
+        if (!newName) {
+            this.showNotification('Название чата не может быть пустым', 'error');
+            return;
+        }
+
+        const session = this.chatSessions.get(this.editingChatId);
+        if (session) {
+            session.name = newName;
+            this.chatSessions.set(this.editingChatId, session);
+            
+            if (this.currentChatId === this.editingChatId) {
+                this.currentChatName.textContent = newName;
+            }
+            
+            this.updateChatDropdown();
+            this.saveChatSessions();
+            this.showNotification('Название чата обновлено', 'success');
+        }
+        
+        this.closeEditChatModal();
     }
 
     escapeHtml(text) {
@@ -622,58 +698,160 @@ class KhuyewAI {
         );
     }
 
-    handleFileSelect(event) {
+    getFileType(file) {
+        if (file.type.startsWith('image/')) return 'image';
+        if (file.type.startsWith('text/')) return 'text';
+        if (file.type.includes('pdf')) return 'pdf';
+        if (file.type.startsWith('audio/')) return 'audio';
+        if (file.type.startsWith('video/')) return 'video';
+        if (file.type.includes('zip') || file.type.includes('rar') || file.type.includes('tar') || file.type.includes('7z')) return 'archive';
+        if (file.type.includes('document') || file.type.includes('msword') || file.type.includes('officedocument')) return 'document';
+        return 'default';
+    }
+
+    getFileIcon(fileType) {
+        return this.fileTypeIcons[fileType] || this.fileTypeIcons.default;
+    }
+
+    async handleFileSelect(event) {
         const files = Array.from(event.target.files);
         if (files.length === 0) return;
 
         let processedCount = 0;
-        const maxFiles = 3;
+        const maxFiles = 5;
 
-        files.forEach(file => {
+        for (const file of files) {
             if (processedCount >= maxFiles) {
-                this.showNotification('Можно прикрепить не более 3 изображений', 'warning');
-                return;
+                this.showNotification('Можно прикрепить не более 5 файлов', 'warning');
+                break;
             }
 
-            if (!file.type.startsWith('image/')) {
-                this.showNotification('Пожалуйста, выберите только изображения', 'error');
-                return;
+            const fileType = this.getFileType(file);
+            
+            try {
+                if (fileType === 'image') {
+                    await this.processImageFile(file);
+                } else {
+                    await this.processTextFile(file, fileType);
+                }
+                processedCount++;
+            } catch (error) {
+                console.error(`Error processing file ${file.name}:`, error);
+                this.showNotification(`Ошибка обработки файла: ${file.name}`, 'error');
             }
+        }
 
+        this.renderAttachedFiles();
+        event.target.value = '';
+    }
+
+    processImageFile(file) {
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const imageData = {
+                const fileData = {
                     name: file.name,
                     data: e.target.result,
-                    type: file.type,
-                    size: file.size
+                    type: 'image',
+                    fileType: file.type,
+                    size: file.size,
+                    originalFile: file
                 };
                 
-                this.attachedImages.push(imageData);
-                this.renderAttachedFiles();
+                this.attachedFilesList.push(fileData);
                 this.showNotification(`Изображение "${file.name}" прикреплено`, 'success');
-                processedCount++;
+                resolve();
             };
             
             reader.onerror = () => {
-                this.showNotification(`Ошибка загрузки файла: ${file.name}`, 'error');
+                reject(new Error(`Failed to read image file: ${file.name}`));
             };
             
             reader.readAsDataURL(file);
         });
+    }
 
-        event.target.value = '';
+    async processTextFile(file, fileType) {
+        try {
+            // Используем Puter.js для чтения файлов
+            const filename = file.name;
+            
+            // Создаем временный файл в Puter файловой системе
+            await puter.fs.write(filename, file);
+            
+            // Читаем содержимое файла
+            const blob = await puter.fs.read(filename);
+            let content;
+            
+            if (fileType === 'text') {
+                content = await blob.text();
+            } else {
+                // Для бинарных файлов читаем как ArrayBuffer
+                const arrayBuffer = await blob.arrayBuffer();
+                content = `Binary file: ${file.name} (${file.size} bytes)`;
+            }
+            
+            const fileData = {
+                name: file.name,
+                data: content,
+                type: fileType,
+                fileType: file.type,
+                size: file.size,
+                originalFile: file
+            };
+            
+            this.attachedFilesList.push(fileData);
+            this.showNotification(`Файл "${file.name}" прикреплен`, 'success');
+            
+            // Удаляем временный файл
+            await puter.fs.rm(filename);
+            
+        } catch (error) {
+            console.error('Error processing text file with Puter:', error);
+            // Fallback: используем FileReader
+            await this.processTextFileWithFileReader(file, fileType);
+        }
+    }
+
+    processTextFileWithFileReader(file, fileType) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fileData = {
+                    name: file.name,
+                    data: e.target.result,
+                    type: fileType,
+                    fileType: file.type,
+                    size: file.size,
+                    originalFile: file
+                };
+                
+                this.attachedFilesList.push(fileData);
+                this.showNotification(`Файл "${file.name}" прикреплен`, 'success');
+                resolve();
+            };
+            
+            reader.onerror = () => {
+                reject(new Error(`Failed to read file: ${file.name}`));
+            };
+            
+            if (fileType === 'text') {
+                reader.readAsText(file);
+            } else {
+                reader.readAsDataURL(file);
+            }
+        });
     }
 
     renderAttachedFiles() {
         this.attachedFiles.innerHTML = '';
         
-        this.attachedImages.forEach((image, index) => {
+        this.attachedFilesList.forEach((file, index) => {
             const fileElement = document.createElement('div');
             fileElement.className = 'attached-file';
             fileElement.innerHTML = `
-                <i class="ti ti-photo"></i>
-                <span>${this.escapeHtml(image.name)} (${this.formatFileSize(image.size)})</span>
+                <i class="ti ${this.getFileIcon(file.type)}"></i>
+                <span>${this.escapeHtml(file.name)} (${this.formatFileSize(file.size)})</span>
                 <button class="remove-file" data-index="${index}">
                     <i class="ti ti-x"></i>
                 </button>
@@ -698,11 +876,11 @@ class KhuyewAI {
     }
 
     removeAttachedFile(index) {
-        if (index < 0 || index >= this.attachedImages.length) return;
+        if (index < 0 || index >= this.attachedFilesList.length) return;
         
-        const removedFile = this.attachedImages.splice(index, 1)[0];
+        const removedFile = this.attachedFilesList.splice(index, 1)[0];
         this.renderAttachedFiles();
-        this.showNotification(`Изображение "${removedFile.name}" удалено`, 'info');
+        this.showNotification(`Файл "${removedFile.name}" удален`, 'info');
     }
 
     async sendMessage() {
@@ -713,8 +891,8 @@ class KhuyewAI {
 
         const message = this.userInput.value.trim();
         
-        if (!message && this.attachedImages.length === 0) {
-            this.showNotification('Введите сообщение или прикрепите изображение', 'error');
+        if (!message && this.attachedFilesList.length === 0) {
+            this.showNotification('Введите сообщение или прикрепите файл', 'error');
             return;
         }
 
@@ -738,30 +916,30 @@ class KhuyewAI {
 
     async processUserMessage(message) {
         // Добавляем сообщение пользователя
-        this.addMessage('user', message, this.attachedImages);
-        this.addToConversationHistory('user', message, this.attachedImages);
+        this.addMessage('user', message, this.attachedFilesList);
+        this.addToConversationHistory('user', message, this.attachedFilesList);
         
         // Очищаем ввод
         this.userInput.value = '';
         this.userInput.style.height = 'auto';
-        const imagesToProcess = [...this.attachedImages];
-        this.attachedImages = [];
+        const filesToProcess = [...this.attachedFilesList];
+        this.attachedFilesList = [];
         this.renderAttachedFiles();
         
         // Обрабатываем сообщение
         if (this.isImageMode) {
             await this.generateImage(message);
         } else {
-            await this.getAIResponse(message, imagesToProcess);
+            await this.getAIResponse(message, filesToProcess);
         }
     }
 
-    async getAIResponse(userMessage, images) {
+    async getAIResponse(userMessage, files) {
         this.removeTypingIndicator();
         this.activeTypingIndicator = this.showTypingIndicator();
         
         try {
-            const prompt = await this.buildPrompt(userMessage, images);
+            const prompt = await this.buildPrompt(userMessage, files);
             const response = await this.callAIService(prompt);
             
             this.removeTypingIndicator();
@@ -773,30 +951,49 @@ class KhuyewAI {
         }
     }
 
-    async buildPrompt(userMessage, images) {
-        if (images.length > 0) {
+    async buildPrompt(userMessage, files) {
+        const imageFiles = files.filter(f => f.type === 'image');
+        const textFiles = files.filter(f => f.type === 'text');
+        
+        let prompt = '';
+        
+        if (imageFiles.length > 0) {
             if (typeof puter?.ai?.img2txt !== 'function') {
                 throw new Error('Функция анализа изображений недоступна');
             }
             
-            const extractedText = await puter.ai.img2txt(images[0].data);
+            const extractedText = await puter.ai.img2txt(imageFiles[0].data);
             
             if (userMessage.trim()) {
-                return `Пользователь отправил изображение "${images[0].name}" с сопроводительным сообщением: "${userMessage}"
+                prompt += `Пользователь отправил изображение "${imageFiles[0].name}" с сопроводительным сообщением: "${userMessage}"
 
-Извлеченный текст с изображения: "${extractedText}"
-
-Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
+Извлеченный текст с изображения: "${extractedText}"`;
             } else {
-                return `Пользователь отправил изображение "${images[0].name}".
+                prompt += `Пользователь отправил изображение "${imageFiles[0].name}".
 
-Извлеченный текст с изображения: "${extractedText}"
-
-Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
+Извлеченный текст с изображения: "${extractedText}"`;
             }
-        } else {
-            return this.buildContextPrompt(userMessage);
         }
+        
+        if (textFiles.length > 0) {
+            if (prompt) prompt += '\n\n';
+            
+            prompt += `Пользователь отправил текстовый файл "${textFiles[0].name}" со следующим содержимым:\n\n"${textFiles[0].data}"`;
+            
+            if (userMessage.trim()) {
+                prompt += `\n\nСопроводительное сообщение пользователя: "${userMessage}"`;
+            }
+        }
+        
+        if (!prompt && userMessage.trim()) {
+            prompt = this.buildContextPrompt(userMessage);
+        } else if (prompt && userMessage.trim()) {
+            prompt += `\n\nОтветь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание прикрепленных файлов. Отвечай одним целостным сообщением на русском языке.`;
+        } else {
+            prompt += `\n\nПроанализируй прикрепленные файлы. Опиши основное содержание. Если есть текст - объясни его значение. Отвечай подробно на русском языке.`;
+        }
+        
+        return prompt;
     }
 
     async callAIService(prompt) {
@@ -1107,12 +1304,12 @@ class KhuyewAI {
         return context;
     }
 
-    addToConversationHistory(role, content, images = []) {
+    addToConversationHistory(role, content, files = []) {
         let messageContent = content;
         
-        if (images && images.length > 0) {
-            const imageNames = images.map(img => img.name).join(', ');
-            messageContent += ` [Прикреплено изображение: ${imageNames}]`;
+        if (files && files.length > 0) {
+            const fileNames = files.map(file => file.name).join(', ');
+            messageContent += ` [Прикреплены файлы: ${fileNames}]`;
         }
         
         this.conversationHistory.push({
@@ -1175,7 +1372,7 @@ class KhuyewAI {
         );
     }
 
-    addMessage(role, content, images = []) {
+    addMessage(role, content, files = []) {
         const messageElement = document.createElement('div');
         messageElement.className = `message message-${role}`;
         
@@ -1196,20 +1393,30 @@ class KhuyewAI {
             messageContent.appendChild(modelIndicator);
         }
         
-        if (images && images.length > 0) {
-            images.forEach(image => {
-                const imageContainer = document.createElement('div');
-                imageContainer.className = 'message-image';
-                
-                const img = document.createElement('img');
-                img.src = image.data;
-                img.alt = image.name;
-                img.style.maxWidth = '200px';
-                img.style.borderRadius = '8px';
-                img.style.marginTop = '8px';
-                
-                imageContainer.appendChild(img);
-                messageContent.appendChild(imageContainer);
+        if (files && files.length > 0) {
+            files.forEach(file => {
+                if (file.type === 'image') {
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'message-image';
+                    
+                    const img = document.createElement('img');
+                    img.src = file.data;
+                    img.alt = file.name;
+                    img.style.maxWidth = '200px';
+                    img.style.borderRadius = '8px';
+                    img.style.marginTop = '8px';
+                    
+                    imageContainer.appendChild(img);
+                    messageContent.appendChild(imageContainer);
+                } else {
+                    const fileContainer = document.createElement('div');
+                    fileContainer.className = 'message-file';
+                    fileContainer.innerHTML = `
+                        <i class="ti ${this.getFileIcon(file.type)}"></i>
+                        <span>Прикреплен файл: ${this.escapeHtml(file.name)} (${this.formatFileSize(file.size)})</span>
+                    `;
+                    messageContent.appendChild(fileContainer);
+                }
             });
         }
         
@@ -1307,7 +1514,7 @@ class KhuyewAI {
     clearInput() {
         this.userInput.value = '';
         this.userInput.style.height = 'auto';
-        this.attachedImages = [];
+        this.attachedFilesList = [];
         this.renderAttachedFiles();
         this.userInput.focus();
         this.showNotification('Ввод очищен', 'success');
@@ -1338,6 +1545,7 @@ class KhuyewAI {
 ## 🎯 Основные возможности:
 • **Умные ответы на вопросы** - используя различные модели ИИ
 • **Анализ изображений** - извлечение текста и решение задач по фото
+• **Работа с файлами** - чтение и анализ текстовых файлов
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
 • **Генерация голоса** - преобразование текста в естественную речь
 • **Озвучивание ответов** - слушайте ответы ИИ в аудиоформате
@@ -1346,10 +1554,11 @@ class KhuyewAI {
 • **Копирование кода** - удобное копирование фрагментов кода
 • **Стриминг ответов** - ответы появляются постепенно
 • **Мульти-чаты** - создавайте отдельные чаты для разных тем
+• **Редактирование чатов** - изменяйте названия ваших чатов
 
 **Текущая модель: ${currentModelName}** - ${currentModelDesc}
 
-**Начните общение, отправив сообщение или изображение!**`;
+**Начните общение, отправив сообщение или файл!**`;
 
         this.addMessage('ai', welcomeMessage);
         this.addToConversationHistory('assistant', welcomeMessage);
@@ -1366,7 +1575,13 @@ class KhuyewAI {
 ## 💬 Система чатов:
 • **Создание нового чата** - нажмите "Новый чат" в меню
 • **Переключение между чатами** - выберите чат из списка в меню
+• **Редактирование названия** - нажмите ✏️ рядом с названием чата
 • **Удаление чатов** - нажмите ❌ рядом с названием чата (кроме основного)
+
+## 📎 Работа с файлами:
+• **Прикрепление файлов** - нажмите на скрепку для выбора файлов
+• **Поддерживаемые форматы** - изображения, текстовые файлы, PDF, документы
+• **Анализ содержимого** - ИИ проанализирует текст из прикрепленных файлов
 
 ## 🔊 Аудио функции:
 • **Генерация голоса** - создает аудио из текста с помощью ИИ
@@ -1374,11 +1589,11 @@ class KhuyewAI {
 • **Остановить озвучку** - нажмите кнопку повторно для остановки
 
 ## 🖼️ Работа с изображениями:
-1. **Нажмите кнопку ➕** чтобы прикрепить изображение
+1. **Нажмите кнопку скрепки** чтобы прикрепить изображение
 2. **Напишите вопрос** (опционально) - что вы хотите узнать о изображении
 3. **Нажмите Отправить** - ИИ проанализирует изображение и ответит
 
-**Попробуйте отправить изображение с вопросом!**`;
+**Попробуйте отправить файл или изображение с вопросом!**`;
 
         this.addMessage('ai', helpMessage);
         this.addToConversationHistory('assistant', helpMessage);
@@ -1387,6 +1602,10 @@ class KhuyewAI {
     toggleTheme() {
         this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
         document.body.setAttribute('data-theme', this.currentTheme);
+        
+        // Обновляем иконку темы
+        const themeIcon = this.themeToggle.querySelector('i');
+        themeIcon.className = this.currentTheme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
         
         // Сохраняем тему в localStorage
         try {
@@ -1407,6 +1626,10 @@ class KhuyewAI {
             if (savedTheme === 'light' || savedTheme === 'dark') {
                 this.currentTheme = savedTheme;
                 document.body.setAttribute('data-theme', this.currentTheme);
+                
+                // Обновляем иконку темы
+                const themeIcon = this.themeToggle.querySelector('i');
+                themeIcon.className = this.currentTheme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
             }
         } catch (error) {
             console.error('Error loading theme preference:', error);
