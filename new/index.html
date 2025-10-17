@@ -152,8 +152,8 @@
         }
 
         .logo {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -943,7 +943,7 @@
         /* Notifications */
         .notification {
             position: fixed;
-            top: max(20px, env(safe-area-inset-top));
+            top: 80px;
             right: 20px;
             padding: 12px 16px;
             border-radius: var(--radius-md);
@@ -1189,6 +1189,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 0;
+            position: relative;
         }
 
         .sidebar-section {
@@ -1242,6 +1243,25 @@
             color: white;
         }
 
+        /* Watermark logo in sidebar */
+        .sidebar-watermark {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .sidebar-watermark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
         /* Chat list in sidebar */
         .sidebar-section .chat-list {
             max-height: 200px;
@@ -1249,6 +1269,8 @@
             margin-bottom: 12px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar-section .chat-item {
@@ -1260,6 +1282,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar-section .chat-item:hover {
@@ -1335,6 +1359,8 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar-section .about-item {
@@ -1385,8 +1411,8 @@
             }
 
             .logo {
-                width: 32px;
-                height: 32px;
+                width: 40px;
+                height: 40px;
             }
 
             .header-controls {
@@ -1482,6 +1508,17 @@
             .sidebar-section .about-item a {
                 font-size: 10px;
             }
+
+            .sidebar-watermark {
+                width: 150px;
+                height: 150px;
+            }
+
+            .notification {
+                top: 70px;
+                right: 15px;
+                max-width: 280px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1527,6 +1564,18 @@
 
             .sidebar-section {
                 padding: 12px;
+            }
+
+            .sidebar-watermark {
+                width: 120px;
+                height: 120px;
+            }
+
+            .notification {
+                top: 60px;
+                right: 10px;
+                max-width: 250px;
+                font-size: 13px;
             }
         }
 
@@ -1946,6 +1995,11 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Watermark logo -->
+            <div class="sidebar-watermark">
+                <img src="./logo.png" alt="AI Assistant Watermark" onerror="this.style.display='none';">
+            </div>
         </div>
     </div>
 
@@ -2061,6 +2115,8 @@
                 this.isGenerating = false;
                 this.generationAborted = false;
                 this.currentStreamController = null;
+                this.pausedGeneration = false;
+                this.lastUserMessage = null;
                 
                 // Состояния для навигации
                 this.isAtBottom = true;
@@ -2268,10 +2324,17 @@
             }
 
             handleInputChange() {
-                // Если идет генерация и пользователь начал вводить текст,
-                // меняем кнопку обратно на отправку
-                if (this.isGenerating && this.userInput.value.trim()) {
+                // Проверяем, изменился ли ввод пользователя
+                const hasInput = this.userInput.value.trim().length > 0 || this.attachedImages.length > 0;
+                
+                if (this.isGenerating && hasInput) {
+                    // Если идет генерация и пользователь начал вводить текст,
+                    // меняем кнопку обратно на отправку
                     this.updateSendButton(false);
+                } else if (this.pausedGeneration && !hasInput) {
+                    // Если генерация на паузе и пользователь очистил ввод,
+                    // показываем кнопку продолжения
+                    this.updateSendButton(true);
                 }
             }
 
@@ -2284,6 +2347,7 @@
                     
                     // Блокируем поле ввода
                     this.inputSection.classList.add('input-disabled');
+                    this.userInput.disabled = true;
                 } else {
                     // Обычный режим - кнопка отправки
                     this.sendBtn.classList.remove('stop-generation');
@@ -2292,6 +2356,7 @@
                     
                     // Разблокируем поле ввода
                     this.inputSection.classList.remove('input-disabled');
+                    this.userInput.disabled = false;
                 }
             }
 
@@ -2311,6 +2376,7 @@
                 this.isProcessing = true;
                 this.isGenerating = true;
                 this.generationAborted = false;
+                this.pausedGeneration = false;
                 this.updateSendButton(true);
 
                 try {
@@ -2323,7 +2389,7 @@
                     console.error('Error in sendMessage:', error);
                     this.handleError('Произошла ошибка при отправке сообщения', error);
                 } finally {
-                    if (!this.generationAborted) {
+                    if (!this.generationAborted && !this.pausedGeneration) {
                         this.isProcessing = false;
                         this.isGenerating = false;
                         this.updateSendButton(false);
@@ -2336,6 +2402,13 @@
                     this.generationAborted = true;
                     this.isGenerating = false;
                     this.isProcessing = false;
+                    this.pausedGeneration = true;
+                    
+                    // Сохраняем последнее сообщение пользователя для возможного продолжения
+                    this.lastUserMessage = {
+                        text: this.userInput.value.trim(),
+                        files: [...this.attachedImages]
+                    };
                     
                     // Останавливаем стриминг
                     if (this.currentStreamController.abort) {
@@ -2347,11 +2420,16 @@
                     
                     // Обновляем UI
                     this.updateSendButton(false);
-                    this.finalizeStreamingMessage(this.activeStreamingMessage, 
-                        this.messagesContainer.querySelector(`#${this.activeStreamingMessage} .streaming-text`).innerHTML);
+                    if (this.activeStreamingMessage) {
+                        this.finalizeStreamingMessage(this.activeStreamingMessage, 
+                            this.messagesContainer.querySelector(`#${this.activeStreamingMessage} .streaming-text`).innerHTML);
+                    }
                     
                     this.showNotification('Генерация остановлена', 'info');
                     this.currentStreamController = null;
+                    
+                    // Проверяем, есть ли ввод пользователя для определения состояния кнопки
+                    this.handleInputChange();
                 }
             }
 
@@ -2491,11 +2569,13 @@
                         this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
                         this.addToConversationHistory('assistant', fullResponse);
                         this.saveCurrentSession();
+                        this.pausedGeneration = false;
                     }
                 } catch (error) {
                     if (!this.generationAborted) {
                         console.error('Error processing AI response:', error);
                         this.handleError('Ошибка при обработке ответа ИИ', error);
+                        this.pausedGeneration = false;
                     }
                 } finally {
                     this.activeStreamingMessage = null;
@@ -2993,6 +3073,7 @@
                 this.renderAttachedFiles();
                 this.userInput.focus();
                 this.showNotification('Ввод очищен', 'success');
+                this.handleInputChange();
             }
 
             clearChat() {
@@ -3328,8 +3409,13 @@
             openEditChatModal(chatId, currentName) {
                 this.editingChatId = chatId;
                 this.editChatNameInput.value = currentName;
-                this.editChatNameInput.focus();
                 this.editChatModal.classList.add('active');
+                
+                // Фокусируемся на поле ввода после открытия модального окна
+                this.setTimeout(() => {
+                    this.editChatNameInput.focus();
+                    this.editChatNameInput.select();
+                }, 100);
             }
 
             closeEditChatModal() {
@@ -3695,6 +3781,7 @@
 
                 this.renderAttachedFiles();
                 event.target.value = '';
+                this.handleInputChange();
             }
 
             processImageFile(file) {
@@ -3788,6 +3875,7 @@
                 const removedFile = this.attachedImages.splice(index, 1)[0];
                 this.renderAttachedFiles();
                 this.showNotification(`${removedFile.fileType === 'image' ? 'Изображение' : 'Файл'} "${removedFile.name}" удален`, 'info');
+                this.handleInputChange();
             }
 
             addEventListener(element, event, handler) {
