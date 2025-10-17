@@ -143,12 +143,14 @@
             justify-content: space-between;
             max-width: 1200px;
             margin: 0 auto;
+            gap: 15px;
         }
 
         .logo-container {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-shrink: 0;
         }
 
         .logo {
@@ -178,6 +180,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: nowrap;
         }
 
         .model-select {
@@ -227,6 +230,7 @@
             align-items: center;
             gap: 4px;
             height: 32px;
+            flex-shrink: 0;
         }
 
         .control-btn:hover {
@@ -920,7 +924,7 @@
             justify-content: center;
             align-items: center;
             gap: 12px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             max-width: 900px;
             margin: 0 auto;
         }
@@ -1006,7 +1010,7 @@
 
         /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -1190,11 +1194,15 @@
             overflow-y: auto;
             padding: 0;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar-section {
             padding: 20px;
             border-bottom: 1px solid var(--border-color);
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar-section:last-child {
@@ -1246,12 +1254,12 @@
         /* Watermark logo in sidebar */
         .sidebar-watermark {
             position: absolute;
-            bottom: 20px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             width: 200px;
             height: 200px;
-            opacity: 0.1;
+            opacity: 0.05;
             pointer-events: none;
             z-index: 0;
         }
@@ -1658,9 +1666,15 @@
             margin-bottom: 20px;
         }
 
+        .modal-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
         .modal-input {
             width: 100%;
-            padding: 10px 12px;
+            padding: 10px 40px 10px 12px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             background: var(--bg-primary);
@@ -1673,6 +1687,28 @@
         .modal-input:focus {
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 2px var(--accent-primary-alpha);
+        }
+
+        .modal-clear-input {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .modal-clear-input:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
         }
 
         .modal-footer {
@@ -2020,7 +2056,12 @@
                 </button>
             </div>
             <div class="modal-body">
-                <input type="text" class="modal-input" id="editChatNameInput" placeholder="Введите название чата">
+                <div class="modal-input-wrapper">
+                    <input type="text" class="modal-input" id="editChatNameInput" placeholder="Введите название чата">
+                    <button class="modal-clear-input" id="modalClearInput" style="display: none;">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="modal-btn" id="editChatModalCancel">Отмена</button>
@@ -2077,6 +2118,7 @@
                 // Элементы модального окна редактирования
                 this.editChatModal = document.getElementById('editChatModal');
                 this.editChatNameInput = document.getElementById('editChatNameInput');
+                this.modalClearInput = document.getElementById('modalClearInput');
                 this.editChatModalClose = document.getElementById('editChatModalClose');
                 this.editChatModalCancel = document.getElementById('editChatModalCancel');
                 this.editChatModalSave = document.getElementById('editChatModalSave');
@@ -2117,6 +2159,7 @@
                 this.currentStreamController = null;
                 this.pausedGeneration = false;
                 this.lastUserMessage = null;
+                this.generationPaused = false;
                 
                 // Состояния для навигации
                 this.isAtBottom = true;
@@ -2235,6 +2278,8 @@
                         if (e.key === 'Enter') this.saveChatName();
                         if (e.key === 'Escape') this.closeEditChatModal();
                     }],
+                    [this.editChatNameInput, 'input', () => this.handleModalInputChange()],
+                    [this.modalClearInput, 'click', () => this.clearModalInput()],
                     [this.scrollToLastAI, 'click', () => this.scrollToLastAIMessage()],
                     [this.scrollToBottomBtn, 'click', () => this.scrollToBottom(true)],
                     [this.messagesContainer, 'scroll', () => this.handleScroll()]
@@ -2317,6 +2362,9 @@
                 if (this.isGenerating) {
                     // Если идет генерация, останавливаем ее
                     this.stopGeneration();
+                } else if (this.pausedGeneration) {
+                    // Если генерация на паузе, продолжаем
+                    this.continueGeneration();
                 } else {
                     // Иначе отправляем сообщение
                     this.sendMessage();
@@ -2348,6 +2396,17 @@
                     // Блокируем поле ввода
                     this.inputSection.classList.add('input-disabled');
                     this.userInput.disabled = true;
+                    this.userInput.placeholder = 'ИИ генерирует ответ... Нажмите паузу для остановки';
+                } else if (this.pausedGeneration) {
+                    // Режим паузы - кнопка продолжения
+                    this.sendBtn.classList.remove('stop-generation');
+                    this.sendBtn.innerHTML = '<i class="ti ti-player-play"></i>';
+                    this.sendBtn.title = 'Продолжить генерацию';
+                    
+                    // Поле ввода остается заблокированным
+                    this.inputSection.classList.add('input-disabled');
+                    this.userInput.disabled = true;
+                    this.userInput.placeholder = 'Генерация на паузе. Нажмите для продолжения';
                 } else {
                     // Обычный режим - кнопка отправки
                     this.sendBtn.classList.remove('stop-generation');
@@ -2357,6 +2416,7 @@
                     // Разблокируем поле ввода
                     this.inputSection.classList.remove('input-disabled');
                     this.userInput.disabled = false;
+                    this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
                 }
             }
 
@@ -2377,6 +2437,7 @@
                 this.isGenerating = true;
                 this.generationAborted = false;
                 this.pausedGeneration = false;
+                this.generationPaused = false;
                 this.updateSendButton(true);
 
                 try {
@@ -2403,6 +2464,7 @@
                     this.isGenerating = false;
                     this.isProcessing = false;
                     this.pausedGeneration = true;
+                    this.generationPaused = true;
                     
                     // Сохраняем последнее сообщение пользователя для возможного продолжения
                     this.lastUserMessage = {
@@ -2430,6 +2492,24 @@
                     
                     // Проверяем, есть ли ввод пользователя для определения состояния кнопки
                     this.handleInputChange();
+                }
+            }
+
+            continueGeneration() {
+                if (this.pausedGeneration && this.lastUserMessage) {
+                    this.pausedGeneration = false;
+                    this.generationPaused = false;
+                    this.isGenerating = true;
+                    this.isProcessing = true;
+                    this.generationAborted = false;
+                    
+                    // Восстанавливаем состояние ввода
+                    this.userInput.value = this.lastUserMessage.text;
+                    this.attachedImages = [...this.lastUserMessage.files];
+                    this.renderAttachedFiles();
+                    
+                    this.updateSendButton(true);
+                    this.getAIResponse(this.lastUserMessage.text, this.lastUserMessage.files);
                 }
             }
 
@@ -2557,6 +2637,7 @@
                 try {
                     for await (const part of response) {
                         if (this.generationAborted) break;
+                        if (this.generationPaused) break;
                         
                         if (part?.text) {
                             fullResponse += part.text;
@@ -2565,17 +2646,28 @@
                         }
                     }
                     
-                    if (!this.generationAborted) {
+                    if (!this.generationAborted && !this.generationPaused) {
                         this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
                         this.addToConversationHistory('assistant', fullResponse);
                         this.saveCurrentSession();
                         this.pausedGeneration = false;
+                        this.isGenerating = false;
+                        this.isProcessing = false;
+                        this.updateSendButton(false);
+                    } else if (this.generationPaused) {
+                        // Сохраняем прогресс для возможного продолжения
+                        this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
+                        this.addToConversationHistory('assistant', fullResponse);
+                        this.saveCurrentSession();
                     }
                 } catch (error) {
-                    if (!this.generationAborted) {
+                    if (!this.generationAborted && !this.generationPaused) {
                         console.error('Error processing AI response:', error);
                         this.handleError('Ошибка при обработке ответа ИИ', error);
                         this.pausedGeneration = false;
+                        this.isGenerating = false;
+                        this.isProcessing = false;
+                        this.updateSendButton(false);
                     }
                 } finally {
                     this.activeStreamingMessage = null;
@@ -3410,6 +3502,7 @@
                 this.editingChatId = chatId;
                 this.editChatNameInput.value = currentName;
                 this.editChatModal.classList.add('active');
+                this.handleModalInputChange();
                 
                 // Фокусируемся на поле ввода после открытия модального окна
                 this.setTimeout(() => {
@@ -3418,9 +3511,21 @@
                 }, 100);
             }
 
+            handleModalInputChange() {
+                const hasText = this.editChatNameInput.value.trim().length > 0;
+                this.modalClearInput.style.display = hasText ? 'flex' : 'none';
+            }
+
+            clearModalInput() {
+                this.editChatNameInput.value = '';
+                this.editChatNameInput.focus();
+                this.handleModalInputChange();
+            }
+
             closeEditChatModal() {
                 this.editingChatId = null;
                 this.editChatNameInput.value = '';
+                this.modalClearInput.style.display = 'none';
                 this.editChatModal.classList.remove('active');
             }
 
