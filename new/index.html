@@ -795,33 +795,6 @@
             transform: scale(1.05);
         }
 
-        /* Кнопка паузы */
-        .pause-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 16px;
-        }
-
-        .pause-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .pause-btn.active {
-            background: var(--accent-primary-alpha);
-            color: var(--accent-primary);
-            border-color: var(--accent-primary);
-        }
-
         @keyframes pulseRed {
             0% {
                 box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4);
@@ -847,29 +820,16 @@
         }
 
         .input-disabled .attach-btn,
-        .input-disabled .input-btn:not(.send-btn):not(.pause-btn) {
+        .input-disabled .input-btn:not(.send-btn) {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
         .input-disabled .attach-btn:hover,
-        .input-disabled .input-btn:not(.send-btn):not(.pause-btn):hover {
+        .input-disabled .input-btn:not(.send-btn):hover {
             background: var(--bg-tertiary);
             color: var(--text-secondary);
             transform: none;
-        }
-
-        /* Во время паузы поле ввода разблокировано */
-        .input-paused #userInput {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            cursor: text;
-        }
-
-        .input-paused .attach-btn,
-        .input-paused .input-btn:not(.send-btn):not(.pause-btn) {
-            opacity: 1;
-            cursor: pointer;
         }
 
         /* Attached files */
@@ -1535,7 +1495,7 @@
                 font-size: 13px;
             }
 
-            .input-btn, .send-btn, .pause-btn {
+            .input-btn, .send-btn {
                 width: 32px;
                 height: 32px;
                 font-size: 14px;
@@ -1951,7 +1911,7 @@
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-container">
-                    <div class="logo">
+                    <div class="logo" id="logoBtn">
                         <img src="./logo.png" alt="AI Assistant Logo" onerror="this.style.display='none';">
                     </div>
                 </div>
@@ -2006,9 +1966,6 @@
                     ></textarea>
                     
                     <div class="input-controls">
-                        <button class="input-btn pause-btn" id="pauseBtn" title="Пауза генерации">
-                            <i class="ti ti-player-pause"></i>
-                        </button>
                         <button class="input-btn" id="clearInputBtn" title="Очистить ввод">
                             <i class="ti ti-x"></i>
                         </button>
@@ -2154,7 +2111,6 @@
                 this.messagesContainer = document.getElementById('messagesContainer');
                 this.userInput = document.getElementById('userInput');
                 this.sendBtn = document.getElementById('sendBtn');
-                this.pauseBtn = document.getElementById('pauseBtn');
                 this.clearInputBtn = document.getElementById('clearInputBtn');
                 this.clearChatBtn = document.getElementById('clearChatBtn');
                 this.helpBtn = document.getElementById('helpBtn');
@@ -2162,7 +2118,7 @@
                 this.generateVoiceBtn = document.getElementById('generateVoiceBtn');
                 this.themeToggle = document.getElementById('themeToggle');
                 this.modelSelect = document.getElementById('modelSelect');
-                this.logo = document.querySelector('.logo');
+                this.logo = document.getElementById('logoBtn');
                 this.attachFileBtn = document.getElementById('attachFileBtn');
                 this.voiceInputBtn = document.getElementById('voiceInputBtn');
                 this.fileInput = document.getElementById('fileInput');
@@ -2225,9 +2181,7 @@
                 this.isGenerating = false;
                 this.generationAborted = false;
                 this.currentStreamController = null;
-                this.pausedGeneration = false;
                 this.lastUserMessage = null;
-                this.generationPaused = false;
                 
                 // Состояния для навигации
                 this.isAtBottom = true;
@@ -2321,7 +2275,6 @@
                 // Основные обработчики событий
                 const events = [
                     [this.sendBtn, 'click', () => this.handleSendButtonClick()],
-                    [this.pauseBtn, 'click', () => this.handlePauseButtonClick()],
                     [this.userInput, 'keydown', (e) => this.handleInputKeydown(e)],
                     [this.userInput, 'input', () => this.handleInputChange()],
                     [this.clearInputBtn, 'click', () => this.clearInput()],
@@ -2331,7 +2284,7 @@
                     [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
                     [this.themeToggle, 'click', () => this.toggleTheme()],
                     [this.modelSelect, 'change', (e) => this.handleModelChange(e)],
-                    [this.logo, 'click', () => this.showWelcomeMessage()],
+                    [this.logo, 'click', () => this.refreshPage()],
                     [this.attachFileBtn, 'click', () => this.fileInput.click()],
                     [this.fileInput, 'change', (e) => this.handleFileSelect(e)],
                     [this.voiceInputBtn, 'click', () => this.toggleVoiceInput()],
@@ -2359,24 +2312,8 @@
                 });
             }
 
-            handlePauseButtonClick() {
-                if (this.isGenerating && !this.pausedGeneration) {
-                    // Ставим на паузу
-                    this.pausedGeneration = true;
-                    this.generationPaused = true;
-                    this.pauseBtn.innerHTML = '<i class="ti ti-player-play"></i>';
-                    this.pauseBtn.title = 'Продолжить генерацию';
-                    this.updateSendButton(false);
-                    this.showNotification('Генерация поставлена на паузу', 'info');
-                    
-                    // Останавливаем стриминг
-                    if (this.currentStreamController && this.currentStreamController.abort) {
-                        this.currentStreamController.abort();
-                    }
-                } else if (this.pausedGeneration) {
-                    // Продолжаем генерацию
-                    this.continueGeneration();
-                }
+            refreshPage() {
+                location.reload();
             }
 
             setupScrollTracking() {
@@ -2451,9 +2388,6 @@
                 if (this.isGenerating) {
                     // Если идет генерация, останавливаем ее
                     this.stopGeneration();
-                } else if (this.pausedGeneration) {
-                    // Если генерация на паузе, продолжаем
-                    this.continueGeneration();
                 } else {
                     // Иначе отправляем сообщение
                     this.sendMessage();
@@ -2468,10 +2402,6 @@
                     // Если идет генерация и пользователь начал вводить текст,
                     // меняем кнопку обратно на отправку
                     this.updateSendButton(false);
-                } else if (this.pausedGeneration && !hasInput) {
-                    // Если генерация на паузе и пользователь очистил ввод,
-                    // показываем кнопку продолжения
-                    this.updateSendButton(true);
                 }
             }
 
@@ -2479,48 +2409,23 @@
                 if (isGenerating) {
                     // Режим генерации - кнопка остановки (красная)
                     this.sendBtn.classList.add('stop-generation');
-                    this.sendBtn.innerHTML = '<i class="ti ti-player-pause"></i>';
+                    this.sendBtn.innerHTML = '<i class="ti ti-player-stop"></i>';
                     this.sendBtn.title = 'Остановить генерацию';
                     
                     // Блокируем поле ввода только во время активной генерации
                     this.inputSection.classList.add('input-disabled');
-                    this.inputSection.classList.remove('input-paused');
                     this.userInput.disabled = true;
-                    this.userInput.placeholder = 'ИИ генерирует ответ... Нажмите паузу для остановки';
-                    
-                    // Показываем кнопку паузы
-                    this.pauseBtn.style.display = 'flex';
-                    this.pauseBtn.innerHTML = '<i class="ti ti-player-pause"></i>';
-                    this.pauseBtn.title = 'Пауза генерации';
-                } else if (this.pausedGeneration) {
-                    // Режим паузы - кнопка продолжения
-                    this.sendBtn.classList.remove('stop-generation');
-                    this.sendBtn.innerHTML = '<i class="ti ti-player-play"></i>';
-                    this.sendBtn.title = 'Продолжить генерацию';
-                    
-                    // Разблокируем поле ввода во время паузы
-                    this.inputSection.classList.remove('input-disabled');
-                    this.inputSection.classList.add('input-paused');
-                    this.userInput.disabled = false;
-                    this.userInput.placeholder = 'Генерация на паузе. Нажмите для продолжения';
-                    
-                    // Показываем кнопку паузы
-                    this.pauseBtn.style.display = 'flex';
-                    this.pauseBtn.innerHTML = '<i class="ti ti-player-play"></i>';
-                    this.pauseBtn.title = 'Продолжить генерацию';
+                    this.userInput.placeholder = 'ИИ генерирует ответ... Нажмите остановить для прерывания';
                 } else {
-                    // Обычный режим - кнопка отправки
+                    // Обычный режим - кнопка отправки (самолетик)
                     this.sendBtn.classList.remove('stop-generation');
                     this.sendBtn.innerHTML = '<i class="ti ti-send"></i>';
                     this.sendBtn.title = 'Отправить сообщение';
                     
                     // Полностью разблокируем поле ввода
-                    this.inputSection.classList.remove('input-disabled', 'input-paused');
+                    this.inputSection.classList.remove('input-disabled');
                     this.userInput.disabled = false;
                     this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
-                    
-                    // Скрываем кнопку паузы
-                    this.pauseBtn.style.display = 'none';
                 }
             }
 
@@ -2540,8 +2445,6 @@
                 this.isProcessing = true;
                 this.isGenerating = true;
                 this.generationAborted = false;
-                this.pausedGeneration = false;
-                this.generationPaused = false;
                 this.updateSendButton(true);
 
                 try {
@@ -2554,7 +2457,7 @@
                     console.error('Error in sendMessage:', error);
                     this.handleError('Произошла ошибка при отправке сообщения', error);
                 } finally {
-                    if (!this.generationAborted && !this.pausedGeneration) {
+                    if (!this.generationAborted) {
                         this.isProcessing = false;
                         this.isGenerating = false;
                         this.updateSendButton(false);
@@ -2567,8 +2470,6 @@
                     this.generationAborted = true;
                     this.isGenerating = false;
                     this.isProcessing = false;
-                    this.pausedGeneration = false;
-                    this.generationPaused = false;
                     
                     // Останавливаем стриминг
                     if (this.currentStreamController.abort) {
@@ -2587,24 +2488,6 @@
                     
                     this.showNotification('Генерация остановлена', 'info');
                     this.currentStreamController = null;
-                }
-            }
-
-            continueGeneration() {
-                if (this.pausedGeneration && this.lastUserMessage) {
-                    this.pausedGeneration = false;
-                    this.generationPaused = false;
-                    this.isGenerating = true;
-                    this.isProcessing = true;
-                    this.generationAborted = false;
-                    
-                    // Восстанавливаем состояние ввода
-                    this.userInput.value = this.lastUserMessage.text;
-                    this.attachedImages = [...this.lastUserMessage.files];
-                    this.renderAttachedFiles();
-                    
-                    this.updateSendButton(true);
-                    this.getAIResponse(this.lastUserMessage.text, this.lastUserMessage.files);
                 }
             }
 
@@ -2738,7 +2621,6 @@
                 try {
                     for await (const part of response) {
                         if (this.generationAborted) break;
-                        if (this.generationPaused) break;
                         
                         if (part?.text) {
                             fullResponse += part.text;
@@ -2747,25 +2629,18 @@
                         }
                     }
                     
-                    if (!this.generationAborted && !this.generationPaused) {
+                    if (!this.generationAborted) {
                         this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
                         this.addToConversationHistory('assistant', fullResponse);
                         this.saveCurrentSession();
-                        this.pausedGeneration = false;
                         this.isGenerating = false;
                         this.isProcessing = false;
                         this.updateSendButton(false);
-                    } else if (this.generationPaused) {
-                        // Сохраняем прогресс для возможного продолжения
-                        this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
-                        this.addToConversationHistory('assistant', fullResponse);
-                        this.saveCurrentSession();
                     }
                 } catch (error) {
-                    if (!this.generationAborted && !this.generationPaused) {
+                    if (!this.generationAborted) {
                         console.error('Error processing AI response:', error);
                         this.handleError('Ошибка при обработке ответа ИИ', error);
-                        this.pausedGeneration = false;
                         this.isGenerating = false;
                         this.isProcessing = false;
                         this.updateSendButton(false);
@@ -3359,13 +3234,18 @@
                 if (confirm('Вы уверены, что хотите очистить всю историю чата?')) {
                     this.messagesContainer.innerHTML = '';
                     this.conversationHistory = [];
-                    this.showWelcomeMessage();
+                    // Не показываем приветственное сообщение при очистке
                     this.saveCurrentSession();
                     this.showNotification('Чат очищен', 'success');
                 }
             }
 
             showWelcomeMessage() {
+                // Проверяем, не было ли уже показано приветственное сообщение
+                if (this.conversationHistory.length > 0) {
+                    return;
+                }
+                
                 const currentModelName = this.getModelDisplayName(this.currentModel);
                 const currentModelDesc = this.getModelDescription(this.currentModel);
                 
