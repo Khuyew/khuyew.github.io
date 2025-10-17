@@ -1985,19 +1985,15 @@
                 <div class="action-buttons">
                     <button class="action-btn" id="helpBtn">
                         <i class="ti ti-help"></i>
-                        Помощь
                     </button>
                     <button class="action-btn" id="clearChatBtn">
                         <i class="ti ti-trash"></i>
-                        Очистить чат
                     </button>
                     <button class="action-btn" id="generateImageBtn" disabled title="Скоро будет доступно">
                         <i class="ti ti-photo"></i>
-                        Генерация изображения
                     </button>
                     <button class="action-btn" id="generateVoiceBtn">
                         <i class="ti ti-microphone"></i>
-                        Генерация голоса
                     </button>
                 </div>
             </div>
@@ -2034,7 +2030,7 @@
                     <!-- Chat items will be dynamically added here -->
                 </div>
                 <button class="sidebar-btn primary" id="newChatBtn">
-                    <i class="ti ti-plus"></i> Новый чат
+                    <i class="ti ti-plus"></i>
                 </button>
             </div>
             
@@ -2088,8 +2084,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn" id="editChatModalCancel">Отмена</button>
-                <button class="modal-btn primary" id="editChatModalSave">Сохранить</button>
+                <button class="modal-btn" id="editChatModalCancel"></button>
+                <button class="modal-btn primary" id="editChatModalSave"></button>
             </div>
         </div>
     </div>
@@ -2742,23 +2738,35 @@
             // Добавляем кнопки скачивания файлов
             addDownloadButtons(messageElement, content) {
                 const messageActions = messageElement.querySelector('.message-actions');
-                if (!messageActions) return;
+                if (!messageActions) {
+                    // Создаем контейнер для действий, если его нет
+                    messageActions = document.createElement('div');
+                    messageActions.className = 'message-actions';
+                    messageElement.querySelector('.message-content').appendChild(messageActions);
+                }
 
-                // Проверяем, содержит ли сообщение код или упоминание файлов
-                const hasCode = content.includes('```') || 
-                               /(файл|код|скачать|сохранить|download|file)/i.test(content);
+                // Очищаем существующие кнопки скачивания
+                const existingDownloadBtns = messageActions.querySelectorAll('.download-file-btn');
+                existingDownloadBtns.forEach(btn => btn.remove());
+
+                // Определяем язык программирования из контента
+                const detectedLanguage = this.detectProgrammingLanguage(content);
                 
-                if (hasCode) {
-                    // Создаем кнопки для разных типов файлов
-                    const fileTypes = [
+                if (detectedLanguage) {
+                    // Создаем кнопку для определенного языка
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'action-btn-small download-file-btn';
+                    downloadBtn.innerHTML = `<i class="ti ti-download"></i> ${detectedLanguage.name}`;
+                    downloadBtn.onclick = () => this.downloadFile(content, detectedLanguage.extension);
+                    messageActions.appendChild(downloadBtn);
+                } else if (this.hasCodeBlocks(content)) {
+                    // Если есть блоки кода, но язык не определен, предлагаем общие варианты
+                    const generalTypes = [
                         { name: 'Текст', ext: 'txt', icon: 'ti-file-text' },
-                        { name: 'Python', ext: 'py', icon: 'ti-brand-python' },
-                        { name: 'JavaScript', ext: 'js', icon: 'ti-brand-javascript' },
-                        { name: 'HTML', ext: 'html', icon: 'ti-brand-html5' },
-                        { name: 'CSS', ext: 'css', icon: 'ti-brand-css3' }
+                        { name: 'Код', ext: 'txt', icon: 'ti-code' }
                     ];
 
-                    fileTypes.forEach(fileType => {
+                    generalTypes.forEach(fileType => {
                         const downloadBtn = document.createElement('button');
                         downloadBtn.className = 'action-btn-small download-file-btn';
                         downloadBtn.innerHTML = `<i class="ti ${fileType.icon}"></i> ${fileType.name}`;
@@ -2766,6 +2774,57 @@
                         messageActions.appendChild(downloadBtn);
                     });
                 }
+            }
+
+            // Определяет язык программирования из контента
+            detectProgrammingLanguage(content) {
+                const languagePatterns = {
+                    'python': { 
+                        name: 'Python', 
+                        extension: 'py',
+                        patterns: [/def\s+\w+/, /import\s+\w+/, /from\s+\w+/, /print\(/, /#.*/]
+                    },
+                    'javascript': { 
+                        name: 'JavaScript', 
+                        extension: 'js',
+                        patterns: [/function\s+\w+/, /const\s+\w+/, /let\s+\w+/, /console\.log/, /\/\/.*/]
+                    },
+                    'java': { 
+                        name: 'Java', 
+                        extension: 'java',
+                        patterns: [/public\s+class/, /private\s+\w+/, /System\.out\.println/, /\/\/.*/]
+                    },
+                    'cpp': { 
+                        name: 'C++', 
+                        extension: 'cpp',
+                        patterns: [/#include\s+<.*>/, /using\s+namespace/, /cout\s*<</, /\/\/.*/]
+                    },
+                    'html': { 
+                        name: 'HTML', 
+                        extension: 'html',
+                        patterns: [/<html>/, /<div>/, /<p>/, /<script>/]
+                    },
+                    'css': { 
+                        name: 'CSS', 
+                        extension: 'css',
+                        patterns: [/{.*}/, /\.\w+\s*{/, /#\w+\s*{/, /@media/]
+                    }
+                };
+
+                for (const [lang, config] of Object.entries(languagePatterns)) {
+                    for (const pattern of config.patterns) {
+                        if (pattern.test(content)) {
+                            return config;
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            // Проверяет наличие блоков кода в контенте
+            hasCodeBlocks(content) {
+                return content.includes('```') || /(function|def|class|import|export|var|let|const)\s+\w+/.test(content);
             }
 
             // Метод для скачивания файла
@@ -2844,7 +2903,8 @@
                 
                 const speakButton = document.createElement('button');
                 speakButton.className = 'action-btn-small speak-btn';
-                speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                speakButton.innerHTML = '<i class="ti ti-speakerphone"></i>';
+                speakButton.title = 'Озвучить ответ';
                 speakButton.setAttribute('data-text', plainText);
                 
                 this.addEventListener(speakButton, 'click', (e) => {
@@ -2866,7 +2926,8 @@
                 if (this.isSpeaking) {
                     this.stopSpeech();
                     button.classList.remove('speaking');
-                    button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                    button.innerHTML = '<i class="ti ti-speakerphone"></i>';
+                    button.title = 'Озвучить ответ';
                 } else {
                     this.speakText(text, button);
                 }
@@ -2898,20 +2959,23 @@
                     }
 
                     button.classList.add('speaking');
-                    button.innerHTML = '<i class="ti ti-player-pause"></i> Остановить';
+                    button.innerHTML = '<i class="ti ti-player-pause"></i>';
+                    button.title = 'Остановить озвучку';
                     this.isSpeaking = true;
 
                     this.currentUtterance.onend = () => {
                         this.isSpeaking = false;
                         button.classList.remove('speaking');
-                        button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                        button.innerHTML = '<i class="ti ti-speakerphone"></i>';
+                        button.title = 'Озвучить ответ';
                     };
 
                     this.currentUtterance.onerror = (error) => {
                         console.error('Speech synthesis error:', error);
                         this.isSpeaking = false;
                         button.classList.remove('speaking');
-                        button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                        button.innerHTML = '<i class="ti ti-speakerphone"></i>';
+                        button.title = 'Озвучить ответ';
                         this.showNotification('Ошибка при озвучивании текста', 'error');
                     };
 
@@ -3145,7 +3209,6 @@
                             <span class="code-language">${language}</span>
                             <button class="copy-code-btn" data-language="${language}">
                                 <i class="ti ti-copy"></i>
-                                Копировать
                             </button>
                         </div>
                         <pre><code class="${lang}">`;
@@ -3165,7 +3228,7 @@
                                 await navigator.clipboard.writeText(code);
                                 
                                 const originalText = btn.innerHTML;
-                                btn.innerHTML = '<i class="ti ti-check"></i> Скопировано!';
+                                btn.innerHTML = '<i class="ti ti-check"></i>';
                                 btn.classList.add('copied');
                                 
                                 this.setTimeout(() => {
@@ -4004,7 +4067,7 @@
             renderAttachedFiles() {
                 this.attachedFiles.innerHTML = '';
                 
-                this.attachedImages.forEach((file, index) => {
+                this.attachedImages.forEach((file, index) {
                     const fileElement = document.createElement('div');
                     fileElement.className = 'attached-file';
                     
