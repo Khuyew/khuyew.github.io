@@ -278,7 +278,7 @@
         .chat-navigation {
             position: absolute;
             right: 15px;
-            bottom: 80px;
+            bottom: 100px;
             display: flex;
             flex-direction: column;
             gap: 6px;
@@ -1476,7 +1476,7 @@
 
             .chat-navigation {
                 right: 10px;
-                bottom: 70px;
+                bottom: 90px;
             }
 
             .nav-btn {
@@ -1576,7 +1576,7 @@
 
             .chat-navigation {
                 right: 8px;
-                bottom: 65px;
+                bottom: 85px;
             }
 
             .nav-btn {
@@ -1904,6 +1904,13 @@
         .swipe-area {
             display: none;
         }
+
+        /* Стили для кнопки режима */
+        .mode-indicator {
+            font-size: 9px;
+            margin-left: 4px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -1939,16 +1946,16 @@
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer">
                 <!-- Messages will be added here -->
-                
-                <!-- Кнопки навигации теперь внутри контейнера сообщений -->
-                <div class="chat-navigation" id="chatNavigation">
-                    <button class="nav-btn" id="scrollToLastAI" title="К началу последнего ответа">
-                        <i class="ti ti-arrow-up"></i>
-                    </button>
-                    <button class="nav-btn" id="scrollToBottom" title="К низу чата">
-                        <i class="ti ti-arrow-down"></i>
-                    </button>
-                </div>
+            </div>
+
+            <!-- Кнопки навигации над футером -->
+            <div class="chat-navigation" id="chatNavigation">
+                <button class="nav-btn" id="scrollToLastAI" title="К началу последнего ответа">
+                    <i class="ti ti-arrow-up"></i>
+                </button>
+                <button class="nav-btn" id="scrollToBottom" title="К низу чата">
+                    <i class="ti ti-arrow-down"></i>
+                </button>
             </div>
 
             <div class="input-section" id="inputSection">
@@ -1994,6 +2001,10 @@
                     </button>
                     <button class="action-btn" id="generateVoiceBtn">
                         <i class="ti ti-microphone"></i>
+                    </button>
+                    <button class="action-btn" id="normalModeBtn">
+                        <i class="ti ti-message"></i>
+                        <span class="mode-indicator">Обычный</span>
                     </button>
                 </div>
             </div>
@@ -2112,6 +2123,7 @@
                 this.helpBtn = document.getElementById('helpBtn');
                 this.generateImageBtn = document.getElementById('generateImageBtn');
                 this.generateVoiceBtn = document.getElementById('generateVoiceBtn');
+                this.normalModeBtn = document.getElementById('normalModeBtn');
                 this.themeToggle = document.getElementById('themeToggle');
                 this.modelSelect = document.getElementById('modelSelect');
                 this.logo = document.getElementById('logoBtn');
@@ -2183,6 +2195,9 @@
                 this.isAtBottom = true;
                 this.isAtTop = false;
                 this.lastAIMessageIndex = -1;
+
+                // Текущий режим работы (normal, image, voice)
+                this.currentMode = 'normal';
 
                 // Конфигурация
                 this.placeholderExamples = [
@@ -2259,6 +2274,7 @@
                     this.setupChatSelector();
                     this.loadCurrentSession();
                     this.setupScrollTracking();
+                    this.updateModeIndicator();
                     
                     this.showNotification('AI Assistant загружен и готов к работе!', 'success');
                 } catch (error) {
@@ -2278,6 +2294,7 @@
                     [this.helpBtn, 'click', () => this.showHelp()],
                     [this.generateImageBtn, 'click', (e) => this.handleImageMode(e)],
                     [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
+                    [this.normalModeBtn, 'click', () => this.setNormalMode()],
                     [this.themeToggle, 'click', () => this.toggleTheme()],
                     [this.modelSelect, 'change', (e) => this.handleModelChange(e)],
                     [this.logo, 'click', () => this.refreshPage()],
@@ -2421,7 +2438,15 @@
                     // Полностью разблокируем поле ввода
                     this.inputSection.classList.remove('input-disabled');
                     this.userInput.disabled = false;
-                    this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+                    
+                    // Обновляем placeholder в зависимости от режима
+                    let placeholder = 'Задайте вопрос или опишите изображение...';
+                    if (this.currentMode === 'image') {
+                        placeholder = 'Опишите изображение для генерации...';
+                    } else if (this.currentMode === 'voice') {
+                        placeholder = 'Введите текст для генерации голоса...';
+                    }
+                    this.userInput.placeholder = placeholder;
                 }
             }
 
@@ -2444,8 +2469,10 @@
                 this.updateSendButton(true);
 
                 try {
-                    if (this.isVoiceMode) {
+                    if (this.currentMode === 'voice') {
                         await this.generateVoice(message);
+                    } else if (this.currentMode === 'image') {
+                        await this.generateImage(message);
                     } else {
                         await this.processUserMessage(message);
                     }
@@ -2505,12 +2532,8 @@
                 this.attachedImages = [];
                 this.renderAttachedFiles();
                 
-                // Обрабатываем сообщение
-                if (this.isImageMode) {
-                    await this.generateImage(message);
-                } else {
-                    await this.getAIResponse(message, filesToProcess);
-                }
+                // Получаем ответ от ИИ
+                await this.getAIResponse(message, filesToProcess);
             }
 
             async getAIResponse(userMessage, files) {
@@ -2737,7 +2760,7 @@
 
             // Добавляем кнопки скачивания файлов
             addDownloadButtons(messageElement, content) {
-                const messageActions = messageElement.querySelector('.message-actions');
+                let messageActions = messageElement.querySelector('.message-actions');
                 if (!messageActions) {
                     // Создаем контейнер для действий, если его нет
                     messageActions = document.createElement('div');
@@ -3122,22 +3145,73 @@
                 }
             }
 
+            // Управление режимами работы
+            setNormalMode() {
+                this.currentMode = 'normal';
+                this.isImageMode = false;
+                this.isVoiceMode = false;
+                this.updateModeIndicator();
+                this.showNotification('Обычный режим включен', 'info');
+            }
+
             toggleImageMode() {
-                this.isImageMode = !this.isImageMode;
-                const placeholder = this.isImageMode 
-                    ? "Опишите изображение для генерации..." 
-                    : "Задайте вопрос или опишите изображение...";
+                if (this.generateImageBtn.disabled) {
+                    this.showNotification('Генерация изображений временно недоступна', 'warning');
+                    return;
+                }
                 
+                this.currentMode = this.currentMode === 'image' ? 'normal' : 'image';
+                this.isImageMode = this.currentMode === 'image';
+                this.isVoiceMode = false;
+                this.updateModeIndicator();
+                
+                const message = this.currentMode === 'image' ? 
+                    'Режим генерации изображений включен' : 
+                    'Режим генерации изображений выключен';
+                this.showNotification(message, 'info');
+            }
+
+            toggleVoiceMode() {
+                this.currentMode = this.currentMode === 'voice' ? 'normal' : 'voice';
+                this.isVoiceMode = this.currentMode === 'voice';
+                this.isImageMode = false;
+                this.updateModeIndicator();
+                
+                const message = this.currentMode === 'voice' ? 
+                    'Режим генерации голоса включен' : 
+                    'Режим генерации голоса выключен';
+                this.showNotification(message, 'info');
+            }
+
+            updateModeIndicator() {
+                // Сбрасываем все кнопки
+                this.normalModeBtn.classList.remove('active');
+                this.generateImageBtn.classList.remove('active');
+                this.generateVoiceBtn.classList.remove('active');
+                
+                // Обновляем индикатор на кнопке нормального режима
+                const modeIndicator = this.normalModeBtn.querySelector('.mode-indicator');
+                
+                // Активируем соответствующую кнопку и обновляем текст
+                if (this.currentMode === 'normal') {
+                    this.normalModeBtn.classList.add('active');
+                    modeIndicator.textContent = 'Обычный';
+                } else if (this.currentMode === 'image') {
+                    this.generateImageBtn.classList.add('active');
+                    modeIndicator.textContent = 'Изображения';
+                } else if (this.currentMode === 'voice') {
+                    this.generateVoiceBtn.classList.add('active');
+                    modeIndicator.textContent = 'Речь';
+                }
+                
+                // Обновляем placeholder
+                let placeholder = 'Задайте вопрос или опишите изображение...';
+                if (this.currentMode === 'image') {
+                    placeholder = 'Опишите изображение для генерации...';
+                } else if (this.currentMode === 'voice') {
+                    placeholder = 'Введите текст для генерации голоса...';
+                }
                 this.userInput.placeholder = placeholder;
-                this.generateImageBtn.classList.toggle('active', this.isImageMode);
-                
-                const icon = this.generateImageBtn.querySelector('i');
-                icon.className = this.isImageMode ? 'ti ti-photo-off' : 'ti ti-photo';
-                
-                this.showNotification(
-                    this.isImageMode ? 'Режим генерации изображений включен' : 'Режим генерации изображений выключен',
-                    'info'
-                );
             }
 
             addMessage(role, content, images = []) {
@@ -3801,12 +3875,7 @@
             }
 
             handleImageMode(e) {
-                if (this.generateImageBtn.disabled) {
-                    e.preventDefault();
-                    this.showNotification('Генерация изображений временно недоступна', 'warning');
-                } else {
-                    this.toggleImageMode();
-                }
+                this.toggleImageMode();
             }
 
             handleModelChange(e) {
@@ -3957,24 +4026,6 @@
                         this.showNotification('Ошибка запуска голосового ввода', 'error');
                     }
                 }
-            }
-
-            toggleVoiceMode() {
-                this.isVoiceMode = !this.isVoiceMode;
-                const placeholder = this.isVoiceMode 
-                    ? "Введите текст для генерации голоса..." 
-                    : "Задайте вопрос или опишите изображение...";
-                
-                this.userInput.placeholder = placeholder;
-                this.generateVoiceBtn.classList.toggle('voice-mode-active', this.isVoiceMode);
-                
-                const icon = this.generateVoiceBtn.querySelector('i');
-                icon.className = this.isVoiceMode ? 'ti ti-microphone-off' : 'ti ti-microphone';
-                
-                this.showNotification(
-                    this.isVoiceMode ? 'Режим генерации голоса включен' : 'Режим генерации голоса выключен',
-                    'info'
-                );
             }
 
             async handleFileSelect(event) {
