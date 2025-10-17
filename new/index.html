@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>KHAI — ЧАТ С ИИ</title>
     <meta name="description" content="KHAI — полностью бесплатный ИИ-помощник с генерацией изображений и голоса">
     <meta name="theme-color" content="#0f0f23">
@@ -112,6 +112,7 @@
             line-height: 1.5;
             overflow: hidden;
             height: 100vh;
+            height: 100dvh;
             touch-action: pan-y;
         }
 
@@ -119,11 +120,17 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            height: 100dvh;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
 
         /* Header */
         .app-header {
             padding: 12px 20px;
+            padding-top: calc(12px + env(safe-area-inset-top, 0px));
             border-bottom: 1px solid var(--border-color);
             background: var(--bg-secondary);
             backdrop-filter: blur(10px);
@@ -285,23 +292,23 @@
             flex-direction: column;
             gap: 16px;
             scroll-behavior: smooth;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
         }
 
         /* Navigation buttons */
         .chat-navigation {
-            position: absolute;
+            position: fixed;
             right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+            bottom: 100px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            z-index: 10;
+            z-index: 100;
         }
 
         .nav-btn {
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             border-radius: var(--radius-md);
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
@@ -311,13 +318,16 @@
             justify-content: center;
             cursor: pointer;
             transition: var(--transition);
-            font-size: 16px;
+            font-size: 18px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-md);
         }
 
         .nav-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
             border-color: var(--accent-primary);
+            transform: scale(1.05);
         }
 
         .message {
@@ -625,6 +635,7 @@
             background: var(--bg-secondary);
             border-top: 1px solid var(--border-color);
             flex-shrink: 0;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
         }
 
         .input-wrapper {
@@ -634,7 +645,7 @@
             max-width: 900px;
             margin: 0 auto;
             position: relative;
-            align-items: center; /* Добавлено для выравнивания по центру */
+            align-items: center;
         }
 
         .attach-btn {
@@ -651,8 +662,7 @@
             transition: var(--transition);
             font-size: 18px;
             flex-shrink: 0;
-            /* Убрано margin-bottom: 4px; */
-            align-self: center; /* Изменено с flex-end на center */
+            align-self: center;
         }
 
         .attach-btn:hover {
@@ -846,6 +856,7 @@
             border-top: 1px solid var(--border-color);
             background: var(--bg-secondary);
             flex-shrink: 0;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
         }
 
         .footer-content {
@@ -876,7 +887,7 @@
         /* Notifications */
         .notification {
             position: fixed;
-            top: 20px;
+            top: max(20px, env(safe-area-inset-top));
             right: 20px;
             padding: 12px 16px;
             border-radius: var(--radius-md);
@@ -885,6 +896,7 @@
             animation: slideIn 0.3s ease;
             max-width: 300px;
             box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
         }
 
         .notification.info {
@@ -1029,6 +1041,7 @@
             right: -400px;
             width: 350px;
             height: 100vh;
+            height: 100dvh;
             background: var(--bg-primary);
             border-left: 1px solid var(--border-color);
             z-index: 1000;
@@ -1036,6 +1049,8 @@
             display: flex;
             flex-direction: column;
             box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .sidebar-menu.active {
@@ -1211,7 +1226,6 @@
             justify-content: center;
             width: 20px;
             height: 20px;
-            /* Изменено: всегда видимая */
             opacity: 1;
             visibility: visible;
         }
@@ -1287,6 +1301,7 @@
         @media (max-width: 768px) {
             .app-header {
                 padding: 10px 15px;
+                padding-top: calc(10px + env(safe-area-inset-top, 0px));
             }
 
             .header-content {
@@ -1320,6 +1335,7 @@
 
             .messages-container {
                 padding: 15px;
+                padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
             }
 
             .message {
@@ -1330,16 +1346,18 @@
 
             .chat-navigation {
                 right: 10px;
+                bottom: 90px;
             }
 
             .nav-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
             }
 
             .input-section {
                 padding: 12px 15px;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
             }
 
             #userInput {
@@ -1362,6 +1380,7 @@
             .app-footer {
                 padding: 10px 15px;
                 font-size: 10px;
+                padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
             }
 
             .sidebar-menu {
@@ -1415,7 +1434,14 @@
             }
 
             .chat-navigation {
-                display: none; /* Скрываем навигацию на очень маленьких экранах */
+                right: 8px;
+                bottom: 80px;
+            }
+
+            .nav-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
             }
 
             .action-buttons {
@@ -1438,14 +1464,6 @@
                 padding-left: max(15px, env(safe-area-inset-left));
                 padding-right: max(15px, env(safe-area-inset-right));
             }
-
-            .app-header {
-                padding-top: max(10px, env(safe-area-inset-top));
-            }
-
-            .app-footer {
-                padding-bottom: max(10px, env(safe-area-inset-bottom));
-            }
         }
 
         /* Стили для модального окна редактирования */
@@ -1463,6 +1481,7 @@
             opacity: 0;
             visibility: hidden;
             transition: var(--transition);
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         .modal-overlay.active {
@@ -1478,6 +1497,7 @@
             max-width: 400px;
             padding: 20px;
             border: 1px solid var(--border-color);
+            margin: auto;
         }
 
         .modal-header {
@@ -1698,6 +1718,22 @@
                 justify-content: center;
             }
         }
+
+        /* Улучшенные стили для свайпа */
+        .swipe-area {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 100%;
+            z-index: 998;
+        }
+
+        .swipe-area-right {
+            left: auto;
+            right: 0;
+            width: 30px;
+        }
     </style>
 </head>
 <body>
@@ -1706,7 +1742,7 @@
             <div class="header-content">
                 <div class="logo-container">
                     <div class="logo">
-                        <img src="logo.png" alt="KHAI Logo">
+                        <img src="logo.png" alt="KHAI Logo" onerror="this.style.display='none'; this.parentNode.innerHTML='KHAI';">
                     </div>
                     <div>
                         <div class="logo-text">KHAI</div>
@@ -1860,6 +1896,10 @@
     <!-- Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+    <!-- Swipe areas -->
+    <div class="swipe-area" id="leftSwipeArea"></div>
+    <div class="swipe-area swipe-area-right" id="rightSwipeArea"></div>
+
     <!-- Modal for editing chat name -->
     <div class="modal-overlay" id="editChatModal">
         <div class="modal">
@@ -1930,6 +1970,10 @@
                 this.scrollToLastAI = document.getElementById('scrollToLastAI');
                 this.scrollToBottomBtn = document.getElementById('scrollToBottom');
 
+                // Области для свайпа
+                this.leftSwipeArea = document.getElementById('leftSwipeArea');
+                this.rightSwipeArea = document.getElementById('rightSwipeArea');
+
                 // Проверяем что все элементы найдены
                 this.validateElements();
             }
@@ -1943,13 +1987,12 @@
                     'sidebarOverlay', 'sidebarClose', 'chatList', 'newChatBtn',
                     'editChatModal', 'editChatNameInput', 'editChatModalClose',
                     'editChatModalCancel', 'editChatModalSave', 'scrollToLastAI',
-                    'scrollToBottomBtn'
+                    'scrollToBottomBtn', 'leftSwipeArea', 'rightSwipeArea'
                 ];
 
                 requiredElements.forEach(elementName => {
                     if (!this[elementName]) {
                         console.error(`Элемент не найден: ${elementName}`);
-                        throw new Error(`Required element ${elementName} not found`);
                     }
                 });
             }
@@ -1957,7 +2000,7 @@
             initializeState() {
                 // Состояние приложения
                 this.isProcessing = false;
-                this.currentTheme = 'dark'; // По умолчанию темная тема
+                this.currentTheme = 'dark';
                 this.isImageMode = false;
                 this.isVoiceMode = false;
                 this.attachedImages = [];
@@ -1974,9 +2017,11 @@
                 this.activeStreamingMessage = null;
                 this.activeTimeouts = new Set();
                 this.activeEventListeners = new Map();
-                this.autoScrollEnabled = true; // Флаг для автоматического скролла
+                this.autoScrollEnabled = true;
                 this.touchStartX = 0;
                 this.touchStartY = 0;
+                this.isSwiping = false;
+                this.swipeThreshold = 50;
 
                 // Конфигурация
                 this.placeholderExamples = [
@@ -2091,7 +2136,9 @@
                     }],
                     [this.scrollToLastAI, 'click', () => this.scrollToLastAIMessage()],
                     [this.scrollToBottomBtn, 'click', () => this.scrollToBottom(true)],
-                    [this.messagesContainer, 'scroll', () => this.handleScroll()]
+                    [this.messagesContainer, 'scroll', () => this.handleScroll()],
+                    [this.leftSwipeArea, 'click', () => this.closeSidebar()],
+                    [this.rightSwipeArea, 'click', () => this.toggleSidebar()]
                 ];
 
                 events.forEach(([element, event, handler]) => {
@@ -2100,10 +2147,11 @@
             }
 
             setupSwipeGestures() {
-                // Обработка свайпов для открытия сайдбара
+                // Обработка свайпов для открытия/закрытия сайдбара
                 this.addEventListener(document.body, 'touchstart', (e) => {
                     this.touchStartX = e.touches[0].clientX;
                     this.touchStartY = e.touches[0].clientY;
+                    this.isSwiping = false;
                 });
 
                 this.addEventListener(document.body, 'touchmove', (e) => {
@@ -2111,19 +2159,24 @@
                     
                     const touchX = e.touches[0].clientX;
                     const touchY = e.touches[0].clientY;
-                    
                     const diffX = this.touchStartX - touchX;
                     const diffY = this.touchStartY - touchY;
                     
-                    // Проверяем, что это горизонтальный свайп, а не вертикальный
-                    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    // Проверяем, что это горизонтальный свайп
+                    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > this.swipeThreshold) {
+                        this.isSwiping = true;
+                        
                         // Свайп справа налево (открытие сайдбара)
-                        if (diffX > 0 && this.touchStartX > window.innerWidth - 50) {
-                            this.toggleSidebar();
+                        if (diffX > 0 && this.touchStartX > window.innerWidth - 100) {
+                            if (!this.sidebarMenu.classList.contains('active')) {
+                                this.toggleSidebar();
+                            }
                         }
                         // Свайп слева направо (закрытие сайдбара)
-                        else if (diffX < 0 && this.touchStartX < 50) {
-                            this.closeSidebar();
+                        else if (diffX < 0 && this.touchStartX < 100) {
+                            if (this.sidebarMenu.classList.contains('active')) {
+                                this.closeSidebar();
+                            }
                         }
                         
                         // Сбрасываем начальные координаты после обработки свайпа
@@ -2135,13 +2188,14 @@
                 this.addEventListener(document.body, 'touchend', () => {
                     this.touchStartX = 0;
                     this.touchStartY = 0;
+                    this.isSwiping = false;
                 });
             }
 
             handleScroll() {
                 // Проверяем, находится ли пользователь внизу контейнера
                 const container = this.messagesContainer;
-                const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 50;
+                const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
                 
                 // Включаем автоскролл только если пользователь находится внизу
                 this.autoScrollEnabled = isAtBottom;
@@ -3007,7 +3061,11 @@
                 streamingText.innerHTML = processedContent;
                 
                 this.attachCopyButtons(streamingText);
-                this.scrollToBottom();
+                
+                // Прокручиваем только если пользователь не открутился вверх
+                if (this.autoScrollEnabled) {
+                    this.scrollToBottom();
+                }
             }
 
             finalizeStreamingMessage(messageId, fullContent) {
