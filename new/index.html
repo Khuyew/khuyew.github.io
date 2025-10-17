@@ -27,7 +27,7 @@
             <div class="header-content">
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
-                        <span class="logo-text">KHAI</span>
+                        <img src="./logo.png" alt="KHAI Assistant Logo" onerror="this.style.display='none';">
                     </div>
                 </div>
                 <div class="header-controls">
@@ -101,21 +101,17 @@
                 <div class="action-buttons">
                     <button class="action-btn" id="helpBtn">
                         <i class="ti ti-help"></i>
-                        Помощь
                     </button>
                     <button class="action-btn" id="clearChatBtn">
                         <i class="ti ti-trash"></i>
-                        Очистить
                     </button>
                     <button class="action-btn" id="generateImageBtn" disabled title="Скоро будет доступно">
                         <i class="ti ti-photo"></i>
-                        Изображения
                     </button>
                     <button class="action-btn" id="generateVoiceBtn">
                         <i class="ti ti-microphone"></i>
-                        Речь
                     </button>
-                    <button class="action-btn active" id="normalModeBtn">
+                    <button class="action-btn" id="normalModeBtn">
                         <i class="ti ti-message"></i>
                         <span class="mode-indicator">Обычный</span>
                     </button>
@@ -129,10 +125,6 @@
                     <i class="ti ti-message"></i>
                     <span id="currentChatName">Основной чат</span>
                 </div>
-                <div class="security-indicator">
-                    <i class="ti ti-shield-check"></i>
-                    <span>Защищено KHAI</span>
-                </div>
             </div>
         </footer>
     </div>
@@ -142,9 +134,9 @@
         <div class="sidebar-header">
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
-                    <span class="logo-text">KHAI</span>
+                    <img src="./logo.png" alt="KHAI Assistant Logo" onerror="this.style.display='none';">
                 </div>
-                <h3>Меню KHAI</h3>
+                <h3>Меню</h3>
             </div>
             <button class="sidebar-close" id="sidebarClose">
                 <i class="ti ti-x"></i>
@@ -159,31 +151,30 @@
                 </div>
                 <button class="sidebar-btn primary" id="newChatBtn">
                     <i class="ti ti-plus"></i>
-                    Новый чат
                 </button>
             </div>
             
             <div class="sidebar-section">
-                <h4>О программе KHAI</h4>
+                <h4>О программе</h4>
                 <div class="about-content">
                     <div class="about-item">
                         <strong>Сделано с ❤️</strong>
-                        <span>KHAI - AI Assistant v2.4</span>
+                        <span>Разработано для сообщества</span>
                     </div>
                     <div class="about-item">
                         <strong>Конфиденциальность</strong>
                         <span>Ваши данные защищены и не передаются третьим лицам</span>
                     </div>
                     <div class="about-item">
-                        <strong>Безопасность</strong>
-                        <span>Все сообщения шифруются локально</span>
+                        <strong>Версия</strong>
+                        <span>KHAI Assistant v2.4</span>
                     </div>
                 </div>
             </div>
 
             <!-- Watermark logo -->
             <div class="sidebar-watermark">
-                <span class="logo-text">KHAI</span>
+                <img src="./logo.png" alt="KHAI Assistant Watermark" onerror="this.style.display='none';">
             </div>
         </div>
     </div>
@@ -211,41 +202,6 @@
             <div class="modal-footer">
                 <button class="modal-btn" id="editChatModalCancel">Отмена</button>
                 <button class="modal-btn primary" id="editChatModalSave">Сохранить</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Security Modal -->
-    <div class="modal-overlay" id="securityModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="ti ti-shield-check"></i> Безопасность KHAI</h3>
-                <button class="modal-close" id="securityModalClose">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="security-features">
-                    <div class="security-item">
-                        <i class="ti ti-lock"></i>
-                        <span>Локальное шифрование данных</span>
-                    </div>
-                    <div class="security-item">
-                        <i class="ti ti-shield"></i>
-                        <span>Защита от XSS атак</span>
-                    </div>
-                    <div class="security-item">
-                        <i class="ti ti-eye-off"></i>
-                        <span>Конфиденциальность сообщений</span>
-                    </div>
-                    <div class="security-item">
-                        <i class="ti ti-file-alert"></i>
-                        <span>Проверка загружаемых файлов</span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn primary" id="securityModalOk">Понятно</button>
             </div>
         </div>
     </div>
