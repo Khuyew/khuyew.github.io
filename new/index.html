@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Khuyew AI - Бесплатный ИИ-помощник</title>
     <meta name="description" content="Khuyew AI - полностью бесплатный ИИ-помощник с генерацией изображений">
     <meta name="theme-color" content="#0f0f23">
@@ -10,8 +10,9 @@
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    
     <style>
-        /* Reset and optimized base styles */
+        /* Reset and base styles */
         * {
             margin: 0;
             padding: 0;
@@ -67,7 +68,6 @@
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-fast: all 0.15s ease;
         }
 
         /* Light theme variables */
@@ -90,6 +90,10 @@
             --code-bg: #f8f9fa;
             --code-border: #e9ecef;
             --code-text: #495057;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
 
         body {
@@ -105,14 +109,11 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
         }
 
         /* Header */
         .app-header {
             padding: 12px 20px;
-            padding-top: max(12px, env(safe-area-inset-top));
             border-bottom: 1px solid var(--border-color);
             background: var(--bg-secondary);
             backdrop-filter: blur(10px);
@@ -123,16 +124,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            gap: 20px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-shrink: 0;
         }
 
         .logo {
@@ -158,155 +151,30 @@
             font-weight: 500;
         }
 
-        /* Header Center - Search */
-        .header-center {
-            flex: 1;
-            max-width: 500px;
-            position: relative;
-        }
-
-        .search-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-
-        .search-input {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px 45px 8px 16px;
-            border-radius: var(--radius-lg);
-            font-size: 13px;
-            transition: var(--transition);
-            outline: none;
-            width: 100%;
-            height: 40px;
-        }
-
-        .search-input::placeholder {
-            color: var(--text-tertiary);
-        }
-
-        .search-input:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px var(--accent-primary-alpha);
-            transform: translateY(-1px);
-        }
-
-        .search-btn {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 6px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-        }
-
-        .search-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        /* Search Results */
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            margin-top: 8px;
-            box-shadow: var(--shadow-lg);
-            z-index: 1001;
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-            backdrop-filter: blur(10px);
-        }
-
-        .search-results.active {
-            display: block;
-            animation: slideDown 0.2s ease;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .search-result-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-color);
-            transition: var(--transition-fast);
-            animation: fadeInUp 0.2s ease;
-        }
-
-        .search-result-item:hover {
-            background: var(--bg-hover);
-            transform: translateX(4px);
-        }
-
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-result-title {
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--text-primary);
-            margin-bottom: 4px;
+        /* Header Controls */
+        .header-controls {
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .search-result-desc {
-            font-size: 11px;
-            color: var(--text-tertiary);
-            line-height: 1.4;
-        }
-
-        /* Header Right */
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
         }
 
         .model-select {
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: var(--radius-md);
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             transition: var(--transition);
             outline: none;
             min-width: 140px;
-            height: 40px;
+            height: 32px;
         }
 
         .model-select:hover {
             background: var(--bg-hover);
             border-color: var(--accent-primary);
-            transform: translateY(-1px);
         }
 
         .model-select:focus {
@@ -314,26 +182,47 @@
             box-shadow: 0 0 0 2px var(--accent-primary-alpha);
         }
 
+        .model-select option {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .model-select option:disabled {
+            color: var(--text-tertiary);
+            background: var(--bg-secondary);
+        }
+
         .control-btn {
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             transition: var(--transition);
             display: flex;
             align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
+            gap: 4px;
+            height: 32px;
         }
 
         .control-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: translateY(-1px) scale(1.05);
+        }
+
+        .menu-toggle {
+            display: flex !important;
+        }
+
+        /* Ensure theme toggle works */
+        body[data-theme="light"] .control-btn#themeToggle i::before {
+            content: "\ebd4"; /* ti-sun */
+        }
+
+        body[data-theme="dark"] .control-btn#themeToggle i::before {
+            content: "\eb8c"; /* ti-moon */
         }
 
         @keyframes gradientShift {
@@ -367,22 +256,10 @@
             padding: 16px 20px;
             border-radius: var(--radius-xl);
             line-height: 1.6;
-            animation: messageSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            animation: fadeIn 0.3s ease;
             position: relative;
             font-size: 14px;
             word-wrap: break-word;
-            transform-origin: center bottom;
-        }
-
-        @keyframes messageSlideIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px) scale(0.95); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0) scale(1); 
-            }
         }
 
         .message-user {
@@ -391,7 +268,6 @@
             color: var(--user-message-text);
             margin-left: auto;
             box-shadow: var(--shadow-md);
-            animation: messageSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .message-ai {
@@ -400,7 +276,6 @@
             color: var(--ai-message-text);
             border: 1px solid var(--ai-message-border);
             margin-right: auto;
-            animation: messageSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .message-error {
@@ -415,18 +290,12 @@
             margin-top: 8px;
             border-radius: var(--radius-md);
             overflow: hidden;
-            animation: fadeIn 0.5s ease;
         }
 
         .message-image img {
             width: 100%;
             height: auto;
             display: block;
-            transition: transform 0.3s ease;
-        }
-
-        .message-image img:hover {
-            transform: scale(1.02);
         }
 
         /* Markdown Styles */
@@ -480,11 +349,6 @@
             background: var(--bg-secondary);
             border-radius: var(--radius-sm);
             font-style: italic;
-            transition: var(--transition);
-        }
-
-        .message-content blockquote:hover {
-            transform: translateX(4px);
         }
 
         .message-content table {
@@ -522,11 +386,6 @@
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 0.9em;
             border: 1px solid var(--code-border);
-            transition: var(--transition-fast);
-        }
-
-        .message-content code:hover {
-            background: var(--bg-hover);
         }
 
         .message-content pre {
@@ -537,12 +396,6 @@
             margin: 1em 0;
             overflow-x: auto;
             position: relative;
-            transition: var(--transition);
-        }
-
-        .message-content pre:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
         }
 
         .message-content pre code {
@@ -587,19 +440,18 @@
         .copy-code-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: scale(1.05);
         }
 
         .copy-code-btn.copied {
             background: var(--success-bg);
             color: var(--success-text);
             border-color: var(--success-text);
-            animation: bounce 0.5s ease;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        /* Highlight.js overrides */
+        .hljs {
+            background: transparent !important;
+            padding: 0 !important;
         }
 
         /* Model indicator in messages */
@@ -640,13 +492,11 @@
         .action-btn-small:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: translateY(-1px);
         }
 
         .action-btn-small:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none !important;
         }
 
         /* Стили для кнопки озвучки */
@@ -671,7 +521,6 @@
             padding: 12px 16px;
             color: var(--text-secondary);
             font-size: 13px;
-            animation: fadeIn 0.3s ease;
         }
 
         .typing-dots {
@@ -696,14 +545,13 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Input area */
         .input-section {
             padding: 16px 20px;
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
             background: var(--bg-secondary);
             border-top: 1px solid var(--border-color);
             flex-shrink: 0;
@@ -739,7 +587,6 @@
         .attach-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: scale(1.1) rotate(5deg);
         }
 
         #userInput {
@@ -768,7 +615,6 @@
         #userInput:focus {
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 3px var(--accent-primary-alpha);
-            transform: translateY(-2px);
         }
 
         .input-controls {
@@ -798,19 +644,11 @@
         .input-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: scale(1.1);
         }
 
         .input-btn.active {
             background: var(--accent-primary);
             color: white;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 153, 255, 0.4); }
-            70% { box-shadow: 0 0 0 6px rgba(0, 153, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 153, 255, 0); }
         }
 
         .send-btn {
@@ -829,14 +667,12 @@
         }
 
         .send-btn:hover:not(:disabled) {
-            transform: scale(1.1);
-            filter: brightness(1.1);
+            transform: scale(1.05);
         }
 
         .send-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none !important;
         }
 
         /* Attached files */
@@ -860,18 +696,6 @@
             border-radius: var(--radius-md);
             font-size: 12px;
             color: var(--text-secondary);
-            transition: var(--transition);
-            animation: slideInLeft 0.3s ease;
-        }
-
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .attached-file:hover {
-            background: var(--bg-hover);
-            transform: translateY(-1px);
         }
 
         .remove-file {
@@ -891,7 +715,6 @@
         .remove-file:hover {
             background: var(--error-bg);
             color: var(--error-text);
-            transform: scale(1.2);
         }
 
         /* Action buttons */
@@ -925,25 +748,17 @@
         .action-btn:hover:not(:disabled) {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: translateY(-1px);
         }
 
         .action-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             color: var(--text-tertiary);
-            transform: none !important;
         }
 
         .action-btn.active {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
-            animation: gentleGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes gentleGlow {
-            0%, 100% { box-shadow: 0 0 5px rgba(0, 153, 255, 0.3); }
-            50% { box-shadow: 0 0 15px rgba(0, 153, 255, 0.5); }
         }
 
         /* Voice mode indicator */
@@ -978,45 +793,11 @@
             gap: 6px;
             color: var(--text-secondary);
             font-size: 11px;
-            transition: var(--transition);
-        }
-
-        .current-chat-info:hover {
-            color: var(--text-primary);
         }
 
         .current-chat-info i {
             font-size: 14px;
             opacity: 0.7;
-            transition: var(--transition);
-        }
-
-        .current-chat-info:hover i {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        /* Кнопка редактирования чата */
-        .edit-chat-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            margin-left: 8px;
-        }
-
-        .edit-chat-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            transform: scale(1.1) rotate(5deg);
         }
 
         /* Notifications */
@@ -1028,10 +809,9 @@
             border-radius: var(--radius-md);
             font-size: 14px;
             z-index: 1000;
-            animation: slideInRight 0.3s ease;
+            animation: slideIn 0.3s ease;
             max-width: 300px;
             box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(10px);
         }
 
         .notification.info {
@@ -1058,7 +838,7 @@
             border: 1px solid var(--error-border);
         }
 
-        @keyframes slideInRight {
+        @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
@@ -1070,7 +850,6 @@
             background: var(--bg-secondary);
             border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
-            animation: fadeIn 0.5s ease;
         }
 
         .analysis-title {
@@ -1097,7 +876,6 @@
         ::-webkit-scrollbar-thumb {
             background: var(--border-color);
             border-radius: var(--radius-sm);
-            transition: var(--transition);
         }
 
         ::-webkit-scrollbar-thumb:hover {
@@ -1189,7 +967,6 @@
 
         .sidebar-menu.active {
             right: 0;
-            animation: slideInRight 0.3s ease;
         }
 
         .sidebar-overlay {
@@ -1243,7 +1020,6 @@
         .sidebar-close:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: scale(1.1);
         }
 
         .sidebar-content {
@@ -1290,7 +1066,6 @@
         .sidebar-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: translateX(4px);
         }
 
         .sidebar-btn.primary {
@@ -1302,7 +1077,6 @@
         .sidebar-btn.primary:hover {
             background: var(--accent-primary);
             color: white;
-            transform: translateX(4px) scale(1.02);
         }
 
         /* Chat list in sidebar */
@@ -1327,7 +1101,6 @@
 
         .sidebar-section .chat-item:hover {
             background: var(--bg-hover);
-            transform: translateX(4px);
         }
 
         .sidebar-section .chat-item:last-child {
@@ -1344,28 +1117,6 @@
             align-items: center;
             gap: 8px;
             flex: 1;
-        }
-
-        /* Кнопка редактирования в сайдбаре */
-        .edit-chat-sidebar-btn {
-            background: none;
-            border: none;
-            color: var(--text-tertiary);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 20px;
-            height: 20px;
-        }
-
-        .edit-chat-sidebar-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            transform: scale(1.1) rotate(5deg);
         }
 
         .sidebar-section .delete-chat-btn {
@@ -1386,7 +1137,6 @@
         .sidebar-section .delete-chat-btn:hover {
             background: var(--error-bg);
             color: var(--error-text);
-            transform: scale(1.1);
         }
 
         /* About section in sidebar */
@@ -1402,11 +1152,6 @@
             gap: 4px;
             padding: 8px 0;
             border-bottom: 1px solid var(--border-color);
-            transition: var(--transition);
-        }
-
-        .sidebar-section .about-item:hover {
-            transform: translateX(4px);
         }
 
         .sidebar-section .about-item:last-child {
@@ -1437,54 +1182,249 @@
 
         .sidebar-section .about-item a:hover {
             color: var(--accent-primary);
-            transform: translateX(4px);
         }
 
-        /* Модальное окно переименования */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
+        /* Новые стили для улучшенного управления чатами */
+        .chat-management {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .chat-action-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 10px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .chat-action-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .empty-chat-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-chat-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-chat-state h3 {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .empty-chat-state p {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Стили для состояния загрузки */
+        .loading-state {
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
             padding: 20px;
-            backdrop-filter: blur(5px);
+            color: var(--text-tertiary);
         }
 
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
         }
 
-        .modal {
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Стили для кнопки редактирования названия чата */
+        .edit-chat-name-btn {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+        }
+
+        .edit-chat-name-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* Стили для поля ввода названия чата */
+        .chat-name-input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-primary);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            outline: none;
+            width: 120px;
+        }
+
+        .chat-name-input:focus {
+            box-shadow: 0 0 0 2px var(--accent-primary-alpha);
+        }
+
+        /* Стили для меню действий с файлами */
+        .file-actions-menu {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
             background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            width: 100%;
-            max-width: 400px;
             border: 1px solid var(--border-color);
-            animation: modalSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            transform-origin: center center;
+            border-radius: var(--radius-md);
+            padding: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 160px;
         }
 
-        @keyframes modalSlideIn {
-            from { opacity: 0; transform: scale(0.8) translateY(-20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+        .file-actions-menu.active {
+            display: flex;
+        }
+
+        .file-action-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .file-action-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* Стили для файлов в сообщениях */
+        .file-attachment {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 8px;
+            max-width: 300px;
+        }
+
+        .file-icon {
+            font-size: 16px;
+            color: var(--accent-primary);
+        }
+
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size {
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+
+        .download-file-btn {
+            background: var(--accent-primary-alpha);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 10px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .download-file-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* Стили для создания файлов */
+        .create-file-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1001;
+            width: 90%;
+            max-width: 400px;
+            display: none;
+        }
+
+        .create-file-modal.active {
+            display: block;
         }
 
         .modal-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 20px 20px 0 20px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .modal-header h3 {
@@ -1504,147 +1444,116 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
         }
 
         .modal-close:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: scale(1.1);
         }
 
-        .modal-content {
-            padding: 20px;
+        .form-group {
+            margin-bottom: 16px;
         }
 
-        .modal-input {
-            width: 100%;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
             color: var(--text-primary);
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            transition: var(--transition);
-            outline: none;
+            font-size: 13px;
+            font-weight: 500;
         }
 
-        .modal-input:focus {
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 2px var(--accent-primary-alpha);
-            transform: translateY(-1px);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
         }
 
         .modal-actions {
             display: flex;
-            gap: 12px;
-            padding: 0 20px 20px 20px;
+            gap: 8px;
             justify-content: flex-end;
         }
 
-        .modal-btn {
-            padding: 10px 20px;
+        .btn {
+            padding: 8px 16px;
             border-radius: var(--radius-md);
-            cursor: pointer;
             font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
             transition: var(--transition);
             border: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
         }
 
-        .modal-btn.primary {
+        .btn-primary {
             background: var(--accent-primary);
             color: white;
             border-color: var(--accent-primary);
         }
 
-        .modal-btn.primary:hover {
+        .btn-primary:hover {
             background: var(--accent-secondary);
-            border-color: var(--accent-secondary);
-            transform: translateY(-1px);
         }
 
-        .modal-btn.secondary:hover {
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+
+        .btn-secondary:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            transform: translateY(-1px);
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Анимация для появления элементов */
-        .fade-in {
-            animation: fadeIn 0.5s ease;
-        }
-
-        .slide-in-up {
-            animation: slideInUp 0.4s ease;
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         /* Адаптивность */
         @media (max-width: 768px) {
             .app-header {
                 padding: 10px 16px;
-                padding-top: max(10px, env(safe-area-inset-top));
             }
             
             .header-content {
                 flex-direction: column;
-                gap: 12px;
-                align-items: stretch;
-            }
-            
-            .header-left {
-                justify-content: center;
+                gap: 8px;
                 text-align: center;
             }
             
-            .header-center {
-                max-width: none;
-                order: 3;
-            }
-            
-            .header-right {
+            .header-controls {
+                gap: 6px;
+                width: 100%;
                 justify-content: center;
-                order: 2;
-            }
-            
-            .search-input {
-                font-size: 14px;
-                height: 44px;
             }
             
             .model-select {
-                font-size: 13px;
-                height: 44px;
-                flex: 1;
+                min-width: 120px;
+                font-size: 10px;
+                padding: 4px 8px;
+                height: 28px;
             }
             
             .control-btn {
-                width: 44px;
-                height: 44px;
+                padding: 4px 8px;
+                font-size: 10px;
+                height: 28px;
             }
             
             .messages-container {
@@ -1660,7 +1569,6 @@
             
             .input-section {
                 padding: 12px 16px;
-                padding-bottom: max(12px, env(safe-area-inset-bottom));
             }
             
             .attach-btn {
@@ -1692,6 +1600,15 @@
                 font-size: 10px;
             }
             
+            .message-actions {
+                gap: 6px;
+            }
+            
+            .action-btn-small {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
             /* Sidebar адаптивность */
             .sidebar-menu {
                 width: 300px;
@@ -1701,28 +1618,38 @@
             .sidebar-section {
                 padding: 16px;
             }
+            
+            .menu-toggle {
+                display: flex !important;
+            }
+            
+            .file-actions-menu {
+                min-width: 140px;
+            }
+            
+            .create-file-modal {
+                width: 95%;
+                padding: 16px;
+            }
+            
+            .chat-name-input {
+                width: 100px;
+            }
         }
 
         @media (max-width: 480px) {
             .header-content {
+                flex-wrap: wrap;
                 gap: 8px;
             }
             
-            .logo {
-                font-size: 20px;
-            }
-            
-            .subtitle {
-                font-size: 11px;
-            }
-            
-            .search-input {
-                font-size: 13px;
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
             }
             
             .model-select {
-                min-width: 120px;
-                font-size: 12px;
+                min-width: 110px;
             }
             
             .message {
@@ -1778,82 +1705,20 @@
                 padding: 8px 12px;
                 font-size: 12px;
             }
-
-            .modal {
-                margin: 10px;
+            
+            .file-actions-menu {
+                min-width: 120px;
             }
             
-            .modal-actions {
-                flex-direction: column;
+            .file-action-btn {
+                padding: 6px 8px;
+                font-size: 11px;
             }
             
-            .modal-btn {
-                width: 100%;
+            .chat-name-input {
+                width: 80px;
+                font-size: 10px;
             }
-        }
-
-        /* Улучшенная поддержка темной темы */
-        @media (prefers-color-scheme: dark) {
-            .modal {
-                background: var(--bg-primary);
-            }
-            
-            .search-results {
-                background: var(--bg-primary);
-                border-color: var(--border-color);
-            }
-        }
-
-        /* Улучшенная доступность */
-        .search-input:focus-visible,
-        .modal-input:focus-visible {
-            outline: 2px solid var(--accent-primary);
-            outline-offset: 2px;
-        }
-
-        /* Высококонтрастный режим */
-        @media (prefers-contrast: high) {
-            .search-input,
-            .modal-input {
-                border-width: 2px;
-            }
-            
-            .search-result-item:hover {
-                outline: 2px solid currentColor;
-            }
-        }
-
-        /* Уменьшение движения для пользователей с настройками */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* Специальные классы для анимаций */
-        .bounce-in {
-            animation: bounce 0.6s ease;
-        }
-
-        .shake {
-            animation: shake 0.5s ease-in-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
-
-        @keyframes floating {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
         }
     </style>
     
@@ -1864,22 +1729,11 @@
     <div class="app-container">
         <header class="app-header">
             <div class="header-content">
-                <div class="header-left">
+                <div>
                     <div class="logo">Khuyew AI</div>
                     <div class="subtitle">Бесплатный ИИ-помощник с генерацией изображений</div>
                 </div>
-                
-                <div class="header-center">
-                    <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Поиск по функциям..." class="search-input">
-                        <button class="search-btn" id="searchBtn">
-                            <i class="ti ti-search"></i>
-                        </button>
-                        <div class="search-results" id="searchResults"></div>
-                    </div>
-                </div>
-                
-                <div class="header-right">
+                <div class="header-controls">
                     <select class="model-select" id="modelSelect">
                         <option value="gpt-5-nano">GPT-5 Nano</option>
                         <option value="o3-mini">O3 Mini</option>
@@ -1961,8 +1815,7 @@
                 <div class="current-chat-info">
                     <i class="ti ti-message"></i>
                     <span id="currentChatName">Основной чат</span>
-                    <!-- Кнопка редактирования чата -->
-                    <button class="edit-chat-btn" id="editChatBtn" title="Переименовать чат">
+                    <button class="edit-chat-name-btn" id="editChatNameBtn" title="Редактировать название чата">
                         <i class="ti ti-pencil"></i>
                     </button>
                 </div>
@@ -1971,7 +1824,10 @@
     </div>
 
     <!-- Hidden file input -->
-    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    <input type="file" id="fileInput" accept="*" multiple style="display: none;">
+    
+    <!-- Hidden camera input -->
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
 
     <!-- Sidebar Menu -->
     <div class="sidebar-menu" id="sidebarMenu">
@@ -2023,27 +1879,49 @@
     <!-- Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Модальное окно для переименования чата -->
-    <div class="modal-overlay" id="renameModalOverlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Переименовать чат</h3>
-                <button class="modal-close" id="renameModalClose">
-                    <i class="ti ti-x"></i>
-                </button>
+    <!-- File Actions Menu -->
+    <div class="file-actions-menu" id="fileActionsMenu">
+        <button class="file-action-btn" id="takePhotoBtn">
+            <i class="ti ti-camera"></i>
+            Сделать фото
+        </button>
+        <button class="file-action-btn" id="chooseFileBtn">
+            <i class="ti ti-file-upload"></i>
+            Выбрать файл
+        </button>
+        <button class="file-action-btn" id="createFileBtn">
+            <i class="ti ti-file-plus"></i>
+            Создать файл
+        </button>
+    </div>
+
+    <!-- Create File Modal -->
+    <div class="create-file-modal" id="createFileModal">
+        <div class="modal-header">
+            <h3>Создать файл</h3>
+            <button class="modal-close" id="createFileModalClose">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <div class="form-group">
+                <label class="form-label">Название файла</label>
+                <input type="text" class="form-input" id="createFileName" placeholder="example.txt" value="document.txt">
             </div>
-            <div class="modal-content">
-                <input type="text" id="renameChatInput" placeholder="Введите новое название чата..." class="modal-input">
+            <div class="form-group">
+                <label class="form-label">Содержимое файла</label>
+                <textarea class="form-input form-textarea" id="createFileContent" placeholder="Введите содержимое файла..."></textarea>
             </div>
-            <div class="modal-actions">
-                <button class="modal-btn secondary" id="renameModalCancel">Отмена</button>
-                <button class="modal-btn primary" id="renameModalSave">Сохранить</button>
-            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" id="createFileCancel">Отмена</button>
+            <button class="btn btn-primary" id="createFileSubmit">Создать файл</button>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
     <script>
         class KhuyewAI {
             constructor() {
@@ -2069,16 +1947,12 @@
                 this.attachFileBtn = document.getElementById('attachFileBtn');
                 this.voiceInputBtn = document.getElementById('voiceInputBtn');
                 this.fileInput = document.getElementById('fileInput');
+                this.cameraInput = document.getElementById('cameraInput');
                 this.attachedFiles = document.getElementById('attachedFiles');
                 this.currentChatName = document.getElementById('currentChatName');
-                this.editChatBtn = document.getElementById('editChatBtn');
+                this.editChatNameBtn = document.getElementById('editChatNameBtn');
                 
-                // Элементы поиска
-                this.searchInput = document.getElementById('searchInput');
-                this.searchBtn = document.getElementById('searchBtn');
-                this.searchResults = document.getElementById('searchResults');
-                
-                // Элементы меню
+                // Новые элементы для меню
                 this.menuToggle = document.getElementById('menuToggle');
                 this.sidebarMenu = document.getElementById('sidebarMenu');
                 this.sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -2086,13 +1960,21 @@
                 this.chatList = document.getElementById('chatList');
                 this.newChatBtn = document.getElementById('newChatBtn');
 
-                // Элементы модального окна переименования
-                this.renameModalOverlay = document.getElementById('renameModalOverlay');
-                this.renameModalClose = document.getElementById('renameModalClose');
-                this.renameModalCancel = document.getElementById('renameModalCancel');
-                this.renameModalSave = document.getElementById('renameModalSave');
-                this.renameChatInput = document.getElementById('renameChatInput');
+                // Элементы для работы с файлами
+                this.fileActionsMenu = document.getElementById('fileActionsMenu');
+                this.takePhotoBtn = document.getElementById('takePhotoBtn');
+                this.chooseFileBtn = document.getElementById('chooseFileBtn');
+                this.createFileBtn = document.getElementById('createFileBtn');
 
+                // Модальное окно создания файла
+                this.createFileModal = document.getElementById('createFileModal');
+                this.createFileModalClose = document.getElementById('createFileModalClose');
+                this.createFileCancel = document.getElementById('createFileCancel');
+                this.createFileSubmit = document.getElementById('createFileSubmit');
+                this.createFileName = document.getElementById('createFileName');
+                this.createFileContent = document.getElementById('createFileContent');
+
+                // Проверяем что все элементы найдены
                 this.validateElements();
             }
 
@@ -2101,16 +1983,16 @@
                     'messagesContainer', 'userInput', 'sendBtn', 'clearInputBtn',
                     'clearChatBtn', 'helpBtn', 'generateVoiceBtn', 'themeToggle',
                     'modelSelect', 'attachFileBtn', 'voiceInputBtn', 'fileInput',
-                    'attachedFiles', 'currentChatName', 'editChatBtn', 'searchInput',
-                    'searchBtn', 'searchResults', 'menuToggle', 'sidebarMenu',
+                    'attachedFiles', 'currentChatName', 'menuToggle', 'sidebarMenu',
                     'sidebarOverlay', 'sidebarClose', 'chatList', 'newChatBtn',
-                    'renameModalOverlay', 'renameModalClose', 'renameModalCancel',
-                    'renameModalSave', 'renameChatInput'
+                    'editChatNameBtn', 'fileActionsMenu', 'takePhotoBtn', 'chooseFileBtn',
+                    'createFileBtn', 'createFileModal'
                 ];
 
                 requiredElements.forEach(elementName => {
                     if (!this[elementName]) {
                         console.error(`Элемент не найден: ${elementName}`);
+                        throw new Error(`Required element ${elementName} not found`);
                     }
                 });
             }
@@ -2118,10 +2000,10 @@
             initializeState() {
                 // Состояние приложения
                 this.isProcessing = false;
-                this.currentTheme = this.detectSystemTheme();
+                this.currentTheme = 'dark';
                 this.isImageMode = false;
                 this.isVoiceMode = false;
-                this.attachedImages = [];
+                this.attachedFilesList = []; // Переименовано для поддержки любых файлов
                 this.isListening = false;
                 this.recognition = null;
                 this.conversationHistory = [];
@@ -2135,157 +2017,83 @@
                 this.activeStreamingMessage = null;
                 this.activeTimeouts = new Set();
                 this.activeEventListeners = new Map();
-                this.isSearchOpen = false;
+                this.isEditingChatName = false;
 
-                // Конфигурация поиска
-                this.searchFeatures = [
-                    {
-                        keywords: ['изображение', 'фото', 'картинка', 'анализ изображения', 'img', 'image'],
-                        title: '📷 Анализ изображений',
-                        description: 'Прикрепите изображение и задайте вопрос о нем',
-                        action: () => {
-                            this.animateElement(this.attachFileBtn, 'bounce-in');
-                            this.showNotification('Прикрепите изображение кнопкой ➕ и задайте вопрос', 'info');
-                            this.closeSearch();
-                        }
-                    },
-                    {
-                        keywords: ['голос', 'озвучка', 'аудио', 'speech', 'voice', 'микрофон'],
-                        title: '🎤 Голосовые функции',
-                        description: 'Голосовой ввод и озвучка ответов',
-                        action: () => {
-                            this.toggleVoiceMode();
-                            this.closeSearch();
-                        }
-                    },
-                    {
-                        keywords: ['код', 'программирование', 'code', 'программа', 'синтаксис'],
-                        title: '💻 Помощь с кодом',
-                        description: 'Напишите код с подсветкой синтаксиса',
-                        action: () => {
-                            this.userInput.value = 'Напиши код для ';
-                            this.userInput.focus();
-                            this.animateElement(this.userInput, 'pulse');
-                            this.closeSearch();
-                        }
-                    },
-                    {
-                        keywords: ['чат', 'беседа', 'разговор', 'общение', 'chat'],
-                        title: '💬 Управление чатами',
-                        description: 'Создавайте и переключайтесь между чатами',
-                        action: () => {
-                            this.toggleSidebar();
-                            this.closeSearch();
-                        }
-                    },
-                    {
-                        keywords: ['помощь', 'help', 'справка', 'функции', 'возможности'],
-                        title: '❓ Помощь по функциям',
-                        description: 'Узнайте обо всех возможностях Khuyew AI',
-                        action: () => {
-                            this.showHelp();
-                            this.closeSearch();
-                        }
-                    },
-                    {
-                        keywords: ['тема', 'оформление', 'dark', 'light', 'внешний вид'],
-                        title: '🎨 Смена темы',
-                        description: 'Переключение между темной и светлой темой',
-                        action: () => {
-                            this.toggleTheme();
-                            this.closeSearch();
-                        }
-                    },
-                    {
-                        keywords: ['модель', 'gpt', 'ai', 'нейросеть', 'model'],
-                        title: '🤖 Смена модели ИИ',
-                        description: 'Выберите подходящую модель ИИ для ваших задач',
-                        action: () => {
-                            this.animateElement(this.modelSelect, 'bounce-in');
-                            this.modelSelect.focus();
-                            this.closeSearch();
-                        }
-                    },
-                    {
-                        keywords: ['очистить', 'удалить', 'clear', 'стереть'],
-                        title: '🗑️ Очистка чата',
-                        description: 'Очистить текущую историю сообщений',
-                        action: () => {
-                            this.clearChat();
-                            this.closeSearch();
-                        }
-                    }
+                // Конфигурация
+                this.placeholderExamples = [
+                    "Расскажи о возможностях искусственного интеллекта...",
+                    "Напиши код для сортировки массива на Python...",
+                    "Объясни теорию относительности простыми словами...",
+                    "Какие есть способы улучшить производительность веб-сайта?",
+                    "Создай описание для приложения на основе ИИ..."
                 ];
 
                 this.modelConfig = {
                     'gpt-5-nano': { 
                         name: 'GPT-5 Nano', 
-                        description: 'Быстрая и эффективная модель для повседневных задач',
-                        icon: '🚀'
+                        description: 'Быстрая и эффективная модель для повседневных задач' 
                     },
                     'o3-mini': { 
                         name: 'O3 Mini', 
-                        description: 'Продвинутая модель с улучшенными возможностями рассуждения',
-                        icon: '🧠'
+                        description: 'Продвинутая модель с улучшенными возможностями рассуждения' 
                     },
                     'claude-sonnet': { 
                         name: 'Claude Sonnet', 
-                        description: 'Мощная модель от Anthropic для сложных задач и анализа',
-                        icon: '🎯'
+                        description: 'Мощная модель от Anthropic для сложных задач и анализа' 
                     },
                     'deepseek-chat': { 
                         name: 'DeepSeek Chat', 
-                        description: 'Универсальная модель для общения и решения задач',
-                        icon: '🔍'
+                        description: 'Универсальная модель для общения и решения задач' 
                     },
                     'deepseek-reasoner': { 
                         name: 'DeepSeek Reasoner', 
-                        description: 'Специализированная модель для сложных логических рассуждений',
-                        icon: '⚡'
+                        description: 'Специализированная модель для сложных логических рассуждений' 
                     },
                     'gemini-2.0-flash': { 
                         name: 'Gemini 2.0 Flash', 
-                        description: 'Новейшая быстрая модель от Google с улучшенными возможностями',
-                        icon: '✨'
+                        description: 'Новейшая быстрая модель от Google с улучшенными возможностями' 
                     },
                     'gemini-1.5-flash': { 
                         name: 'Gemini 1.5 Flash', 
-                        description: 'Быстрая и эффективная модель от Google для различных задач',
-                        icon: '🌟'
+                        description: 'Быстрая и эффективная модель от Google для различных задач' 
                     },
                     'grok-beta': { 
                         name: 'xAI Grok', 
-                        description: 'Модель от xAI с уникальным характером и остроумными ответами',
-                        icon: '😄'
+                        description: 'Модель от xAI с уникальным характером и остроумными ответами' 
                     }
+                };
+
+                // Поддерживаемые типы файлов для анализа
+                this.supportedFileTypes = {
+                    'text/plain': 'Текстовый файл',
+                    'text/html': 'HTML документ',
+                    'text/css': 'CSS файл',
+                    'text/javascript': 'JavaScript файл',
+                    'application/json': 'JSON файл',
+                    'application/pdf': 'PDF документ',
+                    'image/jpeg': 'Изображение JPEG',
+                    'image/png': 'Изображение PNG',
+                    'image/gif': 'Изображение GIF',
+                    'image/webp': 'Изображение WebP'
                 };
             }
 
-            detectSystemTheme() {
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                    return 'light';
-                }
-                return 'dark';
-            }
-
             setupMarked() {
-                if (typeof marked !== 'undefined') {
-                    marked.setOptions({
-                        highlight: (code, lang) => {
-                            if (lang && hljs.getLanguage(lang)) {
-                                try {
-                                    return hljs.highlight(code, { language: lang }).value;
-                                } catch (err) {
-                                    console.warn(`Error highlighting ${lang}:`, err);
-                                }
+                marked.setOptions({
+                    highlight: (code, lang) => {
+                        if (lang && hljs.getLanguage(lang)) {
+                            try {
+                                return hljs.highlight(code, { language: lang }).value;
+                            } catch (err) {
+                                console.warn(`Error highlighting ${lang}:`, err);
                             }
-                            return hljs.highlightAuto(code).value;
-                        },
-                        langPrefix: 'hljs language-',
-                        breaks: true,
-                        gfm: true
-                    });
-                }
+                        }
+                        return hljs.highlightAuto(code).value;
+                    },
+                    langPrefix: 'hljs language-',
+                    breaks: true,
+                    gfm: true
+                });
             }
 
             init() {
@@ -2300,13 +2108,7 @@
                     this.setupChatSelector();
                     this.loadCurrentSession();
                     
-                    this.showNotification('Khuyew AI загружен и готов к работе! 🚀', 'success');
-                    
-                    // Добавляем начальную анимацию
-                    setTimeout(() => {
-                        this.animateElement(this.logo, 'floating');
-                    }, 1000);
-                    
+                    this.showNotification('Khuyew AI загружен и готов к работе!', 'success');
                 } catch (error) {
                     console.error('Ошибка инициализации:', error);
                     this.showNotification('Ошибка загрузки приложения', 'error');
@@ -2326,32 +2128,28 @@
                     [this.themeToggle, 'click', () => this.toggleTheme()],
                     [this.modelSelect, 'change', (e) => this.handleModelChange(e)],
                     [this.logo, 'click', () => this.showWelcomeMessage()],
-                    [this.attachFileBtn, 'click', () => this.fileInput.click()],
+                    [this.attachFileBtn, 'click', (e) => this.showFileActionsMenu(e)],
                     [this.fileInput, 'change', (e) => this.handleFileSelect(e)],
+                    [this.cameraInput, 'change', (e) => this.handleCameraCapture(e)],
                     [this.voiceInputBtn, 'click', () => this.toggleVoiceInput()],
                     [this.menuToggle, 'click', () => this.toggleSidebar()],
-                    [this.sidebarClose, 'click', () => this.closeSidebar()],
                     [this.sidebarOverlay, 'click', () => this.closeSidebar()],
+                    [this.sidebarClose, 'click', () => this.closeSidebar()],
                     [this.newChatBtn, 'click', () => this.createNewChat()],
-                    [this.editChatBtn, 'click', () => this.showRenameModal()],
-                    [this.renameModalClose, 'click', () => this.closeRenameModal()],
-                    [this.renameModalCancel, 'click', () => this.closeRenameModal()],
-                    [this.renameModalSave, 'click', () => this.renameCurrentChat()],
-                    [this.renameChatInput, 'keydown', (e) => this.handleRenameInputKeydown(e)],
-                    [this.searchInput, 'input', (e) => this.handleSearchInput(e)],
-                    [this.searchInput, 'focus', () => this.openSearch()],
-                    [this.searchBtn, 'click', () => this.toggleSearch()],
-                    [document, 'click', (e) => this.handleDocumentClick(e)],
+                    [this.editChatNameBtn, 'click', () => this.startEditingChatName()],
+                    [this.takePhotoBtn, 'click', () => this.takePhoto()],
+                    [this.chooseFileBtn, 'click', () => this.chooseFile()],
+                    [this.createFileBtn, 'click', () => this.showCreateFileModal()],
+                    [this.createFileModalClose, 'click', () => this.hideCreateFileModal()],
+                    [this.createFileCancel, 'click', () => this.hideCreateFileModal()],
+                    [this.createFileSubmit, 'click', () => this.createFile()],
                     [window, 'beforeunload', () => this.handleBeforeUnload()],
-                    [window, 'resize', () => this.handleResize()],
-                    [this.messagesContainer, 'scroll', () => this.handleScroll()]
+                    [document, 'click', (e) => this.handleDocumentClick(e)]
                 ];
 
                 events.forEach(([element, event, handler]) => {
                     this.addEventListener(element, event, handler);
                 });
-
-                this.setupMobileAdaptation();
             }
 
             addEventListener(element, event, handler) {
@@ -2368,13 +2166,13 @@
 
                 element.addEventListener(event, wrappedHandler);
                 
+                // Сохраняем для возможности очистки
                 if (!this.activeEventListeners.has(element)) {
                     this.activeEventListeners.set(element, []);
                 }
                 this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
             }
 
-            // Оптимизированные методы
             handleInputKeydown(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -2386,7 +2184,6 @@
                 if (this.generateImageBtn.disabled) {
                     e.preventDefault();
                     this.showNotification('Генерация изображений временно недоступна', 'warning');
-                    this.animateElement(this.generateImageBtn, 'shake');
                 } else {
                     this.toggleImageMode();
                 }
@@ -2396,7 +2193,6 @@
                 if (e.target.value === 'claude-sonnet') {
                     this.showNotification('Claude Sonnet временно недоступен', 'warning');
                     this.modelSelect.value = this.currentModel;
-                    this.animateElement(this.modelSelect, 'shake');
                     return;
                 }
                 this.changeModel(e.target.value);
@@ -2406,6 +2202,8 @@
                 this.saveCurrentSession();
                 this.saveModelPreference();
                 this.saveChatSessions();
+                
+                // Очистка ресурсов
                 this.cleanup();
             }
 
@@ -2432,15 +2230,14 @@
                     this.recognition.onstart = () => {
                         this.isListening = true;
                         this.voiceInputBtn.classList.add('active');
-                        this.animateElement(this.voiceInputBtn, 'pulse');
-                        this.showNotification('Слушаю... 🎤', 'info');
+                        this.showNotification('Слушаю...', 'info');
                     };
 
                     this.recognition.onresult = (event) => {
                         const transcript = event.results[0][0].transcript;
                         this.userInput.value = transcript;
                         this.userInput.focus();
-                        this.showNotification('Текст распознан ✅', 'success');
+                        this.showNotification('Текст распознан', 'success');
                     };
 
                     this.recognition.onerror = (event) => {
@@ -2461,20 +2258,12 @@
             }
 
             startPlaceholderAnimation() {
-                const examples = [
-                    "Расскажи о возможностях искусственного интеллекта...",
-                    "Напиши код для сортировки массива на Python...",
-                    "Объясни теорию относительности простыми словами...",
-                    "Какие есть способы улучшить производительность веб-сайта?",
-                    "Создай описание для приложения на основе ИИ..."
-                ];
-
                 let index = 0;
                 let charIndex = 0;
                 let isDeleting = false;
 
                 const type = () => {
-                    const currentExample = examples[index];
+                    const currentExample = this.placeholderExamples[index];
                     
                     if (isDeleting) {
                         charIndex--;
@@ -2490,7 +2279,7 @@
                         this.setTimeout(() => {}, 2000);
                     } else if (isDeleting && charIndex === 0) {
                         isDeleting = false;
-                        index = (index + 1) % examples.length;
+                        index = (index + 1) % this.placeholderExamples.length;
                     }
 
                     const typeSpeed = isDeleting ? 50 : 100;
@@ -2507,175 +2296,6 @@
                 }, delay);
                 this.activeTimeouts.add(timeoutId);
                 return timeoutId;
-            }
-
-            // Поиск функций
-            handleSearchInput(e) {
-                const query = e.target.value.toLowerCase().trim();
-                if (query.length < 1) {
-                    this.closeSearch();
-                    return;
-                }
-
-                const results = this.searchFeatures.filter(feature =>
-                    feature.keywords.some(keyword => keyword.includes(query)) ||
-                    feature.title.toLowerCase().includes(query) ||
-                    feature.description.toLowerCase().includes(query)
-                );
-
-                this.displaySearchResults(results);
-            }
-
-            displaySearchResults(results) {
-                if (results.length === 0) {
-                    this.searchResults.innerHTML = '<div class="search-result-item">Ничего не найдено</div>';
-                    this.searchResults.classList.add('active');
-                    return;
-                }
-
-                this.searchResults.innerHTML = results.map(result => `
-                    <div class="search-result-item" data-action="${result.title}">
-                        <div class="search-result-title">${result.title}</div>
-                        <div class="search-result-desc">${result.description}</div>
-                    </div>
-                `).join('');
-
-                this.searchResults.classList.add('active');
-
-                this.searchResults.querySelectorAll('.search-result-item').forEach((item, index) => {
-                    this.addEventListener(item, 'click', () => {
-                        results[index].action();
-                    });
-                });
-            }
-
-            openSearch() {
-                this.isSearchOpen = true;
-                this.searchResults.classList.add('active');
-            }
-
-            closeSearch() {
-                this.isSearchOpen = false;
-                this.searchResults.classList.remove('active');
-                this.searchInput.value = '';
-            }
-
-            toggleSearch() {
-                if (this.isSearchOpen) {
-                    this.closeSearch();
-                } else {
-                    this.openSearch();
-                    this.searchInput.focus();
-                }
-            }
-
-            handleDocumentClick(e) {
-                if (!this.searchInput.contains(e.target) && 
-                    !this.searchResults.contains(e.target) && 
-                    !this.searchBtn.contains(e.target)) {
-                    this.closeSearch();
-                }
-            }
-
-            // Переименование чатов
-            showRenameModal() {
-                const currentSession = this.chatSessions.get(this.currentChatId);
-                if (currentSession) {
-                    this.renameChatInput.value = currentSession.name;
-                    this.renameModalOverlay.classList.add('active');
-                    this.renameChatInput.focus();
-                    this.renameChatInput.select();
-                }
-            }
-
-            closeRenameModal() {
-                this.renameModalOverlay.classList.remove('active');
-                this.renameChatInput.value = '';
-            }
-
-            handleRenameInputKeydown(e) {
-                if (e.key === 'Enter') {
-                    this.renameCurrentChat();
-                } else if (e.key === 'Escape') {
-                    this.closeRenameModal();
-                }
-            }
-
-            renameCurrentChat() {
-                const newName = this.renameChatInput.value.trim();
-                if (!newName) {
-                    this.showNotification('Введите название чата', 'error');
-                    this.animateElement(this.renameChatInput, 'shake');
-                    return;
-                }
-
-                const session = this.chatSessions.get(this.currentChatId);
-                if (session) {
-                    session.name = newName;
-                    session.lastActivity = Date.now();
-                    this.chatSessions.set(this.currentChatId, session);
-                    
-                    this.currentChatName.textContent = newName;
-                    this.saveChatSessions();
-                    this.updateChatDropdown();
-                    
-                    this.showNotification(`Чат переименован в "${newName}" ✅`, 'success');
-                    this.closeRenameModal();
-                }
-            }
-
-            // Адаптация под мобильные устройства
-            setupMobileAdaptation() {
-                this.handleResize();
-                this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                
-                if (this.isMobile) {
-                    document.body.classList.add('mobile');
-                }
-            }
-
-            handleResize() {
-                const isPortrait = window.innerHeight > window.innerWidth;
-                const isSmallScreen = window.innerWidth <= 768;
-                
-                document.body.classList.toggle('portrait', isPortrait);
-                document.body.classList.toggle('landscape', !isPortrait);
-                document.body.classList.toggle('small-screen', isSmallScreen);
-                
-                this.updateMobileLayout();
-            }
-
-            handleScroll() {
-                // Можно добавить параллакс-эффект или другие скролл-анимации
-                const scrollTop = this.messagesContainer.scrollTop;
-                if (scrollTop > 100) {
-                    this.messagesContainer.classList.add('scrolled');
-                } else {
-                    this.messagesContainer.classList.remove('scrolled');
-                }
-            }
-
-            updateMobileLayout() {
-                if (!this.isMobile) return;
-
-                const viewportHeight = window.innerHeight;
-                const headerHeight = document.querySelector('.app-header')?.offsetHeight || 60;
-                const footerHeight = document.querySelector('.app-footer')?.offsetHeight || 40;
-                
-                if (this.messagesContainer) {
-                    const availableHeight = viewportHeight - headerHeight - footerHeight - 100;
-                    this.messagesContainer.style.maxHeight = `${availableHeight}px`;
-                }
-            }
-
-            // Анимации
-            animateElement(element, animation) {
-                if (!element) return;
-                
-                element.classList.add(animation);
-                element.addEventListener('animationend', () => {
-                    element.classList.remove(animation);
-                }, { once: true });
             }
 
             toggleSidebar() {
@@ -2720,29 +2340,25 @@
                     <div class="chat-info">
                         <i class="ti ti-message"></i>
                         <span class="chat-name">${this.escapeHtml(session.name)}</span>
-                    </div>
-                    <div class="chat-actions">
-                        <button class="edit-chat-sidebar-btn" title="Переименовать чат">
+                        <button class="edit-chat-name-sidebar" title="Редактировать название">
                             <i class="ti ti-pencil"></i>
                         </button>
-                        ${id !== 'default' ? '<button class="delete-chat-btn" title="Удалить чат"><i class="ti ti-x"></i></button>' : ''}
                     </div>
+                    ${id !== 'default' ? '<button class="delete-chat-btn" title="Удалить чат"><i class="ti ti-x"></i></button>' : ''}
                 `;
 
                 this.addEventListener(chatItem, 'click', (e) => {
-                    if (!e.target.closest('.chat-actions')) {
+                    if (!e.target.closest('.edit-chat-name-sidebar') && !e.target.closest('.delete-chat-btn')) {
                         this.switchChat(id);
                         this.closeSidebar();
                     }
                 });
 
-                const editBtn = chatItem.querySelector('.edit-chat-sidebar-btn');
+                const editBtn = chatItem.querySelector('.edit-chat-name-sidebar');
                 if (editBtn) {
                     this.addEventListener(editBtn, 'click', (e) => {
                         e.stopPropagation();
-                        this.switchChat(id);
-                        this.closeSidebar();
-                        this.setTimeout(() => this.showRenameModal(), 300);
+                        this.editChatNameFromSidebar(id, chatItem);
                     });
                 }
 
@@ -2757,6 +2373,12 @@
                 return chatItem;
             }
 
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
             createNewChat() {
                 const chatNumber = Array.from(this.chatSessions.values()).filter(session => 
                     session.name.startsWith('Чат ')
@@ -2766,7 +2388,7 @@
                 const chatId = this.createChatSession(chatName);
                 this.switchChat(chatId);
                 this.closeSidebar();
-                this.showNotification(`Создан новый чат: ${chatName} ✅`, 'success');
+                this.showNotification(`Создан новый чат: ${chatName}`, 'success');
             }
 
             createChatSession(name = 'Новый чат') {
@@ -2793,18 +2415,22 @@
                 }
 
                 try {
+                    // Сохраняем текущую сессию перед переключением
                     this.saveCurrentSession();
                     
                     this.currentChatId = chatId;
                     const session = this.chatSessions.get(chatId);
                     
+                    // Обновляем активность чата
                     session.lastActivity = Date.now();
                     this.chatSessions.set(chatId, session);
                     
+                    // Обновляем UI
                     this.currentChatName.textContent = session.name;
                     
+                    // Загружаем новую сессию
                     this.loadSession(session);
-                    this.showNotification(`Переключен на чат: ${session.name} 🔄`, 'info');
+                    this.showNotification(`Переключен на чат: ${session.name}`, 'info');
                     
                     this.saveChatSessions();
                 } catch (error) {
@@ -2830,13 +2456,14 @@
                 if (confirm(`Удалить чат "${session.name}"?`)) {
                     this.chatSessions.delete(chatId);
                     
+                    // Если удаляем текущий чат, переключаемся на default
                     if (this.currentChatId === chatId) {
                         this.switchChat('default');
                     }
                     
                     this.saveChatSessions();
                     this.updateChatDropdown();
-                    this.showNotification('Чат удален ✅', 'success');
+                    this.showNotification('Чат удален', 'success');
                 }
             }
 
@@ -2878,7 +2505,10 @@
             }
 
             loadSession(session) {
+                // Очищаем контейнер сообщений
                 this.messagesContainer.innerHTML = '';
+                
+                // Загружаем историю сообщений
                 this.conversationHistory = session.conversationHistory || [];
                 
                 if (session.messages && session.messages.length > 0) {
@@ -2903,6 +2533,7 @@
                 messageElement.appendChild(messageContent);
                 this.messagesContainer.appendChild(messageElement);
                 
+                // Прикрепляем обработчики
                 this.attachMessageHandlers(messageElement);
             }
 
@@ -2921,13 +2552,12 @@
 
                 this.currentModel = model;
                 const modelInfo = this.modelConfig[model];
-                this.showNotification(`Модель изменена на: ${modelInfo.name} ${modelInfo.icon}`, 'success');
+                this.showNotification(`Модель изменена на: ${modelInfo.name}`, 'success');
                 this.saveModelPreference();
             }
 
             getModelDisplayName(model) {
-                const config = this.modelConfig[model];
-                return config ? `${config.icon} ${config.name}` : model;
+                return this.modelConfig[model]?.name || model;
             }
 
             getModelDescription(model) {
@@ -2965,63 +2595,98 @@
                 icon.className = this.isVoiceMode ? 'ti ti-microphone-off' : 'ti ti-microphone';
                 
                 this.showNotification(
-                    this.isVoiceMode ? 'Режим генерации голоса включен 🎤' : 'Режим генерации голоса выключен',
+                    this.isVoiceMode ? 'Режим генерации голоса включен' : 'Режим генерации голоса выключен',
                     'info'
                 );
             }
 
-            handleFileSelect(event) {
+            showFileActionsMenu(e) {
+                e.stopPropagation();
+                this.fileActionsMenu.classList.toggle('active');
+            }
+
+            hideFileActionsMenu() {
+                this.fileActionsMenu.classList.remove('active');
+            }
+
+            handleDocumentClick(e) {
+                if (!this.attachFileBtn.contains(e.target) && !this.fileActionsMenu.contains(e.target)) {
+                    this.hideFileActionsMenu();
+                }
+            }
+
+            takePhoto() {
+                this.hideFileActionsMenu();
+                this.cameraInput.click();
+            }
+
+            chooseFile() {
+                this.hideFileActionsMenu();
+                this.fileInput.click();
+            }
+
+            async handleCameraCapture(event) {
                 const files = Array.from(event.target.files);
                 if (files.length === 0) return;
 
-                let processedCount = 0;
-                const maxFiles = 3;
-
-                files.forEach(file => {
-                    if (processedCount >= maxFiles) {
-                        this.showNotification('Можно прикрепить не более 3 изображений', 'warning');
-                        return;
+                for (const file of files) {
+                    if (file.type.startsWith('image/')) {
+                        await this.processAttachedFile(file);
                     }
+                }
+                event.target.value = '';
+            }
 
-                    if (!file.type.startsWith('image/')) {
-                        this.showNotification('Пожалуйста, выберите только изображения', 'error');
-                        return;
-                    }
+            async handleFileSelect(event) {
+                const files = Array.from(event.target.files);
+                if (files.length === 0) return;
 
+                for (const file of files) {
+                    await this.processAttachedFile(file);
+                }
+                event.target.value = '';
+            }
+
+            async processAttachedFile(file) {
+                const fileData = {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    file: file,
+                    lastModified: file.lastModified
+                };
+
+                // Для изображений создаем preview
+                if (file.type.startsWith('image/')) {
+                    const previewUrl = await this.createImagePreview(file);
+                    fileData.preview = previewUrl;
+                }
+
+                this.attachedFilesList.push(fileData);
+                this.renderAttachedFiles();
+                this.showNotification(`Файл "${file.name}" прикреплен`, 'success');
+            }
+
+            createImagePreview(file) {
+                return new Promise((resolve) => {
                     const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const imageData = {
-                            name: file.name,
-                            data: e.target.result,
-                            type: file.type,
-                            size: file.size
-                        };
-                        
-                        this.attachedImages.push(imageData);
-                        this.renderAttachedFiles();
-                        this.showNotification(`Изображение "${file.name}" прикреплено ✅`, 'success');
-                        processedCount++;
-                    };
-                    
-                    reader.onerror = () => {
-                        this.showNotification(`Ошибка загрузки файла: ${file.name}`, 'error');
-                    };
-                    
+                    reader.onload = (e) => resolve(e.target.result);
                     reader.readAsDataURL(file);
                 });
-
-                event.target.value = '';
             }
 
             renderAttachedFiles() {
                 this.attachedFiles.innerHTML = '';
                 
-                this.attachedImages.forEach((image, index) => {
+                this.attachedFilesList.forEach((fileData, index) => {
                     const fileElement = document.createElement('div');
                     fileElement.className = 'attached-file';
+                    
+                    const fileIcon = this.getFileIcon(fileData.type);
+                    
                     fileElement.innerHTML = `
-                        <i class="ti ti-photo"></i>
-                        <span>${this.escapeHtml(image.name)} (${this.formatFileSize(image.size)})</span>
+                        <i class="ti ${fileIcon}"></i>
+                        <span>${this.escapeHtml(fileData.name)} (${this.formatFileSize(fileData.size)})</span>
                         <button class="remove-file" data-index="${index}">
                             <i class="ti ti-x"></i>
                         </button>
@@ -3037,20 +2702,194 @@
                 });
             }
 
-            formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            getFileIcon(fileType) {
+                if (fileType.startsWith('image/')) return 'ti-photo';
+                if (fileType.startsWith('audio/')) return 'ti-music';
+                if (fileType.startsWith('video/')) return 'ti-video';
+                if (fileType.includes('pdf')) return 'ti-file-text';
+                if (fileType.includes('zip') || fileType.includes('compressed')) return 'ti-file-zip';
+                if (fileType.includes('word') || fileType.includes('document')) return 'ti-file-text';
+                if (fileType.includes('excel') || fileType.includes('spreadsheet')) return 'ti-file-spreadsheet';
+                if (fileType.includes('powerpoint') || fileType.includes('presentation')) return 'ti-presentation';
+                return 'ti-file';
             }
 
             removeAttachedFile(index) {
-                if (index < 0 || index >= this.attachedImages.length) return;
+                if (index < 0 || index >= this.attachedFilesList.length) return;
                 
-                const removedFile = this.attachedImages.splice(index, 1)[0];
+                const removedFile = this.attachedFilesList.splice(index, 1)[0];
                 this.renderAttachedFiles();
-                this.showNotification(`Изображение "${removedFile.name}" удалено`, 'info');
+                this.showNotification(`Файл "${removedFile.name}" удален`, 'info');
+            }
+
+            showCreateFileModal() {
+                this.hideFileActionsMenu();
+                this.createFileModal.classList.add('active');
+            }
+
+            hideCreateFileModal() {
+                this.createFileModal.classList.remove('active');
+            }
+
+            async createFile() {
+                const fileName = this.createFileName.value.trim();
+                const fileContent = this.createFileContent.value;
+
+                if (!fileName) {
+                    this.showNotification('Введите название файла', 'error');
+                    return;
+                }
+
+                try {
+                    // Создаем файл в системе Puter
+                    await puter.fs.write(fileName, fileContent);
+                    
+                    // Создаем объект файла для прикрепления
+                    const file = new File([fileContent], fileName, { 
+                        type: this.getFileTypeFromName(fileName),
+                        lastModified: Date.now()
+                    });
+
+                    const fileData = {
+                        name: fileName,
+                        type: file.type,
+                        size: file.size,
+                        file: file,
+                        lastModified: file.lastModified,
+                        isCreated: true // Флаг что файл создан в системе
+                    };
+
+                    this.attachedFilesList.push(fileData);
+                    this.renderAttachedFiles();
+                    
+                    this.hideCreateFileModal();
+                    this.showNotification(`Файл "${fileName}" создан и прикреплен`, 'success');
+                    
+                    // Очищаем форму
+                    this.createFileName.value = 'document.txt';
+                    this.createFileContent.value = '';
+                    
+                } catch (error) {
+                    console.error('Error creating file:', error);
+                    this.showNotification('Ошибка при создании файла', 'error');
+                }
+            }
+
+            getFileTypeFromName(fileName) {
+                const extension = fileName.split('.').pop().toLowerCase();
+                const typeMap = {
+                    'txt': 'text/plain',
+                    'html': 'text/html',
+                    'htm': 'text/html',
+                    'css': 'text/css',
+                    'js': 'text/javascript',
+                    'json': 'application/json',
+                    'pdf': 'application/pdf',
+                    'md': 'text/markdown'
+                };
+                return typeMap[extension] || 'text/plain';
+            }
+
+            // Редактирование названия чата
+            startEditingChatName() {
+                if (this.isEditingChatName) return;
+                
+                this.isEditingChatName = true;
+                const currentName = this.currentChatName.textContent;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'chat-name-input';
+                input.value = currentName;
+                input.maxLength = 50;
+                
+                this.currentChatName.replaceWith(input);
+                input.focus();
+                input.select();
+                
+                const saveEdit = () => {
+                    const newName = input.value.trim() || 'Без названия';
+                    this.updateChatName(this.currentChatId, newName);
+                    this.isEditingChatName = false;
+                };
+                
+                const cancelEdit = () => {
+                    const span = document.createElement('span');
+                    span.id = 'currentChatName';
+                    span.textContent = currentName;
+                    input.replaceWith(span);
+                    this.currentChatName = span;
+                    this.isEditingChatName = false;
+                };
+                
+                input.addEventListener('blur', saveEdit);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        saveEdit();
+                    } else if (e.key === 'Escape') {
+                        cancelEdit();
+                    }
+                });
+            }
+
+            updateChatName(chatId, newName) {
+                const session = this.chatSessions.get(chatId);
+                if (session) {
+                    session.name = newName;
+                    session.lastActivity = Date.now();
+                    this.chatSessions.set(chatId, session);
+                    
+                    // Обновляем UI
+                    if (chatId === this.currentChatId) {
+                        const span = document.createElement('span');
+                        span.id = 'currentChatName';
+                        span.textContent = newName;
+                        document.querySelector('.chat-name-input')?.replaceWith(span);
+                        this.currentChatName = span;
+                    }
+                    
+                    // Обновляем сайдбар
+                    this.updateChatDropdown();
+                    this.saveChatSessions();
+                    
+                    this.showNotification(`Название чата изменено на: ${newName}`, 'success');
+                }
+            }
+
+            editChatNameFromSidebar(chatId, chatItem) {
+                const chatNameSpan = chatItem.querySelector('.chat-name');
+                const currentName = chatNameSpan.textContent;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'chat-name-input';
+                input.value = currentName;
+                input.maxLength = 50;
+                
+                chatNameSpan.replaceWith(input);
+                input.focus();
+                input.select();
+                
+                const saveEdit = () => {
+                    const newName = input.value.trim() || 'Без названия';
+                    this.updateChatName(chatId, newName);
+                };
+                
+                const cancelEdit = () => {
+                    const span = document.createElement('span');
+                    span.className = 'chat-name';
+                    span.textContent = currentName;
+                    input.replaceWith(span);
+                };
+                
+                input.addEventListener('blur', saveEdit);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        saveEdit();
+                    } else if (e.key === 'Escape') {
+                        cancelEdit();
+                    }
+                });
             }
 
             async sendMessage() {
@@ -3061,15 +2900,13 @@
 
                 const message = this.userInput.value.trim();
                 
-                if (!message && this.attachedImages.length === 0) {
-                    this.showNotification('Введите сообщение или прикрепите изображение', 'error');
-                    this.animateElement(this.userInput, 'shake');
+                if (!message && this.attachedFilesList.length === 0) {
+                    this.showNotification('Введите сообщение или прикрепите файл', 'error');
                     return;
                 }
 
                 this.isProcessing = true;
                 this.sendBtn.disabled = true;
-                this.animateElement(this.sendBtn, 'bounce-in');
 
                 try {
                     if (this.isVoiceMode) {
@@ -3087,28 +2924,31 @@
             }
 
             async processUserMessage(message) {
-                this.addMessage('user', message, this.attachedImages);
-                this.addToConversationHistory('user', message, this.attachedImages);
+                // Добавляем сообщение пользователя
+                this.addMessage('user', message, this.attachedFilesList);
+                this.addToConversationHistory('user', message, this.attachedFilesList);
                 
+                // Очищаем ввод
                 this.userInput.value = '';
                 this.userInput.style.height = 'auto';
-                const imagesToProcess = [...this.attachedImages];
-                this.attachedImages = [];
+                const filesToProcess = [...this.attachedFilesList];
+                this.attachedFilesList = [];
                 this.renderAttachedFiles();
                 
+                // Обрабатываем сообщение
                 if (this.isImageMode) {
                     await this.generateImage(message);
                 } else {
-                    await this.getAIResponse(message, imagesToProcess);
+                    await this.getAIResponse(message, filesToProcess);
                 }
             }
 
-            async getAIResponse(userMessage, images) {
+            async getAIResponse(userMessage, files) {
                 this.removeTypingIndicator();
                 this.activeTypingIndicator = this.showTypingIndicator();
                 
                 try {
-                    const prompt = await this.buildPrompt(userMessage, images);
+                    const prompt = await this.buildPrompt(userMessage, files);
                     const response = await this.callAIService(prompt);
                     
                     this.removeTypingIndicator();
@@ -3120,30 +2960,75 @@
                 }
             }
 
-            async buildPrompt(userMessage, images) {
-                if (images.length > 0) {
-                    if (typeof puter?.ai?.img2txt !== 'function') {
-                        throw new Error('Функция анализа изображений недоступна');
+            async buildPrompt(userMessage, files) {
+                if (files.length > 0) {
+                    let fileContents = [];
+                    
+                    for (const fileData of files) {
+                        try {
+                            let content = '';
+                            
+                            if (fileData.file.type.startsWith('text/') || 
+                                fileData.file.type === 'application/json') {
+                                // Читаем текстовые файлы
+                                content = await this.readFileAsText(fileData.file);
+                            } else if (fileData.file.type.startsWith('image/')) {
+                                // Для изображений используем анализ
+                                if (typeof puter?.ai?.img2txt === 'function') {
+                                    content = await puter.ai.img2txt(fileData.preview);
+                                } else {
+                                    content = `[Изображение: ${fileData.name}]`;
+                                }
+                            } else {
+                                content = `[Файл: ${fileData.name}, тип: ${fileData.type}]`;
+                            }
+                            
+                            fileContents.push({
+                                name: fileData.name,
+                                type: fileData.file.type,
+                                content: content
+                            });
+                        } catch (error) {
+                            console.error(`Error processing file ${fileData.name}:`, error);
+                            fileContents.push({
+                                name: fileData.name,
+                                type: fileData.file.type,
+                                content: '[Не удалось прочитать файл]'
+                            });
+                        }
                     }
                     
-                    const extractedText = await puter.ai.img2txt(images[0].data);
+                    const filesSummary = fileContents.map(f => 
+                        `Файл: ${f.name}\nТип: ${f.type}\nСодержимое:\n${f.content}`
+                    ).join('\n\n');
                     
                     if (userMessage.trim()) {
-                        return `Пользователь отправил изображение "${images[0].name}" с сопроводительным сообщением: "${userMessage}"
+                        return `Пользователь отправил ${files.length} файл(ов) с сопроводительным сообщением: "${userMessage}"
 
-Извлеченный текст с изображения: "${extractedText}"
+Содержимое файлов:
+${filesSummary}
 
-Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
+Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание файлов. Отвечай одним целостным сообщением на русском языке.`;
                     } else {
-                        return `Пользователь отправил изображение "${images[0].name}".
+                        return `Пользователь отправил ${files.length} файл(ов).
 
-Извлеченный текст с изображения: "${extractedText}"
+Содержимое файлов:
+${filesSummary}
 
-Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
+Проанализируй эти файлы. Опиши их содержание, основную информацию. Если есть текст - объясни его значение. Отвечай подробно на русском языке.`;
                     }
                 } else {
                     return this.buildContextPrompt(userMessage);
                 }
+            }
+
+            readFileAsText(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = reject;
+                    reader.readAsText(file);
+                });
             }
 
             async callAIService(prompt) {
@@ -3179,7 +3064,7 @@
                     if (part?.text) {
                         fullResponse += part.text;
                         this.updateStreamingMessage(this.activeStreamingMessage, fullResponse);
-                        await this.delay(10);
+                        await this.delay(10); // Небольшая задержка для плавности
                     }
                 }
                 
@@ -3260,6 +3145,7 @@
                 const processedContent = this.processCodeBlocks(fullContent);
                 messageContent.innerHTML = processedContent;
                 
+                // Добавляем информацию о модели
                 const modelIndicator = document.createElement('div');
                 modelIndicator.className = 'model-indicator';
                 modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
@@ -3324,7 +3210,7 @@
                 }
 
                 try {
-                    this.stopSpeech();
+                    this.stopSpeech(); // Останавливаем предыдущее воспроизведение
 
                     this.currentUtterance = new SpeechSynthesisUtterance(text);
                     this.currentUtterance.lang = 'ru-RU';
@@ -3361,7 +3247,7 @@
                     };
 
                     speechSynthesis.speak(this.currentUtterance);
-                    this.showNotification('Озвучивание текста... 🎵', 'info');
+                    this.showNotification('Озвучивание текста...', 'info');
 
                 } catch (error) {
                     console.error('Error speaking text:', error);
@@ -3393,7 +3279,7 @@
                     this.userInput.value = '';
                     this.userInput.style.height = 'auto';
                     
-                    this.showNotification('Генерация голоса... 🎵', 'info');
+                    this.showNotification('Генерация голоса...', 'info');
                     
                     const audio = await puter.ai.txt2speech(text);
                     this.addVoiceMessage(text, audio);
@@ -3453,12 +3339,12 @@
                 return context;
             }
 
-            addToConversationHistory(role, content, images = []) {
+            addToConversationHistory(role, content, files = []) {
                 let messageContent = content;
                 
-                if (images && images.length > 0) {
-                    const imageNames = images.map(img => img.name).join(', ');
-                    messageContent += ` [Прикреплено изображение: ${imageNames}]`;
+                if (files && files.length > 0) {
+                    const fileNames = files.map(img => img.name).join(', ');
+                    messageContent += ` [Прикреплено файлов: ${fileNames}]`;
                 }
                 
                 this.conversationHistory.push({
@@ -3467,6 +3353,7 @@
                     timestamp: Date.now()
                 });
 
+                // Ограничиваем историю 30 сообщениями
                 if (this.conversationHistory.length > 30) {
                     this.conversationHistory = this.conversationHistory.slice(-25);
                 }
@@ -3485,6 +3372,7 @@
                         size: "1024x1024"
                     });
                     
+                    // Обновляем сообщение с результатом
                     const messages = this.messagesContainer.querySelectorAll('.message-ai');
                     const lastMessage = messages[messages.length - 1];
                     if (lastMessage) {
@@ -3514,12 +3402,12 @@
                 icon.className = this.isImageMode ? 'ti ti-photo-off' : 'ti ti-photo';
                 
                 this.showNotification(
-                    this.isImageMode ? 'Режим генерации изображений включен 🖼️' : 'Режим генерации изображений выключен',
+                    this.isImageMode ? 'Режим генерации изображений включен' : 'Режим генерации изображений выключен',
                     'info'
                 );
             }
 
-            addMessage(role, content, images = []) {
+            addMessage(role, content, files = []) {
                 const messageElement = document.createElement('div');
                 messageElement.className = `message message-${role}`;
                 
@@ -3540,20 +3428,51 @@
                     messageContent.appendChild(modelIndicator);
                 }
                 
-                if (images && images.length > 0) {
-                    images.forEach(image => {
-                        const imageContainer = document.createElement('div');
-                        imageContainer.className = 'message-image';
-                        
-                        const img = document.createElement('img');
-                        img.src = image.data;
-                        img.alt = image.name;
-                        img.style.maxWidth = '200px';
-                        img.style.borderRadius = '8px';
-                        img.style.marginTop = '8px';
-                        
-                        imageContainer.appendChild(img);
-                        messageContent.appendChild(imageContainer);
+                if (files && files.length > 0) {
+                    files.forEach(fileData => {
+                        if (fileData.file.type.startsWith('image/')) {
+                            const imageContainer = document.createElement('div');
+                            imageContainer.className = 'message-image';
+                            
+                            const img = document.createElement('img');
+                            img.src = fileData.preview;
+                            img.alt = fileData.name;
+                            img.style.maxWidth = '200px';
+                            img.style.borderRadius = '8px';
+                            img.style.marginTop = '8px';
+                            
+                            imageContainer.appendChild(img);
+                            messageContent.appendChild(imageContainer);
+                        } else {
+                            // Для других типов файлов показываем информацию
+                            const fileAttachment = document.createElement('div');
+                            fileAttachment.className = 'file-attachment';
+                            
+                            const fileIcon = this.getFileIcon(fileData.type);
+                            
+                            fileAttachment.innerHTML = `
+                                <i class="ti ${fileIcon} file-icon"></i>
+                                <div class="file-info">
+                                    <div class="file-name">${this.escapeHtml(fileData.name)}</div>
+                                    <div class="file-size">${this.formatFileSize(fileData.size)}</div>
+                                </div>
+                                ${fileData.isCreated ? 
+                                    `<button class="download-file-btn" onclick="puter.fs.read('${fileData.name}').then(blob => {
+                                        const url = URL.createObjectURL(blob);
+                                        const a = document.createElement('a');
+                                        a.href = url;
+                                        a.download = '${fileData.name}';
+                                        a.click();
+                                        URL.revokeObjectURL(url);
+                                    })">
+                                        <i class="ti ti-download"></i>
+                                        Скачать
+                                    </button>` : ''
+                                }
+                            `;
+                            
+                            messageContent.appendChild(fileAttachment);
+                        }
                     });
                 }
                 
@@ -3567,12 +3486,9 @@
             }
 
             processCodeBlocks(content) {
-                if (typeof marked === 'undefined') {
-                    return content;
-                }
-                
                 let html = marked.parse(content);
                 
+                // Добавляем заголовки для блоков кода
                 html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
                     const language = lang || 'text';
                     return `
@@ -3608,7 +3524,7 @@
                                     btn.classList.remove('copied');
                                 }, 2000);
                                 
-                                this.showNotification('Код скопирован в буфер обмена ✅', 'success');
+                                this.showNotification('Код скопирован в буфер обмена', 'success');
                             } catch (err) {
                                 console.error('Failed to copy code:', err);
                                 this.showNotification('Не удалось скопировать код', 'error');
@@ -3654,10 +3570,10 @@
             clearInput() {
                 this.userInput.value = '';
                 this.userInput.style.height = 'auto';
-                this.attachedImages = [];
+                this.attachedFilesList = [];
                 this.renderAttachedFiles();
                 this.userInput.focus();
-                this.showNotification('Ввод очищен ✅', 'success');
+                this.showNotification('Ввод очищен', 'success');
             }
 
             clearChat() {
@@ -3670,7 +3586,7 @@
                     this.conversationHistory = [];
                     this.showWelcomeMessage();
                     this.saveCurrentSession();
-                    this.showNotification('Чат очищен ✅', 'success');
+                    this.showNotification('Чат очищен', 'success');
                 }
             }
 
@@ -3685,6 +3601,7 @@
 ## 🎯 Основные возможности:
 • **Умные ответы на вопросы** - используя различные модели ИИ
 • **Анализ изображений** - извлечение текста и решение задач по фото
+• **Анализ файлов** - чтение и анализ текстовых файлов, документов
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
 • **Генерация голоса** - преобразование текста в естественную речь
 • **Озвучивание ответов** - слушайте ответы ИИ в аудиоформате
@@ -3693,10 +3610,11 @@
 • **Копирование кода** - удобное копирование фрагментов кода
 • **Стриминг ответов** - ответы появляются постепенно
 • **Мульти-чаты** - создавайте отдельные чаты для разных тем
+• **Работа с файлами** - прикрепляйте, создавайте и анализируйте файлы
 
 **Текущая модель: ${currentModelName}** - ${currentModelDesc}
 
-**Начните общение, отправив сообщение или изображение!**`;
+**Начните общение, отправив сообщение, файл или изображение!**`;
 
                 this.addMessage('ai', welcomeMessage);
                 this.addToConversationHistory('assistant', welcomeMessage);
@@ -3714,6 +3632,13 @@
 • **Создание нового чата** - нажмите "Новый чат" в меню
 • **Переключение между чатами** - выберите чат из списка в меню
 • **Удаление чатов** - нажмите ❌ рядом с названием чата (кроме основного)
+• **Редактирование названия** - нажмите ✏️ рядом с названием чата
+
+## 📁 Работа с файлами:
+• **Сделать фото** - используйте камеру для создания фото
+• **Выбрать файл** - загрузите файл с устройства
+• **Создать файл** - создайте текстовый файл прямо в приложении
+• **Анализ файлов** - ИИ прочитает и проанализирует содержимое файлов
 
 ## 🔊 Аудио функции:
 • **Генерация голоса** - создает аудио из текста с помощью ИИ
@@ -3725,7 +3650,7 @@
 2. **Напишите вопрос** (опционально) - что вы хотите узнать о изображении
 3. **Нажмите Отправить** - ИИ проанализирует изображение и ответит
 
-**Попробуйте отправить изображение с вопросом!**`;
+**Попробуйте отправить файл или изображение с вопросом!**`;
 
                 this.addMessage('ai', helpMessage);
                 this.addToConversationHistory('assistant', helpMessage);
@@ -3735,6 +3660,7 @@
                 this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
                 document.body.setAttribute('data-theme', this.currentTheme);
                 
+                // Сохраняем тему в localStorage
                 try {
                     localStorage.setItem('khuyew-ai-theme', this.currentTheme);
                 } catch (error) {
@@ -3742,7 +3668,7 @@
                 }
                 
                 this.showNotification(
-                    this.currentTheme === 'dark' ? 'Темная тема включена 🌙' : 'Светлая тема включена ☀️',
+                    this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
                     'info'
                 );
             }
@@ -3760,6 +3686,7 @@
             }
 
             showNotification(message, type = 'info') {
+                // Убираем существующие уведомления
                 const existingNotifications = document.querySelectorAll('.notification');
                 existingNotifications.forEach(notification => notification.remove());
                 
@@ -3854,25 +3781,33 @@
                 }
             }
 
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
+            // Вспомогательные методы для работы с файлами
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
 
             // Очистка ресурсов
             cleanup() {
+                // Останавливаем все таймеры
                 this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
                 this.activeTimeouts.clear();
 
+                // Останавливаем речь
                 this.stopSpeech();
 
+                // Останавливаем голосовой ввод
                 if (this.recognition && this.isListening) {
                     this.recognition.stop();
                 }
 
+                // Убираем индикаторы
                 this.removeTypingIndicator();
 
+                // Удаляем обработчики событий
                 this.activeEventListeners.forEach((listeners, element) => {
                     listeners.forEach(({ event, handler }) => {
                         element.removeEventListener(event, handler);
@@ -3885,14 +3820,17 @@
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', () => {
             try {
+                // Проверяем наличие Puter.ai
                 if (typeof puter === 'undefined') {
                     console.warn('Puter.ai не загружен, некоторые функции будут недоступны');
                 }
                 
+                // Предзагрузка голосов для синтеза речи
                 if ('speechSynthesis' in window) {
                     speechSynthesis.getVoices();
                 }
                 
+                // Инициализация приложения
                 new KhuyewAI();
                 
             } catch (error) {
