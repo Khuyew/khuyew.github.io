@@ -26,16 +26,17 @@
         <!-- Верхняя панель управления -->
         <header class="app-header">
             <div class="header-content">
-                <!-- Логотип и кнопка выбора модели -->
+                <!-- Логотип слева -->
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
                         <img src="./logo.png" alt="KHAI Assistant Logo" onerror="this.style.display='none'">
                     </div>
-                    <!-- Кнопка выбора модели рядом с логотипом -->
-                    <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
-                        <i class="ti ti-brain"></i>
-                    </button>
                 </div>
+                
+                <!-- Кнопка выбора модели слева от поиска -->
+                <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
+                    <i class="ti ti-brain"></i>
+                </button>
                 
                 <!-- Центр: поиск по чату -->
                 <div class="header-search-container">
@@ -50,6 +51,9 @@
                 
                 <!-- Правая часть: управление -->
                 <div class="header-controls">
+                    <button class="control-btn" id="themeToggle">
+                        <i class="ti ti-moon"></i>
+                    </button>
                     <button class="control-btn menu-toggle" id="menuToggle">
                         <i class="ti ti-menu-2"></i>
                     </button>
@@ -66,6 +70,12 @@
 
             <!-- Навигация и мини-карта (справа) -->
             <div class="chat-minimap-container">
+                <div class="minimap-header">
+                    <!-- Кнопка темы над мини-картой -->
+                    <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
+                        <i class="ti ti-moon"></i>
+                    </button>
+                </div>
                 <div class="chat-minimap" id="chatMinimap">
                     <div class="minimap-content" id="minimapContent"></div>
                     <div class="minimap-viewport" id="minimapViewport"></div>
