@@ -1,15 +1,14 @@
 {
-    "name": "KHAI",
-    "short_name": "KHAI",
-    "description": "KHAI — Чат с ИИ. Полностью бесплатный ИИ-помощник с генерацией изображений и голоса.",
+    "name": "KHAI Assistant",
+    "short_name": "KHAI AI",
+    "description": "Полностью бесплатный ИИ-помощник KHAI с генерацией изображений и голоса",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0f0f23",
-    "theme_color": "#7e7eff",
-    "orientation": "portrait-primary",
-    "scope": "/",
-    "lang": "ru",
+    "theme_color": "#0f0f23",
+    "orientation": "portrait",
     "categories": ["productivity", "utilities"],
+    "lang": "ru-RU",
     "icons": [
         {
             "src": "/icon-192x192.png",
@@ -33,7 +32,7 @@
         },
         {
             "src": "/screenshot-narrow.png",
-            "sizes": "375x667",
+            "sizes": "720x1280",
             "type": "image/png",
             "form_factor": "narrow"
         }
