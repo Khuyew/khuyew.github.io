@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KHAI - AI Чат-помощник</title>
+    <title>KHAI — Чат с ИИ</title>
     <meta name="description" content="Полностью бесплатный ИИ-помощник KHAI с генерацией изображений и голоса">
     <meta name="theme-color" content="#0f0f23">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KHAI">
     
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -30,10 +36,12 @@
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
                         <img src="./logo.png" alt="KHAI Assistant Logo" onerror="this.style.display='none'">
+                        <span class="logo-text">KHAI</span>
                     </div>
                     <!-- Кнопка выбора модели рядом с логотипом -->
                     <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
                         <i class="ti ti-brain"></i>
+                        <span class="btn-tooltip">Модель</span>
                     </button>
                 </div>
                 
@@ -49,12 +57,24 @@
                     <!-- Выпадающий список результатов поиска -->
                     <div class="search-results-dropdown" id="searchResultsDropdown">
                         <div class="search-results-list" id="searchResultsList"></div>
+                        <div class="search-navigation" id="searchNavigation" style="display: none;">
+                            <button class="search-nav-btn" id="searchPrevBtn">
+                                <i class="ti ti-chevron-up"></i>
+                            </button>
+                            <span class="search-results-count" id="searchResultsCount">0 из 0</span>
+                            <button class="search-nav-btn" id="searchNextBtn">
+                                <i class="ti ti-chevron-down"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Правая часть: управление -->
                 <div class="header-controls">
-                    <button class="control-btn menu-toggle" id="menuToggle">
+                    <button class="control-btn" id="searchToggleBtn" title="Поиск">
+                        <i class="ti ti-search"></i>
+                    </button>
+                    <button class="control-btn menu-toggle" id="menuToggle" title="Меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
                 </div>
@@ -65,7 +85,22 @@
         <main class="chat-main">
             <!-- Контейнер сообщений -->
             <div class="messages-container" id="messagesContainer">
-                <!-- Messages will be added here -->
+                <!-- Приветственное сообщение -->
+                <div class="message message-ai welcome-message">
+                    <div class="message-content">
+                        <h1>👋 Добро пожаловать в KHAI — Чат с ИИ!</h1>
+                        <p>Я ваш бесплатный ИИ-помощник с передовыми возможностями:</p>
+                        <ul>
+                            <li>💬 Умные ответы на вопросы</li>
+                            <li>🖼️ Анализ и генерация изображений</li>
+                            <li>🎤 Голосовой ввод и озвучка</li>
+                            <li>📁 Работа с файлами</li>
+                            <li>🔍 Поиск по истории</li>
+                            <li>💾 Несколько чатов</li>
+                        </ul>
+                        <p><strong>Начните общение, отправив сообщение!</strong></p>
+                    </div>
+                </div>
             </div>
 
             <!-- Навигация и мини-карта (справа) -->
@@ -127,15 +162,15 @@
 
             <!-- Кнопки действий -->
             <div class="action-buttons">
-                <button class="action-btn mode-btn active" id="normalModeBtn">
+                <button class="action-btn mode-btn active" id="normalModeBtn" data-mode="normal">
                     <i class="ti ti-message"></i>
                     <span class="btn-text">Обычный</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateVoiceBtn">
+                <button class="action-btn mode-btn" id="generateVoiceBtn" data-mode="voice">
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateImageBtn">
+                <button class="action-btn mode-btn" id="generateImageBtn" data-mode="image">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
                 </button>
@@ -148,6 +183,7 @@
                 <div class="current-chat-info">
                     <i class="ti ti-message"></i>
                     <span id="currentChatName">Основной чат</span>
+                    <span class="message-count" id="messageCount">0 сообщений</span>
                 </div>
                 <div class="footer-controls">
                     <!-- Кнопки футера без текста -->
@@ -172,8 +208,9 @@
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
                     <img src="./logo.png" alt="KHAI Assistant" onerror="this.style.display='none'">
+                    <span>KHAI</span>
                 </div>
-                <h3>KHAI Assistant</h3>
+                <h3>Чат с ИИ</h3>
             </div>
             <button class="sidebar-close" id="sidebarClose">
                 <i class="ti ti-x"></i>
@@ -194,6 +231,7 @@
                 <h4>
                     <i class="ti ti-history"></i>
                     История чатов
+                    <span class="section-badge" id="chatsCount">0</span>
                 </h4>
                 <div class="chat-list" id="chatList">
                     <!-- Chat items will be loaded here -->
@@ -212,6 +250,28 @@
                 </button>
             </div>
 
+            <!-- Настройки -->
+            <div class="sidebar-section">
+                <h4>
+                    <i class="ti ti-settings"></i>
+                    Настройки
+                </h4>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <label for="autoScrollSetting">Автопрокрутка</label>
+                        <input type="checkbox" id="autoScrollSetting" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="soundSetting">Звуковые уведомления</label>
+                        <input type="checkbox" id="soundSetting" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="readingModeSetting">Режим чтения</label>
+                        <input type="checkbox" id="readingModeSetting">
+                    </div>
+                </div>
+            </div>
+
             <!-- Информация -->
             <div class="sidebar-section">
                 <h4>
@@ -224,12 +284,16 @@
                         <span>1.0.0</span>
                     </div>
                     <div class="about-item">
-                        <strong>Модель по умолчанию</strong>
+                        <strong>Модель</strong>
                         <span id="currentModelInfo">GPT-4 Turbo</span>
                     </div>
                     <div class="about-item">
                         <strong>Статус</strong>
                         <span id="connectionStatus">✅ Онлайн</span>
+                    </div>
+                    <div class="about-item">
+                        <strong>Сообщений</strong>
+                        <span id="totalMessagesCount">0</span>
                     </div>
                 </div>
             </div>
@@ -248,6 +312,7 @@
             <!-- Watermark -->
             <div class="sidebar-watermark">
                 <img src="./logo.png" alt="KHAI" onerror="this.style.display='none'">
+                <span>KHAI — Чат с ИИ</span>
             </div>
         </div>
     </div>
@@ -257,7 +322,7 @@
 
     <!-- Модальное окно выбора модели -->
     <div class="modal-overlay" id="modelModalOverlay">
-        <div class="modal">
+        <div class="modal" id="modelModal">
             <div class="modal-header">
                 <h3>Выберите модель ИИ</h3>
                 <button class="modal-close" id="modelModalClose">
@@ -327,6 +392,16 @@
         </div>
     </div>
 
+    <!-- Контейнер для уведомлений -->
+    <div id="notificationsContainer" class="notifications-container"></div>
+
+    <!-- Индикатор загрузки -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner-large"></div>
+        <p>Загрузка KHAI...</p>
+    </div>
+
+    <!-- Скрипты -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="script.js"></script>
