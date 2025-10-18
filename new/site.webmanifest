@@ -1,39 +1,74 @@
 {
-    "name": "KHAI Assistant",
-    "short_name": "KHAI",
-    "description": "Полностью бесплатный ИИ-помощник KHAI с генерацией изображений и голоса",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#0f0f23",
-    "theme_color": "#0099ff",
-    "orientation": "portrait",
-    "categories": ["productivity", "utilities"],
-    "icons": [
+  "name": "KHAI — Чат с ИИ",
+  "short_name": "KHAI",
+  "description": "Полностью бесплатный ИИ-помощник с генерацией изображений и голоса",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f23",
+  "theme_color": "#0099ff",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "ru",
+  "categories": ["education", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "KHAI — Чат с ИИ на десктопе"
+    },
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "375x667",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "KHAI — Чат с ИИ на мобильном устройстве"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Новый чат",
+      "short_name": "Новый",
+      "description": "Создать новый чат",
+      "url": "/?new-chat",
+      "icons": [
         {
-            "src": "/icon-192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
+          "src": "/icons/new-chat.png",
+          "sizes": "96x96"
         }
-    ],
-    "screenshots": [
+      ]
+    },
+    {
+      "name": "Поиск",
+      "short_name": "Поиск",
+      "description": "Поиск по истории",
+      "url": "/?search",
+      "icons": [
         {
-            "src": "/screenshot-wide.png",
-            "sizes": "1280x720",
-            "type": "image/png",
-            "form_factor": "wide"
-        },
-        {
-            "src": "/screenshot-narrow.png",
-            "sizes": "720x1280",
-            "type": "image/png",
-            "form_factor": "narrow"
+          "src": "/icons/search.png",
+          "sizes": "96x96"
         }
-    ]
+      ]
+    }
+  ]
 }
