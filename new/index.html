@@ -97,7 +97,7 @@
                     ></textarea>
                     
                     <div class="input-controls">
-                        <button class="input-btn" id="clearInputBtn" title="Очистить ввод">
+                        <button class="input-btn" id="clearInputBtn" title="Очистить ввод" style="display: none;">
                             <i class="ti ti-x"></i>
                         </button>
                         <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
@@ -114,25 +114,17 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="action-btn" id="helpBtn">
-                        <i class="ti ti-help"></i>
-                        <span class="btn-text">Помощь</span>
-                    </button>
-                    <button class="action-btn" id="clearChatBtn">
-                        <i class="ti ti-trash"></i>
-                        <span class="btn-text">Очистить</span>
-                    </button>
-                    <button class="action-btn mode-btn" id="generateImageBtn" disabled title="Скоро будет доступно">
-                        <i class="ti ti-photo"></i>
-                        <span class="btn-text">Изображения</span>
+                    <button class="action-btn mode-btn active" id="normalModeBtn">
+                        <i class="ti ti-message"></i>
+                        <span class="btn-text">Обычный</span>
                     </button>
                     <button class="action-btn mode-btn" id="generateVoiceBtn">
                         <i class="ti ti-microphone"></i>
                         <span class="btn-text">Голос</span>
                     </button>
-                    <button class="action-btn mode-btn active" id="normalModeBtn">
-                        <i class="ti ti-message"></i>
-                        <span class="btn-text">Обычный</span>
+                    <button class="action-btn mode-btn" id="generateImageBtn" disabled title="Скоро будет доступно">
+                        <i class="ti ti-photo"></i>
+                        <span class="btn-text">Изображения</span>
                     </button>
                 </div>
             </div>
@@ -145,11 +137,11 @@
                     <span id="currentChatName">Основной чат</span>
                 </div>
                 <div class="footer-controls">
-                    <button class="footer-btn" id="footerHelpBtn" title="Помощь">
+                    <button class="footer-btn" id="helpBtn" title="Помощь">
                         <i class="ti ti-help"></i>
                     </button>
-                    <button class="footer-btn" id="footerSettingsBtn" title="Настройки">
-                        <i class="ti ti-settings"></i>
+                    <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
+                        <i class="ti ti-trash"></i>
                     </button>
                 </div>
             </div>
