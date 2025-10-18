@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KHAI - AI Чат-помощник</title>
+    <title>KHAI — Чат с ИИ</title>
     <meta name="description" content="Полностью бесплатный ИИ-помощник KHAI с генерацией изображений и голоса">
     <meta name="theme-color" content="#0f0f23">
+    <meta name="apple-mobile-web-app-title" content="KHAI">
+    <meta name="application-name" content="KHAI">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest">
     
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -234,7 +239,7 @@
                     </div>
                     <div class="about-item">
                         <strong>Модель по умолчанию</strong>
-                        <span id="currentModelInfo">GPT-4 Turbo</span>
+                        <span id="currentModelInfo">GPT-5 Nano</span>
                     </div>
                     <div class="about-item">
                         <strong>Статус</strong>
@@ -275,33 +280,61 @@
             </div>
             <div class="modal-body">
                 <div class="model-list">
-                    <div class="model-item selected" data-model="gpt-4-turbo">
+                    <div class="model-item selected" data-model="gpt-5-nano">
                         <div class="model-item-header">
-                            <span class="model-name">GPT-4 Turbo</span>
-                            <span class="model-status available">Доступно</span>
-                        </div>
-                        <div class="model-description">Самая продвинутая модель для сложных задач</div>
-                    </div>
-                    <div class="model-item" data-model="gpt-3.5-turbo">
-                        <div class="model-item-header">
-                            <span class="model-name">GPT-3.5 Turbo</span>
+                            <span class="model-name">GPT-5 Nano</span>
                             <span class="model-status available">Доступно</span>
                         </div>
                         <div class="model-description">Быстрая и эффективная модель для повседневных задач</div>
                     </div>
-                    <div class="model-item" data-model="claude-2">
+                    <div class="model-item" data-model="o3-mini">
                         <div class="model-item-header">
-                            <span class="model-name">Claude 2</span>
+                            <span class="model-name">O3 Mini</span>
                             <span class="model-status available">Доступно</span>
                         </div>
-                        <div class="model-description">Мощная модель для анализа и рассуждений</div>
+                        <div class="model-description">Продвинутая модель с улучшенными возможностями рассуждения</div>
                     </div>
-                    <div class="model-item" data-model="gemini-pro">
+                    <div class="model-item" data-model="claude-sonnet">
                         <div class="model-item-header">
-                            <span class="model-name">Gemini Pro</span>
+                            <span class="model-name">Claude Sonnet</span>
                             <span class="model-status available">Доступно</span>
                         </div>
-                        <div class="model-description">Универсальная модель от Google</div>
+                        <div class="model-description">Мощная модель от Anthropic для сложных задач и анализа</div>
+                    </div>
+                    <div class="model-item" data-model="deepseek-chat">
+                        <div class="model-item-header">
+                            <span class="model-name">DeepSeek Chat</span>
+                            <span class="model-status available">Доступно</span>
+                        </div>
+                        <div class="model-description">Универсальная модель для общения и решения задач</div>
+                    </div>
+                    <div class="model-item" data-model="deepseek-reasoner">
+                        <div class="model-item-header">
+                            <span class="model-name">DeepSeek Reasoner</span>
+                            <span class="model-status available">Доступно</span>
+                        </div>
+                        <div class="model-description">Специализированная модель для сложных логических рассуждений</div>
+                    </div>
+                    <div class="model-item" data-model="gemini-2.0-flash">
+                        <div class="model-item-header">
+                            <span class="model-name">Gemini 2.0 Flash</span>
+                            <span class="model-status available">Доступно</span>
+                        </div>
+                        <div class="model-description">Новейшая быстрая модель от Google с улучшенными возможностями</div>
+                    </div>
+                    <div class="model-item" data-model="gemini-1.5-flash">
+                        <div class="model-item-header">
+                            <span class="model-name">Gemini 1.5 Flash</span>
+                            <span class="model-status available">Доступно</span>
+                        </div>
+                        <div class="model-description">Быстрая и эффективная модель от Google для различных задач</div>
+                    </div>
+                    <div class="model-item" data-model="grok-beta">
+                        <div class="model-item-header">
+                            <span class="model-name">xAI Grok</span>
+                            <span class="model-status available">Доступно</span>
+                        </div>
+                        <div class="model-description">Модель от xAI с уникальным характером и остроумными ответами</div>
                     </div>
                 </div>
             </div>
@@ -323,7 +356,7 @@
             </div>
             <div class="modal-body">
                 <div class="modal-input-wrapper">
-                    <input type="text" id="editChatNameInput" placeholder="Введите название чата..." class="modal-input">
+                    <input type="text" id="editChatNameInput" placeholder="Введите название чата..." class="modal-input" maxlength="50">
                     <button class="modal-clear-input" id="modalClearInput" style="display: none;">
                         <i class="ti ti-x"></i>
                     </button>
@@ -339,5 +372,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="script.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker зарегистрирован успешно: ', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('Ошибка регистрации ServiceWorker: ', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
