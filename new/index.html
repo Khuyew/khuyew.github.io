@@ -70,7 +70,7 @@
                 <!-- Приветственное сообщение -->
                 <div class="message message-ai welcome-message">
                     <div class="message-content">
-                        <h1>👋 Добро пожаловать в KHAI — Чат с ИИ!</h1>
+                        <h1>👋 Добро пожаловать в KHAI</h1>
                         <p>Я ваш бесплатный ИИ-помощник с передовыми возможностями:</p>
                         <ul>
                             <li>💬 Умные ответы на вопросы</li>
@@ -86,7 +86,7 @@
             </div>
 
             <!-- Навигация и мини-карта (справа) -->
-            <div class="chat-minimap-container mobile-hidden">
+            <div class="chat-minimap-container">
                 <button class="nav-btn theme-toggle-btn" id="themeToggleBtn" title="Переключить тему">
                     <i class="ti ti-sun" id="themeIcon"></i>
                 </button>
@@ -142,7 +142,7 @@
             <div class="action-buttons">
                 <button class="action-btn mode-btn active" id="normalModeBtn" data-mode="normal">
                     <i class="ti ti-message"></i>
-                    <span class="btn-text">Обычный</span>
+                    <span class="btn-text">Текст</span>
                 </button>
                 <button class="action-btn mode-btn" id="generateVoiceBtn" data-mode="voice">
                     <i class="ti ti-microphone"></i>
@@ -150,7 +150,7 @@
                 </button>
                 <button class="action-btn mode-btn" id="generateImageBtn" data-mode="image">
                     <i class="ti ti-photo"></i>
-                    <span class="btn-text">Изображения</span>
+                    <span class="btn-text">Изображение</span>
                 </button>
             </div>
         </div>
@@ -184,9 +184,8 @@
         <div class="sidebar-header">
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
-                    <img src="./logo.png" alt="KHAI Assistant">
+                    <img src="./logo.png" alt="KHAI">
                 </div>
-                <h3>Чат с ИИ</h3>
             </div>
             <button class="sidebar-close" id="sidebarClose">
                 <i class="ti ti-x"></i>
@@ -209,6 +208,14 @@
                 <button class="sidebar-btn primary" id="newChatBtn">
                     <i class="ti ti-plus"></i>
                     Новый чат
+                </button>
+                <button class="sidebar-btn" id="importChatBtn">
+                    <i class="ti ti-upload"></i>
+                    Импорт чата
+                </button>
+                <button class="sidebar-btn danger" id="deleteAllChatsBtn">
+                    <i class="ti ti-trash"></i>
+                    Удалить все
                 </button>
             </div>
 
@@ -239,7 +246,7 @@
                 <div class="about-content">
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>2.0.0</span>
+                        <span>2.1.0</span>
                     </div>
                     <div class="about-item">
                         <strong>Модель</strong>
@@ -259,7 +266,7 @@
             <!-- Watermark -->
             <div class="sidebar-watermark">
                 <img src="./logo.png" alt="KHAI">
-                <span>KHAI — Чат с ИИ</span>
+                <span>KHAI</span>
             </div>
         </div>
     </div>
@@ -278,28 +285,28 @@
             </div>
             <div class="modal-body">
                 <div class="model-list">
-                    <div class="model-item selected" data-model="gpt-4-turbo">
+                    <div class="model-option selected" data-model="gpt-4-turbo">
                         <div class="model-item-header">
                             <span class="model-name">GPT-4 Turbo</span>
                             <span class="model-status available">Доступно</span>
                         </div>
                         <div class="model-description">Самая продвинутая модель для сложных задач</div>
                     </div>
-                    <div class="model-item" data-model="gpt-3.5-turbo">
+                    <div class="model-option" data-model="gpt-3.5-turbo">
                         <div class="model-item-header">
                             <span class="model-name">GPT-3.5 Turbo</span>
                             <span class="model-status available">Доступно</span>
                         </div>
                         <div class="model-description">Быстрая и эффективная модель для повседневных задач</div>
                     </div>
-                    <div class="model-item" data-model="claude-2">
+                    <div class="model-option" data-model="claude-2">
                         <div class="model-item-header">
                             <span class="model-name">Claude 2</span>
                             <span class="model-status available">Доступно</span>
                         </div>
                         <div class="model-description">Мощная модель для анализа и рассуждений</div>
                     </div>
-                    <div class="model-item" data-model="gemini-pro">
+                    <div class="model-option" data-model="gemini-pro">
                         <div class="model-item-header">
                             <span class="model-name">Gemini Pro</span>
                             <span class="model-status available">Доступно</span>
@@ -341,6 +348,9 @@
 
     <!-- Контейнер для уведомлений -->
     <div id="notificationsContainer" class="notifications-container"></div>
+
+    <!-- Input для импорта чата -->
+    <input type="file" id="importChatInput" accept=".json,.txt" style="display: none;">
 
     <!-- Скрипты -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
