@@ -35,10 +35,8 @@
                 <!-- Логотип и кнопка выбора модели -->
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
-                        <img src="./logo.png" alt="KHAI Assistant Logo" onerror="this.style.display='none'">
-                        <span class="logo-text">KHAI</span>
+                        <img src="./logo.png" alt="KHAI Assistant Logo">
                     </div>
-                    <!-- Кнопка выбора модели рядом с логотипом -->
                     <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
                         <i class="ti ti-brain"></i>
                         <span class="btn-tooltip">Модель</span>
@@ -54,26 +52,10 @@
                             <i class="ti ti-x"></i>
                         </button>
                     </div>
-                    <!-- Выпадающий список результатов поиска -->
-                    <div class="search-results-dropdown" id="searchResultsDropdown">
-                        <div class="search-results-list" id="searchResultsList"></div>
-                        <div class="search-navigation" id="searchNavigation" style="display: none;">
-                            <button class="search-nav-btn" id="searchPrevBtn">
-                                <i class="ti ti-chevron-up"></i>
-                            </button>
-                            <span class="search-results-count" id="searchResultsCount">0 из 0</span>
-                            <button class="search-nav-btn" id="searchNextBtn">
-                                <i class="ti ti-chevron-down"></i>
-                            </button>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- Правая часть: управление -->
                 <div class="header-controls">
-                    <button class="control-btn" id="searchToggleBtn" title="Поиск">
-                        <i class="ti ti-search"></i>
-                    </button>
                     <button class="control-btn menu-toggle" id="menuToggle" title="Меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
@@ -104,8 +86,7 @@
             </div>
 
             <!-- Навигация и мини-карта (справа) -->
-            <div class="chat-minimap-container">
-                <!-- Кнопка переключения темы -->
+            <div class="chat-minimap-container mobile-hidden">
                 <button class="nav-btn theme-toggle-btn" id="themeToggleBtn" title="Переключить тему">
                     <i class="ti ti-sun" id="themeIcon"></i>
                 </button>
@@ -115,7 +96,6 @@
                     <div class="minimap-viewport" id="minimapViewport"></div>
                 </div>
                 <div class="minimap-navigation">
-                    <!-- Кнопки навигации между мини-картой и областью ввода -->
                     <button class="nav-btn" id="scrollToLastAI" title="К началу последнего ответа">
                         <i class="ti ti-arrow-up"></i>
                     </button>
@@ -156,9 +136,7 @@
             </div>
 
             <!-- Прикрепленные файлы -->
-            <div class="attached-files" id="attachedFiles">
-                <!-- Attached files will appear here -->
-            </div>
+            <div class="attached-files" id="attachedFiles"></div>
 
             <!-- Кнопки действий -->
             <div class="action-buttons">
@@ -186,7 +164,6 @@
                     <span class="message-count" id="messageCount">0 сообщений</span>
                 </div>
                 <div class="footer-controls">
-                    <!-- Кнопки футера без текста -->
                     <button class="footer-btn" id="footerHelpBtn" title="Помощь">
                         <i class="ti ti-help"></i>
                     </button>
@@ -207,8 +184,7 @@
         <div class="sidebar-header">
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
-                    <img src="./logo.png" alt="KHAI Assistant" onerror="this.style.display='none'">
-                    <span>KHAI</span>
+                    <img src="./logo.png" alt="KHAI Assistant">
                 </div>
                 <h3>Чат с ИИ</h3>
             </div>
@@ -218,14 +194,6 @@
         </div>
 
         <div class="sidebar-content">
-            <!-- Поиск в сайдбаре -->
-            <div class="sidebar-search-container">
-                <div class="search-wrapper">
-                    <i class="ti ti-search"></i>
-                    <input type="text" id="sidebarSearch" placeholder="Поиск в истории...">
-                </div>
-            </div>
-
             <!-- Список чатов -->
             <div class="sidebar-section">
                 <h4>
@@ -233,9 +201,7 @@
                     История чатов
                     <span class="section-badge" id="chatsCount">0</span>
                 </h4>
-                <div class="chat-list" id="chatList">
-                    <!-- Chat items will be loaded here -->
-                </div>
+                <div class="chat-list" id="chatList"></div>
             </div>
 
             <!-- Управление чатами -->
@@ -243,10 +209,6 @@
                 <button class="sidebar-btn primary" id="newChatBtn">
                     <i class="ti ti-plus"></i>
                     Новый чат
-                </button>
-                <button class="sidebar-btn" id="importChatBtn">
-                    <i class="ti ti-upload"></i>
-                    Импорт
                 </button>
             </div>
 
@@ -265,10 +227,6 @@
                         <label for="soundSetting">Звуковые уведомления</label>
                         <input type="checkbox" id="soundSetting" checked>
                     </div>
-                    <div class="setting-item">
-                        <label for="readingModeSetting">Режим чтения</label>
-                        <input type="checkbox" id="readingModeSetting">
-                    </div>
                 </div>
             </div>
 
@@ -281,7 +239,7 @@
                 <div class="about-content">
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>1.0.0</span>
+                        <span>2.0.0</span>
                     </div>
                     <div class="about-item">
                         <strong>Модель</strong>
@@ -298,20 +256,9 @@
                 </div>
             </div>
 
-            <!-- LiveInternet counter -->
-            <div class="liveinternet-container">
-                <!-- LiveInternet counter code -->
-                <a href="//www.liveinternet.ru/click" target="_blank">
-                    <img src="//counter.yadro.ru/logo?52.1.1.1" 
-                         alt="LiveInternet: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня" 
-                         style="border:0;" 
-                         title="LiveInternet: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"/>
-                </a>
-            </div>
-
             <!-- Watermark -->
             <div class="sidebar-watermark">
-                <img src="./logo.png" alt="KHAI" onerror="this.style.display='none'">
+                <img src="./logo.png" alt="KHAI">
                 <span>KHAI — Чат с ИИ</span>
             </div>
         </div>
@@ -394,12 +341,6 @@
 
     <!-- Контейнер для уведомлений -->
     <div id="notificationsContainer" class="notifications-container"></div>
-
-    <!-- Индикатор загрузки -->
-    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-        <div class="loading-spinner-large"></div>
-        <p>Загрузка KHAI...</p>
-    </div>
 
     <!-- Скрипты -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
