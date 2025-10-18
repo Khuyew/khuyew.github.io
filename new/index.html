@@ -7,6 +7,13 @@
     <meta name="description" content="Полностью бесплатный ИИ-помощник KHAI с генерацией изображений и голоса">
     <meta name="theme-color" content="#0f0f23">
     
+    <!-- PWA Meta -->
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KHAI Assistant">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -58,6 +65,9 @@
             </div>
         </header>
 
+        <!-- Область уведомлений -->
+        <div class="notifications-container" id="notificationsContainer"></div>
+
         <!-- Основная область чата -->
         <main class="chat-main">
             <!-- Контейнер сообщений -->
@@ -99,7 +109,7 @@
                 
                 <textarea 
                     id="userInput" 
-                    placeholder="Задайте вопрос или опришите изображение..." 
+                    placeholder="Задайте вопрос или опишите изображение..." 
                     autocomplete="off" 
                     rows="1"
                     maxlength="4000"
@@ -148,7 +158,6 @@
                     <span id="currentChatName">Основной чат</span>
                 </div>
                 <div class="footer-controls">
-                    <!-- Кнопки футера без текста -->
                     <button class="footer-btn" id="footerHelpBtn" title="Помощь">
                         <i class="ti ti-help"></i>
                     </button>
@@ -204,13 +213,13 @@
                     <i class="ti ti-plus"></i>
                     Новый чат
                 </button>
+                <button class="sidebar-btn" id="deleteAllChatsBtn">
+                    <i class="ti ti-trash"></i>
+                    Удалить все
+                </button>
                 <button class="sidebar-btn" id="importChatBtn">
                     <i class="ti ti-upload"></i>
                     Импорт
-                </button>
-                <button class="sidebar-btn danger" id="deleteAllChatsBtn">
-                    <i class="ti ti-trash"></i>
-                    Удалить все
                 </button>
             </div>
 
@@ -268,12 +277,12 @@
             </div>
             <div class="modal-body">
                 <div class="model-list">
-                    <div class="model-item selected" data-model="gpt-4-turbo">
+                    <div class="model-item selected" data-model="gpt-4">
                         <div class="model-item-header">
-                            <span class="model-name">GPT-4 Turbo</span>
+                            <span class="model-name">GPT-4</span>
                             <span class="model-status available">Доступно</span>
                         </div>
-                        <div class="model-description">Самая продвинутая модель для сложных задач</div>
+                        <div class="model-description">Самая продвинутая модель OpenAI для сложных задач</div>
                     </div>
                     <div class="model-item" data-model="gpt-3.5-turbo">
                         <div class="model-item-header">
@@ -282,12 +291,19 @@
                         </div>
                         <div class="model-description">Быстрая и эффективная модель для повседневных задач</div>
                     </div>
-                    <div class="model-item" data-model="claude-2">
+                    <div class="model-item" data-model="claude-3-sonnet">
                         <div class="model-item-header">
-                            <span class="model-name">Claude 2</span>
+                            <span class="model-name">Claude 3 Sonnet</span>
                             <span class="model-status available">Доступно</span>
                         </div>
-                        <div class="model-description">Мощная модель для анализа и рассуждений</div>
+                        <div class="model-description">Сбалансированная модель Anthropic для анализа</div>
+                    </div>
+                    <div class="model-item" data-model="claude-3-haiku">
+                        <div class="model-item-header">
+                            <span class="model-name">Claude 3 Haiku</span>
+                            <span class="model-status available">Доступно</span>
+                        </div>
+                        <div class="model-description">Быстрая и экономичная модель от Anthropic</div>
                     </div>
                     <div class="model-item" data-model="gemini-pro">
                         <div class="model-item-header">
@@ -295,6 +311,13 @@
                             <span class="model-status available">Доступно</span>
                         </div>
                         <div class="model-description">Универсальная модель от Google</div>
+                    </div>
+                    <div class="model-item" data-model="llama-2-70b">
+                        <div class="model-item-header">
+                            <span class="model-name">Llama 2 70B</span>
+                            <span class="model-status available">Доступно</span>
+                        </div>
+                        <div class="model-description">Мощная open-source модель от Meta</div>
                     </div>
                 </div>
             </div>
@@ -325,6 +348,25 @@
             <div class="modal-footer">
                 <button class="modal-btn" id="editChatModalCancel">Отмена</button>
                 <button class="modal-btn primary" id="editChatModalSave">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="confirmModalTitle">Подтверждение</h3>
+                <button class="modal-close" id="confirmModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage">Вы уверены в этом действии?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="confirmModalCancel">Отмена</button>
+                <button class="modal-btn danger" id="confirmModalConfirm">Подтвердить</button>
             </div>
         </div>
     </div>
