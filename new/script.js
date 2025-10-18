@@ -18,7 +18,7 @@ class KHAIAssistant {
         this.generateVoiceBtn = document.getElementById('generateVoiceBtn');
         this.normalModeBtn = document.getElementById('normalModeBtn');
         this.themeToggle = document.getElementById('themeToggle');
-        this.modelSelect = document.getElementById('modelSelect');
+        this.modelSelectBtn = document.getElementById('modelSelectBtn');
         this.logo = document.getElementById('logoBtn');
         this.attachFileBtn = document.getElementById('attachFileBtn');
         this.voiceInputBtn = document.getElementById('voiceInputBtn');
@@ -26,6 +26,7 @@ class KHAIAssistant {
         this.attachedFiles = document.getElementById('attachedFiles');
         this.currentChatName = document.getElementById('currentChatName');
         this.inputSection = document.getElementById('inputSection');
+        this.footerStatus = document.getElementById('footerStatus');
         
         // Элементы навигации
         this.chatMinimap = document.getElementById('chatMinimap');
@@ -60,6 +61,10 @@ class KHAIAssistant {
         this.deleteAllChatsModalClose = document.getElementById('deleteAllChatsModalClose');
         this.deleteAllChatsModalCancel = document.getElementById('deleteAllChatsModalCancel');
         this.deleteAllChatsModalConfirm = document.getElementById('deleteAllChatsModalConfirm');
+        this.modelSelectModal = document.getElementById('modelSelectModal');
+        this.modelList = document.getElementById('modelList');
+        this.modelSelectModalClose = document.getElementById('modelSelectModalClose');
+        this.modelSelectModalCancel = document.getElementById('modelSelectModalCancel');
         this.editingChatId = null;
     }
 
@@ -77,6 +82,7 @@ class KHAIAssistant {
         this.currentAudio = null;
         this.isSpeaking = false;
         this.currentUtterance = null;
+        this.currentSpeakButton = null;
         this.chatSessions = new Map();
         this.currentChatId = 'default';
         this.activeTypingIndicator = null;
@@ -95,6 +101,8 @@ class KHAIAssistant {
         this.isAtBottom = true;
         this.isAtTop = false;
         this.lastAIMessageIndex = -1;
+        this.scrollTimeout = null;
+        this.isScrolling = false;
 
         // Текущий режим работы (normal, image, voice)
         this.currentMode = 'normal';
@@ -181,8 +189,16 @@ class KHAIAssistant {
             this.updateModeIndicator();
             this.setupSearch();
             this.setupMinimap();
+            this.updateModelSelectButton();
             
             this.showNotification('KHAI Assistant загружен и готов к работе!', 'success');
+            this.updateFooterStatus('Готов к работе');
+            
+            // Автофокусировка на поле ввода
+            this.setTimeout(() => {
+                this.userInput.focus();
+            }, 500);
+            
         } catch (error) {
             console.error('Ошибка инициализации:', error);
             this.showNotification('Ошибка загрузки приложения', 'error');
@@ -202,7 +218,7 @@ class KHAIAssistant {
             [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
             [this.normalModeBtn, 'click', () => this.setNormalMode()],
             [this.themeToggle, 'click', () => this.toggleTheme()],
-            [this.modelSelect, 'change', (e) => this.handleModelChange(e)],
+            [this.modelSelectBtn, 'click', () => this.openModelSelectModal()],
             [this.logo, 'click', () => this.refreshPage()],
             [this.attachFileBtn, 'click', () => this.fileInput.click()],
             [this.fileInput, 'change', (e) => this.handleFileSelect(e)],
@@ -227,7 +243,14 @@ class KHAIAssistant {
             [this.deleteAllChatsModalConfirm, 'click', () => this.deleteAllChats()],
             [this.scrollToLastAI, 'click', () => this.scrollToLastAIMessage()],
             [this.scrollToBottomBtn, 'click', () => this.scrollToBottom(true)],
-            [this.messagesContainer, 'scroll', () => this.handleScroll()]
+            [this.messagesContainer, 'scroll', () => this.handleScroll()],
+            [this.modelSelectModalClose, 'click', () => this.closeModelSelectModal()],
+            [this.modelSelectModalCancel, 'click', () => this.closeModelSelectModal()],
+            [this.modelSelectModal, 'click', (e) => {
+                if (e.target === this.modelSelectModal) {
+                    this.closeModelSelectModal();
+                }
+            }]
         ];
 
         events.forEach(([element, event, handler]) => {
@@ -367,9 +390,14 @@ class KHAIAssistant {
     setupScrollTracking() {
         // Инициализация отслеживания прокрутки
         this.updateNavigationButtons();
+        
+        // Отслеживание скролла для скрытия шапки и футера
+        this.addEventListener(this.messagesContainer, 'scroll', () => {
+            this.handleScrollHideHeaderFooter();
+        });
     }
 
-    handleScroll() {
+    handleScrollHideHeaderFooter() {
         const container = this.messagesContainer;
         const scrollTop = container.scrollTop;
         const scrollHeight = container.scrollHeight;
@@ -389,6 +417,25 @@ class KHAIAssistant {
         
         // Включаем автоскролл только если пользователь находится внизу
         this.autoScrollEnabled = this.isAtBottom;
+        
+        // Скрываем/показываем шапку и футер при прокрутке
+        const header = document.querySelector('.app-header');
+        const footer = document.querySelector('.app-footer');
+        const messagesContainer = this.messagesContainer;
+        
+        if (scrollTop > 100 && !this.isAtBottom) {
+            header.classList.add('hidden');
+            footer.classList.add('hidden');
+            messagesContainer.classList.add('full-width');
+        } else {
+            header.classList.remove('hidden');
+            footer.classList.remove('hidden');
+            messagesContainer.classList.remove('full-width');
+        }
+    }
+
+    handleScroll() {
+        this.handleScrollHideHeaderFooter();
     }
 
     updateNavigationButtons() {
@@ -501,6 +548,7 @@ class KHAIAssistant {
         this.isGenerating = true;
         this.generationAborted = false;
         this.updateSendButton(true);
+        this.updateFooterStatus('Генерация ответа...');
 
         try {
             if (this.currentMode === 'voice') {
@@ -518,6 +566,7 @@ class KHAIAssistant {
                 this.isProcessing = false;
                 this.isGenerating = false;
                 this.updateSendButton(false);
+                this.updateFooterStatus('Готов к работе');
             }
         }
     }
@@ -538,12 +587,14 @@ class KHAIAssistant {
             
             // Обновляем UI
             this.updateSendButton(false);
+            this.updateFooterStatus('Генерация остановлена');
             if (this.activeStreamingMessage) {
                 this.finalizeStreamingMessage(this.activeStreamingMessage, 
                     this.messagesContainer.querySelector(`#${this.activeStreamingMessage} .streaming-text`).innerHTML);
             }
             
             this.showNotification('Генерация остановлена', 'info');
+            this.showPushNotification('Генерация остановлена', 'Ответ ИИ был прерван');
             this.currentStreamController = null;
         }
     }
@@ -573,6 +624,7 @@ class KHAIAssistant {
     async getAIResponse(userMessage, files) {
         this.removeTypingIndicator();
         this.activeTypingIndicator = this.showTypingIndicator();
+        this.updateFooterStatus('Получение ответа от ИИ...');
         
         try {
             const prompt = await this.buildPrompt(userMessage, files);
@@ -584,6 +636,7 @@ class KHAIAssistant {
         } catch (error) {
             this.removeTypingIndicator();
             this.handleError('Ошибка при получении ответа от ИИ', error);
+            this.updateFooterStatus('Ошибка получения ответа');
         }
     }
 
@@ -689,6 +742,8 @@ ${fileContent}
                 this.isGenerating = false;
                 this.isProcessing = false;
                 this.updateSendButton(false);
+                this.updateFooterStatus('Готов к работе');
+                this.showPushNotification('Ответ получен', 'ИИ завершил генерацию ответа');
             }
         } catch (error) {
             if (!this.generationAborted) {
@@ -697,6 +752,7 @@ ${fileContent}
                 this.isGenerating = false;
                 this.isProcessing = false;
                 this.updateSendButton(false);
+                this.updateFooterStatus('Ошибка обработки');
             }
         } finally {
             this.activeStreamingMessage = null;
@@ -965,12 +1021,20 @@ ${fileContent}
         speakButton.className = 'action-btn-small speak-btn';
         speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
         speakButton.title = 'Озвучить ответ';
-        speakButton.setAttribute('data-text', plainText);
         
         this.addEventListener(speakButton, 'click', (e) => {
             e.stopPropagation();
-            const text = e.currentTarget.getAttribute('data-text');
-            this.toggleTextToSpeech(text, speakButton);
+            const text = plainText;
+            
+            if (this.isSpeaking && this.currentSpeakButton === speakButton) {
+                this.stopSpeech();
+                speakButton.classList.remove('speaking');
+                speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
+                this.currentSpeakButton = null;
+            } else {
+                this.stopSpeech(); // Останавливаем предыдущее воспроизведение
+                this.speakText(text, speakButton);
+            }
         });
         
         actionsContainer.appendChild(speakButton);
@@ -980,17 +1044,6 @@ ${fileContent}
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = htmlText;
         return tempDiv.textContent || tempDiv.innerText || '';
-    }
-
-    toggleTextToSpeech(text, button) {
-        if (this.isSpeaking) {
-            this.stopSpeech();
-            button.classList.remove('speaking');
-            button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
-            button.title = 'Озвучить ответ';
-        } else {
-            this.speakText(text, button);
-        }
     }
 
     speakText(text, button) {
@@ -1022,12 +1075,14 @@ ${fileContent}
             button.innerHTML = '<i class="ti ti-player-pause"></i> Остановить';
             button.title = 'Остановить озвучку';
             this.isSpeaking = true;
+            this.currentSpeakButton = button;
 
             this.currentUtterance.onend = () => {
                 this.isSpeaking = false;
                 button.classList.remove('speaking');
                 button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
                 button.title = 'Озвучить ответ';
+                this.currentSpeakButton = null;
             };
 
             this.currentUtterance.onerror = (error) => {
@@ -1036,6 +1091,7 @@ ${fileContent}
                 button.classList.remove('speaking');
                 button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
                 button.title = 'Озвучить ответ';
+                this.currentSpeakButton = null;
                 this.showNotification('Ошибка при озвучивании текста', 'error');
             };
 
@@ -1054,6 +1110,12 @@ ${fileContent}
         }
         this.isSpeaking = false;
         this.currentUtterance = null;
+        if (this.currentSpeakButton) {
+            this.currentSpeakButton.classList.remove('speaking');
+            this.currentSpeakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
+            this.currentSpeakButton.title = 'Озвучить ответ';
+            this.currentSpeakButton = null;
+        }
     }
 
     async generateVoice(text) {
@@ -1073,15 +1135,19 @@ ${fileContent}
             this.userInput.style.height = 'auto';
             
             this.showNotification('Генерация голоса...', 'info');
+            this.updateFooterStatus('Генерация голоса...');
             
             const audio = await puter.ai.txt2speech(text);
             this.addVoiceMessage(text, audio);
             
             this.addToConversationHistory('user', `Сгенерирован голос для текста: ${text}`);
             this.saveCurrentSession();
+            this.updateFooterStatus('Готов к работе');
+            this.showPushNotification('Голос сгенерирован', 'Аудиофайл готов к прослушиванию');
             
         } catch (error) {
             this.handleError('Ошибка при генерации голоса', error);
+            this.updateFooterStatus('Ошибка генерации');
         }
     }
 
@@ -1163,6 +1229,7 @@ ${fileContent}
             
             this.addMessage('ai', `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n*Идет процесс создания изображения...*`);
             
+            this.updateFooterStatus('Генерация изображения...');
             const imageResult = await puter.ai.imagine(prompt, {
                 model: "dall-e-3",
                 size: "1024x1024"
@@ -1179,9 +1246,12 @@ ${fileContent}
             
             this.addToConversationHistory('assistant', `Сгенерировано изображение по запросу: ${prompt}`);
             this.saveCurrentSession();
+            this.updateFooterStatus('Готов к работе');
+            this.showPushNotification('Изображение сгенерировано', 'Графический результат готов');
             
         } catch (error) {
             this.handleError('Ошибка при генерации изображения', error);
+            this.updateFooterStatus('Ошибка генерации');
         }
     }
 
@@ -1328,23 +1398,29 @@ ${fileContent}
     attachCopyButtons(container) {
         const copyButtons = container.querySelectorAll('.copy-code-btn');
         copyButtons.forEach(btn => {
-            this.addEventListener(btn, 'click', async (e) => {
-                const codeBlock = e.target.closest('.code-header')?.nextElementSibling;
+            // Удаляем существующие обработчики
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            this.addEventListener(newBtn, 'click', async (e) => {
+                const codeHeader = e.target.closest('.code-header');
+                const codeBlock = codeHeader?.nextElementSibling;
+                
                 if (codeBlock) {
                     const code = codeBlock.textContent;
                     try {
                         await navigator.clipboard.writeText(code);
                         
-                        const originalText = btn.innerHTML;
-                        btn.innerHTML = '<i class="ti ti-check"></i> Скопировано';
-                        btn.classList.add('copied');
-                        
-                        this.setTimeout(() => {
-                            btn.innerHTML = originalText;
-                            btn.classList.remove('copied');
-                        }, 2000);
+                        const originalHTML = newBtn.innerHTML;
+                        newBtn.innerHTML = '<i class="ti ti-check"></i> Скопировано';
+                        newBtn.classList.add('copied');
                         
                         this.showNotification('Код скопирован в буфер обмена', 'success');
+                        
+                        this.setTimeout(() => {
+                            newBtn.innerHTML = originalHTML;
+                            newBtn.classList.remove('copied');
+                        }, 2000);
                     } catch (err) {
                         console.error('Failed to copy code:', err);
                         this.showNotification('Не удалось скопировать код', 'error');
@@ -1402,16 +1478,50 @@ ${fileContent}
             return;
         }
 
-        if (confirm('Вы уверены, что хотите очистить всю историю чата?')) {
+        // Создаем модальное окно подтверждения
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay active';
+        modal.innerHTML = `
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Очистка чата</h3>
+                    <button class="modal-close" id="confirmClearChatClose">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn" id="confirmClearChatCancel">Отмена</button>
+                    <button class="modal-btn danger" id="confirmClearChatConfirm">Очистить чат</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Обработчики для модального окна
+        this.addEventListener(modal.querySelector('#confirmClearChatClose'), 'click', () => modal.remove());
+        this.addEventListener(modal.querySelector('#confirmClearChatCancel'), 'click', () => modal.remove());
+        this.addEventListener(modal.querySelector('#confirmClearChatConfirm'), 'click', () => {
             this.messagesContainer.innerHTML = '';
             this.conversationHistory = [];
-            // Не показываем приветственное сообщение при очистке
             this.saveCurrentSession();
+            modal.remove();
             this.showNotification('Чат очищен', 'success');
+            this.showPushNotification('Чат очищен', 'История сообщений удалена');
             
             // Обновляем minimap
             this.updateMinimap();
-        }
+        });
+        
+        // Закрытие по клику на оверлей
+        this.addEventListener(modal, 'click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 
     showWelcomeMessage() {
@@ -1536,10 +1646,52 @@ ${fileContent}
         }, 4000);
     }
 
+    // Функция для пуш-уведомлений
+    showPushNotification(title, message) {
+        // Проверяем поддержку Notification API
+        if (!("Notification" in window)) {
+            console.log("Этот браузер не поддерживает уведомления");
+            return;
+        }
+        
+        // Проверяем разрешение на отправку уведомлений
+        if (Notification.permission === "granted") {
+            this.createNotification(title, message);
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    this.createNotification(title, message);
+                }
+            });
+        }
+    }
+
+    createNotification(title, message) {
+        const notification = new Notification(title, {
+            body: message,
+            icon: './logo.png',
+            badge: './logo.png'
+        });
+        
+        notification.onclick = () => {
+            window.focus();
+            notification.close();
+        };
+        
+        setTimeout(() => notification.close(), 5000);
+    }
+
+    updateFooterStatus(status) {
+        if (this.footerStatus) {
+            this.footerStatus.textContent = status;
+        }
+    }
+
     handleError(userMessage, error) {
         console.error(userMessage, error);
         this.addMessage('error', `${userMessage}: ${error.message}`);
         this.showNotification(userMessage, 'error');
+        this.showPushNotification('Ошибка', userMessage);
     }
 
     // Система чатов
@@ -1641,7 +1793,7 @@ ${fileContent}
             }
         });
 
-        const editBtn = chatItem.querySelector('.edit-chat-btn') || chatItem.querySelector('.edit');
+        const editBtn = chatItem.querySelector('.edit');
         if (editBtn) {
             this.addEventListener(editBtn, 'click', (e) => {
                 e.stopPropagation();
@@ -1649,7 +1801,7 @@ ${fileContent}
             });
         }
 
-        const deleteBtn = chatItem.querySelector('.delete-chat-btn') || chatItem.querySelector('.delete');
+        const deleteBtn = chatItem.querySelector('.delete');
         if (deleteBtn) {
             this.addEventListener(deleteBtn, 'click', (e) => {
                 e.stopPropagation();
@@ -1912,6 +2064,58 @@ ${fileContent}
         this.attachMessageHandlers(messageElement);
     }
 
+    // Модальное окно выбора модели
+    openModelSelectModal() {
+        this.renderModelList();
+        this.modelSelectModal.classList.add('active');
+    }
+
+    closeModelSelectModal() {
+        this.modelSelectModal.classList.remove('active');
+    }
+
+    renderModelList() {
+        this.modelList.innerHTML = '';
+        
+        Object.entries(this.modelConfig).forEach(([modelId, modelInfo]) => {
+            const modelItem = document.createElement('div');
+            modelItem.className = `model-item ${modelId === this.currentModel ? 'selected' : ''}`;
+            modelItem.setAttribute('data-model', modelId);
+            
+            const isDisabled = modelId === 'claude-sonnet';
+            const statusClass = isDisabled ? 'coming-soon' : 'available';
+            const statusText = isDisabled ? 'Скоро' : 'Доступно';
+            
+            modelItem.innerHTML = `
+                <div class="model-item-header">
+                    <span class="model-name">${modelInfo.name}</span>
+                    <span class="model-status ${statusClass}">${statusText}</span>
+                </div>
+                <div class="model-description">${modelInfo.description}</div>
+            `;
+            
+            if (!isDisabled) {
+                this.addEventListener(modelItem, 'click', () => {
+                    this.changeModel(modelId);
+                    this.closeModelSelectModal();
+                });
+            }
+            
+            this.modelList.appendChild(modelItem);
+        });
+    }
+
+    updateModelSelectButton() {
+        const modelInfo = this.modelConfig[this.currentModel];
+        if (modelInfo && this.modelSelectBtn) {
+            this.modelSelectBtn.innerHTML = `
+                <i class="ti ti-brain"></i>
+                <span>${modelInfo.name}</span>
+                <i class="ti ti-chevron-down"></i>
+            `;
+        }
+    }
+
     // Сохранение и загрузка
     saveModelPreference() {
         try {
@@ -1926,7 +2130,7 @@ ${fileContent}
             const savedModel = localStorage.getItem('khai-assistant-model');
             if (savedModel && this.modelConfig[savedModel]) {
                 this.currentModel = savedModel;
-                this.modelSelect.value = savedModel;
+                this.updateModelSelectButton();
             }
         } catch (error) {
             console.error('Error loading model preference:', error);
@@ -1965,13 +2169,26 @@ ${fileContent}
         this.toggleImageMode();
     }
 
-    handleModelChange(e) {
-        if (e.target.value === 'claude-sonnet') {
-            this.showNotification('Claude Sonnet временно недоступен', 'warning');
-            this.modelSelect.value = this.currentModel;
+    changeModel(model) {
+        if (!this.modelConfig[model]) {
+            this.showNotification('Неизвестная модель', 'error');
             return;
         }
-        this.changeModel(e.target.value);
+
+        if (model === 'claude-sonnet') {
+            this.showNotification('Claude Sonnet временно недоступен', 'warning');
+            return;
+        }
+
+        this.currentModel = model;
+        const modelInfo = this.modelConfig[model];
+        
+        // Обновляем кнопку выбора модели
+        this.updateModelSelectButton();
+        
+        this.showNotification(`Модель изменена на: ${modelInfo.name}`, 'success');
+        this.showPushNotification('Модель изменена', `Теперь используется ${modelInfo.name}`);
+        this.saveModelPreference();
     }
 
     handleBeforeUnload() {
@@ -2075,26 +2292,6 @@ ${fileContent}
         }, delay);
         this.activeTimeouts.add(timeoutId);
         return timeoutId;
-    }
-
-    changeModel(model) {
-        if (!this.modelConfig[model]) {
-            this.showNotification('Неизвестная модель', 'error');
-            return;
-        }
-
-        this.currentModel = model;
-        const modelInfo = this.modelConfig[model];
-        this.showNotification(`Модель изменена на: ${modelInfo.name}`, 'success');
-        this.saveModelPreference();
-    }
-
-    getModelDisplayName(model) {
-        return this.modelConfig[model]?.name || model;
-    }
-
-    getModelDescription(model) {
-        return this.modelConfig[model]?.description || 'Модель ИИ';
     }
 
     toggleVoiceInput() {
