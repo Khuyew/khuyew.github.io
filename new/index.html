@@ -46,6 +46,10 @@
                             <i class="ti ti-x"></i>
                         </button>
                     </div>
+                    <!-- Выпадающий список результатов поиска -->
+                    <div class="search-results-dropdown" id="searchResultsDropdown" style="display: none;">
+                        <div class="search-results-list" id="searchResultsList"></div>
+                    </div>
                 </div>
                 
                 <!-- Правая часть: управление -->
@@ -66,6 +70,11 @@
 
             <!-- Навигация и мини-карта (справа) -->
             <div class="chat-minimap-container">
+                <!-- Кнопка переключения темы -->
+                <button class="nav-btn theme-toggle-btn" id="themeToggleBtn" title="Переключить тему">
+                    <i class="ti ti-sun" id="themeIcon"></i>
+                </button>
+                
                 <div class="chat-minimap" id="chatMinimap">
                     <div class="minimap-content" id="minimapContent"></div>
                     <div class="minimap-viewport" id="minimapViewport"></div>
@@ -129,14 +138,6 @@
                 <button class="action-btn mode-btn" id="generateImageBtn">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
-                </button>
-                <button class="action-btn" id="helpBtn" title="Помощь">
-                    <i class="ti ti-help"></i>
-                    <span class="btn-text">Помощь</span>
-                </button>
-                <button class="action-btn" id="clearChatBtn" title="Очистить чат">
-                    <i class="ti ti-trash"></i>
-                    <span class="btn-text">Очистить</span>
                 </button>
             </div>
         </div>
