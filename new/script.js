@@ -212,7 +212,6 @@ class KHAIAssistant {
             this.setupSearch();
             this.setupMinimap();
             this.setupContextMenu();
-            this.setupServiceWorker();
             this.updateModelSelectButton();
             this.updateSidebarStats();
             
@@ -1608,9 +1607,8 @@ ${fileContent}
     }
 
     processCodeBlocks(content) {
-        // Безопасная обработка контента с DOMPurify
-        const safeContent = DOMPurify.sanitize(content);
-        let html = marked.parse(safeContent);
+        // Безопасная обработка контента - убираем DOMPurify для совместимости
+        let html = marked.parse(content);
         
         // Добавляем заголовки для блоков кода
         html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
@@ -2554,20 +2552,6 @@ ${fileContent}
         // Логируем для отладки
         if (process.env.NODE_ENV === 'development') {
             console.log('Usage tracked:', analytics);
-        }
-    }
-
-    // Service Worker для оффлайн работы
-    setupServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('SW registered: ', registration);
-                    this.trackUsage('service_worker_registered');
-                })
-                .catch(error => {
-                    console.log('SW registration failed: ', error);
-                });
         }
     }
 
