@@ -30,6 +30,16 @@
     --input-height: 120px;
     --border-radius: 12px;
     --border-radius-sm: 8px;
+
+    /* Additional variables from inspection */
+    --radius-md: 8px;
+    --radius-sm: 4px;
+    --transition: all 0.2s ease;
+    --bg-hover: #e9ecef;
+    --accent-primary-alpha: rgba(13, 110, 253, 0.1);
+    --success-bg: #d1e7dd;
+    --success-text: #0f5132;
+    --text-tertiary: #6c757d;
 }
 
 [data-theme="dark"] {
@@ -49,6 +59,12 @@
     --user-msg-bg: #1e3a5f;
     --ai-msg-bg: #2d3748;
     --error-msg-bg: #5c2b35;
+
+    /* Additional variables for dark theme */
+    --bg-hover: #2d3748;
+    --accent-primary-alpha: rgba(77, 171, 247, 0.1);
+    --success-bg: #0f5132;
+    --success-text: #d1e7dd;
 }
 
 /* Base styles */
@@ -196,6 +212,12 @@ body {
     transform: translateY(-1px);
 }
 
+/* Кнопка выбора модели в хедере */
+.model-select-btn {
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
 /* Main chat area */
 .chat-main {
     flex: 1;
@@ -213,7 +235,7 @@ body {
 
 /* Custom scrollbar for messages */
 .messages-container::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
 }
 
 .messages-container::-webkit-scrollbar-track {
@@ -221,12 +243,12 @@ body {
 }
 
 .messages-container::-webkit-scrollbar-thumb {
-    background: var(--text-muted);
-    border-radius: 3px;
+    background: var(--border-color);
+    border-radius: 4px;
 }
 
 .messages-container::-webkit-scrollbar-thumb:hover {
-    background: var(--text-secondary);
+    background: var(--text-tertiary);
 }
 
 /* Message styles */
@@ -377,11 +399,33 @@ body {
 .minimap-header {
     display: flex;
     justify-content: center;
+    margin-bottom: 8px;
 }
 
 .minimap-btn {
     width: 32px;
     height: 32px;
+}
+
+/* Кнопка темы в мини-карте */
+.theme-minimap-btn {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    font-size: 14px;
+}
+
+.theme-minimap-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
 }
 
 .chat-minimap {
@@ -405,6 +449,12 @@ body {
     width: 100%;
     margin: 1px 0;
     transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.minimap-message:hover {
+    transform: scaleX(1.1);
+    z-index: 2;
 }
 
 .minimap-message-user {
@@ -632,6 +682,21 @@ body {
     overflow: hidden;
 }
 
+/* Исправление режимов кнопок */
+.mode-btn:not(.active) {
+    width: 40px;
+    padding: 6px;
+    justify-content: center;
+}
+
+.mode-btn:not(.active) .btn-text {
+    display: none;
+}
+
+.mode-btn.active .btn-text {
+    display: inline;
+}
+
 /* Footer */
 .app-footer {
     height: var(--footer-height);
@@ -677,23 +742,30 @@ body {
     gap: 8px;
 }
 
+.footer-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .footer-btn {
     width: 32px;
     height: 32px;
     border: none;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    border-radius: var(--border-radius-sm);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: var(--transition);
+    font-size: 14px;
 }
 
 .footer-btn:hover {
-    background: var(--bg-tertiary);
-    transform: translateY(-1px);
+    background: var(--bg-hover);
+    color: var(--text-primary);
 }
 
 /* Sidebar */
@@ -895,6 +967,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .model-item {
@@ -906,17 +980,18 @@ body {
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: all 0.2s ease;
+    background: var(--bg-secondary);
 }
 
 .model-item:hover {
-    background: var(--bg-secondary);
+    background: var(--bg-hover);
     border-color: var(--accent-primary);
 }
 
-.model-item.active {
-    background: var(--accent-primary);
-    color: white;
+.model-item.active, .model-item.selected {
+    background: var(--accent-primary-alpha);
     border-color: var(--accent-primary);
+    color: var(--accent-primary);
 }
 
 .model-icon {
@@ -930,7 +1005,7 @@ body {
     transition: all 0.2s ease;
 }
 
-.model-item.active .model-icon {
+.model-item.active .model-icon, .model-item.selected .model-icon {
     background: rgba(255, 255, 255, 0.2);
 }
 
@@ -946,18 +1021,36 @@ body {
     font-size: 14px;
 }
 
-.model-desc {
+.model-desc, .model-description {
     font-size: 12px;
     opacity: 0.8;
+    color: var(--text-secondary);
+    line-height: 1.4;
 }
 
 .model-status {
     opacity: 0;
     transition: opacity 0.2s ease;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
 }
 
-.model-item.active .model-status {
+.model-status.available {
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+
+.model-item.active .model-status, .model-item.selected .model-status {
     opacity: 1;
+}
+
+.model-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
 }
 
 /* Help content */
@@ -1019,6 +1112,14 @@ body {
     }
 }
 
+/* Исправление поиска - экранирование спецсимволов */
+.search-highlight {
+    background-color: rgba(255, 255, 0, 0.3);
+    border-radius: 2px;
+    padding: 0 2px;
+    color: inherit !important;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .app-header {
@@ -1036,6 +1137,23 @@ body {
     .chat-minimap-container {
         width: 80px;
         padding: 8px;
+        right: 5px;
+    }
+    
+    .chat-minimap {
+        height: 100px;
+    }
+    
+    .nav-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+    }
+    
+    .theme-minimap-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
     }
     
     .input-section {
@@ -1075,7 +1193,27 @@ body {
     }
     
     .chat-minimap-container {
-        display: none;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+    }
+    
+    .minimap-header {
+        order: 1;
+        margin-bottom: 0;
+    }
+    
+    .minimap-navigation {
+        order: 2;
+        flex-direction: row;
+        gap: 4px;
+    }
+    
+    .chat-minimap {
+        order: 3;
+        width: 60px;
+        height: 80px;
     }
     
     .action-buttons {
