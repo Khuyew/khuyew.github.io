@@ -27,6 +27,9 @@ class KHAIAssistant {
         this.currentChatName = document.getElementById('currentChatName');
         this.inputSection = document.getElementById('inputSection');
         this.footerStatus = document.getElementById('footerStatus');
+        this.exportChatBtn = document.getElementById('exportChatBtn');
+        this.importChatBtn = document.getElementById('importChatBtn');
+        this.continueResponseBtn = document.getElementById('continueResponseBtn');
         
         // Элементы навигации
         this.chatMinimap = document.getElementById('chatMinimap');
@@ -49,6 +52,7 @@ class KHAIAssistant {
         this.chatList = document.getElementById('chatList');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.deleteAllChatsBtn = document.getElementById('deleteAllChatsBtn');
+        this.sidebarStats = document.getElementById('sidebarStats');
 
         // Элементы модальных окон
         this.editChatModal = document.getElementById('editChatModal');
@@ -65,6 +69,10 @@ class KHAIAssistant {
         this.modelList = document.getElementById('modelList');
         this.modelSelectModalClose = document.getElementById('modelSelectModalClose');
         this.modelSelectModalCancel = document.getElementById('modelSelectModalCancel');
+        
+        // Контекстное меню
+        this.contextMenu = document.getElementById('messageContextMenu');
+        
         this.editingChatId = null;
     }
 
@@ -111,6 +119,16 @@ class KHAIAssistant {
         this.searchTerm = '';
         this.sidebarSearchTerm = '';
 
+        // Контекстное меню
+        this.contextMenuTarget = null;
+
+        // Аналитика
+        this.usageStats = {
+            totalMessages: 0,
+            sessions: 0,
+            lastActive: Date.now()
+        };
+
         // Конфигурация
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
@@ -154,6 +172,9 @@ class KHAIAssistant {
                 description: 'Модель от xAI с уникальным характером и остроумными ответами' 
             }
         };
+
+        // Инициализация LiveInternet счетчика для сайдбара
+        this.initializeLiveInternetCounter();
     }
 
     setupMarked() {
@@ -183,16 +204,23 @@ class KHAIAssistant {
             this.loadModelPreference();
             this.loadThemePreference();
             this.loadChatSessions();
+            this.loadUsageStats();
             this.setupChatSelector();
             this.loadCurrentSession();
             this.setupScrollTracking();
             this.updateModeIndicator();
             this.setupSearch();
             this.setupMinimap();
+            this.setupContextMenu();
+            this.setupServiceWorker();
             this.updateModelSelectButton();
+            this.updateSidebarStats();
             
             this.showNotification('KHAI Assistant загружен и готов к работе!', 'success');
             this.updateFooterStatus('Готов к работе');
+            
+            // Трекинг использования
+            this.trackUsage('app_loaded');
             
             // Автофокусировка на поле ввода
             this.setTimeout(() => {
@@ -203,6 +231,20 @@ class KHAIAssistant {
             console.error('Ошибка инициализации:', error);
             this.showNotification('Ошибка загрузки приложения', 'error');
         }
+    }
+
+    initializeLiveInternetCounter() {
+        // Инициализация счетчика для сайдбара
+        this.setTimeout(() => {
+            const sidebarCounter = document.getElementById('licntAFF9Sidebar');
+            if (sidebarCounter) {
+                sidebarCounter.src = "https://counter.yadro.ru/hit?t52.6;r" + 
+                    escape(document.referrer) + ";s" + screen.width + "*" + screen.height + "*" +
+                    (screen.colorDepth ? screen.colorDepth : screen.pixelDepth) + ";u" + 
+                    escape(document.URL) + ";h" + escape(document.title.substring(0, 150)) + 
+                    ";" + Math.random();
+            }
+        }, 1000);
     }
 
     bindEvents() {
@@ -228,6 +270,9 @@ class KHAIAssistant {
             [this.sidebarOverlay, 'click', () => this.closeSidebar()],
             [this.newChatBtn, 'click', () => this.createNewChat()],
             [this.deleteAllChatsBtn, 'click', () => this.showDeleteAllChatsModal()],
+            [this.exportChatBtn, 'click', () => this.exportChatSession()],
+            [this.importChatBtn, 'click', () => this.importChatSession()],
+            [this.continueResponseBtn, 'click', () => this.continueLastResponse()],
             [window, 'beforeunload', () => this.handleBeforeUnload()],
             [this.editChatModalClose, 'click', () => this.closeEditChatModal()],
             [this.editChatModalCancel, 'click', () => this.closeEditChatModal()],
@@ -250,12 +295,102 @@ class KHAIAssistant {
                 if (e.target === this.modelSelectModal) {
                     this.closeModelSelectModal();
                 }
-            }]
+            }],
+            [document, 'click', (e) => this.handleDocumentClick(e)],
+            [document, 'contextmenu', (e) => this.handleDocumentContextMenu(e)]
         ];
 
         events.forEach(([element, event, handler]) => {
             this.addEventListener(element, event, handler);
         });
+    }
+
+    setupContextMenu() {
+        // Обработчики для контекстного меню
+        this.addEventListener(this.contextMenu, 'click', (e) => {
+            const action = e.target.getAttribute('data-action');
+            if (action && this.contextMenuTarget) {
+                this.handleContextMenuAction(action, this.contextMenuTarget);
+            }
+            this.hideContextMenu();
+        });
+
+        // Скрытие контекстного меню при клике вне его
+        this.addEventListener(document, 'click', (e) => {
+            if (!this.contextMenu.contains(e.target)) {
+                this.hideContextMenu();
+            }
+        });
+    }
+
+    handleDocumentContextMenu(e) {
+        // Показ контекстного меню для сообщений ИИ
+        const messageElement = e.target.closest('.message-ai');
+        if (messageElement && !e.target.closest('.message-actions')) {
+            e.preventDefault();
+            this.showContextMenu(e, messageElement);
+        }
+    }
+
+    showContextMenu(event, messageElement) {
+        this.contextMenuTarget = messageElement;
+        this.contextMenu.style.display = 'block';
+        this.contextMenu.style.left = event.pageX + 'px';
+        this.contextMenu.style.top = event.pageY + 'px';
+    }
+
+    hideContextMenu() {
+        this.contextMenu.style.display = 'none';
+        this.contextMenuTarget = null;
+    }
+
+    handleContextMenuAction(action, messageElement) {
+        switch (action) {
+            case 'copy':
+                this.copyMessageText(messageElement);
+                break;
+            case 'speak':
+                this.speakMessageText(messageElement);
+                break;
+            case 'continue':
+                this.continueFromMessage(messageElement);
+                break;
+            case 'download':
+                this.downloadMessageAsFile(messageElement);
+                break;
+        }
+    }
+
+    copyMessageText(messageElement) {
+        const text = this.extractPlainText(messageElement.querySelector('.message-content').innerHTML);
+        navigator.clipboard.writeText(text).then(() => {
+            this.showNotification('Текст скопирован в буфер обмена', 'success');
+        });
+    }
+
+    speakMessageText(messageElement) {
+        const text = this.extractPlainText(messageElement.querySelector('.message-content').innerHTML);
+        const speakButton = messageElement.querySelector('.speak-btn');
+        if (speakButton) {
+            speakButton.click();
+        } else {
+            this.speakText(text);
+        }
+    }
+
+    continueFromMessage(messageElement) {
+        const lastMessage = this.conversationHistory[this.conversationHistory.length - 1];
+        if (lastMessage && lastMessage.role === 'assistant') {
+            this.userInput.value = `Продолжи: "${lastMessage.content.substring(0, 100)}..."`;
+            this.userInput.focus();
+        }
+    }
+
+    downloadMessageAsFile(messageElement) {
+        const text = this.extractPlainText(messageElement.querySelector('.message-content').innerHTML);
+        const detectedLanguage = this.detectProgrammingLanguage(text);
+        const extension = detectedLanguage ? detectedLanguage.extension : 'txt';
+        this.downloadFile(text, extension);
     }
 
     setupSearch() {
@@ -305,6 +440,21 @@ class KHAIAssistant {
                 messageEl.innerHTML = highlighted;
             }
         });
+
+        // Обновляем мини-карту с выделением
+        this.updateMinimapSearchHighlights();
+    }
+
+    updateMinimapSearchHighlights() {
+        const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
+        minimapMessages.forEach((minimapMsg, index) => {
+            const originalMessage = this.conversationHistory[index];
+            if (originalMessage && originalMessage.content.toLowerCase().includes(this.searchTerm)) {
+                minimapMsg.classList.add('search-highlighted');
+            } else {
+                minimapMsg.classList.remove('search-highlighted');
+            }
+        });
     }
 
     clearSearchHighlights() {
@@ -319,6 +469,10 @@ class KHAIAssistant {
                 this.attachMessageHandlers(messageElement);
             }
         });
+
+        // Убираем выделение в мини-карте
+        const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
+        minimapMessages.forEach(msg => msg.classList.remove('search-highlighted'));
     }
 
     escapeRegex(text) {
@@ -346,19 +500,33 @@ class KHAIAssistant {
         this.minimapContent.innerHTML = '';
         const messages = this.chatSessions.get(this.currentChatId)?.messages || [];
         
-        messages.forEach(msg => {
+        messages.forEach((msg, index) => {
             const messageEl = document.createElement('div');
             messageEl.className = `minimap-message ${msg.role}`;
+            messageEl.setAttribute('data-message-index', index);
             
             // Calculate height based on message content length
             const contentLength = msg.content?.length || 0;
             const height = Math.max(2, Math.min(10, contentLength / 50));
             messageEl.style.height = `${height}px`;
             
+            // Добавляем обработчик клика для навигации
+            this.addEventListener(messageEl, 'click', (e) => {
+                e.stopPropagation();
+                this.scrollToMessageIndex(index);
+            });
+            
             this.minimapContent.appendChild(messageEl);
         });
         
         this.updateMinimapViewport();
+    }
+
+    scrollToMessageIndex(index) {
+        const messages = this.messagesContainer.querySelectorAll('.message');
+        if (messages[index]) {
+            messages[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     }
 
     updateMinimapViewport() {
@@ -441,6 +609,7 @@ class KHAIAssistant {
     updateNavigationButtons() {
         const aiMessages = this.messagesContainer.querySelectorAll('.message-ai:not(.typing-indicator)');
         const hasAIMessages = aiMessages.length > 0;
+        const canContinue = this.lastUserMessage && hasAIMessages;
         
         // Обновляем кнопку "к последнему AI"
         this.scrollToLastAI.classList.toggle('active', !this.isAtBottom && hasAIMessages);
@@ -449,6 +618,11 @@ class KHAIAssistant {
         // Обновляем кнопку "вниз"
         this.scrollToBottomBtn.classList.toggle('active', !this.isAtBottom);
         this.scrollToBottomBtn.disabled = this.isAtBottom;
+        
+        // Обновляем кнопку "продолжить ответ"
+        this.continueResponseBtn.style.display = canContinue ? 'flex' : 'none';
+        this.continueResponseBtn.classList.toggle('active', canContinue);
+        this.continueResponseBtn.disabled = !canContinue;
     }
 
     scrollToLastAIMessage() {
@@ -550,6 +724,12 @@ class KHAIAssistant {
         this.updateSendButton(true);
         this.updateFooterStatus('Генерация ответа...');
 
+        // Трекинг использования
+        this.trackUsage('message_sent', {
+            mode: this.currentMode,
+            hasFiles: this.attachedImages.length > 0
+        });
+
         try {
             if (this.currentMode === 'voice') {
                 await this.generateVoice(message);
@@ -609,6 +789,9 @@ class KHAIAssistant {
         // Добавляем сообщение пользователя
         this.addMessage('user', message, this.attachedImages);
         this.addToConversationHistory('user', message, this.attachedImages);
+        
+        // Обновляем статистику
+        this.usageStats.totalMessages++;
         
         // Очищаем ввод
         this.userInput.value = '';
@@ -739,11 +922,18 @@ ${fileContent}
                 this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
                 this.addToConversationHistory('assistant', fullResponse);
                 this.saveCurrentSession();
+                this.saveUsageStats();
                 this.isGenerating = false;
                 this.isProcessing = false;
                 this.updateSendButton(false);
                 this.updateFooterStatus('Готов к работе');
                 this.showPushNotification('Ответ получен', 'ИИ завершил генерацию ответа');
+                
+                // Трекинг успешного ответа
+                this.trackUsage('ai_response_received', {
+                    model: this.currentModel,
+                    responseLength: fullResponse.length
+                });
             }
         } catch (error) {
             if (!this.generationAborted) {
@@ -924,6 +1114,26 @@ ${fileContent}
                 name: 'CSS', 
                 extension: 'css',
                 patterns: [/{.*}/, /\.\w+\s*{/, /#\w+\s*{/, /@media/]
+            },
+            'typescript': { 
+                name: 'TypeScript', 
+                extension: 'ts',
+                patterns: [/interface\s+\w+/, /type\s+\w+/, /:\s*\w+/, /<.*>/]
+            },
+            'php': { 
+                name: 'PHP', 
+                extension: 'php',
+                patterns: [/<\?php/, /\$[a-zA-Z_]/, /echo\s+.+;/]
+            },
+            'sql': { 
+                name: 'SQL', 
+                extension: 'sql',
+                patterns: [/SELECT\s+.+FROM/, /INSERT\s+INTO/, /CREATE\s+TABLE/]
+            },
+            'json': { 
+                name: 'JSON', 
+                extension: 'json',
+                patterns: [/\{\s*"[^"]*"\s*:\s*[^}]/, /\[[^\]]*\]]/]
             }
         };
 
@@ -959,6 +1169,7 @@ ${fileContent}
             puter.fs.write(fileName, plainText)
                 .then(() => {
                     this.showNotification(`Файл "${fileName}" успешно сохранен!`, 'success');
+                    this.trackUsage('file_downloaded', { type: fileExtension });
                 })
                 .catch(error => {
                     console.error('Error saving file with puter:', error);
@@ -996,7 +1207,17 @@ ${fileContent}
                 const content = messageContent.textContent || '';
                 this.addDownloadButtons(messageElement, content);
             }
+            
+            // Добавляем контекстное меню
+            this.addMessageContextMenu(messageElement);
         }
+    }
+
+    addMessageContextMenu(messageElement) {
+        this.addEventListener(messageElement, 'contextmenu', (e) => {
+            e.preventDefault();
+            this.showContextMenu(e, messageElement);
+        });
     }
 
     attachSpeakButton(messageElement) {
@@ -1083,6 +1304,7 @@ ${fileContent}
                 button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
                 button.title = 'Озвучить ответ';
                 this.currentSpeakButton = null;
+                this.trackUsage('speech_synthesized', { length: text.length });
             };
 
             this.currentUtterance.onerror = (error) => {
@@ -1142,8 +1364,11 @@ ${fileContent}
             
             this.addToConversationHistory('user', `Сгенерирован голос для текста: ${text}`);
             this.saveCurrentSession();
+            this.saveUsageStats();
             this.updateFooterStatus('Готов к работе');
             this.showPushNotification('Голос сгенерирован', 'Аудиофайл готов к прослушиванию');
+            
+            this.trackUsage('voice_generated', { textLength: text.length });
             
         } catch (error) {
             this.handleError('Ошибка при генерации голоса', error);
@@ -1246,8 +1471,11 @@ ${fileContent}
             
             this.addToConversationHistory('assistant', `Сгенерировано изображение по запросу: ${prompt}`);
             this.saveCurrentSession();
+            this.saveUsageStats();
             this.updateFooterStatus('Готов к работе');
             this.showPushNotification('Изображение сгенерировано', 'Графический результат готов');
+            
+            this.trackUsage('image_generated', { promptLength: prompt.length });
             
         } catch (error) {
             this.handleError('Ошибка при генерации изображения', error);
@@ -1262,6 +1490,7 @@ ${fileContent}
         this.isVoiceMode = false;
         this.updateModeIndicator();
         this.showNotification('Обычный режим включен', 'info');
+        this.trackUsage('mode_changed', { mode: 'normal' });
     }
 
     toggleImageMode() {
@@ -1279,6 +1508,7 @@ ${fileContent}
             'Режим генерации изображений включен' : 
             'Режим генерации изображений выключен';
         this.showNotification(message, 'info');
+        this.trackUsage('mode_changed', { mode: this.currentMode });
     }
 
     toggleVoiceMode() {
@@ -1291,6 +1521,7 @@ ${fileContent}
             'Режим генерации голоса включен' : 
             'Режим генерации голоса выключен';
         this.showNotification(message, 'info');
+        this.trackUsage('mode_changed', { mode: this.currentMode });
     }
 
     updateModeIndicator() {
@@ -1377,7 +1608,9 @@ ${fileContent}
     }
 
     processCodeBlocks(content) {
-        let html = marked.parse(content);
+        // Безопасная обработка контента с DOMPurify
+        const safeContent = DOMPurify.sanitize(content);
+        let html = marked.parse(safeContent);
         
         // Добавляем заголовки для блоков кода
         html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
@@ -1416,6 +1649,7 @@ ${fileContent}
                         newBtn.classList.add('copied');
                         
                         this.showNotification('Код скопирован в буфер обмена', 'success');
+                        this.trackUsage('code_copied', { language: newBtn.getAttribute('data-language') });
                         
                         this.setTimeout(() => {
                             newBtn.innerHTML = originalHTML;
@@ -1508,9 +1742,11 @@ ${fileContent}
             this.messagesContainer.innerHTML = '';
             this.conversationHistory = [];
             this.saveCurrentSession();
+            this.saveUsageStats();
             modal.remove();
             this.showNotification('Чат очищен', 'success');
             this.showPushNotification('Чат очищен', 'История сообщений удалена');
+            this.trackUsage('chat_cleared');
             
             // Обновляем minimap
             this.updateMinimap();
@@ -1550,6 +1786,8 @@ ${fileContent}
 • **Стриминг ответов** - ответы появляются постепенно
 • **Мульти-чаты** - создавайте отдельные чаты для разных тем
 • **Редактирование названий чатов** - нажмите на иконку карандаша
+• **Экспорт чатов** - сохраняйте беседы в файлы
+• **Продолжение ответов** - кнопка "Продолжить" для длинных ответов
 
 **Текущая модель: ${currentModelName}** - ${currentModelDesc}
 
@@ -1572,16 +1810,24 @@ ${fileContent}
 • **Редактирование названия** - нажмите на иконку карандаша рядом с чатом
 • **Переключение между чатами** - выберите чат из списка в меню
 • **Удаление чатов** - нажмите ❌ рядом с названием чата (кроме основного)
+• **Экспорт чата** - сохраните беседу в JSON файл
+• **Импорт чата** - загрузите ранее сохраненную беседу
 
 ## 📁 Работа с файлами:
 • **Изображения** - прикрепите для анализа текста и содержимого
-• **Текстовые файлы** - прикрепите для анализа содержимого (.txt)
+• **Текстовые файлы** - прикрепите для анализа содержимого (.txt, .json)
 • **Максимум файлов** - можно прикрепить до 3 файлов за раз
 
 ## 🔊 Аудио функции:
 • **Генерация голоса** - создает аудио из текста с помощью ИИ
 • **Озвучить ответ** - воспроизводит ответ ИИ
 • **Остановить озвучку** - нажмите кнопку повторно для остановки
+
+## 🖱️ Быстрые действия:
+• **Правый клик** на сообщении ИИ - контекстное меню с действиями
+• **Копировать текст** - быстрое копирование содержимого
+• **Продолжить ответ** - запрос на продолжение предыдущего ответа
+• **Скачать как файл** - сохранение сообщения в файл
 
 ## 🖼️ Работа с изображениями:
 1. **Нажмите кнопку ➕** чтобы прикрепить изображение
@@ -1597,6 +1843,7 @@ ${fileContent}
 
         this.addMessage('ai', helpMessage);
         this.addToConversationHistory('assistant', helpMessage);
+        this.trackUsage('help_opened');
     }
 
     toggleTheme() {
@@ -1614,6 +1861,7 @@ ${fileContent}
             this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
             'info'
         );
+        this.trackUsage('theme_changed', { theme: this.currentTheme });
     }
 
     loadThemePreference() {
@@ -1692,6 +1940,7 @@ ${fileContent}
         this.addMessage('error', `${userMessage}: ${error.message}`);
         this.showNotification(userMessage, 'error');
         this.showPushNotification('Ошибка', userMessage);
+        this.trackUsage('error_occurred', { error: error.message });
     }
 
     // Система чатов
@@ -1721,6 +1970,8 @@ ${fileContent}
         this.sidebarOverlay.classList.toggle('active');
         if (this.sidebarMenu.classList.contains('active')) {
             this.updateChatDropdown();
+            this.updateSidebarStats();
+            this.trackUsage('sidebar_opened');
         }
     }
 
@@ -1828,6 +2079,7 @@ ${fileContent}
         this.switchChat(chatId);
         this.closeSidebar();
         this.showNotification(`Создан новый чат: ${chatName}`, 'success');
+        this.trackUsage('chat_created');
     }
 
     createChatSession(name = 'Новый чат') {
@@ -1872,6 +2124,7 @@ ${fileContent}
             this.showNotification(`Переключен на чат: ${session.name}`, 'info');
             
             this.saveChatSessions();
+            this.trackUsage('chat_switched');
         } catch (error) {
             console.error('Error switching chat:', error);
             this.showNotification('Ошибка при переключении чата', 'error');
@@ -1903,6 +2156,7 @@ ${fileContent}
             this.saveChatSessions();
             this.updateChatDropdown();
             this.showNotification('Чат удален', 'success');
+            this.trackUsage('chat_deleted');
         }
     }
 
@@ -1929,11 +2183,13 @@ ${fileContent}
         
         // Save chats
         this.saveChatSessions();
+        this.saveUsageStats();
         
         // Close modal
         this.closeDeleteAllChatsModal();
         
         this.showNotification('Все чаты удалены, кроме текущего', 'success');
+        this.trackUsage('all_chats_deleted');
     }
 
     openEditChatModal(chatId, currentName) {
@@ -1988,6 +2244,7 @@ ${fileContent}
             }
             
             this.showNotification('Название чата изменено', 'success');
+            this.trackUsage('chat_renamed');
         }
         
         this.closeEditChatModal();
@@ -2116,6 +2373,95 @@ ${fileContent}
         }
     }
 
+    // Система продолжения ответов
+    continueLastResponse() {
+        if (!this.lastUserMessage || this.isGenerating) {
+            this.showNotification('Невозможно продолжить ответ', 'warning');
+            return;
+        }
+
+        const continuePrompt = `Продолжи предыдущий ответ. Контекст: ${this.lastUserMessage.text}`;
+        this.userInput.value = continuePrompt;
+        this.sendMessage();
+        this.trackUsage('response_continued');
+    }
+
+    // Экспорт и импорт чатов
+    exportChatSession(chatId = this.currentChatId) {
+        const session = this.chatSessions.get(chatId);
+        if (!session) {
+            this.showNotification('Чат не найден', 'error');
+            return;
+        }
+
+        const exportData = {
+            version: '2.4',
+            exportDate: new Date().toISOString(),
+            session: session,
+            messageCount: session.messages.length,
+            totalMessages: this.usageStats.totalMessages
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], 
+            { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `khai-chat-${session.name}-${Date.now()}.json`;
+        a.click();
+        
+        URL.revokeObjectURL(url);
+        this.showNotification('Чат экспортирован', 'success');
+        this.trackUsage('chat_exported');
+    }
+
+    importChatSession() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const importData = JSON.parse(event.target.result);
+                    
+                    if (!importData.session || !importData.session.name) {
+                        throw new Error('Неверный формат файла');
+                    }
+                    
+                    const chatId = this.createChatSession(importData.session.name);
+                    const session = this.chatSessions.get(chatId);
+                    
+                    // Восстанавливаем данные сессии
+                    if (importData.session.messages) {
+                        session.messages = importData.session.messages;
+                    }
+                    if (importData.session.conversationHistory) {
+                        session.conversationHistory = importData.session.conversationHistory;
+                    }
+                    
+                    this.chatSessions.set(chatId, session);
+                    this.switchChat(chatId);
+                    
+                    this.showNotification('Чат успешно импортирован', 'success');
+                    this.trackUsage('chat_imported');
+                    
+                } catch (error) {
+                    console.error('Error importing chat:', error);
+                    this.showNotification('Ошибка при импорте чата', 'error');
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
+    }
+
     // Сохранение и загрузка
     saveModelPreference() {
         try {
@@ -2158,10 +2504,84 @@ ${fileContent}
         }
     }
 
+    saveUsageStats() {
+        try {
+            this.usageStats.lastActive = Date.now();
+            localStorage.setItem('khai-assistant-usage-stats', JSON.stringify(this.usageStats));
+        } catch (error) {
+            console.error('Error saving usage stats:', error);
+        }
+    }
+
+    loadUsageStats() {
+        try {
+            const saved = localStorage.getItem('khai-assistant-usage-stats');
+            if (saved) {
+                this.usageStats = { ...this.usageStats, ...JSON.parse(saved) };
+            }
+        } catch (error) {
+            console.error('Error loading usage stats:', error);
+        }
+    }
+
+    updateSidebarStats() {
+        if (this.sidebarStats) {
+            const totalChats = this.chatSessions.size;
+            const totalMessages = this.usageStats.totalMessages;
+            this.sidebarStats.textContent = `${totalChats} чатов, ${totalMessages} сообщений`;
+        }
+    }
+
+    // Аналитика использования
+    trackUsage(event, data = {}) {
+        const analytics = {
+            event,
+            timestamp: Date.now(),
+            chatId: this.currentChatId,
+            model: this.currentModel,
+            messageCount: this.conversationHistory.length,
+            ...data
+        };
+        
+        // Сохраняем в локальной статистике
+        this.usageStats.sessions = (this.usageStats.sessions || 0) + 1;
+        
+        // Можно добавить отправку на сервер аналитики
+        if (typeof gtag !== 'undefined') {
+            gtag('event', event, analytics);
+        }
+        
+        // Логируем для отладки
+        if (process.env.NODE_ENV === 'development') {
+            console.log('Usage tracked:', analytics);
+        }
+    }
+
+    // Service Worker для оффлайн работы
+    setupServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('SW registered: ', registration);
+                    this.trackUsage('service_worker_registered');
+                })
+                .catch(error => {
+                    console.log('SW registration failed: ', error);
+                });
+        }
+    }
+
     handleInputKeydown(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             this.sendMessage();
+        }
+    }
+
+    handleDocumentClick(e) {
+        // Закрываем контекстное меню при клике вне его
+        if (!this.contextMenu.contains(e.target)) {
+            this.hideContextMenu();
         }
     }
 
@@ -2189,6 +2609,15 @@ ${fileContent}
         this.showNotification(`Модель изменена на: ${modelInfo.name}`, 'success');
         this.showPushNotification('Модель изменена', `Теперь используется ${modelInfo.name}`);
         this.saveModelPreference();
+        this.trackUsage('model_changed', { model: model });
+    }
+
+    getModelDisplayName(modelId) {
+        return this.modelConfig[modelId]?.name || modelId;
+    }
+
+    getModelDescription(modelId) {
+        return this.modelConfig[modelId]?.description || '';
     }
 
     handleBeforeUnload() {
@@ -2200,6 +2629,7 @@ ${fileContent}
         this.saveCurrentSession();
         this.saveModelPreference();
         this.saveChatSessions();
+        this.saveUsageStats();
         this.cleanup();
     }
 
@@ -2227,6 +2657,7 @@ ${fileContent}
                 this.isListening = true;
                 this.voiceInputBtn.classList.add('active');
                 this.showNotification('Слушаю...', 'info');
+                this.trackUsage('voice_input_started');
             };
 
             this.recognition.onresult = (event) => {
@@ -2234,6 +2665,7 @@ ${fileContent}
                 this.userInput.value = transcript;
                 this.userInput.focus();
                 this.showNotification('Текст распознан', 'success');
+                this.trackUsage('voice_input_received', { length: transcript.length });
             };
 
             this.recognition.onerror = (event) => {
@@ -2241,6 +2673,7 @@ ${fileContent}
                 this.showNotification(`Ошибка распознавания: ${event.error}`, 'error');
                 this.isListening = false;
                 this.voiceInputBtn.classList.remove('active');
+                this.trackUsage('voice_input_error', { error: event.error });
             };
 
             this.recognition.onend = () => {
@@ -2331,7 +2764,7 @@ ${fileContent}
                     this.attachedImages.push(imageData);
                     this.showNotification(`Изображение "${file.name}" прикреплено`, 'success');
                     processedCount++;
-                } else if (file.type.startsWith('text/') || file.name.endsWith('.txt')) {
+                } else if (file.type.startsWith('text/') || file.name.endsWith('.txt') || file.name.endsWith('.json')) {
                     const textData = await this.processTextFile(file);
                     this.attachedImages.push(textData);
                     this.showNotification(`Текстовый файл "${file.name}" прикреплен`, 'success');
@@ -2348,6 +2781,8 @@ ${fileContent}
         this.renderAttachedFiles();
         event.target.value = '';
         this.handleInputChange();
+        
+        this.trackUsage('files_attached', { count: processedCount });
     }
 
     processImageFile(file) {
@@ -2489,6 +2924,17 @@ ${fileContent}
         // Очищаем прикрепленные файлы
         this.attachedImages = [];
         
+        // Очищаем мини-карту
+        if (this.minimapContent) {
+            this.minimapContent.innerHTML = '';
+        }
+        
+        // Очищаем поисковые выделения
+        this.clearSearchHighlights();
+        
+        // Закрываем все модальные окна
+        this.closeAllModals();
+        
         // Удаляем обработчики событий
         this.activeEventListeners.forEach((listeners, element) => {
             if (element && element.removeEventListener) {
@@ -2498,6 +2944,17 @@ ${fileContent}
             }
         });
         this.activeEventListeners.clear();
+    }
+
+    closeAllModals() {
+        this.closeEditChatModal();
+        this.closeDeleteAllChatsModal();
+        this.closeModelSelectModal();
+        this.hideContextMenu();
+        
+        // Закрываем любые другие модальные окна
+        const modals = document.querySelectorAll('.modal-overlay.active');
+        modals.forEach(modal => modal.classList.remove('active'));
     }
 }
 
