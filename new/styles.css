@@ -360,6 +360,8 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     margin: 1px 0;
     background: var(--border-color);
     border-radius: 1px;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .minimap-message.user {
@@ -368,6 +370,16 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
 
 .minimap-message.ai {
     background: var(--text-tertiary);
+}
+
+.minimap-message:hover {
+    transform: scaleX(1.1);
+    z-index: 2;
+}
+
+.minimap-message.search-highlighted {
+    background: #ffeb3b !important;
+    box-shadow: 0 0 3px yellow;
 }
 
 .minimap-viewport {
@@ -1397,6 +1409,23 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     line-height: 1.4;
 }
 
+/* LiveInternet container */
+.liveinternet-container {
+    text-align: center;
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.liveinternet-container a {
+    display: inline-block;
+}
+
+.liveinternet-container img {
+    border-radius: var(--radius-sm);
+}
+
 /* Sidebar watermark */
 .sidebar-watermark {
     display: flex;
@@ -1642,6 +1671,35 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     line-height: 1.4;
 }
 
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 10000;
+    min-width: 180px;
+    padding: 6px 0;
+    backdrop-filter: blur(10px);
+}
+
+.context-menu-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-primary);
+    transition: var(--transition);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.context-menu-item:hover {
+    background: var(--bg-hover);
+}
+
 /* Search highlight */
 .search-highlight {
     background-color: rgba(255, 255, 0, 0.3);
@@ -1759,6 +1817,10 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
         height: 32px;
         font-size: 14px;
     }
+    
+    .context-menu {
+        min-width: 160px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1809,6 +1871,10 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     
     .chat-minimap-container {
         display: flex;
+    }
+    
+    .chat-management-buttons {
+        flex-direction: column;
     }
 }
 
