@@ -33,6 +33,11 @@
                     </div>
                 </div>
                 
+                <!-- Кнопка выбора модели -->
+                <button class="control-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
+                    <i class="ti ti-brain"></i>
+                </button>
+                
                 <!-- Центр: поиск по чату -->
                 <div class="header-search-container">
                     <div class="search-wrapper">
@@ -65,6 +70,11 @@
 
             <!-- Навигация и мини-карта (справа) -->
             <div class="chat-minimap-container">
+                <div class="minimap-header">
+                    <button class="control-btn minimap-btn" id="minimapThemeToggle" title="Переключить тему">
+                        <i class="ti ti-moon"></i>
+                    </button>
+                </div>
                 <div class="chat-minimap" id="chatMinimap">
                     <div class="minimap-content" id="minimapContent"></div>
                     <div class="minimap-viewport" id="minimapViewport"></div>
@@ -126,45 +136,137 @@
                 </button>
                 <button class="action-btn mode-btn" id="generateImageBtn">
                     <i class="ti ti-photo"></i>
-                    <span class="btn-text">Изображения</span>
+                    <span class="btn-text">Изображение</span>
                 </button>
-                <button class="action-btn" id="helpBtn" title="Помощь">
-                    <i class="ti ti-help"></i>
-                    <span class="btn-text">Помощь</span>
-                </button>
-                <button class="action-btn" id="clearChatBtn" title="Очистить чат">
-                    <i class="ti ti-trash"></i>
-                    <span class="btn-text">Очистить</span>
+                <button class="action-btn mode-btn" id="generateCodeBtn">
+                    <i class="ti ti-code"></i>
+                    <span class="btn-text">Код</span>
                 </button>
             </div>
         </div>
 
-        <!-- Нижний колонтитул -->
+        <!-- Футер -->
         <footer class="app-footer">
             <div class="footer-content">
-                <div class="current-chat-info">
-                    <i class="ti ti-message"></i>
-                    <span id="currentChatName">Основной чат</span>
+                <div class="footer-left">
+                    <span class="status-text">Основной чат</span>
+                    <span class="status-indicator">Готов к работе</span>
                 </div>
-                <div class="footer-controls">
-                    <span class="footer-status" id="footerStatus">Готов к работе</span>
+                <div class="footer-right">
+                    <button class="footer-btn" id="helpBtn" title="Помощь">
+                        <i class="ti ti-help"></i>
+                    </button>
+                    <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                    <button class="footer-btn" id="downloadHistoryBtn" title="Скачать историю">
+                        <i class="ti ti-download"></i>
+                    </button>
                 </div>
             </div>
         </footer>
     </div>
 
-    <!-- Боковое меню (остается без изменений) -->
-    <div class="sidebar-menu" id="sidebarMenu">
-        <!-- ... существующий код сайдбара ... -->
+    <!-- Боковая панель -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>История чатов</h3>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        <div class="sidebar-content" id="sidebarContent">
+            <div class="chat-history-list" id="chatHistoryList">
+                <!-- Chat history items will be loaded here -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- Модальное окно выбора модели -->
+    <div class="modal-overlay" id="modelModalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Выберите модель ИИ</h3>
+                <button class="modal-close" id="modelModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="model-list">
+                    <div class="model-item active" data-model="gpt-4">
+                        <div class="model-icon">
+                            <i class="ti ti-brain"></i>
+                        </div>
+                        <div class="model-info">
+                            <span class="model-name">GPT-4 Turbo</span>
+                            <span class="model-desc">Наиболее продвинутая модель</span>
+                        </div>
+                        <div class="model-status">
+                            <i class="ti ti-check"></i>
+                        </div>
+                    </div>
+                    <div class="model-item" data-model="gpt-3.5">
+                        <div class="model-icon">
+                            <i class="ti ti-bolt"></i>
+                        </div>
+                        <div class="model-info">
+                            <span class="model-name">GPT-3.5 Turbo</span>
+                            <span class="model-desc">Быстрая и эффективная</span>
+                        </div>
+                        <div class="model-status">
+                            <i class="ti ti-check"></i>
+                        </div>
+                    </div>
+                    <div class="model-item" data-model="claude-2">
+                        <div class="model-icon">
+                            <i class="ti ti-message"></i>
+                        </div>
+                        <div class="model-info">
+                            <span class="model-name">Claude 2</span>
+                            <span class="model-desc">Для сложных задач</span>
+                        </div>
+                        <div class="model-status">
+                            <i class="ti ti-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Оверлей -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <!-- Модальное окно помощи -->
+    <div class="modal-overlay" id="helpModalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Помощь</h3>
+                <button class="modal-close" id="helpModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="help-content">
+                    <h4>Режимы работы:</h4>
+                    <ul>
+                        <li><strong>Обычный</strong> - текстовый диалог с ИИ</li>
+                        <li><strong>Голос</strong> - генерация голосовых сообщений</li>
+                        <li><strong>Изображение</strong> - создание изображений по описанию</li>
+                        <li><strong>Код</strong> - генерация и анализ кода</li>
+                    </ul>
+                    
+                    <h4>Горячие клавиши:</h4>
+                    <ul>
+                        <li><kbd>Enter</kbd> - отправить сообщение</li>
+                        <li><kbd>Shift + Enter</kbd> - новая строка</li>
+                        <li><kbd>Ctrl + /</kbd> - очистить чат</li>
+                        <li><kbd>Ctrl + H</kbd> - история чатов</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Модальные окна (остаются без изменений) -->
-    <!-- ... существующие модальные окна ... -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="script.js"></script>
 </body>
