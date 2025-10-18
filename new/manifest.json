@@ -1,0 +1,25 @@
+{
+  "name": "KHAI Assistant",
+  "short_name": "KHAI AI",
+  "description": "Полностью бесплатный ИИ-помощник с генерацией изображений и голоса",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f23",
+  "theme_color": "#0099ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "ru-RU",
+  "scope": "/"
+}
