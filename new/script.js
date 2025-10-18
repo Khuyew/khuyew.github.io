@@ -1,9 +1,6 @@
-// script.js - KHAI Assistant - Полная релизная версия v1.0.0
-
+// KHAI Assistant - Основной JavaScript файл
 class KHAIAssistant {
     constructor() {
-        this.VERSION = '1.0.0';
-        this.APP_NAME = 'KHAI — Чат с ИИ';
         this.initializeElements();
         this.initializeState();
         this.setupMarked();
@@ -92,7 +89,7 @@ class KHAIAssistant {
         this.isListening = false;
         this.recognition = null;
         this.conversationHistory = [];
-        this.currentModel = 'gpt-5-nano';
+        this.currentModel = 'gpt-4-turbo';
         this.currentAudio = null;
         this.isSpeaking = false;
         this.currentUtterance = null;
@@ -125,37 +122,21 @@ class KHAIAssistant {
         ];
 
         this.modelConfig = {
-            'gpt-5-nano': { 
-                name: 'GPT-5 Nano', 
+            'gpt-4-turbo': { 
+                name: 'GPT-4 Turbo', 
+                description: 'Самая продвинутая модель для сложных задач' 
+            },
+            'gpt-3.5-turbo': { 
+                name: 'GPT-3.5 Turbo', 
                 description: 'Быстрая и эффективная модель для повседневных задач' 
             },
-            'o3-mini': { 
-                name: 'O3 Mini', 
-                description: 'Продвинутая модель с улучшенными возможностями рассуждения' 
+            'claude-2': { 
+                name: 'Claude 2', 
+                description: 'Мощная модель для анализа и рассуждений' 
             },
-            'claude-sonnet': { 
-                name: 'Claude Sonnet', 
-                description: 'Мощная модель от Anthropic для сложных задач и анализа' 
-            },
-            'deepseek-chat': { 
-                name: 'DeepSeek Chat', 
-                description: 'Универсальная модель для общения и решения задач' 
-            },
-            'deepseek-reasoner': { 
-                name: 'DeepSeek Reasoner', 
-                description: 'Специализированная модель для сложных логических рассуждений' 
-            },
-            'gemini-2.0-flash': { 
-                name: 'Gemini 2.0 Flash', 
-                description: 'Новейшая быстрая модель от Google с улучшенными возможностями' 
-            },
-            'gemini-1.5-flash': { 
-                name: 'Gemini 1.5 Flash', 
-                description: 'Быстрая и эффективная модель от Google для различных задач' 
-            },
-            'grok-beta': { 
-                name: 'xAI Grok', 
-                description: 'Модель от xAI с уникальным характером и остроумными ответами' 
+            'gemini-pro': { 
+                name: 'Gemini Pro', 
+                description: 'Универсальная модель от Google' 
             }
         };
 
@@ -213,7 +194,7 @@ class KHAIAssistant {
             this.updateDocumentTitle();
             this.updateConnectionStatus();
             
-            console.log(`${this.APP_NAME} v${this.VERSION} успешно загружен`);
+            console.log('KHAI Assistant успешно загружен');
             this.showNotification('KHAI Assistant загружен и готов к работе!', 'success');
         } catch (error) {
             console.error('Ошибка инициализации:', error);
@@ -222,7 +203,7 @@ class KHAIAssistant {
     }
 
     updateDocumentTitle() {
-        document.title = this.APP_NAME;
+        document.title = 'KHAI - AI Чат-помощник';
     }
 
     bindEvents() {
@@ -620,14 +601,10 @@ ${fileContent}
         }
         
         const modelOptions = {
-            'gpt-5-nano': { model: 'gpt-5-nano' },
-            'o3-mini': { model: 'o3-mini' },
-            'claude-sonnet': { model: 'claude-sonnet' },
-            'deepseek-chat': { model: 'deepseek-chat' },
-            'deepseek-reasoner': { model: 'deepseek-reasoner' },
-            'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
-            'gemini-1.5-flash': { model: 'gemini-1.5-flash' },
-            'grok-beta': { model: 'grok-beta' }
+            'gpt-4-turbo': { model: 'gpt-4-turbo' },
+            'gpt-3.5-turbo': { model: 'gpt-3.5-turbo' },
+            'claude-2': { model: 'claude-2' },
+            'gemini-pro': { model: 'gemini-pro' }
         };
         
         const options = {
