@@ -1,1050 +1,607 @@
-// Main application state
-const state = {
-    currentChatId: 'default',
-    chats: {
-        'default': {
-            id: 'default',
-            name: 'Основной чат',
-            messages: [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        }
-    },
-    currentModel: 'gpt-4-turbo',
-    theme: 'dark',
-    isGenerating: false,
-    isReadingMode: false,
-    searchResults: [],
-    currentSearchIndex: -1,
-    selectedFiles: [],
-    voiceRecognition: null,
-    isRecording: false
+// script.js - Основной файл JavaScript для KHAI AI Assistant
+
+// Конфигурация приложения
+const CONFIG = {
+    MAX_MESSAGE_LENGTH: 4000,
+    MAX_CHAT_HISTORY: 50,
+    TYPING_DELAY: 1000,
+    DEBOUNCE_DELAY: 300
 };
 
-// DOM Elements
-const elements = {
-    // Containers
-    messagesContainer: document.getElementById('messagesContainer'),
-    inputSection: document.getElementById('inputSection'),
-    attachedFiles: document.getElementById('attachedFiles'),
-    chatList: document.getElementById('chatList'),
-    
-    // Input elements
-    userInput: document.getElementById('userInput'),
-    sendBtn: document.getElementById('sendBtn'),
-    fileInput: document.getElementById('fileInput'),
-    clearInputBtn: document.getElementById('clearInputBtn'),
-    voiceInputBtn: document.getElementById('voiceInputBtn'),
-    
-    // Header elements
-    headerSearch: document.getElementById('headerSearch'),
-    headerSearchClear: document.getElementById('headerSearchClear'),
-    searchResultsDropdown: document.getElementById('searchResultsDropdown'),
-    searchResultsList: document.getElementById('searchResultsList'),
-    
-    // Sidebar elements
-    sidebarMenu: document.getElementById('sidebarMenu'),
-    sidebarOverlay: document.getElementById('sidebarOverlay'),
-    menuToggle: document.getElementById('menuToggle'),
-    sidebarClose: document.getElementById('sidebarClose'),
-    newChatBtn: document.getElementById('newChatBtn'),
-    
-    // Footer elements
-    currentChatName: document.getElementById('currentChatName'),
-    footerClearChatBtn: document.getElementById('footerClearChatBtn'),
-    footerDownloadBtn: document.getElementById('footerDownloadBtn'),
-    footerHelpBtn: document.getElementById('footerHelpBtn'),
-    
-    // Mode buttons
-    normalModeBtn: document.getElementById('normalModeBtn'),
-    generateVoiceBtn: document.getElementById('generateVoiceBtn'),
-    generateImageBtn: document.getElementById('generateImageBtn'),
-    
-    // Model selection
-    modelSelectBtn: document.getElementById('modelSelectBtn'),
-    modelModalOverlay: document.getElementById('modelModalOverlay'),
-    modelModalClose: document.getElementById('modelModalClose'),
-    modelModalCancel: document.getElementById('modelModalCancel'),
-    modelModalConfirm: document.getElementById('modelModalConfirm'),
-    
-    // Edit chat modal
-    editChatModal: document.getElementById('editChatModal'),
-    editChatModalClose: document.getElementById('editChatModalClose'),
-    editChatModalCancel: document.getElementById('editChatModalCancel'),
-    editChatModalSave: document.getElementById('editChatModalSave'),
-    editChatNameInput: document.getElementById('editChatNameInput'),
-    
-    // Minimap and navigation
-    chatMinimap: document.getElementById('chatMinimap'),
-    minimapContent: document.getElementById('minimapContent'),
-    minimapViewport: document.getElementById('minimapViewport'),
-    scrollToLastAI: document.getElementById('scrollToLastAI'),
-    scrollToBottom: document.getElementById('scrollToBottom'),
-    
-    // Theme toggle
-    themeToggleBtn: document.getElementById('themeToggleBtn'),
-    themeIcon: document.getElementById('themeIcon'),
-    
-    // App header and footer
-    appHeader: document.querySelector('.app-header'),
-    appFooter: document.querySelector('.app-footer')
-};
+// Глобальные переменные
+let currentChatId = 'default';
+let chats = {};
+let currentModel = 'gpt-5-nano';
+let isGenerating = false;
+let speechSynthesis = null;
+let isSpeaking = false;
+let currentMode = 'normal';
+let attachedFiles = [];
 
-// Initialize the application
-function init() {
-    loadState();
+// Инициализация приложения
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+});
+
+function initializeApp() {
+    loadChats();
     setupEventListeners();
     setupTheme();
-    setupMinimap();
-    renderChatList();
     updateUI();
-    setupPuterAI();
+    showNotification('KHAI Assistant готов к работе!', 'success');
+}
+
+// Загрузка и сохранение чатов
+function loadChats() {
+    const savedChats = localStorage.getItem('khai_chats');
+    if (savedChats) {
+        chats = JSON.parse(savedChats);
+    }
     
-    // Show welcome message if no messages
-    const currentChat = state.chats[state.currentChatId];
-    if (currentChat.messages.length === 0) {
-        showWelcomeMessage();
-    } else {
-        renderMessages();
+    if (!chats[currentChatId]) {
+        chats[currentChatId] = {
+            id: currentChatId,
+            name: 'Основной чат',
+            messages: [],
+            createdAt: new Date().toISOString()
+        };
     }
+    
+    updateChatList();
+    renderMessages();
 }
 
-// Load state from localStorage
-function loadState() {
-    const savedState = localStorage.getItem('khaiChatState');
-    if (savedState) {
-        const parsed = JSON.parse(savedState);
-        Object.assign(state, parsed);
-        
-        // Migrate old state structure if needed
-        if (!state.chats) {
-            state.chats = {
-                'default': {
-                    id: 'default',
-                    name: 'Основной чат',
-                    messages: state.messages || [],
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                }
-            };
-            delete state.messages;
-        }
-    }
+function saveChats() {
+    localStorage.setItem('khai_chats', JSON.stringify(chats));
 }
 
-// Save state to localStorage
-function saveState() {
-    localStorage.setItem('khaiChatState', JSON.stringify({
-        currentChatId: state.currentChatId,
-        chats: state.chats,
-        currentModel: state.currentModel,
-        theme: state.theme
-    }));
-}
-
-// Setup all event listeners
+// Настройка обработчиков событий
 function setupEventListeners() {
-    // Input events
-    elements.userInput.addEventListener('input', handleInputChange);
-    elements.userInput.addEventListener('keydown', handleInputKeydown);
-    elements.sendBtn.addEventListener('click', sendMessage);
-    elements.clearInputBtn.addEventListener('click', clearInput);
-    elements.voiceInputBtn.addEventListener('click', toggleVoiceInput);
-    
-    // File handling
-    elements.fileInput.addEventListener('change', handleFileSelect);
-    document.getElementById('attachFileBtn').addEventListener('click', () => elements.fileInput.click());
-    
-    // Header search
-    elements.headerSearch.addEventListener('input', handleHeaderSearch);
-    elements.headerSearchClear.addEventListener('click', clearHeaderSearch);
-    
-    // Sidebar events
-    elements.menuToggle.addEventListener('click', toggleSidebar);
-    elements.sidebarClose.addEventListener('click', toggleSidebar);
-    elements.sidebarOverlay.addEventListener('click', toggleSidebar);
-    elements.newChatBtn.addEventListener('click', createNewChat);
-    
-    // Footer events
-    elements.footerClearChatBtn.addEventListener('click', clearCurrentChat);
-    elements.footerDownloadBtn.addEventListener('click', downloadChatHistory);
-    elements.footerHelpBtn.addEventListener('click', showHelp);
-    
-    // Mode buttons
-    elements.normalModeBtn.addEventListener('click', () => setMode('normal'));
-    elements.generateVoiceBtn.addEventListener('click', () => setMode('voice'));
-    elements.generateImageBtn.addEventListener('click', () => setMode('image'));
-    
-    // Model selection
-    elements.modelSelectBtn.addEventListener('click', showModelModal);
-    elements.modelModalClose.addEventListener('click', hideModelModal);
-    elements.modelModalCancel.addEventListener('click', hideModelModal);
-    elements.modelModalConfirm.addEventListener('click', confirmModelSelection);
-    
-    // Edit chat modal
-    elements.editChatModalClose.addEventListener('click', hideEditChatModal);
-    elements.editChatModalCancel.addEventListener('click', hideEditChatModal);
-    elements.editChatModalSave.addEventListener('click', saveChatName);
-    
-    // Navigation
-    elements.scrollToLastAI.addEventListener('click', scrollToLastAIMessage);
-    elements.scrollToBottom.addEventListener('click', scrollToBottom);
-    
-    // Theme toggle
-    elements.themeToggleBtn.addEventListener('click', toggleTheme);
-    
-    // Minimap events
-    elements.chatMinimap.addEventListener('click', handleMinimapClick);
-    
-    // Global events
-    document.addEventListener('click', handleDocumentClick);
-    window.addEventListener('resize', updateMinimap);
-    elements.messagesContainer.addEventListener('scroll', updateMinimapViewport);
-    
-    // Touch events for reading mode
-    let touchStartY = 0;
-    let touchStartTime = 0;
-    let isScrolling = false;
-    let isSelecting = false;
-    
-    document.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-        touchStartTime = Date.now();
-        isScrolling = false;
-        isSelecting = false;
-    });
-    
-    document.addEventListener('touchmove', (e) => {
-        isScrolling = true;
-    });
-    
-    document.addEventListener('touchend', (e) => {
-        const touchEndTime = Date.now();
-        const touchDuration = touchEndTime - touchStartTime;
-        
-        // Long press (500ms) or scrolling triggers reading mode
-        if (touchDuration > 500 || isScrolling) {
-            toggleReadingMode(true);
+    // Отправка сообщения
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('userInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
         }
     });
     
-    // Mouse events for reading mode
-    let mouseDownTime = 0;
-    let isMouseDown = false;
+    // Очистка ввода
+    document.getElementById('clearInputBtn').addEventListener('click', clearInput);
     
-    document.addEventListener('mousedown', (e) => {
-        mouseDownTime = Date.now();
-        isMouseDown = true;
-        isSelecting = window.getSelection().toString().length > 0;
+    // Голосовой ввод
+    document.getElementById('voiceInputBtn').addEventListener('click', toggleVoiceInput);
+    
+    // Прикрепление файлов
+    document.getElementById('attachFileBtn').addEventListener('click', triggerFileInput);
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+    
+    // Управление чатами
+    document.getElementById('newChatBtn').addEventListener('click', createNewChat);
+    document.getElementById('clearChatBtn').addEventListener('click', clearCurrentChat);
+    document.getElementById('exportChatBtn').addEventListener('click', exportChat);
+    
+    // Режимы работы
+    document.getElementById('normalModeBtn').addEventListener('click', () => setMode('normal'));
+    document.getElementById('generateVoiceBtn').addEventListener('click', () => setMode('voice'));
+    document.getElementById('generateImageBtn').addEventListener('click', () => setMode('image'));
+    
+    // Поиск
+    document.getElementById('headerSearch').addEventListener('input', debounce(searchMessages, CONFIG.DEBOUNCE_DELAY));
+    document.getElementById('headerSearchClear').addEventListener('click', clearHeaderSearch);
+    
+    // Навигация
+    document.getElementById('scrollToBottom').addEventListener('click', scrollToBottom);
+    document.getElementById('scrollToLastAI').addEventListener('click', scrollToLastAI);
+    document.getElementById('continueResponseBtn').addEventListener('click', continueResponse);
+    
+    // Модальные окна
+    setupModalEvents();
+    
+    // Боковое меню
+    document.getElementById('menuToggle').addEventListener('click', toggleSidebar);
+    document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+    document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+    
+    // Смена темы
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    
+    // Выбор модели
+    document.getElementById('modelSelectBtn').addEventListener('click', openModelSelectModal);
+    
+    // Логотип
+    document.getElementById('logoBtn').addEventListener('click', function() {
+        showNotification('KHAI Assistant v2.4', 'info');
     });
+}
+
+// Управление модальными окнами
+function setupModalEvents() {
+    // Модалка редактирования чата
+    document.getElementById('editChatModalCancel').addEventListener('click', closeEditChatModal);
+    document.getElementById('editChatModalClose').addEventListener('click', closeEditChatModal);
+    document.getElementById('editChatModalSave').addEventListener('click', saveChatName);
     
-    document.addEventListener('mouseup', (e) => {
-        if (isMouseDown) {
-            const mouseUpTime = Date.now();
-            const mouseDuration = mouseUpTime - mouseDownTime;
-            
-            // Long click (500ms) or text selection triggers reading mode
-            if (mouseDuration > 500 || isSelecting) {
-                toggleReadingMode(true);
-            }
-        }
-        isMouseDown = false;
-        isSelecting = false;
-    });
+    // Модалка удаления всех чатов
+    document.getElementById('deleteAllChatsBtn').addEventListener('click', openDeleteAllChatsModal);
+    document.getElementById('deleteAllChatsModalCancel').addEventListener('click', closeDeleteAllChatsModal);
+    document.getElementById('deleteAllChatsModalClose').addEventListener('click', closeDeleteAllChatsModal);
+    document.getElementById('deleteAllChatsModalConfirm').addEventListener('click', confirmDeleteAllChats);
     
-    // Click outside to exit reading mode
-    document.addEventListener('click', (e) => {
-        if (state.isReadingMode && !e.target.closest('.message')) {
-            toggleReadingMode(false);
-        }
-    });
-}
-
-// Setup Puter AI SDK
-function setupPuterAI() {
-    // Puter.ai is already loaded via CDN in HTML
-    console.log('Puter AI SDK loaded');
-}
-
-// Theme management
-function setupTheme() {
-    const savedTheme = localStorage.getItem('khaiTheme') || 'dark';
-    state.theme = savedTheme;
-    applyTheme();
-}
-
-function toggleTheme() {
-    state.theme = state.theme === 'dark' ? 'light' : 'dark';
-    applyTheme();
-    saveState();
-}
-
-function applyTheme() {
-    document.documentElement.setAttribute('data-theme', state.theme);
-    elements.themeIcon.className = state.theme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
-    elements.themeToggleBtn.title = state.theme === 'dark' ? 'Переключить на светлую тему' : 'Переключить на темную тему';
-}
-
-// Input handling
-function handleInputChange() {
-    const value = elements.userInput.value.trim();
-    elements.clearInputBtn.style.display = value ? 'flex' : 'none';
+    // Модалка выбора модели
+    document.getElementById('modelSelectModalCancel').addEventListener('click', closeModelSelectModal);
+    document.getElementById('modelSelectModalClose').addEventListener('click', closeModelSelectModal);
     
-    // Auto-resize textarea
-    elements.userInput.style.height = 'auto';
-    elements.userInput.style.height = Math.min(elements.userInput.scrollHeight, 120) + 'px';
+    // Модалка ошибки
+    document.getElementById('errorModalClose').addEventListener('click', closeErrorModal);
+    document.getElementById('errorModalOk').addEventListener('click', closeErrorModal);
 }
 
-function handleInputKeydown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+// Основные функции чата
+function sendMessage() {
+    const userInput = document.getElementById('userInput');
+    const message = userInput.value.trim();
+    
+    if (!message && attachedFiles.length === 0) {
+        showNotification('Введите сообщение или прикрепите файл', 'warning');
+        return;
     }
+    
+    if (isGenerating) {
+        stopGeneration();
+        return;
+    }
+    
+    // Добавление сообщения пользователя
+    addMessage('user', message, attachedFiles);
+    clearInput();
+    
+    // Имитация ответа AI (в реальном приложении здесь будет API вызов)
+    simulateAIResponse(message);
 }
 
-function clearInput() {
-    elements.userInput.value = '';
-    elements.userInput.style.height = 'auto';
-    elements.clearInputBtn.style.display = 'none';
+function simulateAIResponse(userMessage) {
+    isGenerating = true;
+    updateSendButton();
+    
+    // Имитация задержки сети
+    setTimeout(() => {
+        const responses = [
+            "Это интересный вопрос! Давайте разберем его подробнее...",
+            "Отличный вопрос! Вот что я могу сказать по этой теме:",
+            "Спасибо за вопрос! Вот мой ответ:",
+            "Понимаю ваш интерес. Вот что я нашел:",
+            "Отличная тема для обсуждения! Вот мои мысли:"
+        ];
+        
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        const aiMessage = `${randomResponse}\n\nЭто демонстрационный ответ. В реальном приложении здесь будет ответ от AI модели.`;
+        
+        addMessage('ai', aiMessage);
+        isGenerating = false;
+        updateSendButton();
+        scrollToBottom();
+    }, 2000);
 }
 
-// File handling
-function handleFileSelect(e) {
-    const files = Array.from(e.target.files);
-    state.selectedFiles = [...state.selectedFiles, ...files];
-    renderAttachedFiles();
-    elements.fileInput.value = '';
+function addMessage(type, content, files = []) {
+    const chat = chats[currentChatId];
+    const message = {
+        id: generateId(),
+        type: type,
+        content: content,
+        files: [...files],
+        timestamp: new Date().toISOString(),
+        model: type === 'ai' ? currentModel : null
+    };
+    
+    chat.messages.push(message);
+    
+    // Ограничение истории сообщений
+    if (chat.messages.length > CONFIG.MAX_CHAT_HISTORY) {
+        chat.messages = chat.messages.slice(-CONFIG.MAX_CHAT_HISTORY);
+    }
+    
+    saveChats();
+    renderMessages();
+    updateMinimap();
+    
+    return message;
 }
 
-function renderAttachedFiles() {
-    elements.attachedFiles.innerHTML = state.selectedFiles.map((file, index) => `
+function renderMessages() {
+    const container = document.getElementById('messagesContainer');
+    const chat = chats[currentChatId];
+    
+    container.innerHTML = '';
+    
+    chat.messages.forEach(message => {
+        const messageElement = createMessageElement(message);
+        container.appendChild(messageElement);
+    });
+    
+    scrollToBottom();
+}
+
+function createMessageElement(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message message-${message.type}`;
+    messageDiv.dataset.messageId = message.id;
+    
+    let content = message.content;
+    
+    // Обработка markdown для AI сообщений
+    if (message.type === 'ai') {
+        try {
+            content = marked.parse(content);
+        } catch (e) {
+            console.error('Markdown parsing error:', e);
+        }
+    }
+    
+    messageDiv.innerHTML = `
+        <div class="message-content">
+            ${content}
+            ${message.files.length > 0 ? renderAttachedFiles(message.files) : ''}
+            ${message.type === 'ai' && message.model ? `<div class="model-indicator">Модель: ${message.model}</div>` : ''}
+        </div>
+        <div class="message-actions">
+            <button class="action-btn-small copy-btn" onclick="copyMessage('${message.id}')" title="Копировать">
+                <i class="ti ti-copy"></i>
+            </button>
+            ${message.type === 'ai' ? `
+                <button class="action-btn-small speak-btn" onclick="toggleSpeech('${message.id}')" title="Озвучить">
+                    <i class="ti ti-volume"></i>
+                </button>
+            ` : ''}
+        </div>
+    `;
+    
+    // Применение подсветки синтаксиса
+    if (message.type === 'ai') {
+        setTimeout(() => {
+            messageDiv.querySelectorAll('pre code').forEach(block => {
+                hljs.highlightElement(block);
+            });
+        }, 0);
+    }
+    
+    return messageDiv;
+}
+
+// Управление файлами
+function triggerFileInput() {
+    document.getElementById('fileInput').click();
+}
+
+function handleFileSelect(event) {
+    const files = Array.from(event.target.files);
+    
+    files.forEach(file => {
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+            showNotification(`Файл ${file.name} слишком большой (макс. 10MB)`, 'error');
+            return;
+        }
+        
+        attachedFiles.push({
+            id: generateId(),
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            file: file
+        });
+    });
+    
+    updateAttachedFilesDisplay();
+    event.target.value = ''; // Сброс input
+}
+
+function updateAttachedFilesDisplay() {
+    const container = document.getElementById('attachedFiles');
+    
+    if (attachedFiles.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    
+    container.style.display = 'block';
+    container.innerHTML = attachedFiles.map(file => `
         <div class="attached-file">
             <i class="ti ti-file-text"></i>
-            <span>${file.name}</span>
-            <button class="remove-file" onclick="removeFile(${index})">
+            <span class="file-name">${file.name}</span>
+            <span class="file-size">(${formatFileSize(file.size)})</span>
+            <button class="remove-file-btn" onclick="removeAttachedFile('${file.id}')">
                 <i class="ti ti-x"></i>
             </button>
         </div>
     `).join('');
 }
 
-function removeFile(index) {
-    state.selectedFiles.splice(index, 1);
-    renderAttachedFiles();
+function removeAttachedFile(fileId) {
+    attachedFiles = attachedFiles.filter(file => file.id !== fileId);
+    updateAttachedFilesDisplay();
 }
 
-// Voice input
-function toggleVoiceInput() {
-    if (!state.voiceRecognition) {
-        initializeVoiceRecognition();
-    }
+// Управление режимами
+function setMode(mode) {
+    currentMode = mode;
     
-    if (state.isRecording) {
-        stopVoiceRecognition();
-    } else {
-        startVoiceRecognition();
-    }
-}
-
-function initializeVoiceRecognition() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        showNotification('Голосовой ввод не поддерживается в вашем браузере', 'error');
-        return;
-    }
-    
-    state.voiceRecognition = new SpeechRecognition();
-    state.voiceRecognition.continuous = false;
-    state.voiceRecognition.interimResults = true;
-    state.voiceRecognition.lang = 'ru-RU';
-    
-    state.voiceRecognition.onstart = () => {
-        state.isRecording = true;
-        elements.voiceInputBtn.classList.add('active');
-        showNotification('Слушаю...', 'info');
-    };
-    
-    state.voiceRecognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-            .map(result => result[0].transcript)
-            .join('');
-        elements.userInput.value = transcript;
-        handleInputChange();
-    };
-    
-    state.voiceRecognition.onend = () => {
-        state.isRecording = false;
-        elements.voiceInputBtn.classList.remove('active');
-    };
-    
-    state.voiceRecognition.onerror = (event) => {
-        showNotification('Ошибка распознавания речи: ' + event.error, 'error');
-        state.isRecording = false;
-        elements.voiceInputBtn.classList.remove('active');
-    };
-}
-
-function startVoiceRecognition() {
-    try {
-        state.voiceRecognition.start();
-    } catch (error) {
-        showNotification('Не удалось начать запись', 'error');
-    }
-}
-
-function stopVoiceRecognition() {
-    try {
-        state.voiceRecognition.stop();
-    } catch (error) {
-        // Ignore stop errors
-    }
-}
-
-// Message handling
-async function sendMessage() {
-    const message = elements.userInput.value.trim();
-    const files = state.selectedFiles;
-    
-    if (!message && files.length === 0) {
-        showNotification('Введите сообщение или прикрепите файл', 'warning');
-        return;
-    }
-    
-    if (state.isGenerating) {
-        showNotification('Подождите завершения предыдущего запроса', 'warning');
-        return;
-    }
-    
-    // Add user message
-    const userMessage = {
-        id: generateId(),
-        type: 'user',
-        content: message,
-        files: files.map(file => ({
-            name: file.name,
-            type: file.type,
-            size: file.size
-        })),
-        timestamp: new Date().toISOString(),
-        model: state.currentModel
-    };
-    
-    addMessageToCurrentChat(userMessage);
-    clearInput();
-    state.selectedFiles = [];
-    renderAttachedFiles();
-    
-    // Show loading state
-    state.isGenerating = true;
-    updateUI();
-    
-    try {
-        // Prepare message history for context
-        const currentChat = state.chats[state.currentChatId];
-        const messageHistory = currentChat.messages
-            .filter(msg => msg.type === 'user' || msg.type === 'ai')
-            .slice(-10) // Last 10 messages for context
-            .map(msg => ({
-                role: msg.type === 'user' ? 'user' : 'assistant',
-                content: msg.content
-            }));
-        
-        // Add current message
-        messageHistory.push({
-            role: 'user',
-            content: message
-        });
-        
-        // Generate AI response using Puter AI
-        const response = await generateAIResponse(messageHistory);
-        
-        // Add AI message
-        const aiMessage = {
-            id: generateId(),
-            type: 'ai',
-            content: response,
-            timestamp: new Date().toISOString(),
-            model: state.currentModel
-        };
-        
-        addMessageToCurrentChat(aiMessage);
-        
-    } catch (error) {
-        console.error('Error generating response:', error);
-        
-        const errorMessage = {
-            id: generateId(),
-            type: 'error',
-            content: 'Произошла ошибка при генерации ответа. Пожалуйста, попробуйте еще раз.',
-            timestamp: new Date().toISOString()
-        };
-        
-        addMessageToCurrentChat(errorMessage);
-    } finally {
-        state.isGenerating = false;
-        updateUI();
-        scrollToBottom();
-    }
-}
-
-async function generateAIResponse(messages) {
-    // Use Puter AI SDK to generate response
-    const response = await puter.ai.chat({
-        messages: messages,
-        model: state.currentModel,
-        max_tokens: 4000,
-        temperature: 0.7
+    // Обновление кнопок режимов
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
     });
     
-    return response.content;
+    document.getElementById(`${mode}ModeBtn`).classList.add('active');
+    
+    // Обновление плейсхолдера
+    const input = document.getElementById('userInput');
+    switch (mode) {
+        case 'normal':
+            input.placeholder = 'Задайте вопрос...';
+            break;
+        case 'voice':
+            input.placeholder = 'Опишите, что нужно озвучить...';
+            break;
+        case 'image':
+            input.placeholder = 'Опишите изображение для генерации...';
+            break;
+    }
+    
+    showNotification(`Режим: ${getModeName(mode)}`, 'info');
 }
 
-function addMessageToCurrentChat(message) {
-    const chat = state.chats[state.currentChatId];
-    chat.messages.push(message);
-    chat.updatedAt = new Date().toISOString();
-    saveState();
+function getModeName(mode) {
+    const names = {
+        'normal': 'Обычный',
+        'voice': 'Генерация голоса',
+        'image': 'Генерация изображений'
+    };
+    return names[mode] || 'Неизвестный';
+}
+
+// Управление интерфейсом
+function updateUI() {
+    updateSendButton();
+    updateFooterStatus();
+    updateCurrentChatName();
+}
+
+function updateSendButton() {
+    const sendBtn = document.getElementById('sendBtn');
+    const icon = sendBtn.querySelector('i');
+    
+    if (isGenerating) {
+        sendBtn.classList.add('stop-generation');
+        icon.className = 'ti ti-square';
+        sendBtn.title = 'Остановить генерацию';
+    } else {
+        sendBtn.classList.remove('stop-generation');
+        icon.className = 'ti ti-send';
+        sendBtn.title = 'Отправить сообщение';
+    }
+}
+
+function updateFooterStatus() {
+    const status = document.getElementById('footerStatus');
+    if (isGenerating) {
+        status.textContent = 'Генерация ответа...';
+        status.style.color = 'var(--accent-primary)';
+    } else {
+        status.textContent = 'Готов к работе';
+        status.style.color = '';
+    }
+}
+
+function updateCurrentChatName() {
+    const element = document.getElementById('currentChatName');
+    if (chats[currentChatId]) {
+        element.textContent = chats[currentChatId].name;
+    }
+}
+
+// Управление чатами
+function createNewChat() {
+    const chatId = generateId();
+    const chatName = `Новый чат ${Object.keys(chats).length + 1}`;
+    
+    chats[chatId] = {
+        id: chatId,
+        name: chatName,
+        messages: [],
+        createdAt: new Date().toISOString()
+    };
+    
+    switchToChat(chatId);
+    closeSidebar();
+    showNotification('Создан новый чат', 'success');
+}
+
+function switchToChat(chatId) {
+    currentChatId = chatId;
+    attachedFiles = [];
+    updateAttachedFilesDisplay();
     renderMessages();
     updateChatList();
+    updateUI();
 }
 
-// Rendering
-function renderMessages() {
-    const chat = state.chats[state.currentChatId];
-    elements.messagesContainer.innerHTML = chat.messages.map(message => `
-        <div class="message message-${message.type}" data-message-id="${message.id}">
-            <div class="message-content">${formatMessageContent(message)}</div>
-            ${message.model ? `<div class="model-indicator">Модель: ${getModelDisplayName(message.model)}</div>` : ''}
-            ${message.type === 'ai' ? `
-                <div class="message-actions">
-                    <button class="action-btn-small" onclick="copyMessage('${message.id}')">
-                        <i class="ti ti-copy"></i> Копировать
-                    </button>
-                    <button class="action-btn-small" onclick="regenerateMessage('${message.id}')">
-                        <i class="ti ti-refresh"></i> Перегенерировать
-                    </button>
-                </div>
-            ` : ''}
-        </div>
-    `).join('');
-    
-    // Apply syntax highlighting
-    document.querySelectorAll('pre code').forEach(block => {
-        hljs.highlightElement(block);
-    });
-    
-    updateMinimap();
+function clearCurrentChat() {
+    if (confirm('Вы уверены, что хотите очистить текущий чат?')) {
+        chats[currentChatId].messages = [];
+        saveChats();
+        renderMessages();
+        showNotification('Чат очищен', 'success');
+    }
 }
 
-function formatMessageContent(message) {
-    let content = message.content;
-    
-    // Escape HTML but preserve code blocks for marked
-    content = content.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    
-    // Convert markdown to HTML
-    content = marked.parse(content);
-    
-    // Add copy buttons to code blocks
-    content = content.replace(/<pre><code class="([^"]*)">/g, (match, language) => `
-        <div class="code-header">
-            <span class="code-language">${language || 'text'}</span>
-            <button class="copy-code-btn" onclick="copyCode(this)">
-                <i class="ti ti-copy"></i> Копировать
-            </button>
-        </div>
-        <pre><code class="${language}">
-    `);
-    
-    return content;
-}
-
-function showWelcomeMessage() {
-    const welcomeMessage = {
-        id: generateId(),
-        type: 'ai',
-        content: `# Добро пожаловать в KHAI Assistant! 👋
-
-Я ваш ИИ-помощник, готовый помочь с различными задачами. Вот что я умею:
-
-## 📝 Основные возможности
-- **Текстовые ответы** на любые вопросы
-- **Генерация изображений** по описанию
-- **Голосовые ответы** для удобного прослушивания
-- **Поиск по чату** для быстрого нахождения информации
-- **Поддержка кода** с подсветкой синтаксиса
-
-## 🎯 Советы по использованию
-- Задавайте вопросы естественным языком
-- Используйте кнопки внизу для смены режимов
-- Прикрепляйте файлы для анализа
-- Ищите по истории чата в верхней панели
-
-Начните общение, отправив сообщение ниже!`,
-        timestamp: new Date().toISOString(),
-        model: state.currentModel
+function exportChat() {
+    const chat = chats[currentChatId];
+    const data = {
+        chat: chat,
+        exportedAt: new Date().toISOString(),
+        version: 'KHAI Assistant v2.4'
     };
     
-    addMessageToCurrentChat(welcomeMessage);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `khai-chat-${chat.name}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('Чат экспортирован', 'success');
 }
 
-// Search functionality
-function handleHeaderSearch() {
-    const query = elements.headerSearch.value.trim();
-    elements.headerSearchClear.style.display = query ? 'flex' : 'none';
+// Поиск и навигация
+function searchMessages() {
+    const searchTerm = document.getElementById('headerSearch').value.trim();
+    const clearBtn = document.getElementById('headerSearchClear');
     
-    if (query.length < 2) {
-        elements.searchResultsDropdown.style.display = 'none';
-        state.searchResults = [];
-        state.currentSearchIndex = -1;
-        clearSearchHighlights();
-        return;
-    }
-    
-    performSearch(query);
-}
-
-function performSearch(query) {
-    const chat = state.chats[state.currentChatId];
-    const results = [];
-    
-    chat.messages.forEach((message, index) => {
-        if (message.content.toLowerCase().includes(query.toLowerCase())) {
-            results.push({
-                messageIndex: index,
-                message: message,
-                preview: getSearchPreview(message.content, query)
-            });
-        }
-    });
-    
-    state.searchResults = results;
-    state.currentSearchIndex = -1;
-    
-    if (results.length > 0) {
-        showSearchResults(results, query);
+    if (searchTerm) {
+        clearBtn.style.display = 'flex';
+        highlightSearchTerms(searchTerm);
     } else {
-        elements.searchResultsDropdown.style.display = 'none';
+        clearBtn.style.display = 'none';
         clearSearchHighlights();
     }
 }
 
-function showSearchResults(results, query) {
-    elements.searchResultsList.innerHTML = results.map((result, index) => `
-        <div class="search-result-item ${index === state.currentSearchIndex ? 'current' : ''}" 
-             onclick="navigateToSearchResult(${index})">
-            <div style="font-weight: 500; margin-bottom: 2px;">
-                ${result.message.type === 'user' ? '👤 Вы' : '🤖 KHAI'}
-            </div>
-            <div style="font-size: 12px; color: var(--text-tertiary);">
-                ${result.preview}
-            </div>
-        </div>
-    `).join('');
-    
-    elements.searchResultsDropdown.style.display = 'block';
-    highlightSearchResults(query);
-}
-
-function getSearchPreview(content, query) {
-    const index = content.toLowerCase().indexOf(query.toLowerCase());
-    const start = Math.max(0, index - 30);
-    const end = Math.min(content.length, index + query.length + 50);
-    
-    let preview = content.substring(start, end);
-    if (start > 0) preview = '...' + preview;
-    if (end < content.length) preview = preview + '...';
-    
-    // Highlight the search term in preview
-    const regex = new RegExp(`(${query})`, 'gi');
-    preview = preview.replace(regex, '<mark>$1</mark>');
-    
-    return preview;
-}
-
-function highlightSearchResults(query) {
-    const messages = elements.messagesContainer.querySelectorAll('.message');
-    const regex = new RegExp(`(${query})`, 'gi');
+function highlightSearchTerms(term) {
+    const messages = document.querySelectorAll('.message-content');
+    const regex = new RegExp(term, 'gi');
     
     messages.forEach(message => {
-        const content = message.querySelector('.message-content');
-        if (content) {
-            const originalContent = content.getAttribute('data-original') || content.innerHTML;
-            content.setAttribute('data-original', originalContent);
-            
-            const highlightedContent = originalContent.replace(regex, '<mark class="search-highlight">$1</mark>');
-            content.innerHTML = highlightedContent;
-        }
-    });
-    
-    // Also highlight minimap
-    const minimapMessages = elements.minimapContent.querySelectorAll('.minimap-message');
-    minimapMessages.forEach((minimapMsg, index) => {
-        const message = state.chats[state.currentChatId].messages[index];
-        if (message && message.content.toLowerCase().includes(query.toLowerCase())) {
-            minimapMsg.classList.add('search-highlighted');
-        } else {
-            minimapMsg.classList.remove('search-highlighted');
-        }
+        const originalContent = message.dataset.originalContent || message.innerHTML;
+        message.dataset.originalContent = originalContent;
+        
+        const highlightedContent = originalContent.replace(regex, match => 
+            `<span class="search-highlight">${match}</span>`
+        );
+        
+        message.innerHTML = highlightedContent;
     });
 }
 
 function clearSearchHighlights() {
-    const messages = elements.messagesContainer.querySelectorAll('.message');
+    const messages = document.querySelectorAll('.message-content');
     
     messages.forEach(message => {
-        const content = message.querySelector('.message-content');
-        if (content && content.getAttribute('data-original')) {
-            content.innerHTML = content.getAttribute('data-original');
-            content.removeAttribute('data-original');
+        if (message.dataset.originalContent) {
+            message.innerHTML = message.dataset.originalContent;
+            delete message.dataset.originalContent;
         }
     });
-    
-    // Clear minimap highlights
-    const minimapMessages = elements.minimapContent.querySelectorAll('.minimap-message');
-    minimapMessages.forEach(msg => msg.classList.remove('search-highlighted'));
 }
 
 function clearHeaderSearch() {
-    elements.headerSearch.value = '';
-    elements.headerSearchClear.style.display = 'none';
-    elements.searchResultsDropdown.style.display = 'none';
-    state.searchResults = [];
-    state.currentSearchIndex = -1;
+    document.getElementById('headerSearch').value = '';
+    document.getElementById('headerSearchClear').style.display = 'none';
     clearSearchHighlights();
 }
 
-function navigateToSearchResult(index) {
-    if (index < 0 || index >= state.searchResults.length) return;
-    
-    state.currentSearchIndex = index;
-    const result = state.searchResults[index];
-    
-    // Scroll to message
-    const messageElement = elements.messagesContainer.querySelector(`[data-message-id="${result.message.id}"]`);
-    if (messageElement) {
-        messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Add visual highlight
-        messageElement.style.animation = 'none';
-        messageElement.offsetHeight; // Trigger reflow
-        messageElement.style.animation = 'fadeIn 0.5s ease';
-        messageElement.style.backgroundColor = 'var(--accent-primary-alpha)';
-        
-        setTimeout(() => {
-            messageElement.style.backgroundColor = '';
-        }, 2000);
-    }
-    
-    // Update search results display
-    showSearchResults(state.searchResults, elements.headerSearch.value.trim());
-}
-
-// Chat management
-function createNewChat() {
-    const chatId = generateId();
-    const chatName = `Чат ${Object.keys(state.chats).length + 1}`;
-    
-    state.chats[chatId] = {
-        id: chatId,
-        name: chatName,
-        messages: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    };
-    
-    switchToChat(chatId);
-    toggleSidebar();
-    saveState();
-}
-
-function switchToChat(chatId) {
-    state.currentChatId = chatId;
-    elements.currentChatName.textContent = state.chats[chatId].name;
-    renderMessages();
-    updateUI();
-    scrollToBottom();
-    saveState();
-}
-
-function updateChatList() {
-    const chats = Object.values(state.chats)
-        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-    
-    elements.chatList.innerHTML = chats.map(chat => `
-        <div class="chat-item ${chat.id === state.currentChatId ? 'active' : ''}" 
-             onclick="switchToChat('${chat.id}')">
-            <i class="ti ti-message-circle"></i>
-            <div class="chat-item-content">
-                <div class="chat-item-title">${chat.name}</div>
-                <div class="chat-item-preview">${getChatPreview(chat)}</div>
-            </div>
-            <div class="chat-item-actions">
-                <button class="chat-action-btn" onclick="event.stopPropagation(); editChat('${chat.id}')" title="Редактировать">
-                    <i class="ti ti-edit"></i>
-                </button>
-                ${chat.id !== 'default' ? `
-                    <button class="chat-action-btn" onclick="event.stopPropagation(); deleteChat('${chat.id}')" title="Удалить">
-                        <i class="ti ti-trash"></i>
-                    </button>
-                ` : ''}
-            </div>
-        </div>
-    `).join('');
-}
-
-function getChatPreview(chat) {
-    if (chat.messages.length === 0) return 'Нет сообщений';
-    
-    const lastMessage = chat.messages[chat.messages.length - 1];
-    const content = lastMessage.content.substring(0, 50);
-    return lastMessage.type === 'user' ? `Вы: ${content}...` : `KHAI: ${content}...`;
-}
-
-function editChat(chatId) {
-    const chat = state.chats[chatId];
-    elements.editChatNameInput.value = chat.name;
-    elements.editChatModal.style.display = 'block';
-    elements.editChatModal.setAttribute('data-chat-id', chatId);
-}
-
-function hideEditChatModal() {
-    elements.editChatModal.style.display = 'none';
-}
-
-function saveChatName() {
-    const chatId = elements.editChatModal.getAttribute('data-chat-id');
-    const newName = elements.editChatNameInput.value.trim();
-    
-    if (newName && chatId) {
-        state.chats[chatId].name = newName;
-        if (chatId === state.currentChatId) {
-            elements.currentChatName.textContent = newName;
-        }
-        updateChatList();
-        saveState();
-    }
-    
-    hideEditChatModal();
-}
-
-function deleteChat(chatId) {
-    if (confirm('Вы уверены, что хотите удалить этот чат? История сообщений будет потеряна.')) {
-        delete state.chats[chatId];
-        
-        if (state.currentChatId === chatId) {
-            switchToChat('default');
-        }
-        
-        updateChatList();
-        saveState();
-    }
-}
-
-function clearCurrentChat() {
-    if (confirm('Вы уверены, что хотите очистить историю текущего чата?')) {
-        state.chats[state.currentChatId].messages = [];
-        saveState();
-        renderMessages();
-        showWelcomeMessage();
-    }
-}
-
-// Model selection
-function showModelModal() {
-    // Update selected model in list
-    document.querySelectorAll('.model-item').forEach(item => {
-        item.classList.toggle('selected', item.dataset.model === state.currentModel);
-    });
-    
-    elements.modelModalOverlay.classList.add('active');
-}
-
-function hideModelModal() {
-    elements.modelModalOverlay.classList.remove('active');
-}
-
-function confirmModelSelection() {
-    const selectedModel = document.querySelector('.model-item.selected').dataset.model;
-    state.currentModel = selectedModel;
-    updateUI();
-    saveState();
-    hideModelModal();
-    showNotification(`Модель изменена на: ${getModelDisplayName(selectedModel)}`, 'success');
-}
-
-function getModelDisplayName(model) {
-    const modelNames = {
-        'gpt-4-turbo': 'GPT-4 Turbo',
-        'gpt-3.5-turbo': 'GPT-3.5 Turbo',
-        'claude-2': 'Claude 2',
-        'gemini-pro': 'Gemini Pro'
-    };
-    return modelNames[model] || model;
-}
-
-// Mode management
-function setMode(mode) {
-    // Update active button
-    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`${mode}ModeBtn`).classList.add('active');
-    
-    // Update input placeholder based on mode
-    const placeholders = {
-        normal: 'Задайте вопрос или опишите изображение...',
-        voice: 'Опишите, что вы хотите услышать...',
-        image: 'Опишите изображение, которое хотите сгенерировать...'
-    };
-    
-    elements.userInput.placeholder = placeholders[mode] || placeholders.normal;
-}
-
-// Minimap functionality
-function setupMinimap() {
-    updateMinimap();
-}
-
+// Мини-карта и скроллинг
 function updateMinimap() {
-    const chat = state.chats[state.currentChatId];
-    const container = elements.messagesContainer;
+    const minimapContent = document.getElementById('minimapContent');
+    const chat = chats[currentChatId];
     
-    if (chat.messages.length === 0) {
-        elements.minimapContent.innerHTML = '';
-        return;
-    }
+    minimapContent.innerHTML = '';
     
-    // Calculate approximate message heights
-    let totalHeight = 0;
-    const messageHeights = chat.messages.map(message => {
-        // Estimate height based on content length and type
-        const baseHeight = message.type === 'user' ? 60 : 80;
-        const contentHeight = Math.max(20, Math.min(200, message.content.length / 4));
-        const height = baseHeight + contentHeight;
-        totalHeight += height;
-        return height;
+    chat.messages.forEach((message, index) => {
+        const block = document.createElement('div');
+        block.className = `minimap-message ${message.type}`;
+        block.dataset.index = index;
+        block.addEventListener('click', () => scrollToMessage(index));
+        minimapContent.appendChild(block);
     });
-    
-    // Scale factor for minimap
-    const scaleFactor = elements.chatMinimap.clientHeight / totalHeight;
-    
-    elements.minimapContent.innerHTML = chat.messages.map((message, index) => {
-        const height = Math.max(2, messageHeights[index] * scaleFactor);
-        return `<div class="minimap-message ${message.type}" style="height: ${height}px"></div>`;
-    }).join('');
     
     updateMinimapViewport();
 }
 
 function updateMinimapViewport() {
-    const container = elements.messagesContainer;
-    const viewport = elements.minimapViewport;
+    const container = document.getElementById('messagesContainer');
+    const viewport = document.getElementById('minimapViewport');
+    const minimap = document.getElementById('chatMinimap');
     
-    const containerHeight = container.clientHeight;
-    const scrollHeight = container.scrollHeight;
+    const containerHeight = container.scrollHeight;
+    const visibleHeight = container.clientHeight;
     const scrollTop = container.scrollTop;
     
-    if (scrollHeight <= containerHeight) {
-        viewport.style.display = 'none';
-        return;
-    }
+    const viewportHeight = (visibleHeight / containerHeight) * minimap.offsetHeight;
+    const viewportTop = (scrollTop / containerHeight) * minimap.offsetHeight;
     
-    viewport.style.display = 'block';
-    const viewportHeight = (containerHeight / scrollHeight) * elements.chatMinimap.clientHeight;
-    const viewportTop = (scrollTop / scrollHeight) * elements.chatMinimap.clientHeight;
-    
-    viewport.style.height = Math.max(20, viewportHeight) + 'px';
-    viewport.style.top = viewportTop + 'px';
-}
-
-function handleMinimapClick(e) {
-    const rect = elements.chatMinimap.getBoundingClientRect();
-    const clickY = e.clientY - rect.top;
-    const percentage = clickY / rect.height;
-    
-    const container = elements.messagesContainer;
-    const scrollTop = percentage * (container.scrollHeight - container.clientHeight);
-    
-    container.scrollTo({
-        top: scrollTop,
-        behavior: 'smooth'
-    });
-}
-
-// Navigation
-function scrollToLastAIMessage() {
-    const chat = state.chats[state.currentChatId];
-    const lastAIMessage = [...chat.messages].reverse().find(msg => msg.type === 'ai');
-    
-    if (lastAIMessage) {
-        const messageElement = elements.messagesContainer.querySelector(`[data-message-id="${lastAIMessage.id}"]`);
-        if (messageElement) {
-            messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }
+    viewport.style.height = `${viewportHeight}px`;
+    viewport.style.top = `${viewportTop}px`;
 }
 
 function scrollToBottom() {
-    elements.messagesContainer.scrollTo({
-        top: elements.messagesContainer.scrollHeight,
-        behavior: 'smooth'
-    });
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
 }
 
-// Sidebar
-function toggleSidebar() {
-    elements.sidebarMenu.classList.toggle('active');
-    elements.sidebarOverlay.classList.toggle('active');
-}
-
-// Reading mode
-function toggleReadingMode(enable) {
-    if (enable === undefined) {
-        state.isReadingMode = !state.isReadingMode;
-    } else {
-        state.isReadingMode = enable;
-    }
+function scrollToLastAI() {
+    const chat = chats[currentChatId];
+    const lastAIMessageIndex = [...chat.messages].reverse().findIndex(msg => msg.type === 'ai');
     
-    document.body.classList.toggle('reading-mode', state.isReadingMode);
-    elements.messagesContainer.classList.toggle('full-width', state.isReadingMode);
-    
-    // Always show theme toggle, minimap, and navigation buttons in reading mode
-    if (state.isReadingMode) {
-        elements.themeToggleBtn.style.opacity = '1';
-        elements.chatMinimap.style.opacity = '1';
-        document.querySelector('.minimap-navigation').style.opacity = '1';
+    if (lastAIMessageIndex !== -1) {
+        const actualIndex = chat.messages.length - 1 - lastAIMessageIndex;
+        scrollToMessage(actualIndex);
     }
 }
 
-// Utility functions
+function scrollToMessage(index) {
+    const container = document.getElementById('messagesContainer');
+    const messages = container.querySelectorAll('.message');
+    
+    if (messages[index]) {
+        messages[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// Утилиты
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-function updateUI() {
-    // Update send button state
-    elements.sendBtn.disabled = state.isGenerating || (!elements.userInput.value.trim() && state.selectedFiles.length === 0);
-    
-    // Update model indicator
-    document.getElementById('currentModelInfo').textContent = getModelDisplayName(state.currentModel);
-    
-    // Update footer status
-    document.getElementById('footerStatus').textContent = state.isGenerating ? 'Генерация ответа...' : 'Готов к работе';
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 function showNotification(message, type = 'info') {
-    const container = document.querySelector('.notification-container') || createNotificationContainer();
+    // Создание уведомления
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerHTML = `
-        <div class="notification-content">${message}</div>
+        <div class="notification-content">
+            <i class="ti ti-${getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+        </div>
         <button class="notification-close" onclick="this.parentElement.remove()">
             <i class="ti ti-x"></i>
         </button>
     `;
     
-    container.appendChild(notification);
+    document.body.appendChild(notification);
     
-    // Auto-remove after 5 seconds
+    // Автоматическое удаление
     setTimeout(() => {
         if (notification.parentElement) {
             notification.remove();
@@ -1052,137 +609,84 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-function createNotificationContainer() {
-    const container = document.createElement('div');
-    container.className = 'notification-container';
-    document.body.appendChild(container);
-    return container;
+function getNotificationIcon(type) {
+    const icons = {
+        'success': 'circle-check',
+        'error': 'alert-circle',
+        'warning': 'alert-triangle',
+        'info': 'info-circle'
+    };
+    return icons[type] || 'info-circle';
+}
+
+// Темная/светлая тема
+function setupTheme() {
+    const savedTheme = localStorage.getItem('khai_theme') || 'dark';
+    document.body.setAttribute('data-theme', savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('khai_theme', newTheme);
+    
+    showNotification(`Тема: ${newTheme === 'dark' ? 'Тёмная' : 'Светлая'}`, 'info');
+}
+
+// Боковое меню
+function toggleSidebar() {
+    document.getElementById('sidebarMenu').classList.toggle('active');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+
+function closeSidebar() {
+    document.getElementById('sidebarMenu').classList.remove('active');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+// Заглушки для будущих функций
+function toggleVoiceInput() {
+    showNotification('Голосовой ввод скоро будет доступен', 'info');
+}
+
+function stopGeneration() {
+    isGenerating = false;
+    updateUI();
+    showNotification('Генерация остановлена', 'warning');
+}
+
+function continueResponse() {
+    showNotification('Продолжение ответа скоро будет доступно', 'info');
 }
 
 function copyMessage(messageId) {
-    const message = state.chats[state.currentChatId].messages.find(m => m.id === messageId);
+    const message = chats[currentChatId].messages.find(m => m.id === messageId);
     if (message) {
         navigator.clipboard.writeText(message.content).then(() => {
-            showNotification('Сообщение скопировано в буфер обмена', 'success');
-        }).catch(() => {
-            showNotification('Не удалось скопировать сообщение', 'error');
+            showNotification('Текст скопирован в буфер обмена', 'success');
         });
     }
 }
 
-function copyCode(button) {
-    const codeBlock = button.closest('.code-header').nextElementSibling;
-    const code = codeBlock.textContent;
-    
-    navigator.clipboard.writeText(code).then(() => {
-        button.classList.add('copied');
-        button.innerHTML = '<i class="ti ti-check"></i> Скопировано';
-        
-        setTimeout(() => {
-            button.classList.remove('copied');
-            button.innerHTML = '<i class="ti ti-copy"></i> Копировать';
-        }, 2000);
-    });
+function toggleSpeech(messageId) {
+    showNotification('Озвучка скоро будет доступна', 'info');
 }
 
-function regenerateMessage(messageId) {
-    const chat = state.chats[state.currentChatId];
-    const messageIndex = chat.messages.findIndex(m => m.id === messageId);
-    
-    if (messageIndex > 0) {
-        // Remove the AI message and all messages after it
-        const userMessage = chat.messages[messageIndex - 1];
-        chat.messages = chat.messages.slice(0, messageIndex - 1);
-        
-        // Resend the user message
-        elements.userInput.value = userMessage.content;
-        sendMessage();
-    }
+function clearInput() {
+    document.getElementById('userInput').value = '';
+    document.getElementById('clearInputBtn').style.display = 'none';
 }
 
-function downloadChatHistory() {
-    const chat = state.chats[state.currentChatId];
-    const content = chat.messages.map(msg => {
-        const sender = msg.type === 'user' ? 'Вы' : 'KHAI';
-        const time = new Date(msg.timestamp).toLocaleString();
-        return `[${time}] ${sender}:\n${msg.content}\n\n`;
-    }).join('');
-    
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `khai-chat-${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showNotification('История чата скачана', 'success');
-}
+// Обработка изменения текста в поле ввода
+document.getElementById('userInput').addEventListener('input', function() {
+    const clearBtn = document.getElementById('clearInputBtn');
+    clearBtn.style.display = this.value ? 'flex' : 'none';
+});
 
-function showHelp() {
-    const helpMessage = {
-        id: generateId(),
-        type: 'ai',
-        content: `# Справка по KHAI Assistant 🆘
+// Обновление мини-карты при скролле
+document.getElementById('messagesContainer').addEventListener('scroll', updateMinimapViewport);
 
-## 📱 Основные функции интерфейса
-
-### Управление чатами
-- **Новый чат** - создайте новую беседу в боковом меню
-- **История чатов** - переключайтесь между предыдущими беседами
-- **Поиск по чату** - находите сообщения в текущей беседе
-
-### Навигация
-- **Мини-карта** - быстрая навигация по длинным беседам
-- **Кнопки вверх/вниз** - переход к последнему ответу ИИ или в конец чата
-- **Режим чтения** - зажмите экран или выделите текст для скрытия интерфейса
-
-### Настройки
-- **Смена темы** - переключайте между темной и светлой темой
-- **Выбор модели** - меняйте модель ИИ для разных задач
-- **Режимы работы** - обычный чат, генерация голоса или изображений
-
-## 🎯 Советы по использованию
-- Используйте **код-блоки** для программирования (оборачивайте код в \\`\\`\\`)
-- **Прикрепляйте файлы** для анализа документов и изображений
-- **Ищите по истории** чтобы найти нужную информацию
-- Используйте **режим чтения** для удобного просмотра длинных ответов
-
-Нужна дополнительная помощь? Задайте вопрос в чате!`,
-        timestamp: new Date().toISOString(),
-        model: state.currentModel
-    };
-    
-    addMessageToCurrentChat(helpMessage);
-    scrollToBottom();
-}
-
-function handleDocumentClick(e) {
-    // Close search dropdown when clicking outside
-    if (!e.target.closest('.header-search-container')) {
-        elements.searchResultsDropdown.style.display = 'none';
-    }
-    
-    // Close modals when clicking on overlay
-    if (e.target.classList.contains('modal-overlay')) {
-        e.target.classList.remove('active');
-    }
-}
-
-// Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', init);
-
-// Service Worker registration for PWA (optional)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
+// Инициализация мини-карты при загрузке
+window.addEventListener('load', updateMinimap);
