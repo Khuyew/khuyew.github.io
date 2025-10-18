@@ -74,9 +74,15 @@ class KHAIAssistant {
         this.currentModelInfo = document.getElementById('currentModelInfo');
         this.connectionStatus = document.getElementById('connectionStatus');
         this.importChatBtn = document.getElementById('importChatBtn');
+        this.deleteAllChatsBtn = document.getElementById('deleteAllChatsBtn');
         
         // Footer
         this.footerStatus = document.getElementById('footerStatus');
+
+        // Notification container
+        this.notificationContainer = document.createElement('div');
+        this.notificationContainer.className = 'notification-container';
+        document.body.appendChild(this.notificationContainer);
     }
 
     initializeState() {
@@ -146,6 +152,9 @@ class KHAIAssistant {
         this.MAX_CHAT_NAME_LENGTH = 50;
         this.CONVERSATION_HISTORY_LIMIT = 30;
         this.MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+        // PWA
+        this.deferredPrompt = null;
     }
 
     setupMarked() {
@@ -193,6 +202,7 @@ class KHAIAssistant {
             this.updateModelInfo();
             this.updateDocumentTitle();
             this.updateConnectionStatus();
+            this.setupPWA();
             
             console.log('KHAI Assistant успешно загружен');
             this.showNotification('KHAI Assistant загружен и готов к работе!', 'success');
@@ -217,7 +227,7 @@ class KHAIAssistant {
             [this.helpBtn, 'click', () => this.showHelp()],
             [this.generateImageBtn, 'click', () => this.toggleImageMode()],
             [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
-            [this.themeToggle, 'click', () => this.toggleTheme()],
+            [this.themeMinimapToggle, 'click', () => this.toggleTheme()],
             [this.logo, 'click', () => this.refreshPage()],
             [this.attachFileBtn, 'click', () => this.fileInput.click()],
             [this.fileInput, 'change', (e) => this.handleFileSelect(e)],
@@ -245,7 +255,6 @@ class KHAIAssistant {
 
             // Обработчики для дополнительных элементов
             [this.modelSelectBtn, 'click', () => this.openModelModal()],
-            [this.themeMinimapToggle, 'click', () => this.toggleTheme()],
             [this.footerHelpBtn, 'click', () => this.showHelp()],
             [this.footerClearChatBtn, 'click', () => this.clearChat()],
             [this.footerDownloadBtn, 'click', () => this.downloadHistory()],
@@ -258,6 +267,7 @@ class KHAIAssistant {
             [this.modelList, 'click', (e) => this.handleModelItemClick(e)],
             [this.sidebarSearch, 'input', () => this.filterChatHistory()],
             [this.importChatBtn, 'click', () => this.importChatHistory()],
+            [this.deleteAllChatsBtn, 'click', () => this.deleteAllChats()],
             [document, 'keydown', (e) => this.handleGlobalKeydown(e)],
 
             // Обработчики для PWA
@@ -1264,7 +1274,7 @@ ${fileContent}
         `;
 
         this.addEventListener(chatItem, 'click', (e) => {
-            if (!e.target.closest('.chat-item-action')) {
+            if (!e.target.closest('.chat-item-actions')) {
                 this.switchChat(id);
                 this.closeSidebar();
             }
@@ -1377,6 +1387,30 @@ ${fileContent}
             this.saveChatSessions();
             this.updateChatList();
             this.showNotification('Чат удален', 'success');
+        }
+    }
+
+    deleteAllChats() {
+        if (this.chatSessions.size <= 1) {
+            this.showNotification('Нельзя удалить все чаты', 'warning');
+            return;
+        }
+
+        if (confirm('Вы уверены, что хотите удалить все чаты, кроме основного?')) {
+            const sessionsToDelete = Array.from(this.chatSessions.entries())
+                .filter(([id]) => id !== 'default');
+            
+            sessionsToDelete.forEach(([id]) => {
+                this.chatSessions.delete(id);
+            });
+            
+            if (this.currentChatId !== 'default') {
+                this.switchChat('default');
+            }
+            
+            this.saveChatSessions();
+            this.updateChatList();
+            this.showNotification('Все чаты удалены', 'success');
         }
     }
 
@@ -1988,7 +2022,6 @@ ${fileContent}
         }
         
         const themeIcon = this.currentTheme === 'dark' ? 'ti-sun' : 'ti-moon';
-        this.themeToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
         this.themeMinimapToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
         
         this.showNotification(
@@ -2080,22 +2113,20 @@ ${fileContent}
     }
 
     showNotification(message, type = 'info') {
-        const existingNotifications = document.querySelectorAll('.notification');
+        // Закрыть предыдущее уведомление
+        const existingNotifications = this.notificationContainer.querySelectorAll('.notification');
         existingNotifications.forEach(notification => notification.remove());
         
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.innerHTML = `
-            <div class="notification-content">
-                <i class="ti ti-${this.getNotificationIcon(type)}"></i>
-                <span>${message}</span>
-            </div>
+            <div class="notification-message">${message}</div>
             <button class="notification-close" onclick="this.parentElement.remove()">
                 <i class="ti ti-x"></i>
             </button>
         `;
         
-        document.body.appendChild(notification);
+        this.notificationContainer.appendChild(notification);
         
         this.setTimeout(() => {
             if (notification.parentNode) {
@@ -2321,6 +2352,58 @@ ${fileContent}
             this.activeEventListeners.set(element, []);
         }
         this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
+    }
+
+    // PWA функциональность
+    setupPWA() {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.deferredPrompt = e;
+            this.showPWAInstallPrompt();
+        });
+    }
+
+    showPWAInstallPrompt() {
+        if (!this.deferredPrompt) return;
+
+        const prompt = document.createElement('div');
+        prompt.className = 'pwa-install-prompt';
+        prompt.innerHTML = `
+            <button class="pwa-install-close" onclick="this.parentElement.remove()">
+                <i class="ti ti-x"></i>
+            </button>
+            <div class="pwa-install-header">
+                <div class="pwa-install-icon">
+                    <img src="./logo.png" alt="KHAI Assistant" onerror="this.style.display='none'">
+                </div>
+                <div class="pwa-install-info">
+                    <div class="pwa-install-title">Установить KHAI Assistant</div>
+                    <div class="pwa-install-description">Установите приложение для быстрого доступа и работы офлайн</div>
+                </div>
+            </div>
+            <div class="pwa-install-buttons">
+                <button class="pwa-install-btn" onclick="this.parentElement.parentElement.remove()">Позже</button>
+                <button class="pwa-install-btn primary" onclick="window.khaiAssistant.installPWA()">Установить</button>
+            </div>
+        `;
+        
+        document.body.appendChild(prompt);
+    }
+
+    async installPWA() {
+        if (!this.deferredPrompt) return;
+        
+        this.deferredPrompt.prompt();
+        const { outcome } = await this.deferredPrompt.userChoice;
+        
+        if (outcome === 'accepted') {
+            this.showNotification('Приложение успешно установлено!', 'success');
+        }
+        
+        this.deferredPrompt = null;
+        
+        const prompt = document.querySelector('.pwa-install-prompt');
+        if (prompt) prompt.remove();
     }
 
     cleanup() {
