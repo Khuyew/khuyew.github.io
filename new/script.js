@@ -21,18 +21,142 @@ class KHAIAssistant {
         this.currentUtterance = null;
         this.activeTimeouts = new Set();
         this.activeEventListeners = new Map();
+        this.isScrolling = false;
+        this.scrollTimeout = null;
+        this.scrollStartTime = 0;
         
         this.initializeApp();
     }
 
     // Инициализация приложения
     async initializeApp() {
-        await this.initializePuter();
-        this.loadChats();
-        this.loadTheme();
-        this.initializeEventListeners();
-        this.updateUI();
-        this.showNotification('KHAI — Чат с ИИ готов к работе!', 'success');
+        try {
+            await this.initializePuter();
+            this.loadChats();
+            this.loadTheme();
+            this.initializeEventListeners();
+            this.setupScrollDetection();
+            this.updateUI();
+            this.showNotification('KHAI — Чат с ИИ готов к работе!', 'success');
+        } catch (error) {
+            console.error('Ошибка инициализации:', error);
+            this.showNotification('Ошибка загрузки приложения', 'error');
+        }
+    }
+
+    // Настройка обнаружения скролла
+    setupScrollDetection() {
+        const messagesContainer = document.getElementById('messagesContainer');
+        
+        this.addEventListener(messagesContainer, 'scroll', () => {
+            this.handleScroll();
+        });
+
+        this.addEventListener(messagesContainer, 'wheel', (e) => {
+            this.handleWheel(e);
+        });
+
+        this.addEventListener(messagesContainer, 'touchstart', (e) => {
+            this.handleTouchStart(e);
+        });
+
+        this.addEventListener(messagesContainer, 'touchmove', (e) => {
+            this.handleTouchMove(e);
+        });
+
+        this.addEventListener(messagesContainer, 'touchend', () => {
+            this.handleTouchEnd();
+        });
+    }
+
+    // Обработка скролла
+    handleScroll() {
+        if (!this.isScrolling) {
+            this.isScrolling = true;
+            this.scrollStartTime = Date.now();
+            this.enterReadingMode();
+        }
+
+        clearTimeout(this.scrollTimeout);
+        this.scrollTimeout = setTimeout(() => {
+            const scrollDuration = Date.now() - this.scrollStartTime;
+            if (scrollDuration > 1000) {
+                this.isScrolling = false;
+                this.exitReadingMode();
+            }
+        }, 1500);
+    }
+
+    // Обработка колесика мыши
+    handleWheel(e) {
+        if (!this.isScrolling) {
+            this.isScrolling = true;
+            this.scrollStartTime = Date.now();
+            this.enterReadingMode();
+        }
+
+        clearTimeout(this.scrollTimeout);
+        this.scrollTimeout = setTimeout(() => {
+            this.isScrolling = false;
+            this.exitReadingMode();
+        }, 1500);
+    }
+
+    // Обработка начала касания
+    handleTouchStart(e) {
+        this.touchStartY = e.touches[0].clientY;
+        this.scrollStartTime = Date.now();
+    }
+
+    // Обработка движения касания
+    handleTouchMove(e) {
+        if (!this.touchStartY) return;
+
+        const touchY = e.touches[0].clientY;
+        const diff = this.touchStartY - touchY;
+
+        if (Math.abs(diff) > 10) {
+            if (!this.isScrolling) {
+                this.isScrolling = true;
+                this.enterReadingMode();
+            }
+
+            clearTimeout(this.scrollTimeout);
+            this.scrollTimeout = setTimeout(() => {
+                this.isScrolling = false;
+                this.exitReadingMode();
+            }, 1500);
+        }
+    }
+
+    // Обработка окончания касания
+    handleTouchEnd() {
+        clearTimeout(this.scrollTimeout);
+        this.scrollTimeout = setTimeout(() => {
+            this.isScrolling = false;
+            this.exitReadingMode();
+        }, 1500);
+    }
+
+    // Вход в режим чтения
+    enterReadingMode() {
+        if (this.isReadingMode || this.isMobile()) return;
+        
+        this.isReadingMode = true;
+        document.body.classList.add('reading-mode');
+    }
+
+    // Выход из режима чтения
+    exitReadingMode() {
+        if (!this.isReadingMode) return;
+        
+        this.isReadingMode = false;
+        document.body.classList.remove('reading-mode');
+    }
+
+    // Проверка мобильного устройства
+    isMobile() {
+        return window.innerWidth <= 768;
     }
 
     // Инициализация Puter AI SDK
@@ -41,14 +165,22 @@ class KHAIAssistant {
             if (typeof puter !== 'undefined') {
                 this.puter = await puter.ai();
                 console.log('Puter AI SDK инициализирован');
+                this.isOnline = true;
+                
+                // Тестируем подключение
+                try {
+                    await this.puter.generate('test', { max_tokens: 5 });
+                } catch (error) {
+                    console.warn('Puter AI тест не пройден:', error);
+                    this.isOnline = false;
+                }
             } else {
-                console.warn('Puter AI SDK не загружен, работа в офлайн-режиме');
+                console.warn('Puter AI SDK не загружен');
                 this.isOnline = false;
             }
         } catch (error) {
             console.error('Ошибка инициализации Puter AI SDK:', error);
             this.isOnline = false;
-            this.showNotification('Ошибка подключения к AI сервису', 'error');
         }
     }
 
@@ -251,96 +383,15 @@ class KHAIAssistant {
         // Обработка скролла для мини-карты
         this.addEventListener(document.getElementById('messagesContainer'), 'scroll', () => this.updateMinimapViewport());
 
-        // Обработчики для режима чтения
-        this.setupReadingModeListeners();
-
         // Обработка перед закрытием страницы
         this.addEventListener(window, 'beforeunload', () => this.handleBeforeUnload());
 
-        // Инициализация Service Worker для PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(() => console.log('Service Worker зарегистрирован'))
-                .catch(error => console.error('Ошибка регистрации Service Worker:', error));
-        }
-    }
-
-    // Настройка обработчиков для режима чтения
-    setupReadingModeListeners() {
-        let touchStartY = 0;
-        let touchStartTime = 0;
-        let isScrolling = false;
-        let isSelecting = false;
-
-        // Touch events
-        this.addEventListener(document, 'touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-            touchStartTime = Date.now();
-            isScrolling = false;
-            isSelecting = false;
-        });
-
-        this.addEventListener(document, 'touchmove', (e) => {
-            isScrolling = true;
-        });
-
-        this.addEventListener(document, 'touchend', (e) => {
-            const touchEndTime = Date.now();
-            const touchDuration = touchEndTime - touchStartTime;
-            
-            // Long press (500ms) or scrolling triggers reading mode
-            if (touchDuration > 500 || isScrolling) {
-                this.toggleReadingMode(true);
-            }
-        });
-
-        // Mouse events
-        let mouseDownTime = 0;
-        let isMouseDown = false;
-
-        this.addEventListener(document, 'mousedown', (e) => {
-            mouseDownTime = Date.now();
-            isMouseDown = true;
-            isSelecting = window.getSelection().toString().length > 0;
-        });
-
-        this.addEventListener(document, 'mouseup', (e) => {
-            if (isMouseDown) {
-                const mouseUpTime = Date.now();
-                const mouseDuration = mouseUpTime - mouseDownTime;
-                
-                // Long click (500ms) or text selection triggers reading mode
-                if (mouseDuration > 500 || isSelecting) {
-                    this.toggleReadingMode(true);
-                }
-            }
-            isMouseDown = false;
-            isSelecting = false;
-        });
-
-        // Click outside to exit reading mode
+        // Клик по документу для выхода из режима чтения
         this.addEventListener(document, 'click', (e) => {
-            if (this.isReadingMode && !e.target.closest('.message') && 
-                !e.target.closest('.chat-minimap-container')) {
-                this.toggleReadingMode(false);
+            if (this.isReadingMode && !e.target.closest('.chat-minimap-container')) {
+                this.exitReadingMode();
             }
         });
-    }
-
-    // Переключение режима чтения
-    toggleReadingMode(enable) {
-        if (enable === undefined) {
-            this.isReadingMode = !this.isReadingMode;
-        } else {
-            this.isReadingMode = enable;
-        }
-
-        document.body.classList.toggle('reading-mode', this.isReadingMode);
-        document.getElementById('messagesContainer').classList.toggle('full-width', this.isReadingMode);
-
-        if (this.isReadingMode) {
-            this.showNotification('Режим чтения включен. Нажмите в любое место для выхода.', 'info');
-        }
     }
 
     // Делегирование событий
@@ -361,13 +412,11 @@ class KHAIAssistant {
                 handler(...args);
             } catch (error) {
                 console.error(`Error in ${event} handler:`, error);
-                this.showNotification('Произошла ошибка при обработке действия', 'error');
             }
         };
 
         element.addEventListener(event, wrappedHandler);
         
-        // Сохраняем для возможности очистки
         if (!this.activeEventListeners.has(element)) {
             this.activeEventListeners.set(element, []);
         }
@@ -468,7 +517,7 @@ class KHAIAssistant {
         } catch (error) {
             console.error('Ошибка генерации ответа:', error);
             this.removeMessage(loadingMessage.id);
-            this.showError('Ошибка при генерации ответа. Пожалуйста, попробуйте еще раз.');
+            this.showError(`Ошибка: ${error.message}`);
         }
 
         this.isGenerating = false;
@@ -488,11 +537,7 @@ class KHAIAssistant {
     // Генерация текстового ответа
     async generateTextResponse(message, files) {
         if (!this.puter || !this.isOnline) {
-            // Офлайн-режим: возвращаем демо-ответ
-            return {
-                content: `**Демо-режим:** Вы написали: "${message}"\n\nПриложение работает в офлайн-режиме. Для полного функционала проверьте подключение к интернету и перезагрузите страницу.`,
-                files: []
-            };
+            throw new Error('Сервис AI временно недоступен. Проверьте подключение к интернету.');
         }
 
         try {
@@ -504,29 +549,25 @@ class KHAIAssistant {
                 max_tokens: 4000
             });
 
+            if (!response || !response.text) {
+                throw new Error('Пустой ответ от сервера');
+            }
+
             return {
                 content: response.text,
                 files: []
             };
         } catch (error) {
             console.error('Ошибка генерации текста:', error);
-            throw error;
+            throw new Error(`Ошибка сервера: ${error.message}`);
         }
     }
 
     // Генерация голосового ответа
     async generateVoiceResponse(message, files) {
-        // Сначала получаем текстовый ответ
         const textResponse = await this.generateTextResponse(message, files);
         
-        // Затем конвертируем в речь (если доступно)
         if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(this.extractPlainText(textResponse.content));
-            utterance.lang = 'ru-RU';
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
-            
-            // Добавляем кнопку воспроизведения в сообщение
             textResponse.content += '\n\n<button class="action-btn-small speak-btn" data-text="' + 
                 this.escapeHtml(this.extractPlainText(textResponse.content)) + '">🎵 Воспроизвести</button>';
         }
@@ -537,10 +578,7 @@ class KHAIAssistant {
     // Генерация изображения
     async generateImageResponse(message, files) {
         if (!this.puter || !this.isOnline) {
-            return {
-                content: `**Демо-режим:** Запрос на генерацию изображения: "${message}"\n\nГенерация изображений недоступна в офлайн-режиме.`,
-                files: []
-            };
+            throw new Error('Сервис генерации изображений временно недоступен.');
         }
 
         try {
@@ -550,17 +588,21 @@ class KHAIAssistant {
                 quality: 'standard'
             });
 
+            if (!response || !response.url) {
+                throw new Error('Не удалось сгенерировать изображение');
+            }
+
             return {
                 content: `Сгенерировано изображение по запросу: "${message}"`,
                 files: [{
                     name: 'generated-image.png',
                     type: 'image/png',
-                    content: response.image
+                    content: response.url
                 }]
             };
         } catch (error) {
             console.error('Ошибка генерации изображения:', error);
-            throw error;
+            throw new Error(`Ошибка генерации изображения: ${error.message}`);
         }
     }
 
@@ -575,7 +617,6 @@ class KHAIAssistant {
     buildPrompt(message, files, context) {
         let prompt = '';
 
-        // Добавление контекста предыдущих сообщений
         if (context.length > 0) {
             prompt += 'Контекст предыдущего разговора:\n';
             context.forEach(msg => {
@@ -585,10 +626,8 @@ class KHAIAssistant {
             prompt += '\n';
         }
 
-        // Добавление текущего сообщения
         prompt += `Текущий запрос пользователя: ${message}\n`;
 
-        // Добавление информации о файлах
         if (files.length > 0) {
             prompt += 'Прикрепленные файлы:\n';
             files.forEach(file => {
@@ -603,8 +642,6 @@ class KHAIAssistant {
     getConversationContext() {
         const chat = this.chats.get(this.currentChatId);
         if (!chat) return [];
-
-        // Берем последние 6 сообщений для контекста
         return chat.messages.slice(-6);
     }
 
@@ -649,7 +686,6 @@ class KHAIAssistant {
         const messageElement = this.createMessageElement(message);
         container.appendChild(messageElement);
         
-        // Прокрутка к новому сообщению
         if (!message.isLoading) {
             this.scrollToBottom();
         }
@@ -673,7 +709,6 @@ class KHAIAssistant {
 
         let content = message.content;
         
-        // Обработка markdown
         if (message.type === 'ai') {
             try {
                 content = this.renderMarkdown(content);
@@ -685,7 +720,6 @@ class KHAIAssistant {
             content = this.escapeHtml(content);
         }
 
-        // Обработка файлов
         let filesHtml = '';
         if (message.files && message.files.length > 0) {
             filesHtml = message.files.map(file => {
@@ -703,7 +737,6 @@ class KHAIAssistant {
             }).join('');
         }
 
-        // Действия для сообщения
         let actionsHtml = '';
         if (message.type === 'ai') {
             actionsHtml = `
@@ -713,9 +746,6 @@ class KHAIAssistant {
                     </button>
                     <button class="action-btn-small speak-btn" data-text="${this.escapeHtml(this.extractPlainText(message.content))}">
                         <i class="ti ti-microphone"></i> Озвучить
-                    </button>
-                    <button class="action-btn-small regenerate-btn" data-message-id="${message.id}">
-                        <i class="ti ti-refresh"></i> Перегенерировать
                     </button>
                 </div>
             `;
@@ -728,9 +758,7 @@ class KHAIAssistant {
             ${actionsHtml}
         `;
 
-        // Подсветка синтаксиса для блоков кода
         setTimeout(() => this.highlightCodeBlocks(messageDiv), 0);
-
         return messageDiv;
     }
 
@@ -762,7 +790,6 @@ class KHAIAssistant {
         if (typeof hljs === 'undefined') return;
         
         container.querySelectorAll('pre code').forEach((block) => {
-            // Добавляем заголовок с языком программирования
             const language = block.className.replace('language-', '') || 'text';
             const codeHeader = document.createElement('div');
             codeHeader.className = 'code-header';
@@ -777,7 +804,6 @@ class KHAIAssistant {
                 block.parentNode.insertBefore(codeHeader, block);
             }
             
-            // Обработчик копирования кода
             const copyBtn = codeHeader.querySelector('.copy-code-btn');
             if (copyBtn) {
                 this.addEventListener(copyBtn, 'click', () => {
@@ -789,8 +815,6 @@ class KHAIAssistant {
                             copyBtn.innerHTML = '<i class="ti ti-copy"></i> Копировать';
                             copyBtn.classList.remove('copied');
                         }, 2000);
-                    }).catch(err => {
-                        console.error('Ошибка копирования:', err);
                     });
                 });
             }
@@ -812,7 +836,6 @@ class KHAIAssistant {
 
     // Обновление интерфейса
     updateUI() {
-        // Обновление состояния кнопок
         const sendBtn = document.getElementById('sendBtn');
         const voiceBtn = document.getElementById('voiceInputBtn');
         
@@ -828,7 +851,6 @@ class KHAIAssistant {
             voiceBtn.disabled = this.isGenerating || this.isRecording;
         }
 
-        // Обновление статуса в футере
         const statusElement = document.getElementById('footerStatus');
         if (statusElement) {
             if (this.isGenerating) {
@@ -843,10 +865,15 @@ class KHAIAssistant {
             }
         }
 
-        // Обновление информации о текущей модели
         const modelInfo = document.getElementById('currentModelInfo');
         if (modelInfo) {
             modelInfo.textContent = this.getModelDisplayName(this.currentModel);
+        }
+
+        const connectionStatus = document.getElementById('connectionStatus');
+        if (connectionStatus) {
+            connectionStatus.textContent = this.isOnline ? '✅ Онлайн' : '❌ Офлайн';
+            connectionStatus.style.color = this.isOnline ? 'var(--success-text)' : 'var(--error-text)';
         }
     }
 
@@ -869,7 +896,6 @@ class KHAIAssistant {
         if (sidebar && overlay) {
             sidebar.classList.toggle('open');
             overlay.classList.toggle('open');
-            
             document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
         }
     }
@@ -949,7 +975,6 @@ class KHAIAssistant {
             this.chats.delete(chatId);
             
             if (this.currentChatId === chatId) {
-                // Переключаемся на первый доступный чат
                 const firstChat = Array.from(this.chats.values())[0];
                 this.currentChatId = firstChat.id;
                 this.loadCurrentChat();
@@ -1008,6 +1033,9 @@ class KHAIAssistant {
                 </div>
             </div>
         `).join('');
+
+        document.getElementById('chatsCount').textContent = chatsArray.length;
+        document.getElementById('totalMessagesCount').textContent = chatsArray.reduce((total, chat) => total + chat.messages.length, 0);
     }
 
     // Обновление информации о текущем чате
@@ -1015,8 +1043,13 @@ class KHAIAssistant {
         const chat = this.chats.get(this.currentChatId);
         if (chat) {
             const chatNameElement = document.getElementById('currentChatName');
+            const messageCountElement = document.getElementById('messageCount');
+            
             if (chatNameElement) {
                 chatNameElement.textContent = chat.name;
+            }
+            if (messageCountElement) {
+                messageCountElement.textContent = `${chat.messages.length} сообщений`;
             }
         }
     }
@@ -1124,13 +1157,11 @@ class KHAIAssistant {
         const modes = ['normal', 'voice', 'image'];
         const buttons = ['normalModeBtn', 'generateVoiceBtn', 'generateImageBtn'];
         
-        // Сброс всех кнопок
         buttons.forEach(btnId => {
             const btn = document.getElementById(btnId);
             if (btn) btn.classList.remove('active');
         });
         
-        // Активация выбранной кнопки
         const activeBtn = document.getElementById(mode + 'ModeBtn') || 
                          document.getElementById('generate' + mode.charAt(0).toUpperCase() + mode.slice(1) + 'Btn');
         if (activeBtn) {
@@ -1155,7 +1186,6 @@ class KHAIAssistant {
         document.getElementById('modelModal').classList.add('open');
         document.getElementById('modelModalOverlay').classList.add('open');
         
-        // Установить текущую выбранную модель
         const modelOptions = document.querySelectorAll('.model-option');
         modelOptions.forEach(option => {
             if (option.dataset.model === this.currentModel) {
@@ -1255,7 +1285,7 @@ class KHAIAssistant {
         const files = Array.from(event.target.files);
         if (files.length === 0) return;
 
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = 10 * 1024 * 1024;
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'text/plain', 'application/pdf'];
 
         files.forEach(file => {
@@ -1376,12 +1406,10 @@ class KHAIAssistant {
 
         this.currentSearchIndex = -1;
         this.highlightSearchResults(query);
-        this.updateSearchNavigation();
     }
 
     // Подсветка результатов поиска
     highlightSearchResults(query) {
-        // Сначала убираем предыдущие подсветки
         document.querySelectorAll('.search-highlight').forEach(el => {
             el.classList.remove('search-highlight');
         });
@@ -1400,56 +1428,6 @@ class KHAIAssistant {
         });
     }
 
-    // Обновление навигации по поиску
-    updateSearchNavigation() {
-        const searchNav = document.getElementById('searchNavigation');
-        if (!searchNav) return;
-
-        if (this.searchResults.length === 0) {
-            searchNav.style.display = 'none';
-            return;
-        }
-
-        searchNav.style.display = 'flex';
-        document.getElementById('searchResultsCount').textContent = 
-            `${this.currentSearchIndex + 1} из ${this.searchResults.length}`;
-    }
-
-    // Переход к следующему результату поиска
-    nextSearchResult() {
-        if (this.searchResults.length === 0) return;
-        
-        this.currentSearchIndex = (this.currentSearchIndex + 1) % this.searchResults.length;
-        this.scrollToSearchResult();
-    }
-
-    // Переход к предыдущему результату поиска
-    prevSearchResult() {
-        if (this.searchResults.length === 0) return;
-        
-        this.currentSearchIndex = this.currentSearchIndex <= 0 ? 
-            this.searchResults.length - 1 : this.currentSearchIndex - 1;
-        this.scrollToSearchResult();
-    }
-
-    // Прокрутка к результату поиска
-    scrollToSearchResult() {
-        if (this.currentSearchIndex < 0 || this.currentSearchIndex >= this.searchResults.length) return;
-
-        const result = this.searchResults[this.currentSearchIndex];
-        const messageElement = document.querySelector(`[data-message-id="${result.id}"]`);
-        
-        if (messageElement) {
-            messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            messageElement.classList.add('search-result-active');
-            setTimeout(() => {
-                messageElement.classList.remove('search-result-active');
-            }, 2000);
-        }
-
-        this.updateSearchNavigation();
-    }
-
     // Очистка поиска
     clearSearch() {
         const searchInput = document.getElementById('headerSearch');
@@ -1461,7 +1439,6 @@ class KHAIAssistant {
         this.searchResults = [];
         this.currentSearchIndex = -1;
         this.highlightSearchResults('');
-        this.updateSearchNavigation();
     }
 
     // Копирование сообщения
@@ -1477,9 +1454,22 @@ class KHAIAssistant {
                 setTimeout(() => {
                     button.innerHTML = '<i class="ti ti-copy"></i> Копировать';
                 }, 2000);
-            }).catch(err => {
-                console.error('Ошибка копирования:', err);
-                this.showNotification('Ошибка копирования', 'error');
+            });
+        }
+    }
+
+    // Копирование кода
+    copyCode(button) {
+        const codeBlock = button.closest('.code-header')?.nextElementSibling;
+        if (codeBlock) {
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.innerHTML = '<i class="ti ti-check"></i> Скопировано';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.innerHTML = '<i class="ti ti-copy"></i> Копировать';
+                    button.classList.remove('copied');
+                }, 2000);
             });
         }
     }
@@ -1503,7 +1493,7 @@ class KHAIAssistant {
         }
 
         try {
-            this.stopSpeech(); // Останавливаем предыдущее воспроизведение
+            this.stopSpeech();
 
             this.currentUtterance = new SpeechSynthesisUtterance(text);
             this.currentUtterance.lang = 'ru-RU';
@@ -1511,7 +1501,6 @@ class KHAIAssistant {
             this.currentUtterance.pitch = 1.0;
             this.currentUtterance.volume = 1.0;
 
-            // Выбор русского голоса если доступен
             const voices = speechSynthesis.getVoices();
             const russianVoice = voices.find(voice => 
                 voice.lang.includes('ru') || voice.lang.includes('RU')
@@ -1537,8 +1526,6 @@ class KHAIAssistant {
             };
 
             speechSynthesis.speak(this.currentUtterance);
-            this.showNotification('Озвучивание текста...', 'info');
-
         } catch (error) {
             console.error('Ошибка озвучивания:', error);
             this.showNotification('Ошибка при озвучивании текста', 'error');
@@ -1562,15 +1549,10 @@ class KHAIAssistant {
         if (messageElement) {
             const userMessage = this.findPreviousUserMessage(messageId);
             if (userMessage) {
-                // Удаляем текущее сообщение AI
                 this.removeMessage(messageId);
-                
-                // Восстанавливаем сообщение пользователя в поле ввода
                 document.getElementById('userInput').value = userMessage.content;
                 this.autoResizeTextarea(document.getElementById('userInput'));
                 this.toggleClearInputButton();
-                
-                // Отправляем сообщение заново
                 setTimeout(() => this.sendMessage(), 100);
             }
         }
@@ -1584,7 +1566,6 @@ class KHAIAssistant {
         const messageIndex = chat.messages.findIndex(msg => msg.id === messageId);
         if (messageIndex === -1) return null;
 
-        // Ищем предыдущее сообщение пользователя
         for (let i = messageIndex - 1; i >= 0; i--) {
             if (chat.messages[i].type === 'user') {
                 return chat.messages[i];
@@ -1672,7 +1653,6 @@ class KHAIAssistant {
 
     // Показать уведомление
     showNotification(message, type = 'info') {
-        // Создаем элемент уведомления
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.innerHTML = `
@@ -1685,32 +1665,26 @@ class KHAIAssistant {
             </button>
         `;
 
-        // Добавляем в контейнер уведомлений
-        const container = document.getElementById('notificationsContainer');
+        let container = document.getElementById('notificationsContainer');
         if (!container) {
-            // Создаем контейнер если его нет
-            const newContainer = document.createElement('div');
-            newContainer.id = 'notificationsContainer';
-            newContainer.className = 'notifications-container';
-            document.body.appendChild(newContainer);
-            container = newContainer;
+            container = document.createElement('div');
+            container.id = 'notificationsContainer';
+            container.className = 'notifications-container';
+            document.body.appendChild(container);
         }
 
         container.appendChild(notification);
 
-        // Автоматическое скрытие
         const autoHide = setTimeout(() => {
             notification.remove();
         }, 5000);
 
-        // Закрытие по клику
         const closeBtn = notification.querySelector('.notification-close');
         this.addEventListener(closeBtn, 'click', () => {
             clearTimeout(autoHide);
             notification.remove();
         });
 
-        // Анимация появления
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
@@ -1740,18 +1714,14 @@ class KHAIAssistant {
 
     // Обработка перед закрытием страницы
     handleBeforeUnload() {
-        // Сохраняем текущее состояние
         this.saveChats();
         
-        // Останавливаем генерацию если она идет
         if (this.isGenerating) {
             this.stopGeneration();
         }
         
-        // Останавливаем речь
         this.stopSpeech();
         
-        // Останавливаем запись голоса
         if (this.isRecording) {
             this.stopVoiceInput();
         }
@@ -1759,23 +1729,17 @@ class KHAIAssistant {
 
     // Очистка ресурсов
     cleanup() {
-        // Останавливаем все таймеры
         this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
         this.activeTimeouts.clear();
 
-        // Останавливаем речь
         this.stopSpeech();
 
-        // Останавливаем голосовой ввод
         if (this.recognition && this.isRecording) {
             try {
                 this.recognition.stop();
-            } catch (e) {
-                // Игнорируем ошибки при остановке
-            }
+            } catch (e) {}
         }
 
-        // Удаляем обработчики событий
         this.activeEventListeners.forEach((listeners, element) => {
             if (element && element.removeEventListener) {
                 listeners.forEach(({ event, handler }) => {
@@ -1790,15 +1754,12 @@ class KHAIAssistant {
 // Инициализация приложения после загрузки DOM
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        // Проверка поддержки необходимых API
         if (!('localStorage' in window)) {
             alert('Ваш браузер не поддерживает localStorage. Некоторые функции могут быть недоступны.');
         }
 
-        // Инициализация приложения
         window.khaiApp = new KHAIAssistant();
 
-        // Обработка ошибок
         window.addEventListener('error', (event) => {
             console.error('Global error:', event.error);
             if (window.khaiApp) {
@@ -1806,7 +1767,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Обработка отклоненных промисов
         window.addEventListener('unhandledrejection', (event) => {
             console.error('Unhandled promise rejection:', event.reason);
             if (window.khaiApp) {
@@ -1822,25 +1782,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h1>😕 KHAI — Ошибка загрузки</h1>
                     <p>Не удалось запустить приложение. Пожалуйста, обновите страницу.</p>
                     <button onclick="location.reload()" class="retry-btn">Перезагрузить</button>
-                    <details>
-                        <summary>Техническая информация</summary>
-                        <pre>${error.stack}</pre>
-                    </details>
                 </div>
             </div>
         `;
     }
 });
-
-// Service Worker для PWA
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
