@@ -162,6 +162,29 @@ body {
     transform: scale(1.05);
 }
 
+/* Кнопка выбора модели в хедере */
+.model-select-btn {
+    margin-right: 8px;
+    flex-shrink: 0;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    font-size: 16px;
+}
+
+.model-select-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
 /* Header Search */
 .header-search-container {
     flex: 1;
@@ -297,6 +320,24 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     padding: 20px 10px;
 }
 
+/* Custom scrollbar for messages */
+.messages-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
 /* Minimap and navigation */
 .chat-minimap-container {
     position: absolute;
@@ -308,6 +349,34 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     gap: 8px;
     z-index: 10;
     width: 100px;
+}
+
+/* Заголовок мини-карты */
+.minimap-header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+/* Кнопка темы в мини-карте */
+.theme-minimap-btn {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    font-size: 14px;
+}
+
+.theme-minimap-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
 }
 
 .chat-minimap {
@@ -1014,14 +1083,19 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     border-color: var(--accent-primary);
 }
 
+/* Исправление режимов кнопок - скрываем текст у неактивных */
 .mode-btn:not(.active) {
-    width: 32px;
+    width: 40px;
     padding: 6px;
     justify-content: center;
 }
 
 .mode-btn:not(.active) .btn-text {
     display: none;
+}
+
+.mode-btn.active .btn-text {
+    display: inline;
 }
 
 .mode-btn#generateVoiceBtn.active {
@@ -1080,22 +1154,23 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
 .footer-controls {
     display: flex;
     gap: 8px;
+    align-items: center;
 }
 
+/* Кнопки футера без текста */
 .footer-btn {
+    width: 32px;
+    height: 32px;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
-    padding: 6px 10px;
     border-radius: var(--radius-md);
     cursor: pointer;
-    font-size: 11px;
-    transition: var(--transition);
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 32px;
-    width: 32px;
+    transition: var(--transition);
+    font-size: 14px;
 }
 
 .footer-btn:hover {
@@ -1681,6 +1756,7 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     background-color: rgba(255, 255, 0, 0.3);
     border-radius: 2px;
     padding: 0 2px;
+    color: inherit !important;
 }
 
 /* Notification styles */
@@ -1742,6 +1818,12 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
         height: 32px;
     }
     
+    .model-select-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
     .header-search-container {
         max-width: 200px;
         margin: 0 8px;
@@ -1779,6 +1861,12 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     }
     
     .nav-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+    }
+    
+    .theme-minimap-btn {
         width: 26px;
         height: 26px;
         font-size: 12px;
@@ -1834,6 +1922,12 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
         padding: 2px 5px;
     }
     
+    .footer-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
     .sidebar-menu {
         max-width: 280px;
     }
@@ -1867,7 +1961,29 @@ body[data-theme="dark"] .control-btn#themeToggle i::before {
     }
     
     .chat-minimap-container {
-        display: none;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        right: 5px;
+        width: auto;
+    }
+    
+    .minimap-header {
+        order: 1;
+        margin-bottom: 0;
+    }
+    
+    .minimap-navigation {
+        order: 2;
+        flex-direction: row;
+        gap: 4px;
+    }
+    
+    .chat-minimap {
+        order: 3;
+        width: 60px;
+        height: 80px;
     }
     
     .input-section {
