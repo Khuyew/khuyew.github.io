@@ -6,19 +6,19 @@
     <title>KHAI - AI Чат-помощник</title>
     <meta name="description" content="Полностью бесплатный ИИ-помощник KHAI с генерацией изображений и голоса">
     <meta name="theme-color" content="#0f0f23">
+    <meta name="keywords" content="AI, ИИ, чат, помощник, генерация изображений, голос">
     
-    <!-- PWA Meta -->
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KHAI Assistant">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -37,6 +37,7 @@
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
                         <img src="./logo.png" alt="KHAI Assistant Logo" onerror="this.style.display='none'">
+                        <span class="logo-text">KHAI</span>
                     </div>
                 </div>
                 
@@ -58,15 +59,15 @@
                 
                 <!-- Правая часть: управление -->
                 <div class="header-controls">
-                    <button class="control-btn menu-toggle" id="menuToggle">
+                    <button class="control-btn" id="themeToggle" title="Переключить тему">
+                        <i class="ti ti-moon"></i>
+                    </button>
+                    <button class="control-btn menu-toggle" id="menuToggle" title="Меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
                 </div>
             </div>
         </header>
-
-        <!-- Область уведомлений -->
-        <div class="notifications-container" id="notificationsContainer"></div>
 
         <!-- Основная область чата -->
         <main class="chat-main">
@@ -147,6 +148,14 @@
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
                 </button>
+                <button class="action-btn" id="helpBtn" title="Помощь">
+                    <i class="ti ti-help"></i>
+                    <span class="btn-text">Помощь</span>
+                </button>
+                <button class="action-btn" id="clearChatBtn" title="Очистить чат">
+                    <i class="ti ti-trash"></i>
+                    <span class="btn-text">Очистить</span>
+                </button>
             </div>
         </div>
 
@@ -213,10 +222,6 @@
                     <i class="ti ti-plus"></i>
                     Новый чат
                 </button>
-                <button class="sidebar-btn" id="deleteAllChatsBtn">
-                    <i class="ti ti-trash"></i>
-                    Удалить все
-                </button>
                 <button class="sidebar-btn" id="importChatBtn">
                     <i class="ti ti-upload"></i>
                     Импорт
@@ -247,7 +252,6 @@
 
             <!-- LiveInternet counter -->
             <div class="liveinternet-container">
-                <!-- LiveInternet counter code -->
                 <a href="//www.liveinternet.ru/click" target="_blank">
                     <img src="//counter.yadro.ru/logo?52.1.1.1" 
                          alt="LiveInternet: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня" 
@@ -259,6 +263,7 @@
             <!-- Watermark -->
             <div class="sidebar-watermark">
                 <img src="./logo.png" alt="KHAI" onerror="this.style.display='none'">
+                <span>KHAI Assistant</span>
             </div>
         </div>
     </div>
@@ -277,12 +282,12 @@
             </div>
             <div class="modal-body">
                 <div class="model-list">
-                    <div class="model-item selected" data-model="gpt-4">
+                    <div class="model-item selected" data-model="gpt-4-turbo">
                         <div class="model-item-header">
-                            <span class="model-name">GPT-4</span>
+                            <span class="model-name">GPT-4 Turbo</span>
                             <span class="model-status available">Доступно</span>
                         </div>
-                        <div class="model-description">Самая продвинутая модель OpenAI для сложных задач</div>
+                        <div class="model-description">Самая продвинутая модель для сложных задач</div>
                     </div>
                     <div class="model-item" data-model="gpt-3.5-turbo">
                         <div class="model-item-header">
@@ -291,19 +296,12 @@
                         </div>
                         <div class="model-description">Быстрая и эффективная модель для повседневных задач</div>
                     </div>
-                    <div class="model-item" data-model="claude-3-sonnet">
+                    <div class="model-item" data-model="claude-2">
                         <div class="model-item-header">
-                            <span class="model-name">Claude 3 Sonnet</span>
+                            <span class="model-name">Claude 2</span>
                             <span class="model-status available">Доступно</span>
                         </div>
-                        <div class="model-description">Сбалансированная модель Anthropic для анализа</div>
-                    </div>
-                    <div class="model-item" data-model="claude-3-haiku">
-                        <div class="model-item-header">
-                            <span class="model-name">Claude 3 Haiku</span>
-                            <span class="model-status available">Доступно</span>
-                        </div>
-                        <div class="model-description">Быстрая и экономичная модель от Anthropic</div>
+                        <div class="model-description">Мощная модель для анализа и рассуждений</div>
                     </div>
                     <div class="model-item" data-model="gemini-pro">
                         <div class="model-item-header">
@@ -311,13 +309,6 @@
                             <span class="model-status available">Доступно</span>
                         </div>
                         <div class="model-description">Универсальная модель от Google</div>
-                    </div>
-                    <div class="model-item" data-model="llama-2-70b">
-                        <div class="model-item-header">
-                            <span class="model-name">Llama 2 70B</span>
-                            <span class="model-status available">Доступно</span>
-                        </div>
-                        <div class="model-description">Мощная open-source модель от Meta</div>
                     </div>
                 </div>
             </div>
@@ -352,25 +343,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="confirmModalTitle">Подтверждение</h3>
-                <button class="modal-close" id="confirmModalClose">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p id="confirmModalMessage">Вы уверены в этом действии?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn" id="confirmModalCancel">Отмена</button>
-                <button class="modal-btn danger" id="confirmModalConfirm">Подтвердить</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="script.js"></script>
