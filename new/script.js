@@ -1,5 +1,5 @@
-// KHAI Pro - Advanced AI Chat Application
-class KHAIProChat {
+// KHAI - Advanced AI Chat Application
+class KHAIChat {
     constructor() {
         this.messages = [];
         this.currentChatId = 'main-chat';
@@ -122,7 +122,7 @@ class KHAIProChat {
             },
             code: { 
                 icon: 'ti-code', 
-                color: '#ffd600',
+                color: '#4caf50',
                 placeholder: 'Опишите код который нужно написать или исправить...',
                 systemPrompt: 'Ты эксперт по программированию. Пиши чистый, эффективный и хорошо документированный код. Отвечай на русском языке.'
             }
@@ -155,9 +155,9 @@ class KHAIProChat {
             this.startPlaceholderAnimation();
             this.loadThemePreference();
             
-            console.log('KHAI Pro Chat initialized successfully');
+            console.log('KHAI Chat initialized successfully');
         } catch (error) {
-            console.error('Error initializing KHAI Pro Chat:', error);
+            console.error('Error initializing KHAI Chat:', error);
             this.showError('Ошибка инициализации приложения');
         }
     }
@@ -530,7 +530,7 @@ class KHAIProChat {
     async mockAIResponse(prompt, options) {
         const responses = {
             normal: [
-                "Привет! Я KHAI Pro - ваш AI-ассистент. Готов помочь с любыми вопросами!",
+                "Привет! Я KHAI - ваш AI-ассистент. Готов помочь с любыми вопросами!",
                 "Отличный вопрос! Давайте разберем его подробнее...",
                 "На основе вашего запроса, я могу предложить несколько решений...",
                 "Это интересная тема! Вот что я могу рассказать...",
@@ -1881,7 +1881,7 @@ ${fileContent}
                 <div class="welcome-icon">
                     <i class="ti ti-sparkles"></i>
                 </div>
-                <h2>Добро пожаловать в KHAI Pro!</h2>
+                <h2>Добро пожаловать в KHAI!</h2>
                 <p>Я ваш AI-ассистент. Готов помочь с:</p>
                 <ul>
                     <li><i class="ti ti-message"></i> Ответами на вопросы и обсуждениями</li>
@@ -1910,7 +1910,7 @@ ${fileContent}
                 return;
             }
             
-            let exportContent = `KHAI Pro - Экспорт чата\n`;
+            let exportContent = `KHAI - Экспорт чата\n`;
             exportContent += `Дата: ${new Date().toLocaleString('ru-RU')}\n`;
             exportContent += `Модель: ${this.models[this.currentModel]?.name || this.currentModel}\n`;
             exportContent += `Режим: ${this.getModeDisplayName(this.currentMode)}\n`;
@@ -1934,7 +1934,7 @@ ${fileContent}
             const a = document.createElement('a');
             const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
             a.href = url;
-            a.download = `khai-pro-chat-${timestamp}.txt`;
+            a.download = `khai-chat-${timestamp}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2086,7 +2086,7 @@ ${fileContent}
     showHelp() {
         const helpContent = `
             <div class="help-content">
-                <h2>📚 Помощь по KHAI Pro</h2>
+                <h2>📚 Помощь по KHAI</h2>
                 
                 <div class="help-section">
                     <h3>🔧 Основные возможности</h3>
@@ -2124,7 +2124,7 @@ ${fileContent}
             </div>
         `;
         
-        this.showModal('Помощь по KHAI Pro', helpContent);
+        this.showModal('Помощь по KHAI', helpContent);
     }
 
     showSettings() {
@@ -2268,17 +2268,17 @@ ${fileContent}
 
     setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('khai-pro-theme', theme);
+        localStorage.setItem('khai-theme', theme);
     }
 
     setFontSize(size) {
         document.documentElement.setAttribute('data-font-size', size);
-        localStorage.setItem('khai-pro-font-size', size);
+        localStorage.setItem('khai-font-size', size);
     }
 
     loadThemePreference() {
-        const savedTheme = localStorage.getItem('khai-pro-theme') || 'auto';
-        const savedFontSize = localStorage.getItem('khai-pro-font-size') || 'medium';
+        const savedTheme = localStorage.getItem('khai-theme') || 'auto';
+        const savedFontSize = localStorage.getItem('khai-font-size') || 'medium';
         
         this.setTheme(savedTheme);
         this.setFontSize(savedFontSize);
@@ -2293,7 +2293,7 @@ ${fileContent}
             defaultMode: this.currentMode
         };
         
-        localStorage.setItem('khai-pro-settings', JSON.stringify(settings));
+        localStorage.setItem('khai-settings', JSON.stringify(settings));
         this.showNotification('Настройки сохранены', 'success');
     }
 
@@ -2318,7 +2318,7 @@ ${fileContent}
             const a = document.createElement('a');
             const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
             a.href = url;
-            a.download = `khai-pro-backup-${timestamp}.json`;
+            a.download = `khai-backup-${timestamp}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2398,7 +2398,7 @@ ${fileContent}
 
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
+        notification.className = `notification ${type}`;
         notification.innerHTML = `
             <div class="notification-content">
                 <i class="ti ti-${this.getNotificationIcon(type)}"></i>
@@ -2409,7 +2409,12 @@ ${fileContent}
             </button>
         `;
         
-        document.body.appendChild(notification);
+        const container = document.getElementById('notificationContainer');
+        if (container) {
+            container.appendChild(notification);
+        } else {
+            document.body.appendChild(notification);
+        }
         
         this.addEventListener(notification.querySelector('.notification-close'), 'click', () => {
             notification.remove();
@@ -2455,16 +2460,16 @@ ${fileContent}
 
     setOnlineStatus(online) {
         this.isOnline = online;
-        const statusIndicator = document.getElementById('onlineStatus');
+        const statusIndicator = document.getElementById('connectionStatus');
         
         if (statusIndicator) {
             if (online) {
-                statusIndicator.className = 'online-status online';
-                statusIndicator.innerHTML = '<i class="ti ti-wifi"></i> Онлайн';
+                statusIndicator.className = 'connection-status';
+                statusIndicator.innerHTML = '<i class="ti ti-wifi"></i><span>Онлайн</span>';
                 statusIndicator.title = 'Подключено к AI сервисам';
             } else {
-                statusIndicator.className = 'online-status offline';
-                statusIndicator.innerHTML = '<i class="ti ti-wifi-off"></i> Офлайн';
+                statusIndicator.className = 'connection-status offline';
+                statusIndicator.innerHTML = '<i class="ti ti-wifi-off"></i><span>Офлайн</span>';
                 statusIndicator.title = 'Нет подключения к AI сервисам';
             }
         }
@@ -2508,18 +2513,18 @@ ${fileContent}
     }
 
     toggleSidebarMenu() {
-        const sidebar = document.getElementById('sidebarMenu');
+        const sidebar = document.getElementById('mobileSidebar');
         const overlay = document.getElementById('sidebarOverlay');
         
         if (sidebar && overlay) {
-            const isOpen = sidebar.classList.contains('open');
+            const isOpen = sidebar.classList.contains('active');
             
             if (isOpen) {
-                sidebar.classList.remove('open');
+                sidebar.classList.remove('active');
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
             } else {
-                sidebar.classList.add('open');
+                sidebar.classList.add('active');
                 overlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
@@ -2765,13 +2770,13 @@ ${fileContent}
             document.body.appendChild(dropZone);
         }
         
-        dropZone.classList.add('active');
+        dropZone.style.display = 'flex';
     }
 
     hideDropZone() {
         const dropZone = document.getElementById('dropZone');
         if (dropZone) {
-            dropZone.classList.remove('active');
+            dropZone.style.display = 'none';
         }
     }
 
@@ -2830,7 +2835,7 @@ ${fileContent}
             durationText = `${minutes}м`;
         }
         
-        durationElement.textContent = durationText;
+        durationElement.textContent = `Время: ${durationText}`;
     }
 
     startPlaceholderAnimation() {
@@ -2984,25 +2989,21 @@ ${fileContent}
 
     handlePreset(preset) {
         const presets = {
-            'code-help': {
-                message: 'Помоги написать функцию на Python для сортировки массива разными методами',
-                mode: 'code'
-            },
-            'creative-writing': {
-                message: 'Напиши короткий рассказ о путешествии во времени в древний Рим',
-                mode: 'creative'
-            },
-            'image-description': {
-                message: 'Опиши детальное изображение футуристического города с летающими автомобилями и неоновыми вывесками',
-                mode: 'image'
-            },
-            'voice-script': {
-                message: 'Напиши скрипт для озвучивания презентации о новых технологиях искусственного интеллекта',
-                mode: 'voice'
-            },
-            'analysis': {
-                message: 'Проанализируй текущие тренды в развитии искусственного интеллекта и машинного обучения',
+            'explain': {
+                message: 'Объясни концепцию искусственного интеллекта простыми словами',
                 mode: 'normal'
+            },
+            'summarize': {
+                message: 'Суммаризируй основные преимущества использования AI в повседневной жизни',
+                mode: 'normal'
+            },
+            'translate': {
+                message: 'Переведи следующий текст на английский: "Привет, как дела?"',
+                mode: 'normal'
+            },
+            'code': {
+                message: 'Напиши функцию на Python для вычисления факториала числа',
+                mode: 'code'
             }
         };
         
@@ -3029,7 +3030,7 @@ ${fileContent}
                     <div class="about-logo">
                         <i class="ti ti-sparkles"></i>
                     </div>
-                    <h2>KHAI Pro</h2>
+                    <h2>KHAI</h2>
                     <p class="about-version">Версия 2.1.0</p>
                 </div>
                 
@@ -3092,12 +3093,12 @@ ${fileContent}
                 </div>
                 
                 <div class="about-footer">
-                    <p>© 2024 KHAI Pro. Все права защищены.</p>
+                    <p>© 2024 KHAI. Все права защищены.</p>
                 </div>
             </div>
         `;
         
-        this.showModal('О KHAI Pro', aboutContent, 'large');
+        this.showModal('О KHAI', aboutContent, 'large');
     }
 
     showTemplates() {
@@ -3177,6 +3178,19 @@ ${fileContent}
         this.updateNavigationButtons();
         this.updateAttachedFilesDisplay();
         this.toggleClearInputButton();
+        
+        // Update message count
+        const messageCount = document.getElementById('messageCount');
+        if (messageCount) {
+            const count = this.chats.get(this.currentChatId)?.length || 0;
+            messageCount.textContent = `Сообщений: ${count}`;
+        }
+        
+        // Update current model display
+        const modelDisplay = document.getElementById('currentModelDisplay');
+        if (modelDisplay) {
+            modelDisplay.textContent = `Модель: ${this.models[this.currentModel]?.name || this.currentModel}`;
+        }
     }
 
     addToConversationHistory(role, content, files = []) {
@@ -3195,7 +3209,7 @@ ${fileContent}
 
     async loadChatHistory() {
         try {
-            const saved = localStorage.getItem('khai-pro-chats');
+            const saved = localStorage.getItem('khai-chats');
             if (saved) {
                 const data = JSON.parse(saved);
                 this.chats = new Map(Object.entries(data.chats || {}));
@@ -3225,7 +3239,7 @@ ${fileContent}
                 timestamp: Date.now()
             };
             
-            localStorage.setItem('khai-pro-chats', JSON.stringify(data));
+            localStorage.setItem('khai-chats', JSON.stringify(data));
         } catch (error) {
             console.error('Error saving chat history:', error);
         }
@@ -3292,18 +3306,18 @@ ${fileContent}
         this.hideModal();
         this.hideContextMenu();
         
-        console.log('KHAI Pro Chat destroyed');
+        console.log('KHAI Chat destroyed');
     }
 }
 
 // Инициализация приложения когда DOM готов
 document.addEventListener('DOMContentLoaded', () => {
-    window.khaiProChat = new KHAIProChat();
+    window.khaiChat = new KHAIChat();
 });
 
 // Очистка при выгрузке страницы
 window.addEventListener('beforeunload', () => {
-    if (window.khaiProChat) {
-        window.khaiProChat.destroy();
+    if (window.khaiChat) {
+        window.khaiChat.destroy();
     }
 });
