@@ -14,7 +14,7 @@
 </head>
 <body>
     <!-- PWA Install Prompt -->
-    <div id="pwaInstallPrompt" class="pwa-prompt">
+    <div id="pwaInstallPrompt" class="pwa-prompt" style="display: none;">
         <div class="pwa-prompt-content">
             <div class="pwa-prompt-icon">
                 <i class="ti ti-download"></i>
@@ -39,7 +39,7 @@
                         <i class="ti ti-menu-2"></i>
                     </button>
                     <div class="logo" id="logoBtn" title="О KHAI Pro">
-                        <i class="ti ti-brain" style="color: white; font-size: 20px;"></i>
+                        <i class="ti ti-brain"></i>
                     </div>
                     <div class="app-name">KHAI Pro</div>
                 </div>
@@ -49,7 +49,7 @@
                         <div class="search-wrapper">
                             <i class="ti ti-search"></i>
                             <input type="text" id="headerSearch" placeholder="Поиск в сообщениях...">
-                            <button id="headerSearchClear" class="search-clear" title="Очистить поиск">
+                            <button id="headerSearchClear" class="search-clear" title="Очистить поиск" style="display: none;">
                                 <i class="ti ti-x"></i>
                             </button>
                         </div>
@@ -166,7 +166,8 @@
         <!-- Input Section -->
         <section class="input-section" id="inputSection">
             <div class="mode-indicator" id="modeIndicator">
-                Режим: Обычный
+                <i class="ti ti-message"></i>
+                <span>Режим: Обычный</span>
             </div>
             
             <div class="input-wrapper">
@@ -189,7 +190,7 @@
                         <button id="voiceInputBtn" class="input-btn" title="Голосовой ввод">
                             <i class="ti ti-microphone"></i>
                         </button>
-                        <button id="clearInputBtn" class="input-btn" title="Очистить">
+                        <button id="clearInputBtn" class="input-btn" title="Очистить" style="display: none;">
                             <i class="ti ti-x"></i>
                         </button>
                         <button id="sendBtn" class="send-btn" title="Отправить сообщение">
@@ -199,44 +200,44 @@
                 </div>
             </div>
 
-            <div class="attached-files" id="attachedFiles"></div>
+            <div class="attached-files" id="attachedFiles" style="display: none;"></div>
 
             <div class="action-buttons">
                 <div class="mode-buttons">
                     <button class="mode-btn normal active" data-mode="normal" title="Обычный режим">
                         <i class="ti ti-message"></i>
-                        Обычный
+                        <span class="mode-text">Обычный</span>
                     </button>
                     <button class="mode-btn creative" data-mode="creative" title="Креативный режим">
                         <i class="ti ti-sparkles"></i>
-                        Креативный
+                        <span class="mode-text">Креативный</span>
                     </button>
                     <button class="mode-btn voice" data-mode="voice" title="Аудио режим">
                         <i class="ti ti-microphone"></i>
-                        Аудио
+                        <span class="mode-text">Аудио</span>
                     </button>
                     <button class="mode-btn image" data-mode="image" title="Изображения">
                         <i class="ti ti-photo"></i>
-                        Изображения
+                        <span class="mode-text">Изображения</span>
                     </button>
                     <button class="mode-btn code" data-mode="code" title="Программирование">
                         <i class="ti ti-code"></i>
-                        Код
+                        <span class="mode-text">Код</span>
                     </button>
                 </div>
 
                 <div class="utility-buttons">
                     <button id="clearChatBtn" class="utility-btn" title="Очистить чат">
                         <i class="ti ti-trash"></i>
-                        Очистить
+                        <span>Очистить</span>
                     </button>
                     <button id="exportBtn" class="utility-btn" title="Экспорт чата">
                         <i class="ti ti-download"></i>
-                        Экспорт
+                        <span>Экспорт</span>
                     </button>
                     <button id="helpBtn" class="utility-btn" title="Помощь">
                         <i class="ti ti-help"></i>
-                        Помощь
+                        <span>Помощь</span>
                     </button>
                 </div>
             </div>
