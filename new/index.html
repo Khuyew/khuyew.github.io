@@ -1,30 +1,56 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark" data-font-size="medium">
+<html lang="ru" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KHAI Pro - Ultimate AI Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>KHAI — Чат с ИИ</title>
     <meta name="description" content="Продвинутый AI-чат с поддержкой различных моделей и режимов работы">
     <meta name="theme-color" content="#0099ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="KHAI Pro">
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css" as="style">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" as="style">
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css">
+    <meta name="apple-mobile-web-app-title" content="KHAI">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
-    
-    <!-- iOS icons -->
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <link rel="apple-touch-startup-image" href="icons/icon-512x512.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
+    <style>
+        /* Critical CSS for initial render */
+        .app-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary, #0f0f23);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #0099ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
+    <div class="app-loader" id="appLoader">
+        <div class="loader-spinner"></div>
+        <div style="color: #fff; font-size: 16px;">Загрузка KHAI...</div>
+    </div>
+
     <!-- PWA Install Prompt -->
     <div id="pwaInstallPrompt" class="pwa-prompt" style="display: none;">
         <div class="pwa-prompt-content">
@@ -32,7 +58,7 @@
                 <i class="ti ti-download"></i>
             </div>
             <div class="pwa-prompt-text">
-                <h3>Установить KHAI Pro</h3>
+                <h3>Установить KHAI</h3>
                 <p>Установите приложение для быстрого доступа и работы офлайн</p>
             </div>
             <div class="pwa-prompt-buttons">
@@ -42,32 +68,26 @@
         </div>
     </div>
 
-    <!-- Connection Status Bar -->
-    <div id="connectionStatusBar" class="connection-status-bar">
-        <i class="ti ti-wifi"></i>
-        <span>Подключение...</span>
-    </div>
-
-    <div class="app-container">
-        <!-- Enhanced Header -->
+    <div class="app-container" style="opacity: 0;">
+        <!-- Header -->
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-container">
                     <button id="menuToggle" class="control-btn" title="Меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
-                    <div class="logo" id="logoBtn" title="KHAI Pro">
+                    <div class="logo" id="logoBtn" title="О KHAI">
                         <i class="ti ti-brain" style="color: white; font-size: 20px;"></i>
                     </div>
-                    <div class="app-name">KHAI Pro</div>
+                    <div class="app-name">KHAI</div>
                 </div>
                 
                 <div class="header-center">
                     <div class="header-search-container">
                         <div class="search-wrapper">
                             <i class="ti ti-search"></i>
-                            <input type="text" id="headerSearch" placeholder="Поиск в сообщениях..." aria-label="Поиск в сообщениях">
-                            <button id="headerSearchClear" class="search-clear" title="Очистить поиск" style="display: none;" aria-label="Очистить поиск">
+                            <input type="text" id="headerSearch" placeholder="Поиск в сообщениях...">
+                            <button id="headerSearchClear" class="search-clear" title="Очистить поиск" style="display: none;">
                                 <i class="ti ti-x"></i>
                             </button>
                         </div>
@@ -79,7 +99,7 @@
                 </div>
                 
                 <div class="header-controls">
-                    <button id="modelSelectBtn" class="control-btn model-select-btn" title="Выбор модели AI">
+                    <button id="modelSelectBtn" class="control-btn model-select-btn" title="Выбор модели">
                         <i class="ti ti-brain"></i>
                     </button>
                     <button id="themeToggle" class="control-btn" title="Переключить тему">
@@ -99,283 +119,244 @@
                 <!-- Messages will be dynamically added here -->
             </div>
 
-            <!-- Enhanced Sidebar -->
-            <aside class="chat-sidebar" id="chatSidebar">
-                <div class="sidebar-content">
-                    <div class="quick-actions">
-                        <button id="quickNewChat" class="quick-btn" title="Новый чат">
-                            <i class="ti ti-plus"></i>
-                            <span class="quick-btn-text">Новый чат</span>
+            <!-- Sidebar -->
+            <aside class="chat-sidebar">
+                <div class="quick-actions">
+                    <button id="quickNewChat" class="quick-btn" title="Новый чат">
+                        <i class="ti ti-plus"></i>
+                    </button>
+                    <button id="quickDownload" class="quick-btn" title="Экспорт чата">
+                        <i class="ti ti-download"></i>
+                    </button>
+                    <button id="quickSettings" class="quick-btn" title="Настройки">
+                        <i class="ti ti-settings"></i>
+                    </button>
+                </div>
+
+                <div class="minimap-section">
+                    <div class="minimap-header">
+                        <span>Обзор чата</span>
+                        <button class="minimap-toggle" title="Свернуть/развернуть">
+                            <i class="ti ti-chevron-down"></i>
                         </button>
-                        <button id="quickDownload" class="quick-btn" title="Экспорт чата">
-                            <i class="ti ti-download"></i>
-                            <span class="quick-btn-text">Экспорт</span>
+                    </div>
+                    <div class="chat-minimap-container">
+                        <div class="chat-minimap" id="chatMinimap">
+                            <div class="minimap-content" id="minimapContent"></div>
+                            <div class="minimap-viewport" id="minimapViewport"></div>
+                        </div>
+                        <div class="minimap-navigation">
+                            <button id="scrollToTop" class="nav-btn" title="В начало">
+                                <i class="ti ti-arrow-up"></i>
+                            </button>
+                            <button id="scrollToLastAI" class="nav-btn" title="К последнему ответу ИИ">
+                                <i class="ti ti-message-chatbot"></i>
+                            </button>
+                            <button id="scrollToBottom" class="nav-btn" title="В конец">
+                                <i class="ti ti-arrow-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-stats">
+                    <div class="stat-item">
+                        <i class="ti ti-message"></i>
+                        <span id="messageCount">Сообщений: 0</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="ti ti-clock"></i>
+                        <span id="chatDuration">Время: 00:00</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="ti ti-brain"></i>
+                        <span id="currentModelDisplay">Модель: GPT-4</span>
+                    </div>
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="presets-section">
+                    <div class="presets-header">
+                        <span>Быстрые пресеты</span>
+                    </div>
+                    <div class="presets-grid">
+                        <button class="preset-btn" data-preset="explain">
+                            <i class="ti ti-help"></i>
+                            Объяснить
                         </button>
-                        <button id="quickSettings" class="quick-btn" title="Настройки">
-                            <i class="ti ti-settings"></i>
-                            <span class="quick-btn-text">Настройки</span>
+                        <button class="preset-btn" data-preset="summarize">
+                            <i class="ti ti-summary"></i>
+                            Суммаризировать
                         </button>
-                    </div>
-
-                    <div class="minimap-section">
-                        <div class="minimap-header">
-                            <span>Обзор чата</span>
-                            <button class="minimap-toggle" title="Свернуть/развернуть" aria-label="Свернуть обзор чата">
-                                <i class="ti ti-chevron-down"></i>
-                            </button>
-                        </div>
-                        <div class="chat-minimap-container">
-                            <div class="chat-minimap" id="chatMinimap" role="presentation">
-                                <div class="minimap-content" id="minimapContent"></div>
-                                <div class="minimap-viewport" id="minimapViewport"></div>
-                            </div>
-                            <div class="minimap-navigation">
-                                <button id="scrollToTop" class="nav-btn" title="В начало">
-                                    <i class="ti ti-arrow-up"></i>
-                                </button>
-                                <button id="scrollToLastAI" class="nav-btn" title="К последнему ответу ИИ">
-                                    <i class="ti ti-message-chatbot"></i>
-                                </button>
-                                <button id="scrollToBottom" class="nav-btn" title="В конец">
-                                    <i class="ti ti-arrow-down"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="chat-stats">
-                        <div class="stat-item">
-                            <i class="ti ti-message"></i>
-                            <span id="messageCount">Сообщений: 0</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="ti ti-clock"></i>
-                            <span id="chatDuration">Время: 00:00</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="ti ti-brain"></i>
-                            <span id="currentModelDisplay">Модель: GPT-4</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="ti ti-chart-bar"></i>
-                            <span id="tokenCount">Токены: 0</span>
-                        </div>
-                    </div>
-
-                    <!-- Enhanced Quick Presets -->
-                    <div class="presets-section">
-                        <div class="presets-header">
-                            <span>Быстрые пресеты</span>
-                        </div>
-                        <div class="presets-grid">
-                            <button class="preset-btn" data-preset="explain" aria-label="Объяснить тему">
-                                <i class="ti ti-help"></i>
-                                <span>Объяснить</span>
-                            </button>
-                            <button class="preset-btn" data-preset="summarize" aria-label="Суммаризировать">
-                                <i class="ti ti-summary"></i>
-                                <span>Суммаризировать</span>
-                            </button>
-                            <button class="preset-btn" data-preset="translate" aria-label="Перевести текст">
-                                <i class="ti ti-language"></i>
-                                <span>Перевести</span>
-                            </button>
-                            <button class="preset-btn" data-preset="code" aria-label="Написать код">
-                                <i class="ti ti-code"></i>
-                                <span>Код</span>
-                            </button>
-                            <button class="preset-btn" data-preset="creative" aria-label="Креативная задача">
-                                <i class="ti ti-sparkles"></i>
-                                <span>Креатив</span>
-                            </button>
-                            <button class="preset-btn" data-preset="analyze" aria-label="Анализ данных">
-                                <i class="ti ti-chart-bar"></i>
-                                <span>Анализ</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Recent Chats -->
-                    <div class="recent-chats-section">
-                        <div class="section-header">
-                            <span>Недавние чаты</span>
-                        </div>
-                        <div class="recent-chats-list" id="recentChatsList">
-                            <!-- Recent chats will be populated here -->
-                        </div>
+                        <button class="preset-btn" data-preset="translate">
+                            <i class="ti ti-language"></i>
+                            Перевести
+                        </button>
+                        <button class="preset-btn" data-preset="code">
+                            <i class="ti ti-code"></i>
+                            Код
+                        </button>
                     </div>
                 </div>
             </aside>
         </main>
 
-        <!-- Enhanced Input Section -->
+        <!-- Input Section -->
         <section class="input-section" id="inputSection">
             <div class="mode-indicator" id="modeIndicator">
                 <i class="ti ti-message"></i>
-                <span class="mode-text">Обычный режим</span>
             </div>
-            
-            <!-- Attached Files Preview -->
-            <div class="attached-files-preview" id="attachedFilesPreview" style="display: none;"></div>
             
             <div class="input-wrapper">
                 <div class="attach-buttons">
-                    <button id="attachImageBtn" class="attach-btn" title="Прикрепить изображение" aria-label="Прикрепить изображение">
+                    <button id="attachImageBtn" class="attach-btn" title="Прикрепить изображение">
                         <i class="ti ti-photo"></i>
                     </button>
-                    <button id="attachFileBtn" class="attach-btn" title="Прикрепить файл" aria-label="Прикрепить файл">
+                    <button id="attachFileBtn" class="attach-btn" title="Прикрепить файл">
                         <i class="ti ti-file-text"></i>
                     </button>
-                    <button id="cameraBtn" class="attach-btn" title="Сделать фото" aria-label="Сделать фото">
-                        <i class="ti ti-camera"></i>
-                    </button>
-                    <input type="file" id="fileInput" accept="image/*,.txt,.pdf,.doc,.docx,.json" multiple style="display: none;" aria-label="Выбор файлов">
-                    <input type="file" id="cameraInput" accept="image/*" capture="camera" style="display: none;" aria-label="Сделать фото">
+                    <input type="file" id="fileInput" accept="image/*,.txt,.pdf,.doc,.docx,.json" multiple style="display: none;">
                 </div>
 
                 <div class="input-area">
-                    <textarea 
-                        id="userInput" 
-                        placeholder="Задайте вопрос или опишите задачу..." 
-                        rows="1"
-                        aria-label="Ввод сообщения"
-                        maxlength="8000"
-                    ></textarea>
+                    <textarea id="userInput" placeholder="Задайте вопрос или опишите задачу..." rows="1"></textarea>
                     <div class="input-controls">
-                        <button id="emojiBtn" class="input-btn" title="Эмодзи" aria-label="Выбор эмодзи">
+                        <button id="emojiBtn" class="input-btn" title="Эмодзи">
                             <i class="ti ti-mood-smile"></i>
                         </button>
-                        <button id="voiceInputBtn" class="input-btn" title="Голосовой ввод" aria-label="Голосовой ввод">
+                        <button id="voiceInputBtn" class="input-btn" title="Голосовой ввод">
                             <i class="ti ti-microphone"></i>
                         </button>
-                        <button id="clearInputBtn" class="input-btn" title="Очистить" style="display: none;" aria-label="Очистить ввод">
+                        <button id="clearInputBtn" class="input-btn" title="Очистить" style="display: none;">
                             <i class="ti ti-x"></i>
                         </button>
-                        <button id="sendBtn" class="send-btn" title="Отправить сообщение" aria-label="Отправить сообщение">
+                        <button id="sendBtn" class="send-btn" title="Отправить сообщение">
                             <i class="ti ti-send"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Enhanced Action Buttons -->
+            <div class="attached-files" id="attachedFiles" style="display: none;"></div>
+
             <div class="action-buttons">
                 <div class="mode-buttons">
                     <button class="mode-btn normal active" data-mode="normal" title="Обычный режим">
                         <i class="ti ti-message"></i>
-                        <span>Обычный</span>
+                        Обычный
                     </button>
                     <button class="mode-btn creative" data-mode="creative" title="Креативный режим">
                         <i class="ti ti-sparkles"></i>
-                        <span>Креативный</span>
+                        Креативный
                     </button>
                     <button class="mode-btn voice" data-mode="voice" title="Аудио режим">
                         <i class="ti ti-microphone"></i>
-                        <span>Аудио</span>
+                        Аудио
                     </button>
                     <button class="mode-btn image" data-mode="image" title="Изображения">
                         <i class="ti ti-photo"></i>
-                        <span>Изображения</span>
+                        Изображения
                     </button>
                     <button class="mode-btn code" data-mode="code" title="Программирование">
                         <i class="ti ti-code"></i>
-                        <span>Код</span>
+                        Код
                     </button>
                 </div>
 
                 <div class="utility-buttons">
                     <button id="clearChatBtn" class="utility-btn" title="Очистить чат">
                         <i class="ti ti-trash"></i>
-                        <span>Очистить</span>
+                        Очистить
                     </button>
                     <button id="exportBtn" class="utility-btn" title="Экспорт чата">
                         <i class="ti ti-download"></i>
-                        <span>Экспорт</span>
+                        Экспорт
                     </button>
                     <button id="helpBtn" class="utility-btn" title="Помощь">
                         <i class="ti ti-help"></i>
-                        <span>Помощь</span>
+                        Помощь
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Enhanced Mobile Sidebar -->
+        <!-- Mobile Sidebar -->
         <div class="mobile-sidebar" id="mobileSidebar">
             <div class="sidebar-header">
-                <h3>Меню KHAI Pro</h3>
-                <button id="sidebarClose" class="sidebar-close" aria-label="Закрыть меню">
+                <h3>Меню KHAI</h3>
+                <button id="sidebarClose" class="sidebar-close">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
 
-            <div class="sidebar-content">
-                <div class="sidebar-section">
-                    <h4 class="sidebar-title">Быстрый доступ</h4>
-                    <div class="sidebar-buttons">
-                        <button id="qaNewChat" class="sidebar-btn">
-                            <i class="ti ti-plus"></i>
-                            Новый чат
-                        </button>
-                        <button id="qaTemplates" class="sidebar-btn">
-                            <i class="ti ti-template"></i>
-                            Шаблоны
-                        </button>
-                        <button id="qaSettings" class="sidebar-btn">
-                            <i class="ti ti-settings"></i>
-                            Настройки
-                        </button>
-                        <button id="qaHelp" class="sidebar-btn">
-                            <i class="ti ti-help"></i>
-                            Помощь
-                        </button>
-                    </div>
+            <div class="sidebar-section">
+                <h4 class="sidebar-title">Быстрый доступ</h4>
+                <div class="sidebar-buttons">
+                    <button id="qaNewChat" class="sidebar-btn">
+                        <i class="ti ti-plus"></i>
+                        Новый чат
+                    </button>
+                    <button id="qaTemplates" class="sidebar-btn">
+                        <i class="ti ti-template"></i>
+                        Шаблоны
+                    </button>
+                    <button id="qaSettings" class="sidebar-btn">
+                        <i class="ti ti-settings"></i>
+                        Настройки
+                    </button>
+                    <button id="qaHelp" class="sidebar-btn">
+                        <i class="ti ti-help"></i>
+                        Помощь
+                    </button>
                 </div>
+            </div>
 
-                <div class="sidebar-section">
-                    <h4 class="sidebar-title">Управление чатом</h4>
-                    <div class="sidebar-buttons">
-                        <button id="newChatBtn" class="sidebar-btn">
-                            <i class="ti ti-message-plus"></i>
-                            Новый чат
-                        </button>
-                        <button id="importChatBtn" class="sidebar-btn">
-                            <i class="ti ti-upload"></i>
-                            Импорт чата
-                        </button>
-                        <button id="exportChatBtn" class="sidebar-btn">
-                            <i class="ti ti-download"></i>
-                            Экспорт чата
-                        </button>
-                    </div>
+            <div class="sidebar-section">
+                <h4 class="sidebar-title">Управление чатом</h4>
+                <div class="sidebar-buttons">
+                    <button id="newChatBtn" class="sidebar-btn">
+                        <i class="ti ti-message-plus"></i>
+                        Новый чат
+                    </button>
+                    <button id="importChatBtn" class="sidebar-btn">
+                        <i class="ti ti-upload"></i>
+                        Импорт чата
+                    </button>
                 </div>
+            </div>
 
-                <div class="sidebar-section">
-                    <h4 class="sidebar-title">Быстрые пресеты</h4>
-                    <div class="sidebar-buttons">
-                        <button class="sidebar-btn preset-sidebar" data-preset="explain">
-                            <i class="ti ti-help"></i>
-                            Объяснить
-                        </button>
-                        <button class="sidebar-btn preset-sidebar" data-preset="summarize">
-                            <i class="ti ti-summary"></i>
-                            Суммаризировать
-                        </button>
-                        <button class="sidebar-btn preset-sidebar" data-preset="translate">
-                            <i class="ti ti-language"></i>
-                            Перевести
-                        </button>
-                        <button class="sidebar-btn preset-sidebar" data-preset="code">
-                            <i class="ti ti-code"></i>
-                            Написать код
-                        </button>
-                    </div>
+            <div class="sidebar-section">
+                <h4 class="sidebar-title">Быстрые пресеты</h4>
+                <div class="sidebar-buttons">
+                    <button class="sidebar-btn preset-sidebar" data-preset="explain">
+                        <i class="ti ti-help"></i>
+                        Объяснить
+                    </button>
+                    <button class="sidebar-btn preset-sidebar" data-preset="summarize">
+                        <i class="ti ti-summary"></i>
+                        Суммаризировать
+                    </button>
+                    <button class="sidebar-btn preset-sidebar" data-preset="translate">
+                        <i class="ti ti-language"></i>
+                        Перевести
+                    </button>
+                    <button class="sidebar-btn preset-sidebar" data-preset="code">
+                        <i class="ti ti-code"></i>
+                        Написать код
+                    </button>
                 </div>
+            </div>
 
-                <div class="sidebar-section">
-                    <h4 class="sidebar-title">Недавние чаты</h4>
-                    <div class="recent-chats-sidebar" id="recentChatsSidebar">
-                        <!-- Recent chats for mobile -->
+            <div class="sidebar-section">
+                <h4 class="sidebar-title">Информация</h4>
+                <div class="sidebar-info">
+                    <div class="info-item">
+                        <i class="ti ti-versions"></i>
+                        <span>Версия 2.1.0</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="ti ti-calendar"></i>
+                        <span>2024</span>
                     </div>
                 </div>
             </div>
@@ -383,7 +364,7 @@
 
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <!-- Enhanced Chat Navigation -->
+        <!-- Chat Navigation -->
         <div class="chat-navigation" id="chatNavigation">
             <button id="scrollToTopNav" class="chat-nav-btn" title="В начало">
                 <i class="ti ti-arrow-up"></i>
@@ -395,53 +376,29 @@
                 <i class="ti ti-arrow-down"></i>
             </button>
         </div>
-
-        <!-- Quick Actions Fab -->
-        <div class="fab-container" id="fabContainer">
-            <button class="fab-main" id="fabMain" aria-label="Быстрые действия">
-                <i class="ti ti-plus"></i>
-            </button>
-            <div class="fab-actions">
-                <button class="fab-action" id="fabNewChat" title="Новый чат">
-                    <i class="ti ti-message-plus"></i>
-                </button>
-                <button class="fab-action" id="fabSearch" title="Поиск">
-                    <i class="ti ti-search"></i>
-                </button>
-                <button class="fab-action" id="fabSettings" title="Настройки">
-                    <i class="ti ti-settings"></i>
-                </button>
-            </div>
-        </div>
     </div>
 
-    <!-- Enhanced Notification Container -->
+    <!-- Notification Container -->
     <div class="notification-container" id="notificationContainer"></div>
 
-    <!-- Enhanced Context Menu -->
+    <!-- Context Menu -->
     <div class="context-menu" id="contextMenu" style="display: none;"></div>
 
-    <!-- Enhanced Emoji Picker -->
+    <!-- Emoji Picker -->
     <div class="emoji-picker" id="emojiPicker" style="display: none;"></div>
 
-    <!-- Enhanced Model Selection -->
+    <!-- Model Selection -->
     <div class="model-selection" id="modelSelection" style="display: none;"></div>
 
-    <!-- Enhanced Drop Zone -->
+    <!-- Drop Zone -->
     <div class="drop-zone" id="dropZone" style="display: none;">
         <div class="drop-zone-content">
             <div class="drop-zone-icon">
                 <i class="ti ti-upload"></i>
             </div>
             <div class="drop-zone-text">Перетащите файлы сюда</div>
-            <div class="drop-zone-subtext">Поддерживаются изображения, текстовые файлы и документы</div>
+            <div class="drop-zone-subtext">Поддерживаются изображения и текстовые файлы</div>
         </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Загрузка...</div>
     </div>
 
     <!-- Scripts -->
