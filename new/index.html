@@ -1,112 +1,49 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KHAI — Чат с ИИ</title>
-    <meta name="description" content="Продвинутый AI-чат с поддержкой различных моделей и режимов работы">
-    <meta name="theme-color" content="#0099ff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="KHAI">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Interface</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
-    <style>
-        /* Critical CSS for initial render */
-        .app-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-primary, #0f0f23);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .loader-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid #0099ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-loader" id="appLoader">
-        <div class="loader-spinner"></div>
-        <div style="color: #fff; font-size: 16px;">Загрузка KHAI...</div>
-    </div>
-
-    <!-- PWA Install Prompt -->
-    <div id="pwaInstallPrompt" class="pwa-prompt" style="display: none;">
-        <div class="pwa-prompt-content">
-            <div class="pwa-prompt-icon">
-                <i class="ti ti-download"></i>
-            </div>
-            <div class="pwa-prompt-text">
-                <h3>Установить KHAI</h3>
-                <p>Установите приложение для быстрого доступа и работы офлайн</p>
-            </div>
-            <div class="pwa-prompt-buttons">
-                <button id="pwaInstallCancel" class="pwa-btn secondary">Позже</button>
-                <button id="pwaInstallConfirm" class="pwa-btn primary">Установить</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="app-container" style="opacity: 0;">
+    <div class="app-container">
         <!-- Header -->
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-container">
-                    <button id="menuToggle" class="control-btn" title="Меню">
-                        <i class="ti ti-menu-2"></i>
-                    </button>
-                    <div class="logo" id="logoBtn" title="О KHAI">
-                        <i class="ti ti-brain" style="color: white; font-size: 20px;"></i>
+                    <div class="logo">
+                        <i class="fas fa-robot"></i>
                     </div>
-                    <div class="app-name">KHAI</div>
+                    <h1 class="app-name">AI Chat</h1>
                 </div>
                 
                 <div class="header-center">
                     <div class="header-search-container">
                         <div class="search-wrapper">
-                            <i class="ti ti-search"></i>
-                            <input type="text" id="headerSearch" placeholder="Поиск в сообщениях...">
-                            <button id="headerSearchClear" class="search-clear" title="Очистить поиск" style="display: none;">
-                                <i class="ti ti-x"></i>
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search conversations..." id="searchInput">
+                            <button class="search-clear" id="searchClear">
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="connection-status" id="connectionStatus">
-                        <i class="ti ti-wifi"></i>
-                        <span>Онлайн</span>
+                    <div class="connection-status online" id="connectionStatus">
+                        <i class="fas fa-circle"></i>
+                        <span>Online</span>
                     </div>
                 </div>
                 
                 <div class="header-controls">
-                    <button id="modelSelectBtn" class="control-btn model-select-btn" title="Выбор модели">
-                        <i class="ti ti-brain"></i>
+                    <button class="control-btn" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
                     </button>
-                    <button id="themeToggle" class="control-btn" title="Переключить тему">
-                        <i class="ti ti-moon"></i>
+                    <button class="control-btn model-select-btn" id="modelSelectBtn">
+                        <i class="fas fa-brain"></i>
                     </button>
-                    <button id="fullscreenToggle" class="control-btn" title="Полный экран">
-                        <i class="ti ti-arrows-maximize"></i>
+                    <button class="control-btn" id="settingsBtn">
+                        <i class="fas fa-cog"></i>
                     </button>
                 </div>
             </div>
@@ -116,299 +53,333 @@
         <main class="chat-main">
             <!-- Messages Container -->
             <div class="messages-container" id="messagesContainer">
-                <!-- Messages will be dynamically added here -->
+                <!-- Welcome message will be inserted here -->
             </div>
 
             <!-- Sidebar -->
-            <aside class="chat-sidebar">
+            <div class="sidebar-overlay" id="sidebarOverlay"></div>
+            <aside class="chat-sidebar" id="chatSidebar">
+                <!-- Quick Actions -->
                 <div class="quick-actions">
-                    <button id="quickNewChat" class="quick-btn" title="Новый чат">
-                        <i class="ti ti-plus"></i>
+                    <button class="quick-btn" id="newChatBtn" title="New Chat">
+                        <i class="fas fa-plus"></i>
                     </button>
-                    <button id="quickDownload" class="quick-btn" title="Экспорт чата">
-                        <i class="ti ti-download"></i>
+                    <button class="quick-btn" id="clearChatsBtn" title="Clear All Chats">
+                        <i class="fas fa-trash"></i>
                     </button>
-                    <button id="quickSettings" class="quick-btn" title="Настройки">
-                        <i class="ti ti-settings"></i>
+                    <button class="quick-btn" id="summarizeBtn" title="Summarize">
+                        <i class="fas fa-file-alt"></i>
+                    </button>
+                    <button class="quick-btn" id="exportBtn" title="Export">
+                        <i class="fas fa-download"></i>
                     </button>
                 </div>
 
-                <div class="minimap-section">
+                <!-- Minimap Section -->
+                <section class="minimap-section">
                     <div class="minimap-header">
-                        <span>Обзор чата</span>
-                        <button class="minimap-toggle" title="Свернуть/развернуть">
-                            <i class="ti ti-chevron-down"></i>
+                        <span>Chat Overview</span>
+                        <button class="minimap-toggle" id="minimapToggle">
+                            <i class="fas fa-chevron-down"></i>
                         </button>
                     </div>
-                    <div class="chat-minimap-container">
+                    <div class="chat-minimap-container" id="minimapContainer">
                         <div class="chat-minimap" id="chatMinimap">
                             <div class="minimap-content" id="minimapContent"></div>
                             <div class="minimap-viewport" id="minimapViewport"></div>
                         </div>
                         <div class="minimap-navigation">
-                            <button id="scrollToTop" class="nav-btn" title="В начало">
-                                <i class="ti ti-arrow-up"></i>
+                            <button class="nav-btn" id="scrollToTopBtn">
+                                <i class="fas fa-arrow-up"></i>
+                                Top
                             </button>
-                            <button id="scrollToLastAI" class="nav-btn" title="К последнему ответу ИИ">
-                                <i class="ti ti-message-chatbot"></i>
-                            </button>
-                            <button id="scrollToBottom" class="nav-btn" title="В конец">
-                                <i class="ti ti-arrow-down"></i>
+                            <button class="nav-btn" id="scrollToBottomBtn">
+                                <i class="fas fa-arrow-down"></i>
+                                Bottom
                             </button>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="chat-stats">
+                <!-- Chat Stats -->
+                <section class="chat-stats">
                     <div class="stat-item">
-                        <i class="ti ti-message"></i>
-                        <span id="messageCount">Сообщений: 0</span>
+                        <i class="fas fa-comment"></i>
+                        <span>Messages: <span id="messageCount">0</span></span>
                     </div>
                     <div class="stat-item">
-                        <i class="ti ti-clock"></i>
-                        <span id="chatDuration">Время: 00:00</span>
+                        <i class="fas fa-users"></i>
+                        <span>Participants: <span id="participantCount">2</span></span>
                     </div>
                     <div class="stat-item">
-                        <i class="ti ti-brain"></i>
-                        <span id="currentModelDisplay">Модель: GPT-4</span>
+                        <i class="fas fa-clock"></i>
+                        <span>Duration: <span id="chatDuration">0m</span></span>
                     </div>
-                </div>
+                </section>
 
                 <!-- Quick Presets -->
-                <div class="presets-section">
+                <section class="presets-section">
                     <div class="presets-header">
-                        <span>Быстрые пресеты</span>
+                        <span>Quick Actions</span>
                     </div>
                     <div class="presets-grid">
-                        <button class="preset-btn" data-preset="explain">
-                            <i class="ti ti-help"></i>
-                            Объяснить
-                        </button>
-                        <button class="preset-btn" data-preset="summarize">
-                            <i class="ti ti-summary"></i>
-                            Суммаризировать
-                        </button>
-                        <button class="preset-btn" data-preset="translate">
-                            <i class="ti ti-language"></i>
-                            Перевести
+                        <button class="preset-btn" data-preset="creative">
+                            <i class="fas fa-paint-brush"></i>
+                            <span>Creative</span>
                         </button>
                         <button class="preset-btn" data-preset="code">
-                            <i class="ti ti-code"></i>
-                            Код
+                            <i class="fas fa-code"></i>
+                            <span>Code</span>
+                        </button>
+                        <button class="preset-btn" data-preset="voice">
+                            <i class="fas fa-microphone"></i>
+                            <span>Voice</span>
+                        </button>
+                        <button class="preset-btn" data-preset="image">
+                            <i class="fas fa-image"></i>
+                            <span>Image</span>
                         </button>
                     </div>
-                </div>
+                </section>
             </aside>
         </main>
 
         <!-- Input Section -->
-        <section class="input-section" id="inputSection">
+        <section class="input-section">
             <div class="mode-indicator" id="modeIndicator">
-                <i class="ti ti-message"></i>
-                <span>Обычный режим</span>
+                <i class="fas fa-comment"></i>
+                <span>Standard Mode</span>
             </div>
-            
             <div class="input-wrapper">
                 <div class="attach-buttons">
-                    <button id="attachImageBtn" class="attach-btn" title="Прикрепить изображение">
-                        <i class="ti ti-photo"></i>
+                    <button class="attach-btn" id="attachFileBtn" title="Attach File">
+                        <i class="fas fa-paperclip"></i>
                     </button>
-                    <button id="attachFileBtn" class="attach-btn" title="Прикрепить файл">
-                        <i class="ti ti-file-text"></i>
+                    <button class="attach-btn" id="attachImageBtn" title="Attach Image">
+                        <i class="fas fa-image"></i>
                     </button>
-                    <input type="file" id="fileInput" accept="image/*,.txt,.pdf,.doc,.docx,.json" multiple style="display: none;">
+                    <button class="attach-btn" id="voiceInputBtn" title="Voice Input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
                 </div>
-
+                
                 <div class="input-area">
-                    <textarea id="userInput" placeholder="Задайте вопрос или опишите задачу..." rows="1"></textarea>
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="Type your message... (Press Enter to send, Shift+Enter for new line)"
+                        rows="1"
+                    ></textarea>
+                    
                     <div class="input-controls">
-                        <button id="emojiBtn" class="input-btn" title="Эмодзи">
-                            <i class="ti ti-mood-smile"></i>
-                        </button>
-                        <button id="voiceInputBtn" class="input-btn" title="Голосовой ввод">
-                            <i class="ti ti-microphone"></i>
-                        </button>
-                        <button id="clearInputBtn" class="input-btn" title="Очистить" style="display: none;">
-                            <i class="ti ti-x"></i>
-                        </button>
-                        <button id="sendBtn" class="send-btn" title="Отправить сообщение">
-                            <i class="ti ti-send"></i>
-                        </button>
+                        <div class="input-modes">
+                            <button class="mode-btn active" data-mode="standard">
+                                <i class="fas fa-comment"></i>
+                                Standard
+                            </button>
+                            <button class="mode-btn" data-mode="creative">
+                                <i class="fas fa-paint-brush"></i>
+                                Creative
+                            </button>
+                            <button class="mode-btn" data-mode="code">
+                                <i class="fas fa-code"></i>
+                                Code
+                            </button>
+                        </div>
+                        
+                        <div class="input-actions">
+                            <button class="action-btn" id="fullscreenBtn">
+                                <i class="fas fa-expand"></i>
+                                Fullscreen
+                            </button>
+                            <button class="action-btn" id="clearBtn">
+                                <i class="fas fa-eraser"></i>
+                                Clear
+                            </button>
+                            <button class="action-btn" id="historyBtn">
+                                <i class="fas fa-history"></i>
+                                History
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="attached-files" id="attachedFiles" style="display: none;"></div>
-
-            <div class="action-buttons">
-                <div class="mode-buttons">
-                    <button class="mode-btn normal active" data-mode="normal" title="Обычный режим">
-                        <i class="ti ti-message"></i>
-                        Обычный
-                    </button>
-                    <button class="mode-btn creative" data-mode="creative" title="Креативный режим">
-                        <i class="ti ti-sparkles"></i>
-                        Креативный
-                    </button>
-                    <button class="mode-btn voice" data-mode="voice" title="Аудио режим">
-                        <i class="ti ti-microphone"></i>
-                        Аудио
-                    </button>
-                    <button class="mode-btn image" data-mode="image" title="Изображения">
-                        <i class="ti ti-photo"></i>
-                        Изображения
-                    </button>
-                    <button class="mode-btn code" data-mode="code" title="Программирование">
-                        <i class="ti ti-code"></i>
-                        Код
-                    </button>
-                </div>
-
-                <div class="utility-buttons">
-                    <button id="clearChatBtn" class="utility-btn" title="Очистить чат">
-                        <i class="ti ti-trash"></i>
-                        Очистить
-                    </button>
-                    <button id="exportBtn" class="utility-btn" title="Экспорт чата">
-                        <i class="ti ti-download"></i>
-                        Экспорт
-                    </button>
-                    <button id="helpBtn" class="utility-btn" title="Помощь">
-                        <i class="ti ti-help"></i>
-                        Помощь
+                    
+                    <button class="send-btn" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Mobile Sidebar -->
-        <div class="mobile-sidebar" id="mobileSidebar">
-            <div class="sidebar-header">
-                <h3>Меню KHAI</h3>
-                <button id="sidebarClose" class="sidebar-close">
-                    <i class="ti ti-x"></i>
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="chat-title" id="chatTitle">New Chat</div>
+                <div class="footer-controls">
+                    <button class="control-btn" id="themeToggle" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="control-btn" id="fontSizeToggle" title="Font Size">
+                        <i class="fas fa-text-height"></i>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Fullscreen Input Modal -->
+    <div class="fullscreen-input" id="fullscreenInput">
+        <div class="fullscreen-header">
+            <div class="fullscreen-title">Fullscreen Editor</div>
+            <button class="fullscreen-close" id="fullscreenClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <textarea class="fullscreen-textarea" id="fullscreenTextarea" placeholder="Type your message..."></textarea>
+        <div class="fullscreen-controls">
+            <div class="fullscreen-nav">
+                <button class="nav-scroll-btn" id="fullscreenUpBtn">
+                    <i class="fas fa-arrow-up"></i>
+                    Scroll Up
+                </button>
+                <button class="nav-scroll-btn" id="fullscreenDownBtn">
+                    <i class="fas fa-arrow-down"></i>
+                    Scroll Down
                 </button>
             </div>
+            <button class="action-btn primary" id="fullscreenSendBtn">
+                <i class="fas fa-paper-plane"></i>
+                Send Message
+            </button>
+        </div>
+    </div>
 
-            <div class="sidebar-section">
-                <h4 class="sidebar-title">Управление чатами</h4>
-                <div class="chat-list-container">
-                    <div class="chat-search-container">
-                        <div class="search-wrapper">
-                            <i class="ti ti-search"></i>
-                            <input type="text" id="chatSearchInput" placeholder="Поиск чатов...">
-                            <button id="chatSearchClear" class="search-clear" style="display: none;">
-                                <i class="ti ti-x"></i>
-                            </button>
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Settings</h2>
+                <button class="modal-close" id="settingsClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label class="setting-label">Dark Theme</label>
+                        <div class="setting-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="themeToggleSetting" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
                         </div>
                     </div>
-                    <div class="chats-container" id="chatsContainer">
-                        <!-- Chat list will be dynamically populated -->
+                    <div class="setting-item">
+                        <label class="setting-label">Font Size</label>
+                        <div class="setting-control">
+                            <div class="select-wrapper">
+                                <select id="fontSizeSelect">
+                                    <option value="small">Small</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Auto-scroll</label>
+                        <div class="setting-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoScrollToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Message Sounds</label>
+                        <div class="setting-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="soundsToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Typing Indicators</label>
+                        <div class="setting-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="typingToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="sidebar-section">
-                <h4 class="sidebar-title">Быстрый доступ</h4>
-                <div class="sidebar-buttons">
-                    <button id="qaNewChat" class="sidebar-btn">
-                        <i class="ti ti-plus"></i>
-                        Новый чат
-                    </button>
-                    <button id="qaTemplates" class="sidebar-btn">
-                        <i class="ti ti-template"></i>
-                        Шаблоны
-                    </button>
-                    <button id="qaSettings" class="sidebar-btn">
-                        <i class="ti ti-settings"></i>
-                        Настройки
-                    </button>
-                    <button id="qaHelp" class="sidebar-btn">
-                        <i class="ti ti-help"></i>
-                        Помощь
-                    </button>
-                </div>
+            <div class="modal-footer">
+                <button class="action-btn" id="settingsCancel">Cancel</button>
+                <button class="action-btn primary" id="settingsSave">Save</button>
             </div>
-
-            <div class="sidebar-section">
-                <h4 class="sidebar-title">Быстрые пресеты</h4>
-                <div class="sidebar-buttons">
-                    <button class="sidebar-btn preset-sidebar" data-preset="explain">
-                        <i class="ti ti-help"></i>
-                        Объяснить
-                    </button>
-                    <button class="sidebar-btn preset-sidebar" data-preset="summarize">
-                        <i class="ti ti-summary"></i>
-                        Суммаризировать
-                    </button>
-                    <button class="sidebar-btn preset-sidebar" data-preset="translate">
-                        <i class="ti ti-language"></i>
-                        Перевести
-                    </button>
-                    <button class="sidebar-btn preset-sidebar" data-preset="code">
-                        <i class="ti ti-code"></i>
-                        Написать код
-                    </button>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h4 class="sidebar-title">Информация</h4>
-                <div class="sidebar-info">
-                    <div class="info-item">
-                        <i class="ti ti-versions"></i>
-                        <span>Версия 2.1.0</span>
-                    </div>
-                    <div class="info-item">
-                        <i class="ti ti-calendar"></i>
-                        <span>2025</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-        <!-- Chat Navigation -->
-        <div class="chat-navigation" id="chatNavigation">
-            <button id="scrollToTopNav" class="chat-nav-btn" title="В начало">
-                <i class="ti ti-arrow-up"></i>
-            </button>
-            <button id="scrollToLastAINav" class="chat-nav-btn" title="К последнему ответу ИИ">
-                <i class="ti ti-message-chatbot"></i>
-            </button>
-            <button id="scrollToBottomNav" class="chat-nav-btn" title="В конец">
-                <i class="ti ti-arrow-down"></i>
-            </button>
         </div>
     </div>
 
-    <!-- Notification Container -->
-    <div class="notification-container" id="notificationContainer"></div>
-
-    <!-- Context Menu -->
-    <div class="context-menu" id="contextMenu" style="display: none;"></div>
-
-    <!-- Emoji Picker -->
-    <div class="emoji-picker" id="emojiPicker" style="display: none;"></div>
-
-    <!-- Model Selection -->
-    <div class="model-selection" id="modelSelection" style="display: none;"></div>
-
-    <!-- Drop Zone -->
-    <div class="drop-zone" id="dropZone" style="display: none;">
-        <div class="drop-zone-content">
-            <div class="drop-zone-icon">
-                <i class="ti ti-upload"></i>
+    <!-- AI Models Modal -->
+    <div class="modal-overlay" id="modelsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Select AI Model</h2>
+                <button class="modal-close" id="modelsClose">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="drop-zone-text">Перетащите файлы сюда</div>
-            <div class="drop-zone-subtext">Поддерживаются изображения и текстовые файлы</div>
+            <div class="modal-body">
+                <div class="models-grid">
+                    <div class="model-option selected" data-model="gpt-4">
+                        <div class="model-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="model-info">
+                            <div class="model-name">GPT-4 Turbo</div>
+                            <div class="model-description">Most capable model, great for complex tasks</div>
+                        </div>
+                        <div class="model-status available">Available</div>
+                    </div>
+                    <div class="model-option" data-model="gpt-3.5">
+                        <div class="model-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="model-info">
+                            <div class="model-name">GPT-3.5 Turbo</div>
+                            <div class="model-description">Fast and efficient for everyday tasks</div>
+                        </div>
+                        <div class="model-status available">Available</div>
+                    </div>
+                    <div class="model-option" data-model="claude-2">
+                        <div class="model-icon">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <div class="model-info">
+                            <div class="model-name">Claude 2</div>
+                            <div class="model-description">Excellent for creative writing</div>
+                        </div>
+                        <div class="model-status available">Available</div>
+                    </div>
+                    <div class="model-option" data-model="bard">
+                        <div class="model-icon">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <div class="model-info">
+                            <div class="model-name">Google Bard</div>
+                            <div class="model-description">Great for research and fact-based tasks</div>
+                        </div>
+                        <div class="model-status busy">Busy</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" id="modelsCancel">Cancel</button>
+                <button class="action-btn primary" id="modelsConfirm">Select Model</button>
+            </div>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
