@@ -1,5 +1,5 @@
 {
-    "name": "KHAI — Чат с ИИ",
+    "name": "KHAI - Чат с ИИ",
     "short_name": "KHAI",
     "description": "Продвинутый AI-чат с поддержкой различных моделей и режимов работы",
     "start_url": "/",
@@ -9,27 +9,22 @@
     "orientation": "portrait-primary",
     "scope": "/",
     "lang": "ru",
-    "categories": ["entertainment", "education", "productivity"],
+    "categories": ["productivity", "utilities"],
     "icons": [
         {
             "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>",
             "sizes": "192x192",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
+            "type": "image/svg+xml"
         },
         {
             "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>",
             "sizes": "512x512",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
-        }
-    ],
-    "screenshots": [
+            "type": "image/svg+xml"
+        },
         {
-            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'><rect width='1280' height='720' fill='%230f0f23'/><rect x='40' y='40' width='1200' height='640' rx='20' fill='%231a1a2e'/><text x='640' y='200' font-family='Arial' font-size='48' text-anchor='middle' fill='white'>KHAI — Чат с ИИ</text><text x='640' y='280' font-family='Arial' font-size='24' text-anchor='middle' fill='%23a0a0c0'>Продвинутый AI-ассистент</text><rect x='440' y='400' width='400' height='80' rx='40' fill='%230099ff'/><text x='640' y='450' font-family='Arial' font-size='24' text-anchor='middle' fill='white'>Начать общение</text></svg>",
-            "sizes": "1280x720",
-            "type": "image/svg+xml",
-            "form_factor": "wide"
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>",
+            "sizes": "144x144",
+            "type": "image/svg+xml"
         }
     ]
 }
