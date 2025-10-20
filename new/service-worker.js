@@ -10,7 +10,7 @@ const STATIC_ASSETS = [
     '/styles.css',
     '/script.js',
     '/manifest.json',
-    'https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css',
+    'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css',
     'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css'
@@ -136,19 +136,19 @@ self.addEventListener('push', (event) => {
 
     const data = event.data.json();
     const options = {
-        body: data.body || 'New message from KHAI',
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/badge-72x72.png',
+        body: data.body || 'Новое сообщение от KHAI',
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230099ff" rx="20"/><text x="50" y="65" font-family="Arial" font-size="45" text-anchor="middle" fill="white">K</text></svg>',
+        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230099ff" rx="20"/><text x="50" y="65" font-family="Arial" font-size="45" text-anchor="middle" fill="white">K</text></svg>',
         tag: 'khai-notification',
         renotify: true,
         actions: [
             {
                 action: 'open',
-                title: 'Open Chat'
+                title: 'Открыть KHAI'
             },
             {
                 action: 'dismiss',
-                title: 'Dismiss'
+                title: 'Закрыть'
             }
         ],
         data: {
