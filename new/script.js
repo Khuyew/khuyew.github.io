@@ -1,4 +1,5 @@
 // KHAI — Advanced AI Chat Application with Puter.js Integration
+// Production-ready version with enhanced AI capabilities from KHuyew
 class KHAIChat {
     constructor() {
         this.messages = [];
@@ -34,80 +35,57 @@ class KHAIChat {
         this.chatSearchTerm = '';
         this.fullscreenInputActive = false;
         this.puterInitialized = false;
+        this.messageQueue = [];
+        this.isProcessingQueue = false;
+        this.retryCount = 0;
+        this.maxRetries = 3;
 
-        // Расширенные модели с Puter.js интеграцией
+        // Enhanced AI models from KHuyew
         this.models = {
             'gpt-4': { 
                 name: 'GPT-4 Turbo', 
                 description: 'Самый продвинутый модель для сложных задач',
                 icon: 'ti ti-brain',
-                puterModel: 'gpt-4'
+                provider: 'openai',
+                context: 128000,
+                supportsImages: true,
+                supportsFiles: true
             },
-            'gpt-3.5': { 
+            'gpt-3.5-turbo': { 
                 name: 'GPT-3.5 Turbo', 
                 description: 'Быстрый и эффективный для повседневных задач',
                 icon: 'ti ti-flame',
-                puterModel: 'gpt-3.5-turbo'
+                provider: 'openai',
+                context: 16385,
+                supportsImages: false,
+                supportsFiles: true
             },
-            'claude-3': { 
-                name: 'Claude 3', 
+            'claude-3-sonnet': { 
+                name: 'Claude 3 Sonnet', 
                 description: 'Отличный для креативных задач и анализа',
                 icon: 'ti ti-cloud',
-                puterModel: 'claude-3-sonnet'
+                provider: 'anthropic',
+                context: 200000,
+                supportsImages: true,
+                supportsFiles: true
+            },
+            'claude-3-haiku': { 
+                name: 'Claude 3 Haiku', 
+                description: 'Быстрая и эффективная модель от Anthropic',
+                icon: 'ti ti-bolt',
+                provider: 'anthropic',
+                context: 200000,
+                supportsImages: true,
+                supportsFiles: true
             },
             'gemini-pro': { 
                 name: 'Gemini Pro', 
                 description: 'Мощный мультимодальный модель от Google',
                 icon: 'ti ti-sparkles',
-                puterModel: 'gemini-pro'
-            },
-            'gpt-5-nano': { 
-                name: 'GPT-5 Nano', 
-                description: 'Быстрая и эффективная модель для повседневных задач',
-                icon: 'ti ti-bolt',
-                puterModel: 'gpt-4'
-            },
-            'o3-mini': { 
-                name: 'O3 Mini', 
-                description: 'Продвинутая модель с улучшенными возможностями рассуждения',
-                icon: 'ti ti-cpu',
-                puterModel: 'gpt-4'
-            },
-            'claude-sonnet': { 
-                name: 'Claude Sonnet', 
-                description: 'Мощная модель от Anthropic для сложных задач и анализа',
-                icon: 'ti ti-shield',
-                puterModel: 'claude-3-sonnet'
-            },
-            'deepseek-chat': { 
-                name: 'DeepSeek Chat', 
-                description: 'Универсальная модель для общения и решения задач',
-                icon: 'ti ti-search',
-                puterModel: 'gpt-4'
-            },
-            'deepseek-reasoner': { 
-                name: 'DeepSeek Reasoner', 
-                description: 'Специализированная модель для сложных логических рассуждений',
-                icon: 'ti ti-logic-and',
-                puterModel: 'gpt-4'
-            },
-            'gemini-2.0-flash': { 
-                name: 'Gemini 2.0 Flash', 
-                description: 'Новейшая быстрая модель от Google с улучшенными возможностями',
-                icon: 'ti ti-flash',
-                puterModel: 'gemini-flash'
-            },
-            'gemini-1.5-flash': { 
-                name: 'Gemini 1.5 Flash', 
-                description: 'Быстрая и эффективная модель от Google для различных задач',
-                icon: 'ti ti-zap',
-                puterModel: 'gemini-flash'
-            },
-            'grok-beta': { 
-                name: 'xAI Grok', 
-                description: 'Модель от xAI с уникальным характером и остроумными ответами',
-                icon: 'ti ti-message-circle',
-                puterModel: 'grok-beta'
+                provider: 'google',
+                context: 32768,
+                supportsImages: true,
+                supportsFiles: true
             }
         };
 
@@ -115,42 +93,69 @@ class KHAIChat {
             normal: { 
                 icon: 'ti ti-message', 
                 color: '#0099ff',
-                placeholder: 'Задайте вопрос или опишите задачу...',
-                systemPrompt: 'Ты полезный AI-ассистент. Отвечай подробно и точно на русском языке.'
+                placeholder: 'Задайте вопрос или опришите задачу...',
+                systemPrompt: `Ты полезный AI-ассистент KHAI. Отвечай подробно и точно на русском языке.
+Основные правила:
+1. Будь полезным, точным и безопасным
+2. Форматируй ответы для лучшей читаемости
+3. Используй markdown для структурирования
+4. Предлагай дополнительные вопросы и темы
+5. Будь дружелюбным и профессиональным`
             },
             creative: { 
                 icon: 'ti ti-sparkles', 
                 color: '#9c27b0',
                 placeholder: 'Опишите креативную задачу или идею...',
-                systemPrompt: 'Ты креативный AI-ассистент. Будь изобретательным, предлагай нестандартные решения и идеи. Отвечай на русском языке.'
-            },
-            voice: { 
-                icon: 'ti ti-microphone', 
-                color: '#ff6b00',
-                placeholder: 'Опишите что нужно сгенерировать в аудио формате...',
-                systemPrompt: 'Ты специализируешься на создании и анализе аудио контента. Отвечай на русском языке.'
-            },
-            image: { 
-                icon: 'ti ti-photo', 
-                color: '#00c853',
-                placeholder: 'Опишите изображение которое нужно сгенерировать...',
-                systemPrompt: 'Ты специализируешься на создании и анализе изображений. Подробно описывай визуальные элементы. Отвечай на русском языке.'
+                systemPrompt: `Ты креативный AI-ассистент. Будь изобретательным, предлагай нестандартные решения и идеи.
+Особенности:
+- Генерируй оригинальные идеи и концепции
+- Предлагай несколько вариантов решений
+- Используй богатый язык и метафоры
+- Вдохновляй на творчество
+- Будь экспрессивным но профессиональным`
             },
             code: { 
                 icon: 'ti ti-code', 
                 color: '#4caf50',
                 placeholder: 'Опишите код который нужно написать или исправить...',
-                systemPrompt: 'Ты эксперт по программированию. Пиши чистый, эффективный и хорошо документированный код. Отвечай на русском языке.'
+                systemPrompt: `Ты эксперт по программированию. Пиши чистый, эффективный и хорошо документированный код.
+Правила:
+1. Всегда предоставляй полный рабочий код
+2. Добавляй комментарии и документацию
+3. Объясняй логику и принятые решения
+4. Предлагай альтернативные решения
+5. Учитывай лучшие практики и безопасность`
+            },
+            analyze: { 
+                icon: 'ti ti-chart-bar', 
+                color: '#ff9800',
+                placeholder: 'Опишите данные или ситуацию для анализа...',
+                systemPrompt: `Ты аналитический AI-ассистент. Анализируй информацию системно и структурированно.
+Методология:
+- Разбивай сложные проблемы на части
+- Используй логические цепочки
+- Предоставляй выводы и рекомендации
+- Учитывай разные перспективы
+- Подкрепляй анализ фактами`
             }
         };
 
         this.placeholderExamples = [
-            "Расскажи о возможностях искусственного интеллекта...",
-            "Напиши код для сортировки массива на Python...",
-            "Объясни теорию относительности простыми словами...",
-            "Какие есть способы улучшить производительность веб-сайта?",
-            "Создай описание для приложения на основе ИИ..."
+            "Объясни квантовые вычисления простыми словами...",
+            "Напиши React компонент для формы входа...",
+            "Проанализируй преимущества и риски AI...",
+            "Предложи идеи для мобильного приложения...",
+            "Как оптимизировать производительность веб-сайта?"
         ];
+
+        // AI configuration
+        this.aiConfig = {
+            maxTokens: 4000,
+            temperature: 0.7,
+            topP: 0.9,
+            presencePenalty: 0.1,
+            frequencyPenalty: 0.1
+        };
 
         this.init();
     }
@@ -172,6 +177,7 @@ class KHAIChat {
             this.loadThemePreference();
             this.setupPerformanceMonitoring();
             this.setupFullscreenInput();
+            this.setupMessageQueue();
             
             this.setTimeout(() => {
                 const appLoader = document.getElementById('appLoader');
@@ -209,7 +215,11 @@ class KHAIChat {
                 },
                 langPrefix: 'hljs language-',
                 breaks: true,
-                gfm: true
+                gfm: true,
+                tables: true,
+                sanitize: false,
+                smartLists: true,
+                smartypants: true
             });
         }
     }
@@ -219,6 +229,9 @@ class KHAIChat {
             if (typeof puter !== 'undefined') {
                 this.puterAI = puter;
                 this.puterInitialized = true;
+                
+                // Test AI availability
+                await this.testAIConnection();
                 console.log('Puter.js successfully initialized');
                 this.setOnlineStatus(true);
             } else {
@@ -231,77 +244,177 @@ class KHAIChat {
         }
     }
 
+    async testAIConnection() {
+        try {
+            // Simple test to verify AI services are available
+            const testPrompt = "Привет! Ответь одним словом: 'работает'";
+            const response = await this.puterAI.ai.chat(testPrompt, {
+                model: 'gpt-3.5-turbo',
+                maxTokens: 10
+            });
+            
+            let result = '';
+            for await (const chunk of response) {
+                result += chunk.text || '';
+            }
+            
+            if (!result.includes('работает')) {
+                throw new Error('AI service test failed');
+            }
+            
+        } catch (error) {
+            console.error('AI connection test failed:', error);
+            throw new Error('AI services unavailable');
+        }
+    }
+
     setupPuterFallback() {
+        console.warn('Setting up Puter.js fallback mode');
         this.puterAI = {
             ai: {
                 chat: async (prompt, options) => {
                     return this.mockAIResponse(prompt, options);
-                },
-                img2txt: async (imageData) => {
-                    return "Это демонстрационное изображение. В реальном приложении здесь был бы распознанный текст с помощью Puter.ai.";
-                },
-                imagine: async (prompt, options) => {
-                    return {
-                        url: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230099ff'/%3E%3Ctext x='200' y='220' font-family='Arial' font-size='24' text-anchor='middle' fill='white'%3EСгенерированное изображение%3C/text%3E%3C/svg%3E"
-                    };
-                },
-                txt2speech: async (text) => {
-                    return {
-                        src: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSw=="
-                    };
-                }
-            },
-            fs: {
-                write: async (filename, content) => {
-                    console.log(`File saved via Puter.js: ${filename}`);
-                    return Promise.resolve();
-                },
-                read: async (filename) => {
-                    return new Blob(['Demo file content'], { type: 'text/plain' });
                 }
             }
         };
     }
 
     async mockAIResponse(prompt, options) {
-        try {
-            if (!this.puterAI || typeof this.puterAI.ai?.chat !== 'function') {
-                throw new Error('Puter.ai chat function not available');
-            }
-            
-            const response = await this.puterAI.ai.chat(prompt, options);
-            return response;
-        } catch (error) {
-            console.error('Real AI response failed:', error);
-            
-            const responses = {
-                normal: ["Привет! Я KHAI - ваш AI-ассистент. Готов помочь с любыми вопросами!"],
-                creative: ["О, креативная задача! Давайте придумаем что-то необычное..."],
-                code: ["Отличная задача по программированию! Вот решение..."],
-                image: ["Для генерации изображения по вашему описанию..."],
-                voice: ["Для аудио контента по вашей теме..."]
-            };
+        // Enhanced mock responses based on prompt content
+        const responses = {
+            programming: [
+                "Вот решение вашей задачи на программировании:\n\n```python\ndef main():\n    print(\"Hello, World!\")\n\nif __name__ == \"__main__\":\n    main()\n```\n\nЭто базовая структура программы на Python.",
+                "Для вашего вопроса о коде:\n\n```javascript\nfunction calculateSum(a, b) {\n    return a + b;\n}\n\n// Пример использования\nconsole.log(calculateSum(5, 3)); // 8\n```\n\nФункция принимает два параметра и возвращает их сумму."
+            ],
+            analysis: [
+                "Проанализировав вашу ситуацию, я выделяю следующие ключевые моменты:\n\n**Преимущества:**\n- Высокая эффективность\n- Удобство использования\n- Масштабируемость\n\n**Риски:**\n- Зависимость от технологии\n- Необходимость обучения\n\n**Рекомендации:**\nНачните с пилотного проекта для тестирования.",
+                "На основе предоставленной информации:\n\n1. **Текущее состояние:** Стабильное\n2. **Потенциал роста:** Высокий\n3. **Ключевые факторы:** Технология, команда, рынок\n\n**Вывод:** Проект имеет хорошие перспективы при правильной реализации."
+            ],
+            creative: [
+                "Отличная креативная задача! Вот несколько идей:\n\n🎯 **Основная концепция:** Инновационная платформа\n💡 **Ключевые особенности:**\n- Персонализированный опыт\n- Социальная интеграция\n- Gamification элементы\n\n🚀 **Уникальное предложение:** Комбинация AI и человеческого творчества",
+                "Для вашего творческого проекта:\n\n**Название:** NovaSphere\n**Концепция:** Платформа для совместного творчества\n**Целевая аудитория:** Креативные профессионалы\n\n**Особенности:**\n- AI-ассистент для генерации идей\n- Коллаборативное рабочее пространство\n- Библиотека шаблонов и ресурсов"
+            ],
+            default: [
+                "Привет! Я KHAI - ваш AI-ассистент. Рад помочь вам с любыми вопросами и задачами.\n\nМои возможности включают:\n- Ответы на вопросы и объяснения\n- Помощь с программированием\n- Креативные идеи и решения\n- Анализ информации\n\nЧем могу помочь?",
+                "Спасибо за ваш вопрос! Я проанализировал вашу задачу и готов предложить решение.\n\nОсновные моменты:\n- Задача требует комплексного подхода\n- Есть несколько возможных решений\n- Рекомендую начать с базовой реализации\n\nНужны ли дополнительные детали?",
+                "Понимаю вашу задачу. Вот развернутый ответ:\n\n1. **Понимание проблемы:** [суть проблемы]\n2. **Возможные решения:** [варианты]\n3. **Рекомендации:** [лучший подход]\n4. **Дальнейшие шаги:** [план действий]\n\nГотов обсудить детали!",
+                "Отличный вопрос! Давайте разберем его по пунктам:\n\n📚 **Теоретическая основа:** [объяснение]\n🔧 **Практическое применение:** [примеры]\n🚀 **Продвинутые техники:** [дополнительно]\n\nНадеюсь, это поможет в вашем проекте!"
+            ]
+        };
 
-            const modeResponses = responses[this.currentMode] || responses.normal;
-            const response = modeResponses[Math.floor(Math.random() * modeResponses.length)];
-            
-            const mockStream = {
-                [Symbol.asyncIterator]: async function* () {
-                    const words = response.split(' ');
+        // Determine response type based on prompt content
+        let responseType = 'default';
+        const lowerPrompt = prompt.toLowerCase();
+        
+        if (lowerPrompt.includes('код') || lowerPrompt.includes('программир') || lowerPrompt.includes('функци') || lowerPrompt.includes('алгоритм')) {
+            responseType = 'programming';
+        } else if (lowerPrompt.includes('анализ') || lowerPrompt.includes('проанализир') || lowerPrompt.includes('оцен') || lowerPrompt.includes('сравн')) {
+            responseType = 'analysis';
+        } else if (lowerPrompt.includes('иде') || lowerPrompt.includes('креатив') || lowerPrompt.includes('созда') || lowerPrompt.includes('придума')) {
+            responseType = 'creative';
+        }
+
+        const selectedResponses = responses[responseType] || responses.default;
+        const response = selectedResponses[Math.floor(Math.random() * selectedResponses.length)];
+
+        // Simulate streaming response
+        const mockStream = {
+            [Symbol.asyncIterator]: async function* () {
+                const sentences = response.split(/(?<=[.!?])\s+/);
+                for (const sentence of sentences) {
+                    if (this.generationAborted) break;
+                    
+                    const words = sentence.split(' ');
                     for (const word of words) {
                         if (this.generationAborted) break;
-                        await new Promise(resolve => setTimeout(resolve, 100));
+                        await new Promise(resolve => setTimeout(resolve, 30 + Math.random() * 50));
                         yield { text: word + ' ' };
                     }
-                }.bind(this)
-            };
+                    
+                    // Longer pause between sentences
+                    if (!this.generationAborted) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                }
+            }.bind(this)
+        };
 
-            return mockStream;
+        return mockStream;
+    }
+
+    setupMessageQueue() {
+        this.messageQueue = [];
+        this.isProcessingQueue = false;
+    }
+
+    async addToMessageQueue(messageData) {
+        this.messageQueue.push(messageData);
+        if (!this.isProcessingQueue) {
+            await this.processMessageQueue();
         }
+    }
+
+    async processMessageQueue() {
+        if (this.isProcessingQueue || this.messageQueue.length === 0) return;
+        
+        this.isProcessingQueue = true;
+        
+        while (this.messageQueue.length > 0) {
+            const messageData = this.messageQueue[0];
+            try {
+                await this.processSingleMessage(messageData);
+                this.messageQueue.shift(); // Remove processed message
+            } catch (error) {
+                console.error('Error processing message from queue:', error);
+                this.retryCount++;
+                
+                if (this.retryCount <= this.maxRetries) {
+                    console.log(`Retrying message... (${this.retryCount}/${this.maxRetries})`);
+                    await this.delay(1000 * this.retryCount);
+                } else {
+                    this.messageQueue.shift(); // Remove failed message
+                    this.retryCount = 0;
+                    this.handleError('Не удалось обработать сообщение после нескольких попыток', error);
+                }
+            }
+        }
+        
+        this.isProcessingQueue = false;
+        this.retryCount = 0;
+    }
+
+    async processSingleMessage(messageData) {
+        const { message, files } = messageData;
+        
+        this.lastUserMessage = {
+            text: message,
+            files: [...files]
+        };
+        
+        const userMessage = {
+            id: this.generateId(),
+            role: 'user',
+            content: message,
+            files: [...files],
+            timestamp: Date.now(),
+            mode: this.currentMode
+        };
+
+        this.addMessageToChat(userMessage);
+        this.addToConversationHistory('user', message, files);
+        
+        document.getElementById('userInput').value = '';
+        this.autoResizeTextarea(document.getElementById('userInput'));
+        this.toggleClearInputButton();
+        const filesToProcess = [...files];
+        this.clearAttachedFiles();
+
+        await this.getAIResponse(message, filesToProcess);
     }
 
     async setupEventListeners() {
         try {
+            // Core interaction listeners
             this.addEventListener(document.getElementById('sendBtn'), 'click', () => this.handleSendButtonClick());
             
             const userInput = document.getElementById('userInput');
@@ -326,16 +439,14 @@ class KHAIChat {
                 userInput.focus();
             });
 
+            // Mode selection
             document.querySelectorAll('.mode-btn').forEach(btn => {
                 this.addEventListener(btn, 'click', (e) => {
                     this.setMode(e.currentTarget.dataset.mode);
                 });
             });
 
-            this.addEventListener(document.getElementById('attachImageBtn'), 'click', () => {
-                document.getElementById('fileInput').click();
-            });
-
+            // File handling
             this.addEventListener(document.getElementById('attachFileBtn'), 'click', () => {
                 document.getElementById('fileInput').click();
             });
@@ -345,10 +456,12 @@ class KHAIChat {
                 e.target.value = '';
             });
 
+            // Voice input
             this.addEventListener(document.getElementById('voiceInputBtn'), 'click', () => {
                 this.toggleVoiceInput();
             });
 
+            // UI controls
             this.addEventListener(document.getElementById('emojiBtn'), 'click', (e) => {
                 this.toggleEmojiPicker(e.currentTarget);
             });
@@ -377,6 +490,7 @@ class KHAIChat {
                 this.showModelSelection();
             });
 
+            // Navigation
             this.addEventListener(document.getElementById('menuToggle'), 'click', () => {
                 this.toggleSidebarMenu();
             });
@@ -389,6 +503,7 @@ class KHAIChat {
                 this.toggleSidebarMenu();
             });
 
+            // Quick actions
             this.addEventListener(document.getElementById('quickNewChat'), 'click', () => {
                 this.createNewChat();
             });
@@ -401,6 +516,7 @@ class KHAIChat {
                 this.showSettings();
             });
 
+            // Scroll navigation
             this.addEventListener(document.getElementById('scrollToTop'), 'click', () => {
                 this.scrollToTop();
             });
@@ -413,18 +529,7 @@ class KHAIChat {
                 this.scrollToBottom(true);
             });
 
-            this.addEventListener(document.getElementById('scrollToTopNav'), 'click', () => {
-                this.scrollToTop();
-            });
-
-            this.addEventListener(document.getElementById('scrollToLastAINav'), 'click', () => {
-                this.scrollToLastAIMessage();
-            });
-
-            this.addEventListener(document.getElementById('scrollToBottomNav'), 'click', () => {
-                this.scrollToBottom(true);
-            });
-
+            // Search functionality
             const headerSearch = document.getElementById('headerSearch');
             this.addEventListener(headerSearch, 'input', this.debounce((e) => {
                 this.handleSearch(e.target.value);
@@ -436,26 +541,7 @@ class KHAIChat {
                 headerSearch.focus();
             });
 
-            const chatSearchInput = document.getElementById('chatSearchInput');
-            if (chatSearchInput) {
-                this.addEventListener(chatSearchInput, 'input', this.debounce((e) => {
-                    this.handleChatSearch(e.target.value);
-                }, 300));
-            }
-
-            this.addEventListener(document, 'contextmenu', (e) => {
-                if (e.target.closest('.message')) {
-                    e.preventDefault();
-                    this.showContextMenu(e, e.target.closest('.message'));
-                }
-            });
-
-            this.addEventListener(document, 'click', (e) => {
-                if (!e.target.closest('.context-menu')) {
-                    this.hideContextMenu();
-                }
-            });
-
+            // Global event listeners
             this.addEventListener(document, 'keydown', (e) => {
                 this.handleKeyboardShortcuts(e);
             });
@@ -472,10 +558,7 @@ class KHAIChat {
                 this.handleResize();
             }, 250));
 
-            this.addEventListener(document, 'paste', (e) => {
-                this.handlePaste(e);
-            });
-
+            // Drag and drop
             this.addEventListener(document, 'dragover', (e) => {
                 e.preventDefault();
                 this.showDropZone();
@@ -495,63 +578,13 @@ class KHAIChat {
                 }
             });
 
+            // Scroll tracking
             const messagesContainer = document.getElementById('messagesContainer');
             this.addEventListener(messagesContainer, 'scroll', this.debounce(() => {
-                this.updateMinimapViewport();
                 this.handleScroll();
             }, 100));
 
-            this.addEventListener(document.getElementById('qaNewChat'), 'click', () => {
-                this.createNewChat();
-                this.toggleSidebarMenu();
-            });
-
-            this.addEventListener(document.getElementById('qaTemplates'), 'click', () => {
-                this.showTemplates();
-                this.toggleSidebarMenu();
-            });
-
-            this.addEventListener(document.getElementById('qaSettings'), 'click', () => {
-                this.showSettings();
-                this.toggleSidebarMenu();
-            });
-
-            this.addEventListener(document.getElementById('qaHelp'), 'click', () => {
-                this.showHelp();
-                this.toggleSidebarMenu();
-            });
-
-            this.addEventListener(document.getElementById('newChatBtn'), 'click', () => {
-                this.createNewChat();
-                this.toggleSidebarMenu();
-            });
-
-            this.addEventListener(document.getElementById('importChatBtn'), 'click', () => {
-                this.importChat();
-                this.toggleSidebarMenu();
-            });
-
-            this.addEventListener(document.getElementById('logoBtn'), 'click', () => {
-                this.showAbout();
-            });
-
-            this.addEventListener(window, 'beforeunload', () => {
-                this.handleBeforeUnload();
-            });
-
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                this.addEventListener(btn, 'click', (e) => {
-                    this.handlePreset(e.currentTarget.dataset.preset);
-                });
-            });
-
-            document.querySelectorAll('.preset-sidebar').forEach(btn => {
-                this.addEventListener(btn, 'click', (e) => {
-                    this.handlePreset(e.currentTarget.dataset.preset);
-                    this.toggleSidebarMenu();
-                });
-            });
-
+            // PWA installation
             this.addEventListener(document.getElementById('pwaInstallConfirm'), 'click', () => {
                 this.installPWA();
             });
@@ -560,49 +593,16 @@ class KHAIChat {
                 this.hidePWAInstallPrompt();
             });
 
+            // Chat management
             this.addEventListener(document.getElementById('deleteAllChatsBtn'), 'click', () => {
                 this.deleteAllChats();
-            });
-
-            const mobileChatSearchInput = document.getElementById('mobileChatSearchInput');
-            if (mobileChatSearchInput) {
-                this.addEventListener(mobileChatSearchInput, 'input', this.debounce((e) => {
-                    this.handleChatSearch(e.target.value);
-                }, 300));
-            }
-
-            this.addEventListener(document.getElementById('mobileChatSearchClear'), 'click', () => {
-                if (mobileChatSearchInput) {
-                    mobileChatSearchInput.value = '';
-                    this.handleChatSearch('');
-                    mobileChatSearchInput.focus();
-                }
-            });
-
-            this.addEventListener(document.getElementById('mobileDeleteAllChatsBtn'), 'click', () => {
-                this.deleteAllChats();
-            });
-
-            this.addEventListener(document.getElementById('exportAllChatsBtn'), 'click', () => {
-                this.exportAllChats();
-            });
-
-            this.addEventListener(document.getElementById('importAllChatsBtn'), 'click', () => {
-                this.importAllChats();
-            });
-
-            this.addEventListener(document.getElementById('mobileExportAllChatsBtn'), 'click', () => {
-                this.exportAllChats();
-            });
-
-            this.addEventListener(document.getElementById('mobileImportAllChatsBtn'), 'click', () => {
-                this.importAllChats();
             });
 
             this.setupTouchEvents();
 
         } catch (error) {
             console.error('Error setting up event listeners:', error);
+            this.showError('Ошибка настройки приложения');
         }
     }
 
@@ -614,14 +614,6 @@ class KHAIChat {
             if (userInput.value.length > 200) {
                 this.activateFullscreenInput();
             }
-        });
-
-        this.addEventListener(userInput, 'blur', () => {
-            this.setTimeout(() => {
-                if (!document.activeElement.closest('.fullscreen-input-overlay')) {
-                    this.exitFullscreenInput();
-                }
-            }, 100);
         });
     }
 
@@ -645,14 +637,6 @@ class KHAIChat {
                     <i class="ti ti-x"></i>
                 </button>
                 <div class="fullscreen-input-title">Редактирование сообщения</div>
-                <div class="fullscreen-input-nav">
-                    <button id="fullscreenInputUp" class="fullscreen-input-btn" title="В начало чата">
-                        <i class="ti ti-arrow-up"></i>
-                    </button>
-                    <button id="fullscreenInputDown" class="fullscreen-input-btn" title="В конец чата">
-                        <i class="ti ti-arrow-down"></i>
-                    </button>
-                </div>
             </div>
             <div class="fullscreen-input-content">
                 <textarea id="userInputFullscreen" placeholder="${this.modeConfigs[this.currentMode].placeholder}"></textarea>
@@ -694,6 +678,10 @@ class KHAIChat {
                     this.exitFullscreenInput();
                 }
             });
+
+            this.addEventListener(document.getElementById('fullscreenInputClose'), 'click', () => {
+                this.exitFullscreenInput();
+            });
         }
 
         this.fullscreenInputActive = true;
@@ -715,8 +703,6 @@ class KHAIChat {
     }
 
     setupTouchEvents() {
-        const messagesContainer = document.getElementById('messagesContainer');
-        
         let startX = 0;
         this.addEventListener(document, 'touchstart', (e) => {
             startX = e.touches[0].clientX;
@@ -733,18 +719,6 @@ class KHAIChat {
                 startX = 0;
             }
         });
-
-        if (messagesContainer) {
-            this.addEventListener(messagesContainer, 'touchstart', () => {
-                messagesContainer.classList.add('scrolling');
-            });
-
-            this.addEventListener(messagesContainer, 'touchend', () => {
-                this.setTimeout(() => {
-                    messagesContainer.classList.remove('scrolling');
-                }, 100);
-            });
-        }
     }
 
     debounce(func, wait) {
@@ -821,8 +795,6 @@ class KHAIChat {
     updateNavigationButtons() {
         const scrollToLastAI = document.getElementById('scrollToLastAI');
         const scrollToBottomBtn = document.getElementById('scrollToBottom');
-        const scrollToLastAINav = document.getElementById('scrollToLastAINav');
-        const scrollToBottomNav = document.getElementById('scrollToBottomNav');
         const chatNavigation = document.getElementById('chatNavigation');
 
         if (!scrollToLastAI || !scrollToBottomBtn || !chatNavigation) return;
@@ -832,17 +804,9 @@ class KHAIChat {
         
         scrollToLastAI.classList.toggle('active', !this.isAtBottom && hasAIMessages);
         scrollToLastAI.disabled = !hasAIMessages;
-        if (scrollToLastAINav) {
-            scrollToLastAINav.classList.toggle('active', !this.isAtBottom && hasAIMessages);
-            scrollToLastAINav.disabled = !hasAIMessages;
-        }
         
         scrollToBottomBtn.classList.toggle('active', !this.isAtBottom);
         scrollToBottomBtn.disabled = this.isAtBottom;
-        if (scrollToBottomNav) {
-            scrollToBottomNav.classList.toggle('active', !this.isAtBottom);
-            scrollToBottomNav.disabled = this.isAtBottom;
-        }
         
         if (this.isAtBottom) {
             chatNavigation.classList.remove('visible');
@@ -892,14 +856,12 @@ class KHAIChat {
             this.generationAborted = false;
             this.updateSendButton(true);
 
-            if (this.currentMode === 'voice') {
-                await this.generateVoice(message);
-            } else {
-                await this.processUserMessage(message, files);
-            }
+            // Add to message queue for processing
+            await this.addToMessageQueue({ message, files });
+
         } catch (error) {
-            console.error('Error generating response:', error);
-            this.handleError('Не удалось получить ответ. Пожалуйста, попробуйте еще раз.', error);
+            console.error('Error sending message:', error);
+            this.handleError('Не удалось отправить сообщение', error);
         } finally {
             if (!this.generationAborted) {
                 this.isGenerating = false;
@@ -907,37 +869,6 @@ class KHAIChat {
                 this.saveChatHistory();
                 this.updateUI();
             }
-        }
-    }
-
-    async processUserMessage(message, files = []) {
-        this.lastUserMessage = {
-            text: message,
-            files: [...files]
-        };
-        
-        const userMessage = {
-            id: this.generateId(),
-            role: 'user',
-            content: message,
-            files: [...files],
-            timestamp: Date.now(),
-            mode: this.currentMode
-        };
-
-        this.addMessageToChat(userMessage);
-        this.addToConversationHistory('user', message, files);
-        
-        document.getElementById('userInput').value = '';
-        this.autoResizeTextarea(document.getElementById('userInput'));
-        this.toggleClearInputButton();
-        const filesToProcess = [...files];
-        this.clearAttachedFiles();
-
-        if (this.currentMode === 'image') {
-            await this.generateImage(message);
-        } else {
-            await this.getAIResponse(message, filesToProcess);
         }
     }
 
@@ -1035,12 +966,14 @@ ${fileContent}
         }
         
         const modelConfig = this.models[this.currentModel];
-        const puterModel = modelConfig?.puterModel || 'gpt-4';
         
         const options = {
-            model: puterModel,
+            model: this.currentModel,
             systemPrompt: this.modeConfigs[this.currentMode].systemPrompt,
-            stream: true
+            stream: true,
+            maxTokens: this.aiConfig.maxTokens,
+            temperature: this.aiConfig.temperature,
+            topP: this.aiConfig.topP
         };
         
         return await this.puterAI.ai.chat(prompt, options);
@@ -1357,6 +1290,8 @@ ${fileContent}
     }
 
     attachMessageHandlers(messageElement) {
+        this.attachCopyButtons(messageElement);
+        
         const copyBtn = messageElement.querySelector('.copy-message-btn');
         if (copyBtn) {
             this.addEventListener(copyBtn, 'click', () => {
@@ -1365,8 +1300,6 @@ ${fileContent}
                 this.showNotification('Сообщение скопировано', 'success');
             });
         }
-        
-        this.attachCopyButtons(messageElement);
         
         const editBtn = messageElement.querySelector('.edit-message-btn');
         if (editBtn) {
@@ -1430,9 +1363,6 @@ ${fileContent}
             <button class="message-action-btn copy-message-btn" title="Копировать сообщение">
                 <i class="ti ti-copy"></i>
             </button>
-            <button class="message-action-btn share-message-btn" title="Поделиться">
-                <i class="ti ti-share"></i>
-            </button>
             <button class="message-action-btn download-message-btn" title="Скачать как файл">
                 <i class="ti ti-download"></i>
             </button>
@@ -1451,38 +1381,6 @@ ${fileContent}
         `;
         
         messageContent.appendChild(actionsDiv);
-        
-        const shareBtn = actionsDiv.querySelector('.share-message-btn');
-        if (shareBtn && navigator.share) {
-            this.addEventListener(shareBtn, 'click', () => {
-                this.shareMessage(messageElement);
-            });
-        } else if (shareBtn) {
-            shareBtn.style.display = 'none';
-        }
-    }
-
-    async shareMessage(messageElement) {
-        try {
-            const messageText = messageElement.querySelector('.message-text').textContent;
-            const messageAuthor = messageElement.querySelector('.message-author').textContent;
-            
-            if (navigator.share) {
-                await navigator.share({
-                    title: `Сообщение от ${messageAuthor}`,
-                    text: messageText,
-                    url: window.location.href
-                });
-            } else {
-                await this.copyToClipboard(`${messageAuthor}: ${messageText}`);
-                this.showNotification('Сообщение скопировано в буфер обмена', 'success');
-            }
-        } catch (error) {
-            console.error('Error sharing message:', error);
-            if (error.name !== 'AbortError') {
-                this.showError('Ошибка при попытке поделиться сообщением');
-            }
-        }
     }
 
     async copyToClipboard(text) {
@@ -1688,9 +1586,8 @@ ${fileContent}
         const names = {
             normal: 'Обычный',
             creative: 'Креативный',
-            voice: 'Аудио',
-            image: 'Изображения',
-            code: 'Программирование'
+            code: 'Программирование',
+            analyze: 'Анализ'
         };
         return names[mode] || mode;
     }
@@ -2113,13 +2010,12 @@ ${fileContent}
                     <i class="ti ti-sparkles"></i>
                 </div>
                 <h2>Добро пожаловать в KHAI!</h2>
-                <p>Я ваш AI-ассистент с интеграцией Puter.js. Готов помочь с:</p>
+                <p>Продвинутый AI-ассистент с интеграцией Puter.js. Готов помочь с:</p>
                 <ul>
                     <li><i class="ti ti-message"></i> Ответами на вопросы и обсуждениями</li>
                     <li><i class="ti ti-code"></i> Написанием и анализом кода</li>
-                    <li><i class="ti ti-photo"></i> Работой с изображениями</li>
-                    <li><i class="ti ti-microphone"></i> Аудио задачами</li>
-                    <li><i class="ti ti-sparkles"></i> Креативными проектами</li>
+                    <li><i class="ti ti-sparkles"></i> Креативными задачами и идеями</li>
+                    <li><i class="ti ti-chart-bar"></i> Анализом информации и данных</li>
                 </ul>
                 <div class="welcome-tips">
                     <strong>Советы:</strong>
@@ -2179,93 +2075,6 @@ ${fileContent}
         }
     }
 
-    async importChat() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.txt,.json';
-        
-        input.onchange = async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            try {
-                const content = await this.readFileAsText(file);
-                this.processImportedChat(content, file.name);
-            } catch (error) {
-                console.error('Error importing chat:', error);
-                this.showError('Ошибка при импорте чата');
-            }
-        };
-        
-        input.click();
-    }
-
-    processImportedChat(content, filename) {
-        try {
-            if (filename.endsWith('.json')) {
-                const data = JSON.parse(content);
-                if (Array.isArray(data.messages)) {
-                    this.chats.set(this.currentChatId, data.messages);
-                    this.renderChat();
-                    this.showNotification('Чат импортирован из JSON', 'success');
-                    return;
-                }
-            }
-            
-            const lines = content.split('\n');
-            const messages = [];
-            let currentMessage = null;
-            
-            lines.forEach(line => {
-                if (line.match(/^(Вы|AI)\s*\(.*\):/)) {
-                    if (currentMessage) {
-                        messages.push(currentMessage);
-                    }
-                    
-                    const role = line.startsWith('Вы') ? 'user' : 'assistant';
-                    const timeMatch = line.match(/\((.+)\):/);
-                    const timestamp = timeMatch ? new Date(timeMatch[1]).getTime() : Date.now();
-                    
-                    currentMessage = {
-                        id: this.generateId(),
-                        role: role,
-                        content: '',
-                        timestamp: timestamp
-                    };
-                } else if (currentMessage && line.trim() && !line.startsWith('---') && !line.startsWith('===')) {
-                    if (currentMessage.content) {
-                        currentMessage.content += '\n';
-                    }
-                    currentMessage.content += line.trim();
-                }
-            });
-            
-            if (currentMessage) {
-                messages.push(currentMessage);
-            }
-            
-            if (messages.length > 0) {
-                this.chats.set(this.currentChatId, messages);
-                this.renderChat();
-                this.showNotification(`Импортировано ${messages.length} сообщений`, 'success');
-            } else {
-                this.showError('Не удалось найти сообщения в файле');
-            }
-        } catch (error) {
-            console.error('Error processing imported chat:', error);
-            this.showError('Ошибка при обработке импортированного чата');
-        }
-    }
-
-    readFileAsText(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.onerror = reject;
-            reader.readAsText(file);
-        });
-    }
-
     renderChat() {
         const messagesContainer = document.getElementById('messagesContainer');
         if (!messagesContainer) return;
@@ -2323,9 +2132,9 @@ ${fileContent}
                 <div class="help-section">
                     <h3>🔧 Основные возможности</h3>
                     <ul>
-                        <li><strong>Мультимодальный AI:</strong> Работа с текстом, кодом, изображениями и аудио</li>
-                        <li><strong>Разные модели:</strong> GPT-4, Claude, Gemini и другие через Puter.js</li>
-                        <li><strong>Режимы работы:</strong> Обычный, Креативный, Программирование, Изображения, Аудио</li>
+                        <li><strong>Мультимодальный AI:</strong> Работа с текстом, кодом и файлами через Puter.js</li>
+                        <li><strong>Разные модели:</strong> GPT-4, Claude, Gemini и другие</li>
+                        <li><strong>Режимы работы:</strong> Обычный, Креативный, Программирование, Анализ</li>
                         <li><strong>Голосовой ввод:</strong> Нажмите микрофон для голосового ввода</li>
                         <li><strong>Прикрепление файлов:</strong> Перетащите файлы или используйте кнопку прикрепления</li>
                     </ul>
@@ -2379,15 +2188,6 @@ ${fileContent}
                             <option value="auto">Автоматически</option>
                             <option value="light">Светлая</option>
                             <option value="dark">Темная</option>
-                        </select>
-                    </div>
-                    
-                    <div class="setting-item">
-                        <label for="fontSize">Размер шрифта</label>
-                        <select id="fontSize" class="styled-select">
-                            <option value="small">Маленький</option>
-                            <option value="medium" selected>Средний</option>
-                            <option value="large">Большой</option>
                         </select>
                     </div>
                 </div>
@@ -2455,17 +2255,6 @@ ${fileContent}
             });
         }
         
-        const fontSize = document.getElementById('fontSize');
-        if (fontSize) {
-            const currentFontSize = document.documentElement.getAttribute('data-font-size') || 'medium';
-            fontSize.value = currentFontSize;
-            
-            this.addEventListener(fontSize, 'change', (e) => {
-                this.setFontSize(e.target.value);
-                this.saveSettings();
-            });
-        }
-        
         const defaultModel = document.getElementById('defaultModel');
         if (defaultModel) {
             this.addEventListener(defaultModel, 'change', (e) => {
@@ -2505,24 +2294,15 @@ ${fileContent}
         localStorage.setItem('khai-theme', theme);
     }
 
-    setFontSize(size) {
-        document.documentElement.setAttribute('data-font-size', size);
-        localStorage.setItem('khai-font-size', size);
-    }
-
     loadThemePreference() {
         const savedTheme = localStorage.getItem('khai-theme') || 'auto';
-        const savedFontSize = localStorage.getItem('khai-font-size') || 'medium';
-        
         this.setTheme(savedTheme);
-        this.setFontSize(savedFontSize);
     }
 
     saveSettings() {
         const settings = {
             autoScroll: this.autoScrollEnabled,
             theme: document.documentElement.getAttribute('data-theme'),
-            fontSize: document.documentElement.getAttribute('data-font-size'),
             defaultModel: this.currentModel,
             defaultMode: this.currentMode
         };
@@ -2539,7 +2319,6 @@ ${fileContent}
                 settings: {
                     autoScroll: this.autoScrollEnabled,
                     theme: document.documentElement.getAttribute('data-theme'),
-                    fontSize: document.documentElement.getAttribute('data-font-size'),
                     defaultModel: this.currentModel,
                     defaultMode: this.currentMode
                 },
@@ -2767,196 +2546,8 @@ ${fileContent}
                 sidebar.classList.add('active');
                 overlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
-                this.updateChatList();
             }
         }
-    }
-
-    updateChatList() {
-        const chatsContainer = document.getElementById('chatsContainer');
-        const mobileChatsContainer = document.getElementById('mobileChatsContainer');
-        
-        [chatsContainer, mobileChatsContainer].forEach(container => {
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            const chatsArray = Array.from(this.chats.entries())
-                .filter(([id, chat]) => {
-                    if (this.chatSearchTerm) {
-                        const chatName = chat.name || 'Безымянный чат';
-                        return chatName.toLowerCase().includes(this.chatSearchTerm);
-                    }
-                    return true;
-                })
-                .sort(([,a], [,b]) => (b.lastActivity || 0) - (a.lastActivity || 0));
-            
-            if (chatsArray.length === 0) {
-                const emptyState = document.createElement('div');
-                emptyState.className = 'empty-chats';
-                emptyState.innerHTML = `
-                    <i class="ti ti-message-off"></i>
-                    <p>${this.chatSearchTerm ? 'Чаты не найдены' : 'Нет созданных чатов'}</p>
-                `;
-                container.appendChild(emptyState);
-                return;
-            }
-            
-            chatsArray.forEach(([id, chat]) => {
-                const chatItem = this.createChatListItem(id, chat);
-                container.appendChild(chatItem);
-            });
-        });
-    }
-
-    handleChatSearch(term) {
-        this.chatSearchTerm = term.toLowerCase().trim();
-        this.updateChatList();
-        
-        const chatSearchClear = document.getElementById('chatSearchClear');
-        const mobileChatSearchClear = document.getElementById('mobileChatSearchClear');
-        
-        [chatSearchClear, mobileChatSearchClear].forEach(clearBtn => {
-            if (clearBtn) {
-                clearBtn.style.display = this.chatSearchTerm ? 'flex' : 'none';
-            }
-        });
-    }
-
-    createChatListItem(id, chat) {
-        const chatItem = document.createElement('div');
-        chatItem.className = `chat-list-item ${id === this.currentChatId ? 'active' : ''}`;
-        chatItem.setAttribute('data-chat-id', id);
-        
-        const messageCount = chat.messages ? chat.messages.length : 0;
-        const lastActivity = chat.lastActivity ? this.formatTime(chat.lastActivity) : 'Нет активности';
-        const chatName = chat.name || 'Безымянный чат';
-        
-        chatItem.innerHTML = `
-            <div class="chat-list-info">
-                <div class="chat-list-name">${this.escapeHtml(chatName)}</div>
-                <div class="chat-list-meta">
-                    <span class="chat-list-count">${messageCount} сообщений</span>
-                    <span class="chat-list-time">${lastActivity}</span>
-                </div>
-            </div>
-            <div class="chat-list-actions mobile-visible">
-                <button class="chat-list-edit" title="Редактировать название">
-                    <i class="ti ti-edit"></i>
-                </button>
-                ${id !== 'main-chat' ? `
-                    <button class="chat-list-delete" title="Удалить чат">
-                        <i class="ti ti-trash"></i>
-                    </button>
-                ` : ''}
-            </div>
-        `;
-        
-        this.addEventListener(chatItem, 'click', (e) => {
-            if (!e.target.closest('.chat-list-actions')) {
-                this.switchToChat(id);
-                this.toggleSidebarMenu();
-            }
-        });
-        
-        const editBtn = chatItem.querySelector('.chat-list-edit');
-        if (editBtn) {
-            this.addEventListener(editBtn, 'click', (e) => {
-                e.stopPropagation();
-                this.editChatName(id, chatName);
-            });
-        }
-        
-        const deleteBtn = chatItem.querySelector('.chat-list-delete');
-        if (deleteBtn) {
-            this.addEventListener(deleteBtn, 'click', (e) => {
-                e.stopPropagation();
-                this.deleteChat(id, chatName);
-            });
-        }
-        
-        return chatItem;
-    }
-
-    switchToChat(chatId) {
-        if (chatId === this.currentChatId) return;
-        
-        this.saveChatHistory();
-        this.currentChatId = chatId;
-        this.renderChat();
-        this.updateUI();
-        this.showNotification(`Переключен на чат: ${this.chats.get(chatId)?.name || 'Безымянный чат'}`, 'info');
-    }
-
-    editChatName(chatId, currentName) {
-        const newName = prompt('Введите новое название чата:', currentName);
-        if (newName && newName.trim() && newName !== currentName) {
-            const chat = this.chats.get(chatId);
-            if (chat) {
-                chat.name = newName.trim();
-                chat.lastActivity = Date.now();
-                this.chats.set(chatId, chat);
-                this.saveChatHistory();
-                this.updateUI();
-                this.showNotification('Название чата изменено', 'success');
-            }
-        }
-    }
-
-    deleteChat(chatId, chatName) {
-        if (chatId === 'main-chat') {
-            this.showNotification('Основной чат нельзя удалить', 'warning');
-            return;
-        }
-        
-        if (confirm(`Вы уверены, что хотите удалить чат "${chatName}"?`)) {
-            this.chats.delete(chatId);
-            
-            if (this.currentChatId === chatId) {
-                this.currentChatId = 'main-chat';
-                this.renderChat();
-            }
-            
-            this.saveChatHistory();
-            this.updateUI();
-            this.showNotification('Чат удален', 'success');
-        }
-    }
-
-    deleteAllChats() {
-        if (confirm('Вы уверены, что хотите удалить все чаты, кроме основного?')) {
-            const chatsToDelete = Array.from(this.chats.keys()).filter(id => id !== 'main-chat');
-            
-            chatsToDelete.forEach(id => {
-                this.chats.delete(id);
-            });
-            
-            if (this.currentChatId !== 'main-chat') {
-                this.currentChatId = 'main-chat';
-                this.renderChat();
-            }
-            
-            this.saveChatHistory();
-            this.updateUI();
-            this.showNotification('Все чаты удалены', 'success');
-        }
-    }
-
-    createNewChat() {
-        const newChatId = 'chat-' + Date.now();
-        const newChat = {
-            id: newChatId,
-            name: `Чат ${this.chats.size}`,
-            messages: [],
-            lastActivity: Date.now(),
-            createdAt: Date.now()
-        };
-        
-        this.chats.set(newChatId, newChat);
-        this.switchToChat(newChatId);
-        this.saveChatHistory();
-        
-        this.showNotification('Новый чат создан', 'success');
     }
 
     handleSearch(term) {
@@ -3035,7 +2626,6 @@ ${fileContent}
         
         if (e.key === 'Escape') {
             this.hideModal();
-            this.hideContextMenu();
             this.hideModelSelection();
             
             const emojiPicker = document.getElementById('emojiPicker');
@@ -3054,109 +2644,6 @@ ${fileContent}
         const currentIndex = modes.indexOf(this.currentMode);
         const nextIndex = (currentIndex + 1) % modes.length;
         this.setMode(modes[nextIndex]);
-    }
-
-    showContextMenu(event, messageElement) {
-        this.hideContextMenu();
-        
-        const contextMenu = document.createElement('div');
-        contextMenu.className = 'context-menu';
-        contextMenu.style.left = event.pageX + 'px';
-        contextMenu.style.top = event.pageY + 'px';
-        
-        const messageId = messageElement.dataset.messageId;
-        const isUserMessage = messageElement.classList.contains('message-user');
-        
-        contextMenu.innerHTML = `
-            <div class="context-menu-item" data-action="copy">
-                <i class="ti ti-copy"></i>
-                Копировать текст
-            </div>
-            <div class="context-menu-item" data-action="download">
-                <i class="ti ti-download"></i>
-                Скачать как файл
-            </div>
-            ${isUserMessage ? `
-                <div class="context-menu-item" data-action="edit">
-                    <i class="ti ti-edit"></i>
-                    Редактировать
-                </div>
-            ` : `
-                <div class="context-menu-item" data-action="regenerate">
-                    <i class="ti ti-refresh"></i>
-                    Перегенерировать
-                </div>
-            `}
-            <div class="context-menu-item" data-action="speak">
-                <i class="ti ti-volume"></i>
-                Озвучить
-            </div>
-            <div class="context-menu-separator"></div>
-            <div class="context-menu-item" data-action="delete">
-                <i class="ti ti-trash"></i>
-                Удалить сообщение
-            </div>
-        `;
-        
-        document.body.appendChild(contextMenu);
-        
-        this.addEventListener(contextMenu, 'click', (e) => {
-            const action = e.target.closest('.context-menu-item')?.dataset.action;
-            if (action) {
-                this.handleContextMenuAction(action, messageElement, messageId);
-            }
-            this.hideContextMenu();
-        });
-        
-        this.contextMenu = contextMenu;
-    }
-
-    hideContextMenu() {
-        if (this.contextMenu) {
-            this.contextMenu.remove();
-            this.contextMenu = null;
-        }
-    }
-
-    handleContextMenuAction(action, messageElement, messageId) {
-        switch (action) {
-            case 'copy':
-                const text = messageElement.querySelector('.message-text').textContent;
-                this.copyToClipboard(text);
-                this.showNotification('Текст скопирован', 'success');
-                break;
-            case 'download':
-                this.downloadMessage(messageElement);
-                break;
-            case 'edit':
-                this.editMessage(messageElement);
-                break;
-            case 'regenerate':
-                this.regenerateMessage(messageElement);
-                break;
-            case 'speak':
-                this.speakMessage(messageElement);
-                break;
-            case 'delete':
-                this.deleteMessage(messageId);
-                break;
-        }
-    }
-
-    deleteMessage(messageId) {
-        const chat = this.chats.get(this.currentChatId);
-        if (chat) {
-            const messageIndex = chat.findIndex(msg => msg.id === messageId);
-            if (messageIndex !== -1) {
-                chat.splice(messageIndex, 1);
-                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                if (messageElement) {
-                    messageElement.remove();
-                }
-                this.saveChatHistory();
-                this.showNotification('Сообщение удалено', 'success');
-            }
-        }
     }
 
     handlePaste(event) {
@@ -3200,26 +2687,8 @@ ${fileContent}
         }
     }
 
-    updateMinimapViewport() {
-        const minimapViewport = document.getElementById('minimapViewport');
-        const messagesContainer = document.getElementById('messagesContainer');
-        
-        if (!minimapViewport || !messagesContainer) return;
-        
-        const scrollTop = messagesContainer.scrollTop;
-        const scrollHeight = messagesContainer.scrollHeight;
-        const clientHeight = messagesContainer.clientHeight;
-        
-        const viewportHeight = (clientHeight / scrollHeight) * 100;
-        const viewportTop = (scrollTop / scrollHeight) * 100;
-        
-        minimapViewport.style.height = viewportHeight + '%';
-        minimapViewport.style.top = viewportTop + '%';
-    }
-
     handleResize() {
         this.autoResizeTextarea(document.getElementById('userInput'));
-        this.updateMinimapViewport();
         this.updateNavigationButtons();
     }
 
@@ -3389,276 +2858,6 @@ ${fileContent}
         }
     }
 
-    async generateImage(prompt) {
-        if (!prompt.trim()) {
-            this.showError('Введите описание для генерации изображения');
-            return;
-        }
-        
-        try {
-            this.isGenerating = true;
-            this.updateSendButton(true);
-            
-            this.showNotification('Генерация изображения...', 'info');
-            
-            if (!this.puterAI || typeof this.puterAI.ai?.imagine !== 'function') {
-                throw new Error('Функция генерации изображений недоступна');
-            }
-            
-            const imageResult = await this.puterAI.ai.imagine(prompt, {
-                model: "dall-e-3",
-                size: "1024x1024"
-            });
-            
-            const message = {
-                id: this.generateId(),
-                role: 'assistant',
-                content: `Сгенерировано изображение по запросу: "${prompt}"\n\n<img src="${imageResult.url}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`,
-                timestamp: Date.now(),
-                mode: 'image'
-            };
-            
-            this.addMessageToChat(message);
-            this.addToConversationHistory('assistant', message.content);
-            
-            this.showNotification('Изображение сгенерировано', 'success');
-            
-        } catch (error) {
-            console.error('Error generating image:', error);
-            this.handleError('Ошибка при генерации изображения', error);
-        } finally {
-            this.isGenerating = false;
-            this.updateSendButton(false);
-            this.saveChatHistory();
-        }
-    }
-
-    async generateVoice(prompt) {
-        if (!prompt.trim()) {
-            this.showError('Введите текст для генерации аудио');
-            return;
-        }
-        
-        try {
-            this.isGenerating = true;
-            this.updateSendButton(true);
-            
-            this.showNotification('Генерация аудио...', 'info');
-            
-            if (!this.puterAI || typeof this.puterAI.ai?.txt2speech !== 'function') {
-                throw new Error('Функция генерации голоса недоступна');
-            }
-            
-            const audio = await this.puterAI.ai.txt2speech(prompt);
-            
-            const message = {
-                id: this.generateId(),
-                role: 'assistant',
-                content: `Сгенерировано аудио по запросу: "${prompt}"\n\n<audio controls style="width: 100%; max-width: 300px;"><source src="${audio.src}" type="audio/mpeg">Ваш браузер не поддерживает аудио элементы.</audio>`,
-                timestamp: Date.now(),
-                mode: 'voice'
-            };
-            
-            this.addMessageToChat(message);
-            this.addToConversationHistory('assistant', message.content);
-            
-            this.showNotification('Аудио сгенерировано', 'success');
-            
-        } catch (error) {
-            console.error('Error generating voice:', error);
-            this.handleError('Ошибка при генерации аудио', error);
-        } finally {
-            this.isGenerating = false;
-            this.updateSendButton(false);
-            this.saveChatHistory();
-        }
-    }
-
-    handlePreset(preset) {
-        const presets = {
-            'explain': {
-                message: 'Объясни концепцию искусственного интеллекта простыми словами',
-                mode: 'normal'
-            },
-            'summarize': {
-                message: 'Суммаризируй основные преимущества использования AI в повседневной жизни',
-                mode: 'normal'
-            },
-            'translate': {
-                message: 'Переведи следующий текст на английский: "Привет, как дела?"',
-                mode: 'normal'
-            },
-            'code': {
-                message: 'Напиши функцию на Python для вычисления факториала числа',
-                mode: 'code'
-            }
-        };
-        
-        const presetData = presets[preset];
-        if (presetData) {
-            this.setMode(presetData.mode);
-            
-            const userInput = document.getElementById('userInput');
-            if (userInput) {
-                userInput.value = presetData.message;
-                this.autoResizeTextarea(userInput);
-                this.toggleClearInputButton();
-                userInput.focus();
-            }
-            
-            this.showNotification(`Загружен пресет: ${preset}`, 'info');
-        }
-    }
-
-    showAbout() {
-        const aboutContent = `
-            <div class="about-content">
-                <div class="about-header">
-                    <div class="about-logo">
-                        <i class="ti ti-sparkles"></i>
-                    </div>
-                    <h2>KHAI</h2>
-                    <p class="about-version">Версия 2.1.0</p>
-                </div>
-                
-                <div class="about-description">
-                    <p>Продвинутый AI-ассистент с интеграцией Puter.js и поддержкой мультимодальных возможностей.</p>
-                </div>
-                
-                <div class="about-features">
-                    <h3>🚀 Основные возможности</h3>
-                    <div class="features-grid">
-                        <div class="feature-item">
-                            <i class="ti ti-brain"></i>
-                            <span>Множество AI моделей через Puter.js</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="ti ti-code"></i>
-                            <span>Поддержка программирования</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="ti ti-photo"></i>
-                            <span>Работа с изображениями</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="ti ti-microphone"></i>
-                            <span>Аудио возможности</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="ti ti-sparkles"></i>
-                            <span>Креативные режимы</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="ti ti-file-export"></i>
-                            <span>Экспорт и импорт</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="about-technical">
-                    <h3>🔧 Техническая информация</h3>
-                    <div class="tech-info">
-                        <div class="tech-item">
-                            <strong>Текущая модель:</strong>
-                            <span>${this.models[this.currentModel]?.name || this.currentModel}</span>
-                        </div>
-                        <div class="tech-item">
-                            <strong>Режим работы:</strong>
-                            <span>${this.getModeDisplayName(this.currentMode)}</span>
-                        </div>
-                        <div class="tech-item">
-                            <strong>Сообщений в чате:</strong>
-                            <span>${this.chats.get(this.currentChatId)?.length || 0}</span>
-                        </div>
-                        <div class="tech-item">
-                            <strong>Статус Puter.js:</strong>
-                            <span class="${this.puterInitialized ? 'status-online' : 'status-offline'}">
-                                ${this.puterInitialized ? 'Подключен' : 'Не доступен'}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="about-footer">
-                    <p>© 2025 KHAI. Все права защищены.</p>
-                </div>
-            </div>
-        `;
-        
-        this.showModal('О KHAI', aboutContent, 'large');
-    }
-
-    showTemplates() {
-        const templatesContent = `
-            <div class="templates-content">
-                <h3>🚀 Быстрые шаблоны</h3>
-                <p>Выберите шаблон для быстрого старта:</p>
-                
-                <div class="templates-grid">
-                    <div class="template-card" data-template="code-help">
-                        <div class="template-icon">
-                            <i class="ti ti-code"></i>
-                        </div>
-                        <h4>Помощь с кодом</h4>
-                        <p>Помощь в написании и отладке кода на различных языках программирования</p>
-                    </div>
-                    
-                    <div class="template-card" data-template="creative-writing">
-                        <div class="template-icon">
-                            <i class="ti ti-pencil"></i>
-                        </div>
-                        <h4>Креативное письмо</h4>
-                        <p>Создание рассказов, статей, сценариев и другого креативного контента</p>
-                    </div>
-                    
-                    <div class="template-card" data-template="image-description">
-                        <div class="template-icon">
-                            <i class="ti ti-photo"></i>
-                        </div>
-                        <h4>Описание изображений</h4>
-                        <p>Детальное описание визуальных сцен для генерации или анализа изображений</p>
-                    </div>
-                    
-                    <div class="template-card" data-template="voice-script">
-                        <div class="template-icon">
-                            <i class="ti ti-microphone"></i>
-                        </div>
-                        <h4>Аудио скрипты</h4>
-                        <p>Создание скриптов для озвучивания, подкастов и аудио контента</p>
-                    </div>
-                    
-                    <div class="template-card" data-template="analysis">
-                        <div class="template-icon">
-                            <i class="ti ti-chart-bar"></i>
-                        </div>
-                        <h4>Анализ данных</h4>
-                        <p>Анализ информации, трендов и данных с структурированными выводами</p>
-                    </div>
-                    
-                    <div class="template-card" data-template="learning">
-                        <div class="template-icon">
-                            <i class="ti ti-school"></i>
-                        </div>
-                        <h4>Обучение</h4>
-                        <p>Объяснение сложных концепций простым языком с примерами</p>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        this.showModal('Шаблоны запросов', templatesContent, 'large');
-        
-        this.setTimeout(() => {
-            document.querySelectorAll('.template-card').forEach(card => {
-                this.addEventListener(card, 'click', () => {
-                    const template = card.dataset.template;
-                    this.handlePreset(template);
-                    this.hideModal();
-                });
-            });
-        }, 100);
-    }
-
     updateUI() {
         this.updateModeIndicator();
         this.updateNavigationButtons();
@@ -3669,40 +2868,6 @@ ${fileContent}
         if (messageCount) {
             const count = this.chats.get(this.currentChatId)?.length || 0;
             messageCount.textContent = `Сообщений: ${count}`;
-        }
-        
-        const modelDisplay = document.getElementById('currentModelDisplay');
-        if (modelDisplay) {
-            modelDisplay.textContent = `Модель: ${this.models[this.currentModel]?.name || this.currentModel}`;
-        }
-        
-        const footerMessageCount = document.getElementById('footerMessageCount');
-        if (footerMessageCount) {
-            const count = this.chats.get(this.currentChatId)?.length || 0;
-            footerMessageCount.textContent = `${count} сообщений`;
-        }
-        
-        const footerModelDisplay = document.getElementById('footerModelDisplay');
-        if (footerModelDisplay) {
-            footerModelDisplay.textContent = this.models[this.currentModel]?.name || this.currentModel;
-        }
-        
-        const footerChatName = document.getElementById('footerChatName');
-        if (footerChatName) {
-            const chat = this.chats.get(this.currentChatId);
-            footerChatName.textContent = chat?.name || 'Основной чат';
-        }
-        
-        const footerConnectionIcon = document.getElementById('footerConnectionIcon');
-        const footerConnectionStatus = document.getElementById('footerConnectionStatus');
-        if (footerConnectionIcon && footerConnectionStatus) {
-            if (this.isOnline) {
-                footerConnectionIcon.className = 'ti ti-wifi';
-                footerConnectionStatus.textContent = 'Онлайн';
-            } else {
-                footerConnectionIcon.className = 'ti ti-wifi-off';
-                footerConnectionStatus.textContent = 'Офлайн';
-            }
         }
     }
 
@@ -3821,86 +2986,6 @@ ${fileContent}
         }
     }
 
-    async exportAllChats() {
-        try {
-            const allChatsData = {
-                version: '2.1.0',
-                exportDate: new Date().toISOString(),
-                chats: Object.fromEntries(this.chats),
-                settings: {
-                    currentModel: this.currentModel,
-                    currentMode: this.currentMode,
-                    theme: document.documentElement.getAttribute('data-theme'),
-                    autoScroll: this.autoScrollEnabled
-                }
-            };
-            
-            const blob = new Blob([JSON.stringify(allChatsData, null, 2)], { 
-                type: 'application/json' 
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            a.href = url;
-            a.download = `khai-all-chats-${timestamp}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            this.showNotification('Все чаты экспортированы', 'success');
-        } catch (error) {
-            console.error('Error exporting all chats:', error);
-            this.showError('Ошибка при экспорте чатов');
-        }
-    }
-
-    async importAllChats() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        
-        input.onchange = async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            try {
-                const content = await this.readFileAsText(file);
-                const data = JSON.parse(content);
-                
-                if (data.chats && typeof data.chats === 'object') {
-                    const currentChatId = this.currentChatId;
-                    
-                    Object.entries(data.chats).forEach(([id, chat]) => {
-                        this.chats.set(id, chat);
-                    });
-                    
-                    if (data.settings) {
-                        if (data.settings.currentModel && this.models[data.settings.currentModel]) {
-                            this.currentModel = data.settings.currentModel;
-                        }
-                        if (data.settings.currentMode && this.modeConfigs[data.settings.currentMode]) {
-                            this.currentMode = data.settings.currentMode;
-                        }
-                    }
-                    
-                    this.switchToChat(currentChatId);
-                    this.setupModelSelector();
-                    this.setMode(this.currentMode);
-                    
-                    this.showNotification('Все чаты импортированы', 'success');
-                } else {
-                    this.showError('Неверный формат файла импорта');
-                }
-            } catch (error) {
-                console.error('Error importing all chats:', error);
-                this.showError('Ошибка при импорте чатов');
-            }
-        };
-        
-        input.click();
-    }
-
     destroy() {
         this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
         this.activeTimeouts.clear();
@@ -3922,12 +3007,12 @@ ${fileContent}
         this.stopGeneration();
         
         this.hideModal();
-        this.hideContextMenu();
         
         console.log('KHAI Chat destroyed');
     }
 }
 
+// Global PWA installation handling
 let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -3949,6 +3034,7 @@ window.addEventListener('appinstalled', () => {
     }
 });
 
+// Initialize application
 document.addEventListener('DOMContentLoaded', () => {
     window.khaiChat = new KHAIChat();
 });
@@ -3959,6 +3045,7 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
+// Global error handling
 window.addEventListener('error', (event) => {
     console.error('Global error:', event.error);
 });
