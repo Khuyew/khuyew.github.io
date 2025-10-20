@@ -265,56 +265,42 @@ class KHAIChat {
     }
 
     async mockAIResponse(prompt, options) {
-        const responses = {
-            normal: [
-                "Привет! Я KHAI - ваш AI-ассистент с интеграцией Puter.js. Готов помочь с любыми вопросами!",
-                "Отличный вопрос! Давайте разберем его подробнее...",
-                "На основе вашего запроса, я могу предложить несколько решений...",
-                "Это интересная тема! Вот что я могу рассказать...",
-                "Спасибо за ваш вопрос! Вот развернутый ответ..."
-            ],
-            creative: [
-                "О, креативная задача! Давайте придумаем что-то необычное...",
-                "Вот несколько инновационных идей для вашего проекта...",
-                "Позвольте предложить творческий подход к решению...",
-                "Это вдохновляет! Вот что мы можем создать...",
-                "Для креативной задачи нужен нестандартный подход. Предлагаю..."
-            ],
-            code: [
-                "Отличная задача по программированию! Вот решение на Python:\n\n```python\n# Ваш код здесь\nprint('Hello, World!')\n```",
-                "Вот эффективное решение вашей задачи:\n\n```javascript\nfunction solveProblem() {\n    // Реализация\n    return result;\n}\n```",
-                "Для этой задачи рекомендую следующий подход:\n\n```java\npublic class Solution {\n    public static void main(String[] args) {\n        // Код решения\n    }\n}\n```",
-                "Вот оптимизированное решение:\n\n```cpp\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Реализация\n    return 0;\n}\n```"
-            ],
-            image: [
-                "Для генерации изображения по вашему описанию, я бы рекомендовал следующие параметры...",
-                "Отличная визуальная идее! Вот детальное описание для генерации...",
-                "На основе вашего запроса, изображение должно содержать...",
-                "Вот промпт для генерации вашего изображения: 'красивое изображение с...'"
-            ],
-            voice: [
-                "Для аудио контента по вашей теме рекомендую следующий сценарий...",
-                "Вот текст для озвучивания: 'Добро пожаловать в мир AI технологий...'",
-                "Отличная идея для аудио! Вот структура подкаста/озвучки..."
-            ]
-        };
+        // Заменяем mock на реальные вызовы Puter.ai
+        try {
+            if (!this.puterAI || typeof this.puterAI.ai?.chat !== 'function') {
+                throw new Error('Puter.ai chat function not available');
+            }
+            
+            const response = await this.puterAI.ai.chat(prompt, options);
+            return response;
+        } catch (error) {
+            console.error('Real AI response failed, using fallback:', error);
+            // Fallback responses
+            const responses = {
+                normal: ["Привет! Я KHAI - ваш AI-ассистент. Готов помочь с любыми вопросами!"],
+                creative: ["О, креативная задача! Давайте придумаем что-то необычное..."],
+                code: ["Отличная задача по программированию! Вот решение..."],
+                image: ["Для генерации изображения по вашему описанию..."],
+                voice: ["Для аудио контента по вашей теме..."]
+            };
 
-        const modeResponses = responses[this.currentMode] || responses.normal;
-        const response = modeResponses[Math.floor(Math.random() * modeResponses.length)];
-        
-        // Создаем асинхронный генератор для имитации стриминга
-        const mockStream = {
-            [Symbol.asyncIterator]: async function* () {
-                const words = response.split(' ');
-                for (const word of words) {
-                    if (this.generationAborted) break;
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    yield { text: word + ' ' };
-                }
-            }.bind(this)
-        };
+            const modeResponses = responses[this.currentMode] || responses.normal;
+            const response = modeResponses[Math.floor(Math.random() * modeResponses.length)];
+            
+            // Создаем асинхронный генератор для имитации стриминга
+            const mockStream = {
+                [Symbol.asyncIterator]: async function* () {
+                    const words = response.split(' ');
+                    for (const word of words) {
+                        if (this.generationAborted) break;
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        yield { text: word + ' ' };
+                    }
+                }.bind(this)
+            };
 
-        return mockStream;
+            return mockStream;
+        }
     }
 
     async setupEventListeners() {
@@ -632,6 +618,23 @@ class KHAIChat {
 
             this.addEventListener(document.getElementById('mobileDeleteAllChatsBtn'), 'click', () => {
                 this.deleteAllChats();
+            });
+
+            // Добавляем новые обработчики для импорта/экспорта всех чатов
+            this.addEventListener(document.getElementById('exportAllChatsBtn'), 'click', () => {
+                this.exportAllChats();
+            });
+
+            this.addEventListener(document.getElementById('importAllChatsBtn'), 'click', () => {
+                this.importAllChats();
+            });
+
+            this.addEventListener(document.getElementById('mobileExportAllChatsBtn'), 'click', () => {
+                this.exportAllChats();
+            });
+
+            this.addEventListener(document.getElementById('mobileImportAllChatsBtn'), 'click', () => {
+                this.importAllChats();
             });
 
             // Touch events for mobile
@@ -1472,6 +1475,9 @@ ${fileContent}
             <button class="message-action-btn copy-message-btn" title="Копировать сообщение">
                 <i class="ti ti-copy"></i>
             </button>
+            <button class="message-action-btn share-message-btn" title="Поделиться">
+                <i class="ti ti-share"></i>
+            </button>
             <button class="message-action-btn download-message-btn" title="Скачать как файл">
                 <i class="ti ti-download"></i>
             </button>
@@ -1490,6 +1496,40 @@ ${fileContent}
         `;
         
         messageContent.appendChild(actionsDiv);
+        
+        // Добавляем обработчик для кнопки "Поделиться"
+        const shareBtn = actionsDiv.querySelector('.share-message-btn');
+        if (shareBtn && navigator.share) {
+            this.addEventListener(shareBtn, 'click', () => {
+                this.shareMessage(messageElement);
+            });
+        } else if (shareBtn) {
+            shareBtn.style.display = 'none'; // Скрываем если Web Share API не поддерживается
+        }
+    }
+
+    async shareMessage(messageElement) {
+        try {
+            const messageText = messageElement.querySelector('.message-text').textContent;
+            const messageAuthor = messageElement.querySelector('.message-author').textContent;
+            
+            if (navigator.share) {
+                await navigator.share({
+                    title: `Сообщение от ${messageAuthor}`,
+                    text: messageText,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback - копируем в буфер обмена
+                await this.copyToClipboard(`${messageAuthor}: ${messageText}`);
+                this.showNotification('Сообщение скопировано в буфер обмена', 'success');
+            }
+        } catch (error) {
+            console.error('Error sharing message:', error);
+            if (error.name !== 'AbortError') {
+                this.showError('Ошибка при попытке поделиться сообщением');
+            }
+        }
     }
 
     async copyToClipboard(text) {
@@ -1737,6 +1777,14 @@ ${fileContent}
             
             modelSelection.appendChild(modelBtn);
         });
+        
+        // Позиционирование
+        const modelBtn = document.getElementById('modelSelectBtn');
+        if (modelBtn) {
+            const rect = modelBtn.getBoundingClientRect();
+            modelSelection.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+            modelSelection.style.right = (window.innerWidth - rect.right) + 'px';
+        }
         
         modelSelection.style.display = 'block';
         
@@ -2847,7 +2895,7 @@ ${fileContent}
                     <span class="chat-list-time">${lastActivity}</span>
                 </div>
             </div>
-            <div class="chat-list-actions">
+            <div class="chat-list-actions mobile-visible">
                 <button class="chat-list-edit" title="Редактировать название">
                     <i class="ti ti-edit"></i>
                 </button>
@@ -2955,13 +3003,12 @@ ${fileContent}
             id: newChatId,
             name: `Чат ${this.chats.size}`,
             messages: [],
-            lastActivity: Date.now()
+            lastActivity: Date.now(),
+            createdAt: Date.now()
         };
         
         this.chats.set(newChatId, newChat);
-        this.currentChatId = newChatId;
-        this.renderChat();
-        this.updateUI();
+        this.switchToChat(newChatId); // Автоматически переключаемся на новый чат
         this.saveChatHistory();
         
         this.showNotification('Новый чат создан', 'success');
@@ -2974,20 +3021,30 @@ ${fileContent}
         let foundCount = 0;
         
         messages.forEach(message => {
-            const text = message.textContent.toLowerCase();
             const messageContent = message.querySelector('.message-text');
+            const messageAuthor = message.querySelector('.message-author');
             
             if (messageContent) {
-                if (this.searchTerm && text.includes(this.searchTerm)) {
+                const text = messageContent.textContent.toLowerCase();
+                const author = messageAuthor ? messageAuthor.textContent.toLowerCase() : '';
+                const shouldHighlight = this.searchTerm && 
+                    (text.includes(this.searchTerm) || author.includes(this.searchTerm));
+                
+                if (shouldHighlight) {
                     message.classList.add('search-highlight');
                     foundCount++;
                     
+                    // Подсветка текста в содержимом
                     const originalHTML = messageContent.innerHTML;
                     const regex = new RegExp(`(${this.escapeRegex(this.searchTerm)})`, 'gi');
                     messageContent.innerHTML = originalHTML.replace(regex, '<mark class="search-match">$1</mark>');
+                    
+                    // Восстановление подсветки кода
+                    this.attachCopyButtons(messageContent);
                 } else {
                     message.classList.remove('search-highlight');
                     
+                    // Убираем подсветку
                     const markedHTML = messageContent.innerHTML;
                     messageContent.innerHTML = markedHTML.replace(/<mark class="search-match">(.+?)<\/mark>/gi, '$1');
                 }
@@ -3820,6 +3877,90 @@ ${fileContent}
             console.error('Error installing PWA:', error);
             this.showError('Ошибка при установке приложения');
         }
+    }
+
+    async exportAllChats() {
+        try {
+            const allChatsData = {
+                version: '2.1.0',
+                exportDate: new Date().toISOString(),
+                chats: Object.fromEntries(this.chats),
+                settings: {
+                    currentModel: this.currentModel,
+                    currentMode: this.currentMode,
+                    theme: document.documentElement.getAttribute('data-theme'),
+                    autoScroll: this.autoScrollEnabled
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(allChatsData, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            a.href = url;
+            a.download = `khai-all-chats-${timestamp}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showNotification('Все чаты экспортированы', 'success');
+        } catch (error) {
+            console.error('Error exporting all chats:', error);
+            this.showError('Ошибка при экспорте чатов');
+        }
+    }
+
+    async importAllChats() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            try {
+                const content = await this.readFileAsText(file);
+                const data = JSON.parse(content);
+                
+                if (data.chats && typeof data.chats === 'object') {
+                    // Сохраняем текущий чат
+                    const currentChatId = this.currentChatId;
+                    
+                    // Импортируем все чаты
+                    Object.entries(data.chats).forEach(([id, chat]) => {
+                        this.chats.set(id, chat);
+                    });
+                    
+                    // Восстанавливаем настройки если есть
+                    if (data.settings) {
+                        if (data.settings.currentModel && this.models[data.settings.currentModel]) {
+                            this.currentModel = data.settings.currentModel;
+                        }
+                        if (data.settings.currentMode && this.modeConfigs[data.settings.currentMode]) {
+                            this.currentMode = data.settings.currentMode;
+                        }
+                    }
+                    
+                    // Возвращаемся к текущему чату или первому импортированному
+                    this.switchToChat(currentChatId);
+                    this.setupModelSelector();
+                    this.setMode(this.currentMode);
+                    
+                    this.showNotification('Все чаты импортированы', 'success');
+                } else {
+                    this.showError('Неверный формат файла импорта');
+                }
+            } catch (error) {
+                console.error('Error importing all chats:', error);
+                this.showError('Ошибка при импорте чатов');
+            }
+        };
+        
+        input.click();
     }
 
     destroy() {
