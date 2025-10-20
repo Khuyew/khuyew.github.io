@@ -128,7 +128,6 @@
                     </button>
                 </div>
 
-                <!-- Minimap Section - moved up -->
                 <div class="minimap-section">
                     <div class="minimap-header">
                         <span>Обзор чата</span>
@@ -140,17 +139,6 @@
                         <div class="chat-minimap" id="chatMinimap">
                             <div class="minimap-content" id="minimapContent"></div>
                             <div class="minimap-viewport" id="minimapViewport"></div>
-                        </div>
-                        <div class="minimap-navigation">
-                            <button id="scrollToTop" class="nav-btn" title="В начало">
-                                <i class="ti ti-arrow-up"></i>
-                            </button>
-                            <button id="scrollToLastAI" class="nav-btn" title="К последнему ответу ИИ">
-                                <i class="ti ti-message-chatbot"></i>
-                            </button>
-                            <button id="scrollToBottom" class="nav-btn" title="В конец">
-                                <i class="ti ti-arrow-down"></i>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -170,7 +158,7 @@
                     </div>
                 </div>
 
-                <!-- Chat Management Section - объединенный -->
+                <!-- Chat Management Section -->
                 <div class="presets-section">
                     <div class="presets-header">
                         <span>Управление чатами</span>
@@ -195,11 +183,11 @@
                             </button>
                             <button id="exportChatBtn" class="utility-btn">
                                 <i class="ti ti-download"></i>
-                                Экспорт чатов
+                                Экспорт чата
                             </button>
                             <button id="importChatBtn" class="utility-btn">
                                 <i class="ti ti-upload"></i>
-                                Импорт чата(-ов)
+                                Импорт чата
                             </button>
                             <button id="deleteAllChatsBtn" class="btn-danger">
                                 <i class="ti ti-trash"></i>
@@ -238,10 +226,11 @@
 
         <!-- Input Section -->
         <section class="input-section" id="inputSection">
-            <!-- Mode indicator moved above input -->
-            <div class="mode-indicator-text" id="modeIndicatorText">
-                <i class="ti ti-message"></i>
-                <span>Обычный режим</span>
+            <div class="mode-indicator-wrapper">
+                <div class="mode-indicator" id="modeIndicator">
+                    <i class="ti ti-message"></i>
+                    <span>Обычный режим</span>
+                </div>
             </div>
             
             <div class="input-wrapper">
@@ -276,15 +265,14 @@
 
             <div class="attached-files" id="attachedFiles" style="display: none;"></div>
 
-            <!-- Compact action buttons -->
-            <div class="action-buttons-compact">
-                <button id="clearChatBtnCompact" class="compact-btn" title="Очистить чат">
+            <div class="action-buttons compact">
+                <button id="clearChatBtn" class="utility-btn compact" title="Очистить чат">
                     <i class="ti ti-trash"></i>
                 </button>
-                <button id="exportBtnCompact" class="compact-btn" title="Экспорт чата">
+                <button id="exportBtn" class="utility-btn compact" title="Экспорт чата">
                     <i class="ti ti-download"></i>
                 </button>
-                <button id="helpBtnCompact" class="compact-btn" title="Помощь">
+                <button id="helpBtn" class="utility-btn compact" title="Помощь">
                     <i class="ti ti-help"></i>
                 </button>
             </div>
@@ -345,13 +333,13 @@
                         </button>
                         <button id="mobileExportChatBtn" class="sidebar-btn">
                             <i class="ti ti-download"></i>
-                            Экспорт чата
+                            Экспорт чатов
                         </button>
                         <button id="mobileImportChatBtn" class="sidebar-btn">
                             <i class="ti ti-upload"></i>
-                            Импорт чата
+                            Импорт чата(-ов)
                         </button>
-                        <button id="mobileDeleteChatsBtn" class="btn-danger">
+                        <button id="mobileDeleteAllChatsBtn" class="btn-danger">
                             <i class="ti ti-trash"></i>
                             Удалить чаты
                         </button>
@@ -460,9 +448,49 @@
             <div class="modal-body">
                 <div class="model-selection-content">
                     <div class="model-category">
-                        <div class="model-category-title">Доступные модели</div>
-                        <div class="model-list" id="modelSelectionList">
-                            <!-- Models will be populated here -->
+                        <div class="model-category-title">Основные модели</div>
+                        <div class="model-list">
+                            <button class="model-option active" data-model="gpt-5-nano">
+                                <i class="ti ti-bolt"></i>
+                                <div class="model-info">
+                                    <div class="model-name">GPT-5 Nano</div>
+                                    <div class="model-desc">Быстрая и эффективная модель</div>
+                                </div>
+                                <i class="ti ti-check"></i>
+                            </button>
+                            <button class="model-option" data-model="o3-mini">
+                                <i class="ti ti-cpu"></i>
+                                <div class="model-info">
+                                    <div class="model-name">O3 Mini</div>
+                                    <div class="model-desc">Продвинутая модель с улучшенными возможностями</div>
+                                </div>
+                            </button>
+                            <button class="model-option" data-model="deepseek">
+                                <i class="ti ti-search"></i>
+                                <div class="model-info">
+                                    <div class="model-name">DeepSeek</div>
+                                    <div class="model-desc">Универсальная модель для общения и решения задач</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="model-category">
+                        <div class="model-category-title">Специализированные модели</div>
+                        <div class="model-list">
+                            <button class="model-option" data-model="gemini-flash">
+                                <i class="ti ti-flash"></i>
+                                <div class="model-info">
+                                    <div class="model-name">Gemini Flash</div>
+                                    <div class="model-desc">Быстрая модель от Google с улучшенными возможностями</div>
+                                </div>
+                            </button>
+                            <button class="model-option" data-model="grok-beta">
+                                <i class="ti ti-message-circle"></i>
+                                <div class="model-info">
+                                    <div class="model-name">xAI Grok</div>
+                                    <div class="model-desc">Модель с уникальным характером и остроумными ответами</div>
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
