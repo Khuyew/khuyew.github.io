@@ -903,6 +903,8 @@ body {
     border-radius: var(--radius-lg);
     padding: 16px;
     box-shadow: var(--shadow-sm);
+    z-index: 100;
+    position: relative;
 }
 
 .minimap-header {
@@ -1730,9 +1732,16 @@ body {
     opacity: 0.5;
 }
 
+.chat-management-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+}
+
 .delete-all-container {
-    margin-top: 16px;
-    padding-top: 16px;
+    margin-top: 8px;
+    padding-top: 12px;
     border-top: 1px solid var(--border-color);
 }
 
