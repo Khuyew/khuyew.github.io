@@ -43,6 +43,329 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Fullscreen input styles */
+        .fullscreen-input-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fullscreen-input-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            flex-shrink: 0;
+        }
+
+        .fullscreen-input-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .fullscreen-input-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .fullscreen-input-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+        }
+
+        .fullscreen-input-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .fullscreen-input-content {
+            flex: 1;
+            padding: 16px;
+        }
+
+        .fullscreen-input-content textarea {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            color: var(--text-primary);
+            font-size: 16px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .fullscreen-input-content textarea:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .fullscreen-input-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: flex-end;
+            flex-shrink: 0;
+        }
+
+        .fullscreen-send-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Chat list styles */
+        .chat-search-container {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chats-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .chat-list-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .chat-list-item.active {
+            background: var(--accent-primary-alpha);
+        }
+
+        .chat-list-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-list-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-list-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .chat-list-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .chat-list-item:hover .chat-list-actions {
+            opacity: 1;
+        }
+
+        .chat-list-edit,
+        .chat-list-delete {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            padding: 6px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-list-edit:hover {
+            background: var(--accent-primary-alpha);
+            color: var(--accent-primary);
+        }
+
+        .chat-list-delete:hover {
+            background: var(--accent-error-alpha);
+            color: var(--accent-error);
+        }
+
+        .empty-chats {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+
+        .empty-chats i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .delete-all-container {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Settings styles */
+        .checkbox-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .checkbox-wrapper input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            transition: var(--transition);
+        }
+
+        .checkmark:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-primary);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        input:checked + .checkmark {
+            background-color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        input:checked + .checkmark:before {
+            transform: translateX(20px);
+        }
+
+        .styled-select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .styled-select:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-primary-alpha);
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .fullscreen-input-header {
+                padding: 12px;
+            }
+
+            .fullscreen-input-content {
+                padding: 12px;
+            }
+
+            .fullscreen-input-footer {
+                padding: 12px;
+            }
+
+            .chat-search-container {
+                padding: 12px;
+            }
+
+            .chat-list-item {
+                padding: 10px 12px;
+            }
+
+            .chat-list-actions {
+                opacity: 1; /* Always show actions on mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .fullscreen-input-header {
+                padding: 8px;
+            }
+
+            .fullscreen-input-content {
+                padding: 8px;
+            }
+
+            .fullscreen-input-footer {
+                padding: 8px;
+            }
+
+            .chat-search-container {
+                padding: 8px;
+            }
+
+            .chat-list-item {
+                padding: 8px;
+            }
+
+            .chat-list-meta {
+                flex-direction: column;
+                gap: 2px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -82,6 +405,7 @@
                     <div class="app-name">KHAI</div>
                 </div>
                 
+                <!-- Desktop Search -->
                 <div class="header-center">
                     <div class="header-search-container">
                         <div class="search-wrapper">
@@ -289,6 +613,18 @@
                 </button>
             </div>
 
+            <!-- Mobile Search -->
+            <div class="sidebar-section">
+                <h4 class="sidebar-title">Поиск</h4>
+                <div class="search-wrapper" style="margin: 0;">
+                    <i class="ti ti-search"></i>
+                    <input type="text" id="mobileHeaderSearch" placeholder="Поиск в сообщениях...">
+                    <button id="mobileHeaderSearchClear" class="search-clear" title="Очистить поиск" style="display: none;">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+            </div>
+
             <div class="sidebar-section">
                 <h4 class="sidebar-title">Быстрый доступ</h4>
                 <div class="sidebar-buttons">
@@ -312,16 +648,9 @@
             </div>
 
             <div class="sidebar-section">
-                <h4 class="sidebar-title">Управление чатом</h4>
-                <div class="sidebar-buttons">
-                    <button id="newChatBtn" class="sidebar-btn">
-                        <i class="ti ti-message-plus"></i>
-                        Новый чат
-                    </button>
-                    <button id="importChatBtn" class="sidebar-btn">
-                        <i class="ti ti-upload"></i>
-                        Импорт чата
-                    </button>
+                <h4 class="sidebar-title">Управление чатами</h4>
+                <div id="chatList" class="chats-container">
+                    <!-- Chat list will be populated dynamically -->
                 </div>
             </div>
 
@@ -356,7 +685,11 @@
                     </div>
                     <div class="info-item">
                         <i class="ti ti-calendar"></i>
-                        <span>2024</span>
+                        <span>© 2025 KHAI</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="ti ti-brain"></i>
+                        <span id="mobileModelDisplay">Модель: GPT-4</span>
                     </div>
                 </div>
             </div>
@@ -405,5 +738,55 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="script.js"></script>
+
+    <script>
+        // Mobile search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileSearchInput = document.getElementById('mobileHeaderSearch');
+            const mobileSearchClear = document.getElementById('mobileHeaderSearchClear');
+            
+            if (mobileSearchInput && mobileSearchClear) {
+                mobileSearchInput.addEventListener('input', function() {
+                    const hasValue = this.value.trim().length > 0;
+                    mobileSearchClear.style.display = hasValue ? 'flex' : 'none';
+                    
+                    // Sync with main search if KHAI Chat is initialized
+                    if (window.khaiChat) {
+                        window.khaiChat.handleSearch(this.value);
+                    }
+                });
+                
+                mobileSearchClear.addEventListener('click', function() {
+                    mobileSearchInput.value = '';
+                    mobileSearchClear.style.display = 'none';
+                    mobileSearchInput.focus();
+                    
+                    if (window.khaiChat) {
+                        window.khaiChat.handleSearch('');
+                    }
+                });
+            }
+            
+            // Update mobile model display
+            function updateMobileModelDisplay() {
+                const mobileModelDisplay = document.getElementById('mobileModelDisplay');
+                if (mobileModelDisplay && window.khaiChat) {
+                    mobileModelDisplay.textContent = `Модель: ${window.khaiChat.models[window.khaiChat.currentModel]?.name || window.khaiChat.currentModel}`;
+                }
+            }
+            
+            // Listen for model changes
+            const originalSetModel = window.khaiChat?.setModel;
+            if (originalSetModel) {
+                window.khaiChat.setModel = function(modelId) {
+                    originalSetModel.call(this, modelId);
+                    updateMobileModelDisplay();
+                };
+            }
+            
+            // Initial update
+            setTimeout(updateMobileModelDisplay, 1000);
+        });
+    </script>
 </body>
 </html>
