@@ -1,9 +1,9 @@
-// Khuyew AI Service Worker
-// Enhanced caching and offline functionality
+// Khuyew AI Pro - Service Worker
+// Enhanced with caching strategies and security
 
-const CACHE_NAME = 'khuyew-ai-v3.0.0';
-const STATIC_CACHE = 'khuyew-ai-static-v3';
-const DYNAMIC_CACHE = 'khuyew-ai-dynamic-v3';
+const CACHE_NAME = 'khuyew-ai-pro-v3.0.0';
+const STATIC_CACHE = 'khuyew-static-v3';
+const DYNAMIC_CACHE = 'khuyew-dynamic-v3';
 
 // Assets to cache immediately on install
 const STATIC_ASSETS = [
@@ -11,15 +11,22 @@ const STATIC_ASSETS = [
     '/index.html',
     '/styles.css',
     '/script.js',
-    '/manifest.json',
-    '/icons/icon-192.png',
-    '/icons/icon-512.png',
+    '/app.webmanifest',
+    'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css',
+    'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
-    'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'
+    'https://js.puter.com/v2/'
 ];
+
+// Security headers to add to responses
+const SECURITY_HEADERS = {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'X-XSS-Protection': '1; mode=block',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'clipboard-write=(self), clipboard-read=(self)'
+};
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -64,13 +71,17 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch event - network first with cache fallback
+// Fetch event - implement caching strategy
 self.addEventListener('fetch', (event) => {
     // Skip non-GET requests
-    if (event.request.method !== 'GET') return;
+    if (event.request.method !== 'GET') {
+        return;
+    }
 
-    // Skip cross-origin requests
-    if (!event.request.url.startsWith(self.location.origin)) return;
+    // Skip Puter AI API requests
+    if (event.request.url.includes('api.puter.com')) {
+        return;
+    }
 
     event.respondWith(
         caches.match(event.request)
@@ -83,64 +94,74 @@ self.addEventListener('fetch', (event) => {
                 // Otherwise fetch from network
                 return fetch(event.request)
                     .then(networkResponse => {
-                        // Cache the new response
-                        if (networkResponse.status === 200) {
-                            const responseClone = networkResponse.clone();
-                            caches.open(DYNAMIC_CACHE)
-                                .then(cache => {
-                                    cache.put(event.request, responseClone);
-                                });
+                        // Check if we received a valid response
+                        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+                            return networkResponse;
                         }
+
+                        // Clone the response
+                        const responseToCache = networkResponse.clone();
+
+                        // Add to dynamic cache
+                        caches.open(DYNAMIC_CACHE)
+                            .then(cache => {
+                                cache.put(event.request, responseToCache);
+                            });
+
                         return networkResponse;
                     })
-                    .catch(error => {
-                        // Network failed, try to serve fallback
-                        console.log('Service Worker: Network failed, serving fallback', error);
-                        
-                        // For navigation requests, serve offline page
-                        if (event.request.mode === 'navigate') {
+                    .catch(() => {
+                        // If both cache and network fail, show offline page
+                        if (event.request.destination === 'document') {
                             return caches.match('/');
                         }
-                        
-                        // For other requests, you could serve a fallback
-                        return new Response('Network error happened', {
-                            status: 408,
-                            headers: { 'Content-Type': 'text/plain' }
-                        });
                     });
             })
     );
 });
 
-// Background sync for offline messages
-self.addEventListener('sync', (event) => {
-    if (event.tag === 'background-sync') {
-        console.log('Service Worker: Background sync triggered');
-        event.waitUntil(doBackgroundSync());
+// Message handling for cache management
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+    
+    if (event.data && event.data.type === 'CLEAR_CACHE') {
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    return caches.delete(cacheName);
+                })
+            );
+        });
     }
 });
 
-async function doBackgroundSync() {
-    // Implement background sync for offline messages
-    // This would sync messages when connection is restored
-    console.log('Service Worker: Performing background sync');
-}
+// Background sync for offline functionality
+self.addEventListener('sync', (event) => {
+    if (event.tag === 'background-sync') {
+        console.log('Background sync triggered');
+        // Implement background sync logic here
+    }
+});
 
-// Push notifications
+// Push notification handling
 self.addEventListener('push', (event) => {
     if (!event.data) return;
 
     const data = event.data.json();
     const options = {
-        body: data.body || 'Новое сообщение в Khuyew AI',
-        icon: '/icons/icon-192.png',
-        badge: '/icons/icon-192.png',
-        tag: 'khuyew-ai-notification',
-        renotify: true,
+        body: data.body,
+        icon: '/icon-192x192.png',
+        badge: '/badge-72x72.png',
+        vibrate: [100, 50, 100],
+        data: {
+            url: data.url || '/'
+        },
         actions: [
             {
                 action: 'open',
-                title: 'Открыть чат'
+                title: 'Открыть'
             },
             {
                 action: 'close',
@@ -150,7 +171,7 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil(
-        self.registration.showNotification(data.title || 'Khuyew AI', options)
+        self.registration.showNotification(data.title, options)
     );
 });
 
@@ -159,46 +180,16 @@ self.addEventListener('notificationclick', (event) => {
 
     if (event.action === 'open') {
         event.waitUntil(
-            clients.matchAll({ type: 'window' })
-                .then(clientList => {
-                    for (const client of clientList) {
-                        if (client.url === '/' && 'focus' in client) {
-                            return client.focus();
-                        }
-                    }
-                    if (clients.openWindow) {
-                        return clients.openWindow('/');
-                    }
-                })
+            clients.openWindow(event.notification.data.url)
         );
     }
 });
 
-// Periodic sync for updates
-self.addEventListener('periodicsync', (event) => {
-    if (event.tag === 'content-update') {
-        console.log('Service Worker: Periodic sync for content updates');
-        event.waitUntil(updateContent());
-    }
+// Error handling for service worker
+self.addEventListener('error', (event) => {
+    console.error('Service Worker error:', event.error);
 });
 
-async function updateContent() {
-    // Check for updates to static content
-    const cache = await caches.open(STATIC_CACHE);
-    const requests = STATIC_ASSETS.map(url => new Request(url));
-    
-    const responses = await Promise.all(
-        requests.map(request => fetch(request))
-    );
-    
-    // Update cache with new versions
-    await Promise.all(
-        responses.map((response, i) => {
-            if (response.status === 200) {
-                return cache.put(requests[i], response);
-            }
-        })
-    );
-    
-    console.log('Service Worker: Content updated');
-}
+self.addEventListener('unhandledrejection', (event) => {
+    console.error('Service Worker unhandled rejection:', event.reason);
+});
