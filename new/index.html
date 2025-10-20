@@ -23,7 +23,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--bg-primary, #0f0f23);
+            background: #0f0f23;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -42,6 +42,47 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Quick fixes for immediate functionality */
+        .chat-list-actions.mobile-visible {
+            display: flex !important;
+        }
+        
+        .minimap-section {
+            z-index: 100;
+            position: relative;
+        }
+        
+        .input-disabled {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .search-match {
+            background: #0099ff;
+            color: white;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        .search-highlight {
+            border: 2px solid #0099ff !important;
+            box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.2) !important;
+        }
+        
+        .mobile-visible {
+            display: flex !important;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                display: none;
+            }
+            
+            .mobile-sidebar-toggle {
+                display: flex;
+            }
         }
     </style>
 </head>
@@ -187,6 +228,16 @@
                         </div>
                         <div class="chats-container" id="chatsContainer">
                             <!-- Chat list will be dynamically populated -->
+                        </div>
+                        <div class="chat-management-buttons">
+                            <button id="exportAllChatsBtn" class="utility-btn">
+                                <i class="ti ti-download"></i>
+                                Экспорт всех чатов
+                            </button>
+                            <button id="importAllChatsBtn" class="utility-btn">
+                                <i class="ti ti-upload"></i>
+                                Импорт всех чатов
+                            </button>
                         </div>
                         <div class="delete-all-container">
                             <button id="deleteAllChatsBtn" class="btn-danger">
@@ -351,6 +402,16 @@
                     </div>
                     <div class="chats-container" id="mobileChatsContainer">
                         <!-- Chat list will be dynamically populated -->
+                    </div>
+                    <div class="chat-management-buttons">
+                        <button id="mobileExportAllChatsBtn" class="sidebar-btn">
+                            <i class="ti ti-download"></i>
+                            Экспорт всех чатов
+                        </button>
+                        <button id="mobileImportAllChatsBtn" class="sidebar-btn">
+                            <i class="ti ti-upload"></i>
+                            Импорт всех чатов
+                        </button>
                     </div>
                     <div class="delete-all-container">
                         <button id="mobileDeleteAllChatsBtn" class="btn-danger">
