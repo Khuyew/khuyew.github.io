@@ -1,4 +1,4 @@
-// KHAI — Advanced AI Chat Application
+// KHAI — Advanced AI Chat Application with Puter.js Integration
 class KHAIChat {
     constructor() {
         this.messages = [];
@@ -33,68 +33,81 @@ class KHAIChat {
         this.isInitialized = false;
         this.chatSearchTerm = '';
         this.fullscreenInputActive = false;
+        this.puterInitialized = false;
 
-        // Расширенные модели
+        // Расширенные модели с Puter.js интеграцией
         this.models = {
             'gpt-4': { 
                 name: 'GPT-4 Turbo', 
                 description: 'Самый продвинутый модель для сложных задач',
-                icon: 'ti ti-brain'
+                icon: 'ti ti-brain',
+                puterModel: 'gpt-4'
             },
             'gpt-3.5': { 
                 name: 'GPT-3.5 Turbo', 
                 description: 'Быстрый и эффективный для повседневных задач',
-                icon: 'ti ti-flame'
+                icon: 'ti ti-flame',
+                puterModel: 'gpt-3.5-turbo'
             },
             'claude-3': { 
                 name: 'Claude 3', 
                 description: 'Отличный для креативных задач и анализа',
-                icon: 'ti ti-cloud'
+                icon: 'ti ti-cloud',
+                puterModel: 'claude-3-sonnet'
             },
             'gemini-pro': { 
                 name: 'Gemini Pro', 
                 description: 'Мощный мультимодальный модель от Google',
-                icon: 'ti ti-sparkles'
+                icon: 'ti ti-sparkles',
+                puterModel: 'gemini-pro'
             },
             'gpt-5-nano': { 
                 name: 'GPT-5 Nano', 
                 description: 'Быстрая и эффективная модель для повседневных задач',
-                icon: 'ti ti-bolt'
+                icon: 'ti ti-bolt',
+                puterModel: 'gpt-4' // fallback
             },
             'o3-mini': { 
                 name: 'O3 Mini', 
                 description: 'Продвинутая модель с улучшенными возможностями рассуждения',
-                icon: 'ti ti-cpu'
+                icon: 'ti ti-cpu',
+                puterModel: 'gpt-4' // fallback
             },
             'claude-sonnet': { 
                 name: 'Claude Sonnet', 
                 description: 'Мощная модель от Anthropic для сложных задач и анализа',
-                icon: 'ti ti-shield'
+                icon: 'ti ti-shield',
+                puterModel: 'claude-3-sonnet'
             },
             'deepseek-chat': { 
                 name: 'DeepSeek Chat', 
                 description: 'Универсальная модель для общения и решения задач',
-                icon: 'ti ti-search'
+                icon: 'ti ti-search',
+                puterModel: 'gpt-4' // fallback
             },
             'deepseek-reasoner': { 
                 name: 'DeepSeek Reasoner', 
                 description: 'Специализированная модель для сложных логических рассуждений',
-                icon: 'ti ti-logic-and'
+                icon: 'ti ti-logic-and',
+                puterModel: 'gpt-4' // fallback
             },
             'gemini-2.0-flash': { 
                 name: 'Gemini 2.0 Flash', 
                 description: 'Новейшая быстрая модель от Google с улучшенными возможностями',
-                icon: 'ti ti-flash'
+                icon: 'ti ti-flash',
+                puterModel: 'gemini-flash'
             },
             'gemini-1.5-flash': { 
                 name: 'Gemini 1.5 Flash', 
                 description: 'Быстрая и эффективная модель от Google для различных задач',
-                icon: 'ti ti-zap'
+                icon: 'ti ti-zap',
+                puterModel: 'gemini-flash'
             },
             'grok-beta': { 
                 name: 'xAI Grok', 
                 description: 'Модель от xAI с уникальным характером и остроумными ответами',
-                icon: 'ti ti-message-circle'
+                icon: 'ti ti-message-circle',
+                puterModel: 'grok-beta'
             }
         };
 
@@ -145,11 +158,11 @@ class KHAIChat {
     async init() {
         try {
             this.setupMarked();
+            await this.setupPuterAI();
             await this.setupEventListeners();
             await this.loadChatHistory();
-            this.setupPuterAI();
-            this.showWelcomeMessage();
             this.updateUI();
+            this.showWelcomeMessage();
             this.setupServiceWorker();
             this.startChatDurationTimer();
             this.setupEmojiPicker();
@@ -200,6 +213,108 @@ class KHAIChat {
                 gfm: true
             });
         }
+    }
+
+    async setupPuterAI() {
+        try {
+            if (typeof puter !== 'undefined') {
+                this.puterAI = puter;
+                this.puterInitialized = true;
+                console.log('Puter.js successfully initialized');
+                this.setOnlineStatus(true);
+            } else {
+                throw new Error('Puter.js not available');
+            }
+        } catch (error) {
+            console.warn('Puter.js initialization failed, using fallback mode:', error);
+            this.setupPuterFallback();
+            this.setOnlineStatus(false);
+        }
+    }
+
+    setupPuterFallback() {
+        this.puterAI = {
+            ai: {
+                chat: async (prompt, options) => {
+                    return this.mockAIResponse(prompt, options);
+                },
+                img2txt: async (imageData) => {
+                    return "Это демонстрационное изображение. В реальном приложении здесь был бы распознанный текст с помощью Puter.ai.";
+                },
+                imagine: async (prompt, options) => {
+                    return {
+                        url: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230099ff'/%3E%3Ctext x='200' y='220' font-family='Arial' font-size='24' text-anchor='middle' fill='white'%3EСгенерированное изображение%3C/text%3E%3C/svg%3E"
+                    };
+                },
+                txt2speech: async (text) => {
+                    return {
+                        src: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSw=="
+                    };
+                }
+            },
+            fs: {
+                write: async (filename, content) => {
+                    console.log(`File saved via Puter.js: ${filename}`);
+                    return Promise.resolve();
+                },
+                read: async (filename) => {
+                    return new Blob(['Demo file content'], { type: 'text/plain' });
+                }
+            }
+        };
+    }
+
+    async mockAIResponse(prompt, options) {
+        const responses = {
+            normal: [
+                "Привет! Я KHAI - ваш AI-ассистент с интеграцией Puter.js. Готов помочь с любыми вопросами!",
+                "Отличный вопрос! Давайте разберем его подробнее...",
+                "На основе вашего запроса, я могу предложить несколько решений...",
+                "Это интересная тема! Вот что я могу рассказать...",
+                "Спасибо за ваш вопрос! Вот развернутый ответ..."
+            ],
+            creative: [
+                "О, креативная задача! Давайте придумаем что-то необычное...",
+                "Вот несколько инновационных идей для вашего проекта...",
+                "Позвольте предложить творческий подход к решению...",
+                "Это вдохновляет! Вот что мы можем создать...",
+                "Для креативной задачи нужен нестандартный подход. Предлагаю..."
+            ],
+            code: [
+                "Отличная задача по программированию! Вот решение на Python:\n\n```python\n# Ваш код здесь\nprint('Hello, World!')\n```",
+                "Вот эффективное решение вашей задачи:\n\n```javascript\nfunction solveProblem() {\n    // Реализация\n    return result;\n}\n```",
+                "Для этой задачи рекомендую следующий подход:\n\n```java\npublic class Solution {\n    public static void main(String[] args) {\n        // Код решения\n    }\n}\n```",
+                "Вот оптимизированное решение:\n\n```cpp\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Реализация\n    return 0;\n}\n```"
+            ],
+            image: [
+                "Для генерации изображения по вашему описанию, я бы рекомендовал следующие параметры...",
+                "Отличная визуальная идее! Вот детальное описание для генерации...",
+                "На основе вашего запроса, изображение должно содержать...",
+                "Вот промпт для генерации вашего изображения: 'красивое изображение с...'"
+            ],
+            voice: [
+                "Для аудио контента по вашей теме рекомендую следующий сценарий...",
+                "Вот текст для озвучивания: 'Добро пожаловать в мир AI технологий...'",
+                "Отличная идея для аудио! Вот структура подкаста/озвучки..."
+            ]
+        };
+
+        const modeResponses = responses[this.currentMode] || responses.normal;
+        const response = modeResponses[Math.floor(Math.random() * modeResponses.length)];
+        
+        // Создаем асинхронный генератор для имитации стриминга
+        const mockStream = {
+            [Symbol.asyncIterator]: async function* () {
+                const words = response.split(' ');
+                for (const word of words) {
+                    if (this.generationAborted) break;
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    yield { text: word + ' ' };
+                }
+            }.bind(this)
+        };
+
+        return mockStream;
     }
 
     async setupEventListeners() {
@@ -357,9 +472,9 @@ class KHAIChat {
             });
 
             // Chat search in sidebar
-            const chatSearch = document.getElementById('chatSearch');
-            if (chatSearch) {
-                this.addEventListener(chatSearch, 'input', this.debounce((e) => {
+            const chatSearchInput = document.getElementById('chatSearchInput');
+            if (chatSearchInput) {
+                this.addEventListener(chatSearchInput, 'input', this.debounce((e) => {
                     this.handleChatSearch(e.target.value);
                 }, 300));
             }
@@ -494,21 +609,28 @@ class KHAIChat {
                 this.hidePWAInstallPrompt();
             });
 
-            // Fullscreen input navigation
-            this.addEventListener(document.getElementById('fullscreenInputUp'), 'click', () => {
-                this.scrollToTop();
-            });
-
-            this.addEventListener(document.getElementById('fullscreenInputDown'), 'click', () => {
-                this.scrollToBottom(true);
-            });
-
-            this.addEventListener(document.getElementById('fullscreenInputClose'), 'click', () => {
-                this.exitFullscreenInput();
-            });
-
             // Chat management in sidebar
             this.addEventListener(document.getElementById('deleteAllChatsBtn'), 'click', () => {
+                this.deleteAllChats();
+            });
+
+            // Mobile chat search
+            const mobileChatSearchInput = document.getElementById('mobileChatSearchInput');
+            if (mobileChatSearchInput) {
+                this.addEventListener(mobileChatSearchInput, 'input', this.debounce((e) => {
+                    this.handleChatSearch(e.target.value);
+                }, 300));
+            }
+
+            this.addEventListener(document.getElementById('mobileChatSearchClear'), 'click', () => {
+                if (mobileChatSearchInput) {
+                    mobileChatSearchInput.value = '';
+                    this.handleChatSearch('');
+                    mobileChatSearchInput.focus();
+                }
+            });
+
+            this.addEventListener(document.getElementById('mobileDeleteAllChatsBtn'), 'click', () => {
                 this.deleteAllChats();
             });
 
@@ -531,7 +653,6 @@ class KHAIChat {
         });
 
         this.addEventListener(userInput, 'blur', () => {
-            // Задержка для обработки кликов по кнопкам в fullscreen режиме
             this.setTimeout(() => {
                 if (!document.activeElement.closest('.fullscreen-input-overlay')) {
                     this.exitFullscreenInput();
@@ -632,7 +753,6 @@ class KHAIChat {
     setupTouchEvents() {
         const messagesContainer = document.getElementById('messagesContainer');
         
-        // Swipe для закрытия меню
         let startX = 0;
         this.addEventListener(document, 'touchstart', (e) => {
             startX = e.touches[0].clientX;
@@ -650,7 +770,6 @@ class KHAIChat {
             }
         });
 
-        // Улучшенный скролл для мобильных устройств
         if (messagesContainer) {
             this.addEventListener(messagesContainer, 'touchstart', () => {
                 messagesContainer.classList.add('scrolling');
@@ -703,98 +822,6 @@ class KHAIChat {
         }, delay);
         this.activeTimeouts.add(timeoutId);
         return timeoutId;
-    }
-
-    setupPuterAI() {
-        try {
-            this.puterAI = {
-                ai: {
-                    chat: async (prompt, options) => {
-                        return this.mockAIResponse(prompt, options);
-                    },
-                    img2txt: async (imageData) => {
-                        return "Это демонстрационное изображение. В реальном приложении здесь был бы распознанный текст.";
-                    },
-                    imagine: async (prompt, options) => {
-                        return {
-                            url: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230099ff'/%3E%3Ctext x='200' y='220' font-family='Arial' font-size='24' text-anchor='middle' fill='white'%3EСгенерированное изображение%3C/text%3E%3C/svg%3E"
-                        };
-                    },
-                    txt2speech: async (text) => {
-                        return {
-                            src: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSw=="
-                        };
-                    }
-                },
-                fs: {
-                    write: async (filename, content) => {
-                        console.log(`File saved: ${filename}`);
-                        return Promise.resolve();
-                    },
-                    read: async (filename) => {
-                        return new Blob(['Demo file content'], { type: 'text/plain' });
-                    }
-                }
-            };
-            
-            console.log('Puter AI SDK initialized (demo mode)');
-            this.setOnlineStatus(true);
-        } catch (error) {
-            console.error('Error initializing Puter AI:', error);
-            this.setOnlineStatus(false);
-        }
-    }
-
-    async mockAIResponse(prompt, options) {
-        const responses = {
-            normal: [
-                "Привет! Я KHAI - ваш AI-ассистент. Готов помочь с любыми вопросами!",
-                "Отличный вопрос! Давайте разберем его подробнее...",
-                "На основе вашего запроса, я могу предложить несколько решений...",
-                "Это интересная тема! Вот что я могу рассказать...",
-                "Спасибо за ваш вопрос! Вот развернутый ответ..."
-            ],
-            creative: [
-                "О, креативная задача! Давайте придумаем что-то необычное...",
-                "Вот несколько инновационных идей для вашего проекта...",
-                "Позвольте предложить творческий подход к решению...",
-                "Это вдохновляет! Вот что мы можем создать...",
-                "Для креативной задачи нужен нестандартный подход. Предлагаю..."
-            ],
-            code: [
-                "Отличная задача по программированию! Вот решение на Python:\n\n```python\n# Ваш код здесь\nprint('Hello, World!')\n```",
-                "Вот эффективное решение вашей задачи:\n\n```javascript\nfunction solveProblem() {\n    // Реализация\n    return result;\n}\n```",
-                "Для этой задачи рекомендую следующий подход:\n\n```java\npublic class Solution {\n    public static void main(String[] args) {\n        // Код решения\n    }\n}\n```",
-                "Вот оптимизированное решение:\n\n```cpp\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Реализация\n    return 0;\n}\n```"
-            ],
-            image: [
-                "Для генерации изображения по вашему описанию, я бы рекомендовал следующие параметры...",
-                "Отличная визуальная идее! Вот детальное описание для генерации...",
-                "На основе вашего запроса, изображение должно содержать...",
-                "Вот промпт для генерации вашего изображения: 'красивое изображение с...'"
-            ],
-            voice: [
-                "Для аудио контента по вашей теме рекомендую следующий сценарий...",
-                "Вот текст для озвучивания: 'Добро пожаловать в мир AI технологий...'",
-                "Отличная идея для аудио! Вот структура подкаста/озвучки..."
-            ]
-        };
-
-        const modeResponses = responses[this.currentMode] || responses.normal;
-        const response = modeResponses[Math.floor(Math.random() * modeResponses.length)];
-        
-        const mockStream = {
-            [Symbol.asyncIterator]: async function* () {
-                const words = response.split(' ');
-                for (const word of words) {
-                    if (this.generationAborted) break;
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    yield { text: word + ' ' };
-                }
-            }.bind(this)
-        };
-
-        return mockStream;
     }
 
     setupModelSelector() {
@@ -1043,23 +1070,11 @@ ${fileContent}
             throw new Error('Функция чата недоступна');
         }
         
-        const modelOptions = {
-            'gpt-4': { model: 'gpt-4' },
-            'gpt-3.5': { model: 'gpt-3.5' },
-            'claude-3': { model: 'claude-3' },
-            'gemini-pro': { model: 'gemini-pro' },
-            'gpt-5-nano': { model: 'gpt-5-nano' },
-            'o3-mini': { model: 'o3-mini' },
-            'claude-sonnet': { model: 'claude-sonnet' },
-            'deepseek-chat': { model: 'deepseek-chat' },
-            'deepseek-reasoner': { model: 'deepseek-reasoner' },
-            'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
-            'gemini-1.5-flash': { model: 'gemini-1.5-flash' },
-            'grok-beta': { model: 'grok-beta' }
-        };
+        const modelConfig = this.models[this.currentModel];
+        const puterModel = modelConfig?.puterModel || 'gpt-4';
         
         const options = {
-            ...modelOptions[this.currentModel],
+            model: puterModel,
             systemPrompt: this.modeConfigs[this.currentMode].systemPrompt,
             stream: true
         };
@@ -2098,7 +2113,7 @@ ${fileContent}
                     <i class="ti ti-sparkles"></i>
                 </div>
                 <h2>Добро пожаловать в KHAI!</h2>
-                <p>Я ваш AI-ассистент. Готов помочь с:</p>
+                <p>Я ваш AI-ассистент с интеграцией Puter.js. Готов помочь с:</p>
                 <ul>
                     <li><i class="ti ti-message"></i> Ответами на вопросы и обсуждениями</li>
                     <li><i class="ti ti-code"></i> Написанием и анализом кода</li>
@@ -2111,6 +2126,7 @@ ${fileContent}
                     <div class="tip">• Используйте разные режимы для разных типов задач</div>
                     <div class="tip">• Прикрепляйте файлы для анализа</div>
                     <div class="tip">• Используйте голосовой ввод для удобства</div>
+                    <div class="tip">• Переключайте модели AI для лучших результатов</div>
                 </div>
             </div>
         `;
@@ -2308,7 +2324,7 @@ ${fileContent}
                     <h3>🔧 Основные возможности</h3>
                     <ul>
                         <li><strong>Мультимодальный AI:</strong> Работа с текстом, кодом, изображениями и аудио</li>
-                        <li><strong>Разные модели:</strong> GPT-4, Claude, Gemini и другие</li>
+                        <li><strong>Разные модели:</strong> GPT-4, Claude, Gemini и другие через Puter.js</li>
                         <li><strong>Режимы работы:</strong> Обычный, Креативный, Программирование, Изображения, Аудио</li>
                         <li><strong>Голосовой ввод:</strong> Нажмите микрофон для голосового ввода</li>
                         <li><strong>Прикрепление файлов:</strong> Перетащите файлы или используйте кнопку прикрепления</li>
@@ -2620,7 +2636,6 @@ ${fileContent}
     }
 
     showNotification(message, type = 'info') {
-        // Remove existing notifications
         const existingNotifications = document.querySelectorAll('.notification');
         existingNotifications.forEach(notification => notification.remove());
         
@@ -2643,7 +2658,6 @@ ${fileContent}
             document.body.appendChild(notification);
         }
         
-        // Position notification below header
         const header = document.querySelector('.app-header');
         if (header) {
             notification.style.top = (header.offsetHeight + 20) + 'px';
@@ -2766,104 +2780,54 @@ ${fileContent}
     }
 
     updateChatList() {
-        const chatList = document.getElementById('chatList');
-        if (!chatList) return;
+        const chatsContainer = document.getElementById('chatsContainer');
+        const mobileChatsContainer = document.getElementById('mobileChatsContainer');
         
-        chatList.innerHTML = '';
-        
-        const chatSearch = document.createElement('div');
-        chatSearch.className = 'chat-search-container';
-        chatSearch.innerHTML = `
-            <div class="search-wrapper">
-                <i class="ti ti-search"></i>
-                <input type="text" id="chatSearchInput" placeholder="Поиск чатов...">
-                <button id="chatSearchClear" class="search-clear" style="display: none;">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-        `;
-        chatList.appendChild(chatSearch);
-        
-        // Add event listeners for chat search
-        const chatSearchInput = document.getElementById('chatSearchInput');
-        const chatSearchClear = document.getElementById('chatSearchClear');
-        
-        if (chatSearchInput) {
-            this.addEventListener(chatSearchInput, 'input', this.debounce((e) => {
-                this.handleChatSearch(e.target.value);
-            }, 300));
-        }
-        
-        if (chatSearchClear) {
-            this.addEventListener(chatSearchClear, 'click', () => {
-                chatSearchInput.value = '';
-                this.handleChatSearch('');
-                chatSearchInput.focus();
+        [chatsContainer, mobileChatsContainer].forEach(container => {
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            const chatsArray = Array.from(this.chats.entries())
+                .filter(([id, chat]) => {
+                    if (this.chatSearchTerm) {
+                        const chatName = chat.name || 'Безымянный чат';
+                        return chatName.toLowerCase().includes(this.chatSearchTerm);
+                    }
+                    return true;
+                })
+                .sort(([,a], [,b]) => (b.lastActivity || 0) - (a.lastActivity || 0));
+            
+            if (chatsArray.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-chats';
+                emptyState.innerHTML = `
+                    <i class="ti ti-message-off"></i>
+                    <p>${this.chatSearchTerm ? 'Чаты не найдены' : 'Нет созданных чатов'}</p>
+                `;
+                container.appendChild(emptyState);
+                return;
+            }
+            
+            chatsArray.forEach(([id, chat]) => {
+                const chatItem = this.createChatListItem(id, chat);
+                container.appendChild(chatItem);
             });
-        }
-        
-        const chatsContainer = document.createElement('div');
-        chatsContainer.className = 'chats-container';
-        chatsContainer.id = 'chatsContainer';
-        chatList.appendChild(chatsContainer);
-        
-        this.renderChatList();
+        });
     }
 
     handleChatSearch(term) {
         this.chatSearchTerm = term.toLowerCase().trim();
-        this.renderChatList();
+        this.updateChatList();
         
         const chatSearchClear = document.getElementById('chatSearchClear');
-        if (chatSearchClear) {
-            chatSearchClear.style.display = this.chatSearchTerm ? 'flex' : 'none';
-        }
-    }
-
-    renderChatList() {
-        const chatsContainer = document.getElementById('chatsContainer');
-        if (!chatsContainer) return;
+        const mobileChatSearchClear = document.getElementById('mobileChatSearchClear');
         
-        chatsContainer.innerHTML = '';
-        
-        const chatsArray = Array.from(this.chats.entries())
-            .filter(([id, chat]) => {
-                if (this.chatSearchTerm) {
-                    const chatName = chat.name || 'Безымянный чат';
-                    return chatName.toLowerCase().includes(this.chatSearchTerm);
-                }
-                return true;
-            })
-            .sort(([,a], [,b]) => (b.lastActivity || 0) - (a.lastActivity || 0));
-        
-        if (chatsArray.length === 0) {
-            const emptyState = document.createElement('div');
-            emptyState.className = 'empty-chats';
-            emptyState.innerHTML = `
-                <i class="ti ti-message-off"></i>
-                <p>${this.chatSearchTerm ? 'Чаты не найдены' : 'Нет созданных чатов'}</p>
-            `;
-            chatsContainer.appendChild(emptyState);
-            return;
-        }
-        
-        chatsArray.forEach(([id, chat]) => {
-            const chatItem = this.createChatListItem(id, chat);
-            chatsContainer.appendChild(chatItem);
+        [chatSearchClear, mobileChatSearchClear].forEach(clearBtn => {
+            if (clearBtn) {
+                clearBtn.style.display = this.chatSearchTerm ? 'flex' : 'none';
+            }
         });
-        
-        // Add delete all button if there are multiple chats
-        if (chatsArray.length > 1) {
-            const deleteAllContainer = document.createElement('div');
-            deleteAllContainer.className = 'delete-all-container';
-            deleteAllContainer.innerHTML = `
-                <button id="deleteAllChatsBtn" class="btn-danger">
-                    <i class="ti ti-trash"></i>
-                    Удалить все чаты
-                </button>
-            `;
-            chatsContainer.appendChild(deleteAllContainer);
-        }
     }
 
     createChatListItem(id, chat) {
@@ -3438,12 +3402,19 @@ ${fileContent}
             
             this.showNotification('Генерация изображения...', 'info');
             
-            await this.delay(2000);
+            if (!this.puterAI || typeof this.puterAI.ai?.imagine !== 'function') {
+                throw new Error('Функция генерации изображений недоступна');
+            }
+            
+            const imageResult = await this.puterAI.ai.imagine(prompt, {
+                model: "dall-e-3",
+                size: "1024x1024"
+            });
             
             const message = {
                 id: this.generateId(),
                 role: 'assistant',
-                content: `Сгенерировано изображение по запросу: "${prompt}"\n\nВ демо-режиме отображается заглушка. В реальном приложении здесь было бы сгенерированное изображение.`,
+                content: `Сгенерировано изображение по запросу: "${prompt}"\n\n<img src="${imageResult.url}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`,
                 timestamp: Date.now(),
                 mode: 'image'
             };
@@ -3475,12 +3446,16 @@ ${fileContent}
             
             this.showNotification('Генерация аудио...', 'info');
             
-            await this.delay(1500);
+            if (!this.puterAI || typeof this.puterAI.ai?.txt2speech !== 'function') {
+                throw new Error('Функция генерации голоса недоступна');
+            }
+            
+            const audio = await this.puterAI.ai.txt2speech(prompt);
             
             const message = {
                 id: this.generateId(),
                 role: 'assistant',
-                content: `Сгенерировано аудио по запросу: "${prompt}"\n\nВ демо-режиме отображается заглушка. В реальном приложении здесь был бы сгенерированный аудиофайл.`,
+                content: `Сгенерировано аудио по запросу: "${prompt}"\n\n<audio controls style="width: 100%; max-width: 300px;"><source src="${audio.src}" type="audio/mpeg">Ваш браузер не поддерживает аудио элементы.</audio>`,
                 timestamp: Date.now(),
                 mode: 'voice'
             };
@@ -3508,8 +3483,7 @@ ${fileContent}
             },
             'summarize': {
                 message: 'Суммаризируй основные преимущества использования AI в повседневной жизни',
-                mode: 'normal',
-                icon: 'ti ti-summary'
+                mode: 'normal'
             },
             'translate': {
                 message: 'Переведи следующий текст на английский: "Привет, как дела?"',
@@ -3549,7 +3523,7 @@ ${fileContent}
                 </div>
                 
                 <div class="about-description">
-                    <p>Продвинутый AI-ассистент с поддержкой мультимодальных возможностей, разработанный для эффективного решения разнообразных задач.</p>
+                    <p>Продвинутый AI-ассистент с интеграцией Puter.js и поддержкой мультимодальных возможностей.</p>
                 </div>
                 
                 <div class="about-features">
@@ -3557,7 +3531,7 @@ ${fileContent}
                     <div class="features-grid">
                         <div class="feature-item">
                             <i class="ti ti-brain"></i>
-                            <span>Множество AI моделей</span>
+                            <span>Множество AI моделей через Puter.js</span>
                         </div>
                         <div class="feature-item">
                             <i class="ti ti-code"></i>
@@ -3598,9 +3572,9 @@ ${fileContent}
                             <span>${this.chats.get(this.currentChatId)?.length || 0}</span>
                         </div>
                         <div class="tech-item">
-                            <strong>Статус:</strong>
-                            <span class="${this.isOnline ? 'status-online' : 'status-offline'}">
-                                ${this.isOnline ? 'Онлайн' : 'Офлайн'}
+                            <strong>Статус Puter.js:</strong>
+                            <span class="${this.puterInitialized ? 'status-online' : 'status-offline'}">
+                                ${this.puterInitialized ? 'Подключен' : 'Не доступен'}
                             </span>
                         </div>
                     </div>
@@ -3701,6 +3675,35 @@ ${fileContent}
         const modelDisplay = document.getElementById('currentModelDisplay');
         if (modelDisplay) {
             modelDisplay.textContent = `Модель: ${this.models[this.currentModel]?.name || this.currentModel}`;
+        }
+        
+        const footerMessageCount = document.getElementById('footerMessageCount');
+        if (footerMessageCount) {
+            const count = this.chats.get(this.currentChatId)?.length || 0;
+            footerMessageCount.textContent = `${count} сообщений`;
+        }
+        
+        const footerModelDisplay = document.getElementById('footerModelDisplay');
+        if (footerModelDisplay) {
+            footerModelDisplay.textContent = this.models[this.currentModel]?.name || this.currentModel;
+        }
+        
+        const footerChatName = document.getElementById('footerChatName');
+        if (footerChatName) {
+            const chat = this.chats.get(this.currentChatId);
+            footerChatName.textContent = chat?.name || 'Основной чат';
+        }
+        
+        const footerConnectionIcon = document.getElementById('footerConnectionIcon');
+        const footerConnectionStatus = document.getElementById('footerConnectionStatus');
+        if (footerConnectionIcon && footerConnectionStatus) {
+            if (this.isOnline) {
+                footerConnectionIcon.className = 'ti ti-wifi';
+                footerConnectionStatus.textContent = 'Онлайн';
+            } else {
+                footerConnectionIcon.className = 'ti ti-wifi-off';
+                footerConnectionStatus.textContent = 'Офлайн';
+            }
         }
     }
 
@@ -3846,6 +3849,7 @@ ${fileContent}
     }
 }
 
+// Глобальные обработчики для PWA
 let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -3867,6 +3871,7 @@ window.addEventListener('appinstalled', () => {
     }
 });
 
+// Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
     window.khaiChat = new KHAIChat();
 });
