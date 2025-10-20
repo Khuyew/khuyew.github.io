@@ -1,4 +1,4 @@
-// KHAI - Advanced AI Chat Application
+// KHAI — Advanced AI Chat Application
 class KHAIChat {
     constructor() {
         this.messages = [];
@@ -30,6 +30,7 @@ class KHAIChat {
         this.isAtTop = false;
         this.lastAIMessageIndex = -1;
         this.lastUserMessage = null;
+        this.isInitialized = false;
 
         // Расширенные модели
         this.models = {
@@ -142,7 +143,7 @@ class KHAIChat {
     async init() {
         try {
             this.setupMarked();
-            this.setupEventListeners();
+            await this.setupEventListeners();
             await this.loadChatHistory();
             this.setupPuterAI();
             this.showWelcomeMessage();
@@ -154,6 +155,22 @@ class KHAIChat {
             this.setupScrollTracking();
             this.startPlaceholderAnimation();
             this.loadThemePreference();
+            this.setupPerformanceMonitoring();
+            
+            // Показываем основное приложение
+            this.setTimeout(() => {
+                const appLoader = document.getElementById('appLoader');
+                const appContainer = document.querySelector('.app-container');
+                
+                if (appLoader) appLoader.style.display = 'none';
+                if (appContainer) {
+                    appContainer.style.opacity = '1';
+                    appContainer.style.transition = 'opacity 0.3s ease';
+                }
+                
+                this.isInitialized = true;
+                this.showNotification('KHAI готов к работе!', 'success');
+            }, 500);
             
             console.log('KHAI Chat initialized successfully');
         } catch (error) {
@@ -182,7 +199,7 @@ class KHAIChat {
         }
     }
 
-    setupEventListeners() {
+    async setupEventListeners() {
         try {
             // Send message
             this.addEventListener(document.getElementById('sendBtn'), 'click', () => this.handleSendButtonClick());
@@ -325,9 +342,9 @@ class KHAIChat {
 
             // Search
             const headerSearch = document.getElementById('headerSearch');
-            this.addEventListener(headerSearch, 'input', (e) => {
+            this.addEventListener(headerSearch, 'input', this.debounce((e) => {
                 this.handleSearch(e.target.value);
-            });
+            }, 300));
 
             this.addEventListener(document.getElementById('headerSearchClear'), 'click', () => {
                 headerSearch.value = '';
@@ -365,12 +382,9 @@ class KHAIChat {
 
             // Resize handling with debounce
             let resizeTimeout;
-            this.addEventListener(window, 'resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = this.setTimeout(() => {
-                    this.handleResize();
-                }, 250);
-            });
+            this.addEventListener(window, 'resize', this.debounce(() => {
+                this.handleResize();
+            }, 250));
 
             // Paste handling for images
             this.addEventListener(document, 'paste', (e) => {
@@ -399,10 +413,10 @@ class KHAIChat {
 
             // Minimap scroll sync
             const messagesContainer = document.getElementById('messagesContainer');
-            this.addEventListener(messagesContainer, 'scroll', () => {
+            this.addEventListener(messagesContainer, 'scroll', this.debounce(() => {
                 this.updateMinimapViewport();
                 this.handleScroll();
-            });
+            }, 100));
 
             // Sidebar quick access buttons
             this.addEventListener(document.getElementById('qaNewChat'), 'click', () => {
@@ -460,9 +474,70 @@ class KHAIChat {
                 });
             });
 
+            // PWA install prompt
+            this.addEventListener(document.getElementById('pwaInstallConfirm'), 'click', () => {
+                this.installPWA();
+            });
+
+            this.addEventListener(document.getElementById('pwaInstallCancel'), 'click', () => {
+                this.hidePWAInstallPrompt();
+            });
+
+            // Touch events for mobile
+            this.setupTouchEvents();
+
         } catch (error) {
             console.error('Error setting up event listeners:', error);
         }
+    }
+
+    setupTouchEvents() {
+        // Добавляем обработчики для улучшенного UX на мобильных устройствах
+        const messagesContainer = document.getElementById('messagesContainer');
+        
+        // Swipe для закрытия меню
+        let startX = 0;
+        this.addEventListener(document, 'touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+
+        this.addEventListener(document, 'touchmove', (e) => {
+            if (!startX) return;
+            
+            const currentX = e.touches[0].clientX;
+            const diffX = startX - currentX;
+            
+            // Если свайп вправо с края экрана - открываем меню
+            if (diffX < -50 && startX < 50) {
+                this.toggleSidebarMenu();
+                startX = 0;
+            }
+        });
+
+        // Улучшенный скролл для мобильных устройств
+        if (messagesContainer) {
+            this.addEventListener(messagesContainer, 'touchstart', () => {
+                messagesContainer.classList.add('scrolling');
+            });
+
+            this.addEventListener(messagesContainer, 'touchend', () => {
+                this.setTimeout(() => {
+                    messagesContainer.classList.remove('scrolling');
+                }, 100);
+            });
+        }
+    }
+
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     }
 
     addEventListener(element, event, handler) {
@@ -505,6 +580,16 @@ class KHAIChat {
                     },
                     img2txt: async (imageData) => {
                         return "Это демонстрационное изображение. В реальном приложении здесь был бы распознанный текст.";
+                    },
+                    imagine: async (prompt, options) => {
+                        return {
+                            url: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230099ff'/%3E%3Ctext x='200' y='220' font-family='Arial' font-size='24' text-anchor='middle' fill='white'%3EСгенерированное изображение%3C/text%3E%3C/svg%3E"
+                        };
+                    },
+                    txt2speech: async (text) => {
+                        return {
+                            src: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUgBjiN1/LMeSw=="
+                        };
                     }
                 },
                 fs: {
@@ -1116,8 +1201,8 @@ ${fileContent}
             filesHtml = message.files.map(file => `
                 <div class="attached-file">
                     <i class="ti ${this.getFileIcon(file.type)}"></i>
-                    <span>${file.name}</span>
-                    ${file.type.startsWith('image/') ? `<img src="${file.data}" alt="${file.name}" class="file-preview">` : ''}
+                    <span>${this.escapeHtml(file.name)}</span>
+                    ${file.type.startsWith('image/') ? `<img src="${file.data}" alt="${this.escapeHtml(file.name)}" class="file-preview">` : ''}
                 </div>
             `).join('');
         }
@@ -1582,11 +1667,11 @@ ${fileContent}
             fileElement.className = 'attached-file';
             fileElement.innerHTML = `
                 <i class="ti ${this.getFileIcon(file.type)}"></i>
-                <span class="file-name">${file.name}</span>
+                <span class="file-name">${this.escapeHtml(file.name)}</span>
                 <button class="remove-file-btn" data-index="${index}">
                     <i class="ti ti-x"></i>
                 </button>
-                ${file.type.startsWith('image/') ? `<img src="${file.data}" alt="${file.name}" class="file-preview">` : ''}
+                ${file.type.startsWith('image/') ? `<img src="${file.data}" alt="${this.escapeHtml(file.name)}" class="file-preview">` : ''}
             `;
             
             this.addEventListener(fileElement.querySelector('.remove-file-btn'), 'click', (e) => {
@@ -2911,6 +2996,41 @@ ${fileContent}
         }
     }
 
+    setupPerformanceMonitoring() {
+        // Мониторинг производительности
+        if ('performance' in window) {
+            const observer = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    if (entry.entryType === 'longtask') {
+                        console.warn('Long task detected:', entry);
+                    }
+                }
+            });
+            
+            observer.observe({ entryTypes: ['longtask'] });
+        }
+        
+        // Мониторинг использования памяти
+        if ('memory' in performance) {
+            setInterval(() => {
+                const memory = performance.memory;
+                if (memory.usedJSHeapSize > memory.jsHeapSizeLimit * 0.8) {
+                    console.warn('High memory usage detected');
+                    this.cleanupOldMessages();
+                }
+            }, 30000);
+        }
+    }
+
+    cleanupOldMessages() {
+        // Очистка старых сообщений для оптимизации памяти
+        const messages = document.querySelectorAll('.message');
+        if (messages.length > 100) {
+            const messagesToRemove = Array.from(messages).slice(0, messages.length - 100);
+            messagesToRemove.forEach(msg => msg.remove());
+        }
+    }
+
     async generateImage(prompt) {
         if (!prompt.trim()) {
             this.showError('Введите описание для генерации изображения');
@@ -3277,6 +3397,40 @@ ${fileContent}
         return div.innerHTML;
     }
 
+    // PWA functionality
+    showPWAInstallPrompt() {
+        const prompt = document.getElementById('pwaInstallPrompt');
+        if (prompt) {
+            prompt.style.display = 'flex';
+        }
+    }
+
+    hidePWAInstallPrompt() {
+        const prompt = document.getElementById('pwaInstallPrompt');
+        if (prompt) {
+            prompt.style.display = 'none';
+        }
+    }
+
+    async installPWA() {
+        try {
+            // Trigger installation
+            const promptEvent = this.deferredPrompt;
+            if (promptEvent) {
+                promptEvent.prompt();
+                const { outcome } = await promptEvent.userChoice;
+                if (outcome === 'accepted') {
+                    this.showNotification('KHAI успешно установлен!', 'success');
+                }
+                this.deferredPrompt = null;
+            }
+            this.hidePWAInstallPrompt();
+        } catch (error) {
+            console.error('Error installing PWA:', error);
+            this.showError('Ошибка при установке приложения');
+        }
+    }
+
     // Очистка ресурсов при уничтожении
     destroy() {
         // Очистка таймеров
@@ -3310,6 +3464,32 @@ ${fileContent}
     }
 }
 
+// PWA installation handling
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    
+    // Show custom install prompt
+    const khaiChat = window.khaiChat;
+    if (khaiChat && khaiChat.isInitialized) {
+        khaiChat.deferredPrompt = e;
+        khaiChat.showPWAInstallPrompt();
+    }
+});
+
+window.addEventListener('appinstalled', () => {
+    // Clear the deferredPrompt so it can be garbage collected
+    deferredPrompt = null;
+    const khaiChat = window.khaiChat;
+    if (khaiChat) {
+        khaiChat.deferredPrompt = null;
+    }
+});
+
 // Инициализация приложения когда DOM готов
 document.addEventListener('DOMContentLoaded', () => {
     window.khaiChat = new KHAIChat();
@@ -3320,4 +3500,13 @@ window.addEventListener('beforeunload', () => {
     if (window.khaiChat) {
         window.khaiChat.destroy();
     }
+});
+
+// Обработка ошибок
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
 });
