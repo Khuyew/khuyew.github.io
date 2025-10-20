@@ -128,19 +128,6 @@
             --code-text: #495057;
         }
 
-        /* Font size scaling */
-        [data-font-size="small"] {
-            font-size: 14px;
-        }
-
-        [data-font-size="medium"] {
-            font-size: 16px;
-        }
-
-        [data-font-size="large"] {
-            font-size: 18px;
-        }
-
         /* Base styles */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -214,12 +201,6 @@
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             box-shadow: var(--shadow-md);
             flex-shrink: 0;
-        }
-
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
 
         .logo:hover {
@@ -519,34 +500,6 @@
             border-bottom-left-radius: var(--radius-md);
         }
 
-        .message-creative {
-            background: var(--creative-message-bg);
-            border-color: rgba(156, 39, 176, 0.3);
-        }
-
-        .message-code {
-            background: var(--code-message-bg);
-            border-color: rgba(76, 175, 80, 0.3);
-        }
-
-        .message-voice {
-            background: var(--voice-message-bg);
-            border-color: rgba(255, 107, 0, 0.3);
-        }
-
-        .message-image {
-            background: var(--image-message-bg);
-            border-color: rgba(0, 200, 83, 0.3);
-        }
-
-        .message-error {
-            align-self: flex-start;
-            background: var(--error-bg);
-            color: var(--error-text);
-            border: 1px solid var(--error-border);
-            max-width: 90%;
-        }
-
         /* Message header */
         .message-header {
             display: flex;
@@ -585,62 +538,6 @@
         .message-time {
             font-size: 12px;
             color: var(--text-tertiary);
-        }
-
-        /* Streaming message styles */
-        .streaming-message {
-            border-left: 3px solid var(--accent-primary);
-        }
-
-        .streaming-content {
-            position: relative;
-        }
-
-        .typing-indicator-inline {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            color: var(--text-tertiary);
-            font-size: 14px;
-        }
-
-        .typing-indicator-inline.fade-out {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        /* Typing indicator */
-        .typing-indicator {
-            align-self: flex-start;
-            background: var(--ai-message-bg);
-            border: 1px solid var(--ai-message-border);
-            padding: 16px 20px;
-            border-radius: var(--radius-xl);
-            margin-right: auto;
-            max-width: 200px;
-        }
-
-        .typing-dots {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 8px;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent-primary);
-            animation: typingBounce 1.4s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes typingBounce {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
         }
 
         /* Enhanced Message Content */
@@ -1151,12 +1048,13 @@
         .mode-indicator {
             text-align: center;
             margin-bottom: 12px;
-            font-size: 16px;
+            font-size: 14px;
             color: var(--accent-primary);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-weight: 500;
         }
 
         .input-wrapper {
@@ -1360,7 +1258,7 @@
             color: var(--accent-error);
         }
 
-        /* Enhanced Action Buttons */
+        /* Compact Action Buttons */
         .action-buttons {
             display: flex;
             justify-content: space-between;
@@ -1446,7 +1344,7 @@
 
         .utility-buttons {
             display: flex;
-            gap: 8px;
+            gap: 4px;
             flex-wrap: wrap;
             flex-shrink: 0;
         }
@@ -1455,16 +1353,16 @@
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: var(--radius-lg);
+            padding: 6px 10px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             font-weight: 500;
-            min-height: 40px;
+            min-height: 32px;
             white-space: nowrap;
         }
 
@@ -1745,7 +1643,7 @@
         .chat-management-buttons {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             margin: 12px 0;
         }
 
@@ -3451,7 +3349,7 @@
                     </div>
                 </div>
 
-                <!-- Chat List Section -->
+                <!-- Chat Management Section -->
                 <div class="presets-section">
                     <div class="presets-header">
                         <span>Управление чатами</span>
@@ -3478,8 +3376,6 @@
                                 <i class="ti ti-upload"></i>
                                 Импорт всех чатов
                             </button>
-                        </div>
-                        <div class="delete-all-container">
                             <button id="deleteAllChatsBtn" class="btn-danger">
                                 <i class="ti ti-trash"></i>
                                 Удалить все чаты
@@ -3581,15 +3477,12 @@
                 <div class="utility-buttons">
                     <button id="clearChatBtn" class="utility-btn" title="Очистить чат">
                         <i class="ti ti-trash"></i>
-                        Очистить
                     </button>
                     <button id="exportBtn" class="utility-btn" title="Экспорт чата">
                         <i class="ti ti-download"></i>
-                        Экспорт
                     </button>
                     <button id="helpBtn" class="utility-btn" title="Помощь">
                         <i class="ti ti-help"></i>
-                        Помощь
                     </button>
                 </div>
             </div>
@@ -3652,8 +3545,6 @@
                             <i class="ti ti-upload"></i>
                             Импорт всех чатов
                         </button>
-                    </div>
-                    <div class="delete-all-container">
                         <button id="mobileDeleteAllChatsBtn" class="btn-danger">
                             <i class="ti ti-trash"></i>
                             Удалить все чаты
@@ -3830,7 +3721,7 @@
                 }
             }, 1000);
 
-            // Basic model selection functionality
+            // Model selection functionality
             const modelSelectBtn = document.getElementById('modelSelectBtn');
             const modelSelectionModal = document.getElementById('modelSelectionModal');
             const modelSelectionClose = document.getElementById('modelSelectionClose');
@@ -3848,6 +3739,20 @@
                     if (e.target === modelSelectionModal) {
                         modelSelectionModal.style.display = 'none';
                     }
+                });
+
+                // Model selection
+                const modelOptions = document.querySelectorAll('.model-option');
+                modelOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        const model = option.dataset.model;
+                        // Update current model display
+                        const modelDisplays = document.querySelectorAll('#currentModelDisplay, #footerModelDisplay');
+                        modelDisplays.forEach(display => {
+                            display.textContent = option.querySelector('.model-name').textContent;
+                        });
+                        modelSelectionModal.style.display = 'none';
+                    });
                 });
             }
 
@@ -3904,6 +3809,25 @@
                 `;
                 messagesContainer.appendChild(welcomeMessage);
             }
+
+            // Mode switching
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            const modeIndicator = document.getElementById('modeIndicator');
+            
+            modeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const mode = button.dataset.mode;
+                    const modeName = button.textContent.trim();
+                    const modeIcon = button.querySelector('i').className;
+                    
+                    // Update active state
+                    modeButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Update mode indicator
+                    modeIndicator.innerHTML = `<i class="${modeIcon}"></i><span>${modeName}</span>`;
+                });
+            });
         });
     </script>
 </body>
