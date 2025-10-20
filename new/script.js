@@ -1,3055 +1,1654 @@
-// KHAI — Advanced AI Chat Application with Puter.js Integration
-// Production-ready version with enhanced AI capabilities from KHuyew
-class KHAIChat {
+// Khuyew AI - Advanced AI Chat Application
+// Enhanced Security, Performance, and Features
+
+class KhuyewAI {
     constructor() {
-        this.messages = [];
-        this.currentChatId = 'main-chat';
-        this.chats = new Map();
-        this.isGenerating = false;
-        this.generationAborted = false;
-        this.currentStreamController = null;
-        this.activeStreamingMessage = null;
-        this.currentMode = 'normal';
-        this.attachedFiles = [];
-        this.puterAI = null;
-        this.isOnline = true;
-        this.typingIndicator = null;
-        this.searchTerm = '';
-        this.currentModel = 'gpt-4';
-        this.chatStartTime = Date.now();
-        this.isListening = false;
-        this.recognition = null;
-        this.durationTimer = null;
-        this.emojiPickerOutsideClick = this.emojiPickerOutsideClick.bind(this);
-        this.isSpeaking = false;
-        this.currentUtterance = null;
-        this.activeTimeouts = new Set();
-        this.activeEventListeners = new Map();
-        this.conversationHistory = [];
-        this.autoScrollEnabled = true;
-        this.isAtBottom = true;
-        this.isAtTop = false;
-        this.lastAIMessageIndex = -1;
-        this.lastUserMessage = null;
-        this.isInitialized = false;
-        this.chatSearchTerm = '';
-        this.fullscreenInputActive = false;
-        this.puterInitialized = false;
-        this.messageQueue = [];
-        this.isProcessingQueue = false;
-        this.retryCount = 0;
-        this.maxRetries = 3;
-
-        // Enhanced AI models from KHuyew
-        this.models = {
-            'gpt-4': { 
-                name: 'GPT-4 Turbo', 
-                description: 'Самый продвинутый модель для сложных задач',
-                icon: 'ti ti-brain',
-                provider: 'openai',
-                context: 128000,
-                supportsImages: true,
-                supportsFiles: true
-            },
-            'gpt-3.5-turbo': { 
-                name: 'GPT-3.5 Turbo', 
-                description: 'Быстрый и эффективный для повседневных задач',
-                icon: 'ti ti-flame',
-                provider: 'openai',
-                context: 16385,
-                supportsImages: false,
-                supportsFiles: true
-            },
-            'claude-3-sonnet': { 
-                name: 'Claude 3 Sonnet', 
-                description: 'Отличный для креативных задач и анализа',
-                icon: 'ti ti-cloud',
-                provider: 'anthropic',
-                context: 200000,
-                supportsImages: true,
-                supportsFiles: true
-            },
-            'claude-3-haiku': { 
-                name: 'Claude 3 Haiku', 
-                description: 'Быстрая и эффективная модель от Anthropic',
-                icon: 'ti ti-bolt',
-                provider: 'anthropic',
-                context: 200000,
-                supportsImages: true,
-                supportsFiles: true
-            },
-            'gemini-pro': { 
-                name: 'Gemini Pro', 
-                description: 'Мощный мультимодальный модель от Google',
-                icon: 'ti ti-sparkles',
-                provider: 'google',
-                context: 32768,
-                supportsImages: true,
-                supportsFiles: true
-            }
-        };
-
-        this.modeConfigs = {
-            normal: { 
-                icon: 'ti ti-message', 
-                color: '#0099ff',
-                placeholder: 'Задайте вопрос или опришите задачу...',
-                systemPrompt: `Ты полезный AI-ассистент KHAI. Отвечай подробно и точно на русском языке.
-Основные правила:
-1. Будь полезным, точным и безопасным
-2. Форматируй ответы для лучшей читаемости
-3. Используй markdown для структурирования
-4. Предлагай дополнительные вопросы и темы
-5. Будь дружелюбным и профессиональным`
-            },
-            creative: { 
-                icon: 'ti ti-sparkles', 
-                color: '#9c27b0',
-                placeholder: 'Опишите креативную задачу или идею...',
-                systemPrompt: `Ты креативный AI-ассистент. Будь изобретательным, предлагай нестандартные решения и идеи.
-Особенности:
-- Генерируй оригинальные идеи и концепции
-- Предлагай несколько вариантов решений
-- Используй богатый язык и метафоры
-- Вдохновляй на творчество
-- Будь экспрессивным но профессиональным`
-            },
-            code: { 
-                icon: 'ti ti-code', 
-                color: '#4caf50',
-                placeholder: 'Опишите код который нужно написать или исправить...',
-                systemPrompt: `Ты эксперт по программированию. Пиши чистый, эффективный и хорошо документированный код.
-Правила:
-1. Всегда предоставляй полный рабочий код
-2. Добавляй комментарии и документацию
-3. Объясняй логику и принятые решения
-4. Предлагай альтернативные решения
-5. Учитывай лучшие практики и безопасность`
-            },
-            analyze: { 
-                icon: 'ti ti-chart-bar', 
-                color: '#ff9800',
-                placeholder: 'Опишите данные или ситуацию для анализа...',
-                systemPrompt: `Ты аналитический AI-ассистент. Анализируй информацию системно и структурированно.
-Методология:
-- Разбивай сложные проблемы на части
-- Используй логические цепочки
-- Предоставляй выводы и рекомендации
-- Учитывай разные перспективы
-- Подкрепляй анализ фактами`
-            }
-        };
-
-        this.placeholderExamples = [
-            "Объясни квантовые вычисления простыми словами...",
-            "Напиши React компонент для формы входа...",
-            "Проанализируй преимущества и риски AI...",
-            "Предложи идеи для мобильного приложения...",
-            "Как оптимизировать производительность веб-сайта?"
-        ];
-
-        // AI configuration
-        this.aiConfig = {
-            maxTokens: 4000,
-            temperature: 0.7,
-            topP: 0.9,
-            presencePenalty: 0.1,
-            frequencyPenalty: 0.1
-        };
-
-        this.init();
+        this.initializeApp();
     }
 
-    async init() {
+    async initializeApp() {
         try {
-            this.setupMarked();
-            await this.setupPuterAI();
-            await this.setupEventListeners();
-            await this.loadChatHistory();
-            this.updateUI();
-            this.showWelcomeMessage();
-            this.setupServiceWorker();
-            this.startChatDurationTimer();
-            this.setupEmojiPicker();
-            this.setupModelSelector();
-            this.setupScrollTracking();
-            this.startPlaceholderAnimation();
-            this.loadThemePreference();
-            this.setupPerformanceMonitoring();
-            this.setupFullscreenInput();
-            this.setupMessageQueue();
+            // Initialize core components
+            this.initializeSecurity();
+            this.initializeUI();
+            this.initializeEventListeners();
+            this.initializeStorage();
+            this.initializeAI();
+            this.initializeVoice();
+            this.initializeFileHandling();
+            this.initializeNotifications();
             
-            this.setTimeout(() => {
-                const appLoader = document.getElementById('appLoader');
-                const appContainer = document.querySelector('.app-container');
-                
-                if (appLoader) appLoader.style.display = 'none';
-                if (appContainer) {
-                    appContainer.style.opacity = '1';
-                    appContainer.style.transition = 'opacity 0.3s ease';
-                }
-                
-                this.isInitialized = true;
-                this.showNotification('KHAI готов к работе!', 'success');
-            }, 500);
+            // Load initial data
+            await this.loadChats();
+            this.updateAppStats();
             
-            console.log('KHAI Chat initialized successfully');
-        } catch (error) {
-            console.error('Error initializing KHAI Chat:', error);
-            this.showError('Ошибка инициализации приложения');
-        }
-    }
-
-    setupMarked() {
-        if (typeof marked !== 'undefined') {
-            marked.setOptions({
-                highlight: (code, lang) => {
-                    if (lang && typeof hljs !== 'undefined' && hljs.getLanguage(lang)) {
-                        try {
-                            return hljs.highlight(code, { language: lang }).value;
-                        } catch (err) {
-                            console.warn(`Error highlighting ${lang}:`, err);
-                        }
-                    }
-                    return code;
-                },
-                langPrefix: 'hljs language-',
-                breaks: true,
-                gfm: true,
-                tables: true,
-                sanitize: false,
-                smartLists: true,
-                smartypants: true
-            });
-        }
-    }
-
-    async setupPuterAI() {
-        try {
-            if (typeof puter !== 'undefined') {
-                this.puterAI = puter;
-                this.puterInitialized = true;
-                
-                // Test AI availability
-                await this.testAIConnection();
-                console.log('Puter.js successfully initialized');
-                this.setOnlineStatus(true);
-            } else {
-                throw new Error('Puter.js not available');
-            }
-        } catch (error) {
-            console.warn('Puter.js initialization failed, using fallback mode:', error);
-            this.setupPuterFallback();
-            this.setOnlineStatus(false);
-        }
-    }
-
-    async testAIConnection() {
-        try {
-            // Simple test to verify AI services are available
-            const testPrompt = "Привет! Ответь одним словом: 'работает'";
-            const response = await this.puterAI.ai.chat(testPrompt, {
-                model: 'gpt-3.5-turbo',
-                maxTokens: 10
-            });
+            // Register service worker for PWA
+            this.registerServiceWorker();
             
-            let result = '';
-            for await (const chunk of response) {
-                result += chunk.text || '';
-            }
-            
-            if (!result.includes('работает')) {
-                throw new Error('AI service test failed');
-            }
+            console.log('🚀 Khuyew AI initialized successfully');
+            this.showNotification('Khuyew AI готов к работе!', 'success');
             
         } catch (error) {
-            console.error('AI connection test failed:', error);
-            throw new Error('AI services unavailable');
+            console.error('❌ Failed to initialize Khuyew AI:', error);
+            this.showNotification('Ошибка инициализации приложения', 'error');
         }
     }
 
-    setupPuterFallback() {
-        console.warn('Setting up Puter.js fallback mode');
-        this.puterAI = {
-            ai: {
-                chat: async (prompt, options) => {
-                    return this.mockAIResponse(prompt, options);
-                }
+    // Security & Privacy
+    initializeSecurity() {
+        this.security = {
+            encryptionKey: null,
+            isSecureContext: window.isSecureContext,
+            securityLevel: 'high',
+            blockedPatterns: [
+                /password|пароль/i,
+                /credit.?card|credit|card|карта|кредит/i,
+                /ssn|social.?security/i,
+                /private.?key|private|ключ/i,
+                /secret|секрет/i,
+                /token|токен/i
+            ],
+            maxFileSize: 5 * 1024 * 1024, // 5MB
+            maxMessageLength: 4000,
+            sessionTimeout: 30 * 60 * 1000, // 30 minutes
+            rateLimit: {
+                messages: 100,
+                window: 60000, // 1 minute
+                timestamps: []
             }
         };
+
+        this.generateEncryptionKey();
+        this.setupSessionTimeout();
+        this.validateSecurityHeaders();
     }
 
-    async mockAIResponse(prompt, options) {
-        // Enhanced mock responses based on prompt content
-        const responses = {
-            programming: [
-                "Вот решение вашей задачи на программировании:\n\n```python\ndef main():\n    print(\"Hello, World!\")\n\nif __name__ == \"__main__\":\n    main()\n```\n\nЭто базовая структура программы на Python.",
-                "Для вашего вопроса о коде:\n\n```javascript\nfunction calculateSum(a, b) {\n    return a + b;\n}\n\n// Пример использования\nconsole.log(calculateSum(5, 3)); // 8\n```\n\nФункция принимает два параметра и возвращает их сумму."
-            ],
-            analysis: [
-                "Проанализировав вашу ситуацию, я выделяю следующие ключевые моменты:\n\n**Преимущества:**\n- Высокая эффективность\n- Удобство использования\n- Масштабируемость\n\n**Риски:**\n- Зависимость от технологии\n- Необходимость обучения\n\n**Рекомендации:**\nНачните с пилотного проекта для тестирования.",
-                "На основе предоставленной информации:\n\n1. **Текущее состояние:** Стабильное\n2. **Потенциал роста:** Высокий\n3. **Ключевые факторы:** Технология, команда, рынок\n\n**Вывод:** Проект имеет хорошие перспективы при правильной реализации."
-            ],
-            creative: [
-                "Отличная креативная задача! Вот несколько идей:\n\n🎯 **Основная концепция:** Инновационная платформа\n💡 **Ключевые особенности:**\n- Персонализированный опыт\n- Социальная интеграция\n- Gamification элементы\n\n🚀 **Уникальное предложение:** Комбинация AI и человеческого творчества",
-                "Для вашего творческого проекта:\n\n**Название:** NovaSphere\n**Концепция:** Платформа для совместного творчества\n**Целевая аудитория:** Креативные профессионалы\n\n**Особенности:**\n- AI-ассистент для генерации идей\n- Коллаборативное рабочее пространство\n- Библиотека шаблонов и ресурсов"
-            ],
-            default: [
-                "Привет! Я KHAI - ваш AI-ассистент. Рад помочь вам с любыми вопросами и задачами.\n\nМои возможности включают:\n- Ответы на вопросы и объяснения\n- Помощь с программированием\n- Креативные идеи и решения\n- Анализ информации\n\nЧем могу помочь?",
-                "Спасибо за ваш вопрос! Я проанализировал вашу задачу и готов предложить решение.\n\nОсновные моменты:\n- Задача требует комплексного подхода\n- Есть несколько возможных решений\n- Рекомендую начать с базовой реализации\n\nНужны ли дополнительные детали?",
-                "Понимаю вашу задачу. Вот развернутый ответ:\n\n1. **Понимание проблемы:** [суть проблемы]\n2. **Возможные решения:** [варианты]\n3. **Рекомендации:** [лучший подход]\n4. **Дальнейшие шаги:** [план действий]\n\nГотов обсудить детали!",
-                "Отличный вопрос! Давайте разберем его по пунктам:\n\n📚 **Теоретическая основа:** [объяснение]\n🔧 **Практическое применение:** [примеры]\n🚀 **Продвинутые техники:** [дополнительно]\n\nНадеюсь, это поможет в вашем проекте!"
-            ]
-        };
-
-        // Determine response type based on prompt content
-        let responseType = 'default';
-        const lowerPrompt = prompt.toLowerCase();
-        
-        if (lowerPrompt.includes('код') || lowerPrompt.includes('программир') || lowerPrompt.includes('функци') || lowerPrompt.includes('алгоритм')) {
-            responseType = 'programming';
-        } else if (lowerPrompt.includes('анализ') || lowerPrompt.includes('проанализир') || lowerPrompt.includes('оцен') || lowerPrompt.includes('сравн')) {
-            responseType = 'analysis';
-        } else if (lowerPrompt.includes('иде') || lowerPrompt.includes('креатив') || lowerPrompt.includes('созда') || lowerPrompt.includes('придума')) {
-            responseType = 'creative';
-        }
-
-        const selectedResponses = responses[responseType] || responses.default;
-        const response = selectedResponses[Math.floor(Math.random() * selectedResponses.length)];
-
-        // Simulate streaming response
-        const mockStream = {
-            [Symbol.asyncIterator]: async function* () {
-                const sentences = response.split(/(?<=[.!?])\s+/);
-                for (const sentence of sentences) {
-                    if (this.generationAborted) break;
-                    
-                    const words = sentence.split(' ');
-                    for (const word of words) {
-                        if (this.generationAborted) break;
-                        await new Promise(resolve => setTimeout(resolve, 30 + Math.random() * 50));
-                        yield { text: word + ' ' };
-                    }
-                    
-                    // Longer pause between sentences
-                    if (!this.generationAborted) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    }
-                }
-            }.bind(this)
-        };
-
-        return mockStream;
-    }
-
-    setupMessageQueue() {
-        this.messageQueue = [];
-        this.isProcessingQueue = false;
-    }
-
-    async addToMessageQueue(messageData) {
-        this.messageQueue.push(messageData);
-        if (!this.isProcessingQueue) {
-            await this.processMessageQueue();
-        }
-    }
-
-    async processMessageQueue() {
-        if (this.isProcessingQueue || this.messageQueue.length === 0) return;
-        
-        this.isProcessingQueue = true;
-        
-        while (this.messageQueue.length > 0) {
-            const messageData = this.messageQueue[0];
-            try {
-                await this.processSingleMessage(messageData);
-                this.messageQueue.shift(); // Remove processed message
-            } catch (error) {
-                console.error('Error processing message from queue:', error);
-                this.retryCount++;
-                
-                if (this.retryCount <= this.maxRetries) {
-                    console.log(`Retrying message... (${this.retryCount}/${this.maxRetries})`);
-                    await this.delay(1000 * this.retryCount);
-                } else {
-                    this.messageQueue.shift(); // Remove failed message
-                    this.retryCount = 0;
-                    this.handleError('Не удалось обработать сообщение после нескольких попыток', error);
-                }
-            }
-        }
-        
-        this.isProcessingQueue = false;
-        this.retryCount = 0;
-    }
-
-    async processSingleMessage(messageData) {
-        const { message, files } = messageData;
-        
-        this.lastUserMessage = {
-            text: message,
-            files: [...files]
-        };
-        
-        const userMessage = {
-            id: this.generateId(),
-            role: 'user',
-            content: message,
-            files: [...files],
-            timestamp: Date.now(),
-            mode: this.currentMode
-        };
-
-        this.addMessageToChat(userMessage);
-        this.addToConversationHistory('user', message, files);
-        
-        document.getElementById('userInput').value = '';
-        this.autoResizeTextarea(document.getElementById('userInput'));
-        this.toggleClearInputButton();
-        const filesToProcess = [...files];
-        this.clearAttachedFiles();
-
-        await this.getAIResponse(message, filesToProcess);
-    }
-
-    async setupEventListeners() {
+    generateEncryptionKey() {
         try {
-            // Core interaction listeners
-            this.addEventListener(document.getElementById('sendBtn'), 'click', () => this.handleSendButtonClick());
-            
-            const userInput = document.getElementById('userInput');
-            this.addEventListener(userInput, 'keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    this.handleSendButtonClick();
-                }
-            });
+            // Generate a simple encryption key for demo purposes
+            // In production, use proper key generation and management
+            const timestamp = Date.now().toString();
+            const random = Math.random().toString(36).substring(2);
+            this.security.encryptionKey = btoa(timestamp + random).substring(0, 32);
+        } catch (error) {
+            console.warn('Encryption key generation failed:', error);
+            this.security.encryptionKey = 'fallback-key-' + Date.now();
+        }
+    }
 
-            this.addEventListener(userInput, 'input', () => {
-                this.autoResizeTextarea(userInput);
-                this.toggleClearInputButton();
-                this.handleInputChange();
-                this.checkFullscreenInput();
-            });
+    setupSessionTimeout() {
+        this.security.sessionTimer = setTimeout(() => {
+            this.showNotification('Сессия истекла. Очистка данных...', 'warning');
+            this.clearSensitiveData();
+        }, this.security.sessionTimeout);
 
-            this.addEventListener(document.getElementById('clearInputBtn'), 'click', () => {
-                userInput.value = '';
-                this.autoResizeTextarea(userInput);
-                this.toggleClearInputButton();
-                userInput.focus();
-            });
+        // Reset timer on user activity
+        document.addEventListener('mousedown', () => this.resetSessionTimer());
+        document.addEventListener('keypress', () => this.resetSessionTimer());
+    }
 
-            // Mode selection
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                this.addEventListener(btn, 'click', (e) => {
-                    this.setMode(e.currentTarget.dataset.mode);
-                });
-            });
+    resetSessionTimer() {
+        clearTimeout(this.security.sessionTimer);
+        this.setupSessionTimeout();
+    }
 
-            // File handling
-            this.addEventListener(document.getElementById('attachFileBtn'), 'click', () => {
-                document.getElementById('fileInput').click();
-            });
+    validateSecurityHeaders() {
+        if (!this.security.isSecureContext) {
+            console.warn('⚠️ App not served over HTTPS');
+            this.showNotification('Для полной безопасности используйте HTTPS', 'warning');
+        }
+    }
 
-            this.addEventListener(document.getElementById('fileInput'), 'change', (e) => {
-                this.handleFileUpload(e.target.files);
-                e.target.value = '';
-            });
+    checkRateLimit() {
+        const now = Date.now();
+        this.security.rateLimit.timestamps = this.security.rateLimit.timestamps.filter(
+            timestamp => now - timestamp < this.security.rateLimit.window
+        );
 
-            // Voice input
-            this.addEventListener(document.getElementById('voiceInputBtn'), 'click', () => {
-                this.toggleVoiceInput();
-            });
+        if (this.security.rateLimit.timestamps.length >= this.security.rateLimit.messages) {
+            throw new Error('Превышен лимит сообщений. Подождите немного.');
+        }
 
-            // UI controls
-            this.addEventListener(document.getElementById('emojiBtn'), 'click', (e) => {
-                this.toggleEmojiPicker(e.currentTarget);
-            });
+        this.security.rateLimit.timestamps.push(now);
+        return true;
+    }
 
-            this.addEventListener(document.getElementById('clearChatBtn'), 'click', () => {
-                this.clearChat();
-            });
+    sanitizeInput(input) {
+        if (typeof input !== 'string') return '';
+        
+        // Remove potentially dangerous content
+        let sanitized = input
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+            .replace(/javascript:/gi, '')
+            .replace(/on\w+=/gi, '')
+            .replace(/<\/?[^>]+(>|$)/g, '')
+            .trim();
 
-            this.addEventListener(document.getElementById('exportBtn'), 'click', () => {
-                this.exportChat();
-            });
+        // Check for blocked patterns
+        for (const pattern of this.security.blockedPatterns) {
+            if (pattern.test(sanitized)) {
+                throw new Error('Обнаружена потенциально конфиденциальная информация');
+            }
+        }
 
-            this.addEventListener(document.getElementById('helpBtn'), 'click', () => {
-                this.showHelp();
-            });
+        // Limit length
+        if (sanitized.length > this.security.maxMessageLength) {
+            sanitized = sanitized.substring(0, this.security.maxMessageLength);
+        }
 
-            this.addEventListener(document.getElementById('themeToggle'), 'click', () => {
-                this.toggleTheme();
-            });
+        return sanitized;
+    }
 
-            this.addEventListener(document.getElementById('fullscreenToggle'), 'click', () => {
-                this.toggleFullscreen();
-            });
+    // UI Management
+    initializeUI() {
+        this.ui = {
+            elements: {},
+            state: {
+                currentChatId: 'default',
+                isGenerating: false,
+                isRecording: false,
+                theme: this.getPreferredTheme(),
+                sidebarOpen: false,
+                autoScroll: true,
+                streaming: true,
+                soundEffects: true,
+                typingIndicator: true
+            }
+        };
 
-            this.addEventListener(document.getElementById('modelSelectBtn'), 'click', () => {
-                this.showModelSelection();
-            });
+        this.cacheElements();
+        this.initializeTheme();
+        this.initializeMarkdownRenderer();
+        this.updateUIState();
+    }
 
-            // Navigation
-            this.addEventListener(document.getElementById('menuToggle'), 'click', () => {
-                this.toggleSidebarMenu();
-            });
+    cacheElements() {
+        const elements = {
+            // Core elements
+            messagesContainer: document.getElementById('messagesContainer'),
+            userInput: document.getElementById('userInput'),
+            sendBtn: document.getElementById('sendBtn'),
+            clearChatBtn: document.getElementById('clearChatBtn'),
+            exportChatBtn: document.getElementById('exportChatBtn'),
+            emergencyStopBtn: document.getElementById('emergencyStopBtn'),
 
-            this.addEventListener(document.getElementById('sidebarClose'), 'click', () => {
-                this.toggleSidebarMenu();
-            });
+            // Header controls
+            themeToggle: document.getElementById('themeToggle'),
+            securityToggle: document.getElementById('securityToggle'),
+            menuToggle: document.getElementById('menuToggle'),
+            modelSelect: document.getElementById('modelSelect'),
+            modelInfoTooltip: document.getElementById('modelInfoTooltip'),
 
-            this.addEventListener(document.getElementById('sidebarOverlay'), 'click', () => {
-                this.toggleSidebarMenu();
-            });
+            // Input controls
+            attachFileBtn: document.getElementById('attachFileBtn'),
+            voiceInputBtn: document.getElementById('voiceInputBtn'),
+            clearInputBtn: document.getElementById('clearInputBtn'),
+            fileInput: document.getElementById('fileInput'),
+            attachedFiles: document.getElementById('attachedFiles'),
+            inputLength: document.getElementById('inputLength'),
 
-            // Quick actions
-            this.addEventListener(document.getElementById('quickNewChat'), 'click', () => {
-                this.createNewChat();
-            });
+            // Sidebar
+            sidebarMenu: document.getElementById('sidebarMenu'),
+            sidebarOverlay: document.getElementById('sidebarOverlay'),
+            sidebarClose: document.getElementById('sidebarClose'),
+            chatList: document.getElementById('chatList'),
+            newChatBtn: document.getElementById('newChatBtn'),
 
-            this.addEventListener(document.getElementById('quickDownload'), 'click', () => {
-                this.exportChat();
-            });
+            // Settings
+            autoScroll: document.getElementById('autoScroll'),
+            streaming: document.getElementById('streaming'),
+            soundEffects: document.getElementById('soundEffects'),
+            typingIndicator: document.getElementById('typingIndicator'),
 
-            this.addEventListener(document.getElementById('quickSettings'), 'click', () => {
-                this.showSettings();
-            });
+            // Footer
+            currentChatName: document.getElementById('currentChatName'),
+            connectionStatus: document.getElementById('connectionStatus'),
+            securityStatus: document.getElementById('securityStatus'),
 
-            // Scroll navigation
-            this.addEventListener(document.getElementById('scrollToTop'), 'click', () => {
-                this.scrollToTop();
-            });
+            // Action buttons
+            helpBtn: document.getElementById('helpBtn'),
+            generateImageBtn: document.getElementById('generateImageBtn'),
+            generateVoiceBtn: document.getElementById('generateVoiceBtn'),
 
-            this.addEventListener(document.getElementById('scrollToLastAI'), 'click', () => {
-                this.scrollToLastAIMessage();
-            });
+            // Security
+            clearAllDataBtn: document.getElementById('clearAllDataBtn'),
+            exportAllChatsBtn: document.getElementById('exportAllChatsBtn'),
+            privacySettingsBtn: document.getElementById('privacySettingsBtn'),
 
-            this.addEventListener(document.getElementById('scrollToBottom'), 'click', () => {
-                this.scrollToBottom(true);
-            });
+            // Modals
+            modalOverlay: document.getElementById('modalOverlay'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalContent: document.getElementById('modalContent'),
+            modalActions: document.getElementById('modalActions'),
+            modalClose: document.getElementById('modalClose'),
+            modalCancel: document.getElementById('modalCancel'),
+            modalConfirm: document.getElementById('modalConfirm'),
 
-            // Search functionality
-            const headerSearch = document.getElementById('headerSearch');
-            this.addEventListener(headerSearch, 'input', this.debounce((e) => {
-                this.handleSearch(e.target.value);
-            }, 300));
+            // Notifications
+            notificationsContainer: document.getElementById('notificationsContainer')
+        };
 
-            this.addEventListener(document.getElementById('headerSearchClear'), 'click', () => {
-                headerSearch.value = '';
-                this.handleSearch('');
-                headerSearch.focus();
-            });
+        // Validate all required elements exist
+        for (const [key, element] of Object.entries(elements)) {
+            if (!element) {
+                console.warn(`Missing UI element: ${key}`);
+                continue;
+            }
+            this.ui.elements[key] = element;
+        }
+    }
 
-            // Global event listeners
-            this.addEventListener(document, 'keydown', (e) => {
-                this.handleKeyboardShortcuts(e);
-            });
+    getPreferredTheme() {
+        const saved = localStorage.getItem('khuyew-ai-theme');
+        if (saved) return saved;
 
-            this.addEventListener(window, 'online', () => {
-                this.setOnlineStatus(true);
-            });
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
 
-            this.addEventListener(window, 'offline', () => {
-                this.setOnlineStatus(false);
-            });
+    initializeTheme() {
+        document.documentElement.setAttribute('data-theme', this.ui.state.theme);
+        this.updateThemeIcon();
+    }
 
-            this.addEventListener(window, 'resize', this.debounce(() => {
-                this.handleResize();
-            }, 250));
+    toggleTheme() {
+        this.ui.state.theme = this.ui.state.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', this.ui.state.theme);
+        localStorage.setItem('khuyew-ai-theme', this.ui.state.theme);
+        this.updateThemeIcon();
+        this.playSound('toggle');
+    }
 
-            // Drag and drop
-            this.addEventListener(document, 'dragover', (e) => {
+    updateThemeIcon() {
+        const icon = this.ui.elements.themeToggle?.querySelector('i');
+        if (!icon) return;
+
+        const icons = {
+            dark: 'ti-moon',
+            light: 'ti-sun',
+            'high-contrast': 'ti-contrast'
+        };
+
+        icon.className = `ti ${icons[this.ui.state.theme] || 'ti-moon'}`;
+    }
+
+    initializeMarkdownRenderer() {
+        marked.setOptions({
+            highlight: function(code, lang) {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            },
+            langPrefix: 'hljs language-',
+            breaks: true,
+            gfm: true,
+            tables: true
+        });
+    }
+
+    updateUIState() {
+        // Update button states based on current state
+        const { isGenerating, isRecording } = this.ui.state;
+        
+        this.ui.elements.sendBtn.disabled = isGenerating || isRecording;
+        this.ui.elements.voiceInputBtn.disabled = isGenerating;
+        this.ui.elements.emergencyStopBtn.style.display = isGenerating ? 'flex' : 'none';
+        
+        // Update connection status
+        this.updateConnectionStatus();
+    }
+
+    updateConnectionStatus() {
+        const statusElement = this.ui.elements.connectionStatus;
+        if (!statusElement) return;
+
+        const isOnline = navigator.onLine;
+        statusElement.className = `connection-status ${isOnline ? 'online' : 'offline'}`;
+        statusElement.innerHTML = `
+            <i class="ti ti-${isOnline ? 'wifi' : 'wifi-off'}"></i>
+            <span>${isOnline ? 'Онлайн' : 'Офлайн'}</span>
+        `;
+    }
+
+    // Event Listeners
+    initializeEventListeners() {
+        this.setupCoreListeners();
+        this.setupInputListeners();
+        this.setupSidebarListeners();
+        this.setupModalListeners();
+        this.setupNetworkListeners();
+    }
+
+    setupCoreListeners() {
+        // Send message
+        this.ui.elements.sendBtn.addEventListener('click', () => this.sendMessage());
+        this.ui.elements.userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                this.showDropZone();
-            });
+                this.sendMessage();
+            }
+        });
 
-            this.addEventListener(document, 'dragleave', (e) => {
-                if (!e.relatedTarget || e.relatedTarget.nodeName === 'HTML') {
-                    this.hideDropZone();
-                }
-            });
+        // Clear chat
+        this.ui.elements.clearChatBtn.addEventListener('click', () => this.clearCurrentChat());
 
-            this.addEventListener(document, 'drop', (e) => {
-                e.preventDefault();
-                this.hideDropZone();
-                if (e.dataTransfer.files.length > 0) {
-                    this.handleFileUpload(e.dataTransfer.files);
-                }
-            });
+        // Export chat
+        this.ui.elements.exportChatBtn.addEventListener('click', () => this.exportChat());
 
-            // Scroll tracking
-            const messagesContainer = document.getElementById('messagesContainer');
-            this.addEventListener(messagesContainer, 'scroll', this.debounce(() => {
-                this.handleScroll();
-            }, 100));
+        // Emergency stop
+        this.ui.elements.emergencyStopBtn.addEventListener('click', () => this.emergencyStop());
 
-            // PWA installation
-            this.addEventListener(document.getElementById('pwaInstallConfirm'), 'click', () => {
-                this.installPWA();
-            });
+        // Theme toggle
+        this.ui.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
 
-            this.addEventListener(document.getElementById('pwaInstallCancel'), 'click', () => {
-                this.hidePWAInstallPrompt();
-            });
+        // Menu toggle
+        this.ui.elements.menuToggle.addEventListener('click', () => this.toggleSidebar(true));
 
-            // Chat management
-            this.addEventListener(document.getElementById('deleteAllChatsBtn'), 'click', () => {
-                this.deleteAllChats();
-            });
+        // Model selection
+        this.ui.elements.modelSelect.addEventListener('change', (e) => {
+            this.updateModelInfo(e.target.value);
+        });
 
-            this.setupTouchEvents();
-
-        } catch (error) {
-            console.error('Error setting up event listeners:', error);
-            this.showError('Ошибка настройки приложения');
-        }
+        // Initialize model info
+        this.updateModelInfo(this.ui.elements.modelSelect.value);
     }
 
-    setupFullscreenInput() {
-        const userInput = document.getElementById('userInput');
-        if (!userInput) return;
+    setupInputListeners() {
+        const { userInput, attachFileBtn, voiceInputBtn, clearInputBtn, fileInput } = this.ui.elements;
 
-        this.addEventListener(userInput, 'focus', () => {
-            if (userInput.value.length > 200) {
-                this.activateFullscreenInput();
+        // Input handling
+        userInput.addEventListener('input', () => this.handleInputChange());
+        
+        // File attachment
+        attachFileBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        
+        // Voice input
+        voiceInputBtn.addEventListener('click', () => this.toggleVoiceInput());
+        
+        // Clear input
+        clearInputBtn.addEventListener('click', () => this.clearInput());
+
+        // Action buttons
+        this.ui.elements.helpBtn.addEventListener('click', () => this.showHelp());
+        this.ui.elements.generateImageBtn.addEventListener('click', () => this.generateImage());
+        this.ui.elements.generateVoiceBtn.addEventListener('click', () => this.generateVoice());
+    }
+
+    setupSidebarListeners() {
+        // Sidebar controls
+        this.ui.elements.sidebarClose.addEventListener('click', () => this.toggleSidebar(false));
+        this.ui.elements.sidebarOverlay.addEventListener('click', () => this.toggleSidebar(false));
+        
+        // New chat
+        this.ui.elements.newChatBtn.addEventListener('click', () => this.createNewChat());
+        
+        // Settings
+        this.ui.elements.autoScroll.addEventListener('change', (e) => {
+            this.ui.state.autoScroll = e.target.checked;
+        });
+        
+        this.ui.elements.streaming.addEventListener('change', (e) => {
+            this.ui.state.streaming = e.target.checked;
+        });
+        
+        this.ui.elements.soundEffects.addEventListener('change', (e) => {
+            this.ui.state.soundEffects = e.target.checked;
+        });
+        
+        this.ui.elements.typingIndicator.addEventListener('change', (e) => {
+            this.ui.state.typingIndicator = e.target.checked;
+        });
+
+        // Security actions
+        this.ui.elements.clearAllDataBtn.addEventListener('click', () => this.clearAllData());
+        this.ui.elements.exportAllChatsBtn.addEventListener('click', () => this.exportAllChats());
+        this.ui.elements.privacySettingsBtn.addEventListener('click', () => this.showPrivacySettings());
+    }
+
+    setupModalListeners() {
+        this.ui.elements.modalClose.addEventListener('click', () => this.hideModal());
+        this.ui.elements.modalCancel.addEventListener('click', () => this.hideModal());
+        this.ui.elements.modalOverlay.addEventListener('click', (e) => {
+            if (e.target === this.ui.elements.modalOverlay) this.hideModal();
+        });
+    }
+
+    setupNetworkListeners() {
+        window.addEventListener('online', () => this.updateConnectionStatus());
+        window.addEventListener('offline', () => this.updateConnectionStatus());
+    }
+
+    // Storage Management
+    initializeStorage() {
+        this.storage = {
+            prefix: 'khuyew-ai-',
+            encryption: true
+        };
+
+        this.migrateOldData();
+    }
+
+    migrateOldData() {
+        // Migrate from old storage formats if needed
+        const oldKeys = ['chat-messages', 'app-settings'];
+        oldKeys.forEach(key => {
+            const data = localStorage.getItem(key);
+            if (data) {
+                localStorage.setItem(this.storage.prefix + key, data);
+                localStorage.removeItem(key);
             }
         });
     }
 
-    checkFullscreenInput() {
-        const userInput = document.getElementById('userInput');
-        if (!userInput || this.fullscreenInputActive) return;
+    async loadChats() {
+        try {
+            const chatsData = localStorage.getItem(this.storage.prefix + 'chats');
+            if (!chatsData) {
+                await this.createDefaultChat();
+                return;
+            }
 
-        if (userInput.value.length > 200 && document.activeElement === userInput) {
-            this.activateFullscreenInput();
+            this.chats = JSON.parse(chatsData);
+            this.renderChatList();
+            this.loadCurrentChat();
+
+        } catch (error) {
+            console.error('Failed to load chats:', error);
+            await this.createDefaultChat();
         }
     }
 
-    activateFullscreenInput() {
-        if (this.fullscreenInputActive) return;
+    async createDefaultChat() {
+        this.chats = {
+            'default': {
+                id: 'default',
+                name: 'Основной чат',
+                messages: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }
+        };
 
-        const overlay = document.createElement('div');
-        overlay.className = 'fullscreen-input-overlay';
-        overlay.innerHTML = `
-            <div class="fullscreen-input-header">
-                <button id="fullscreenInputClose" class="fullscreen-input-btn">
-                    <i class="ti ti-x"></i>
+        await this.saveChats();
+        this.renderChatList();
+        this.loadCurrentChat();
+    }
+
+    async saveChats() {
+        try {
+            localStorage.setItem(
+                this.storage.prefix + 'chats', 
+                JSON.stringify(this.chats)
+            );
+        } catch (error) {
+            console.error('Failed to save chats:', error);
+            this.showNotification('Ошибка сохранения чатов', 'error');
+        }
+    }
+
+    async createNewChat() {
+        const chatId = 'chat-' + Date.now();
+        const chatName = `Чат ${Object.keys(this.chats).length + 1}`;
+
+        this.chats[chatId] = {
+            id: chatId,
+            name: chatName,
+            messages: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+        await this.saveChats();
+        this.renderChatList();
+        this.switchToChat(chatId);
+        this.toggleSidebar(false);
+        
+        this.showNotification(`Создан новый чат: ${chatName}`, 'success');
+    }
+
+    switchToChat(chatId) {
+        if (!this.chats[chatId]) return;
+
+        this.ui.state.currentChatId = chatId;
+        this.loadCurrentChat();
+        this.updateCurrentChatName();
+    }
+
+    loadCurrentChat() {
+        const chat = this.chats[this.ui.state.currentChatId];
+        if (!chat) return;
+
+        this.renderMessages(chat.messages);
+        this.updateCurrentChatName();
+    }
+
+    updateCurrentChatName() {
+        const chat = this.chats[this.ui.state.currentChatId];
+        if (chat && this.ui.elements.currentChatName) {
+            this.ui.elements.currentChatName.textContent = chat.name;
+        }
+    }
+
+    renderChatList() {
+        const chatList = this.ui.elements.chatList;
+        if (!chatList) return;
+
+        chatList.innerHTML = '';
+
+        Object.values(this.chats)
+            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+            .forEach(chat => {
+                const chatElement = this.createChatElement(chat);
+                chatList.appendChild(chatElement);
+            });
+    }
+
+    createChatElement(chat) {
+        const div = document.createElement('div');
+        div.className = `chat-item ${chat.id === this.ui.state.currentChatId ? 'active' : ''}`;
+        div.innerHTML = `
+            <span class="chat-item-name">${this.escapeHtml(chat.name)}</span>
+            <div class="chat-item-actions">
+                <button class="chat-item-action rename" title="Переименовать">
+                    <i class="ti ti-edit"></i>
                 </button>
-                <div class="fullscreen-input-title">Редактирование сообщения</div>
-            </div>
-            <div class="fullscreen-input-content">
-                <textarea id="userInputFullscreen" placeholder="${this.modeConfigs[this.currentMode].placeholder}"></textarea>
-            </div>
-            <div class="fullscreen-input-footer">
-                <button id="sendBtnFullscreen" class="send-btn fullscreen-send-btn">
-                    <i class="ti ti-send"></i>
+                <button class="chat-item-action delete" title="Удалить">
+                    <i class="ti ti-trash"></i>
                 </button>
             </div>
         `;
 
-        document.body.appendChild(overlay);
-
-        const userInput = document.getElementById('userInput');
-        const fullscreenInput = document.getElementById('userInputFullscreen');
-        const sendBtnFullscreen = document.getElementById('sendBtnFullscreen');
-
-        if (fullscreenInput && userInput) {
-            fullscreenInput.value = userInput.value;
-            fullscreenInput.focus();
-            fullscreenInput.setSelectionRange(fullscreenInput.value.length, fullscreenInput.value.length);
-
-            this.addEventListener(fullscreenInput, 'input', () => {
-                userInput.value = fullscreenInput.value;
-                this.autoResizeTextarea(userInput);
-            });
-
-            this.addEventListener(sendBtnFullscreen, 'click', () => {
-                this.handleSendButtonClick();
-                this.exitFullscreenInput();
-            });
-
-            this.addEventListener(fullscreenInput, 'keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    this.handleSendButtonClick();
-                    this.exitFullscreenInput();
-                } else if (e.key === 'Escape') {
-                    this.exitFullscreenInput();
-                }
-            });
-
-            this.addEventListener(document.getElementById('fullscreenInputClose'), 'click', () => {
-                this.exitFullscreenInput();
-            });
-        }
-
-        this.fullscreenInputActive = true;
-        document.body.style.overflow = 'hidden';
-    }
-
-    exitFullscreenInput() {
-        const overlay = document.querySelector('.fullscreen-input-overlay');
-        if (overlay) {
-            overlay.remove();
-        }
-        this.fullscreenInputActive = false;
-        document.body.style.overflow = '';
-
-        const userInput = document.getElementById('userInput');
-        if (userInput) {
-            userInput.focus();
-        }
-    }
-
-    setupTouchEvents() {
-        let startX = 0;
-        this.addEventListener(document, 'touchstart', (e) => {
-            startX = e.touches[0].clientX;
-        });
-
-        this.addEventListener(document, 'touchmove', (e) => {
-            if (!startX) return;
-            
-            const currentX = e.touches[0].clientX;
-            const diffX = startX - currentX;
-            
-            if (diffX < -50 && startX < 50) {
-                this.toggleSidebarMenu();
-                startX = 0;
+        div.addEventListener('click', (e) => {
+            if (!e.target.closest('.chat-item-actions')) {
+                this.switchToChat(chat.id);
+                this.toggleSidebar(false);
             }
         });
+
+        // Rename action
+        const renameBtn = div.querySelector('.rename');
+        renameBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.renameChat(chat.id);
+        });
+
+        // Delete action
+        const deleteBtn = div.querySelector('.delete');
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.deleteChat(chat.id);
+        });
+
+        return div;
     }
 
-    debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
+    async renameChat(chatId) {
+        const chat = this.chats[chatId];
+        if (!chat) return;
 
-    addEventListener(element, event, handler) {
-        if (!element) return;
-        
-        const wrappedHandler = (...args) => {
-            try {
-                handler(...args);
-            } catch (error) {
-                console.error(`Error in ${event} handler:`, error);
-                this.showNotification('Произошла ошибка при обработке действия', 'error');
-            }
-        };
-
-        element.addEventListener(event, wrappedHandler);
-        
-        if (!this.activeEventListeners.has(element)) {
-            this.activeEventListeners.set(element, []);
-        }
-        this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
-    }
-
-    setTimeout(callback, delay) {
-        const timeoutId = setTimeout(() => {
-            this.activeTimeouts.delete(timeoutId);
-            callback();
-        }, delay);
-        this.activeTimeouts.add(timeoutId);
-        return timeoutId;
-    }
-
-    setupModelSelector() {
-        const modelBtn = document.getElementById('modelSelectBtn');
-        if (modelBtn) {
-            const model = this.models[this.currentModel];
-            if (model) {
-                modelBtn.innerHTML = `<i class="${model.icon}"></i>`;
-                modelBtn.title = model.name;
-            }
+        const newName = prompt('Введите новое название чата:', chat.name);
+        if (newName && newName.trim() && newName !== chat.name) {
+            chat.name = newName.trim();
+            chat.updatedAt = new Date().toISOString();
+            await this.saveChats();
+            this.renderChatList();
+            this.updateCurrentChatName();
         }
     }
 
-    setupScrollTracking() {
-        this.updateNavigationButtons();
-    }
-
-    handleScroll() {
-        const container = document.getElementById('messagesContainer');
-        if (!container) return;
-
-        const scrollTop = container.scrollTop;
-        const scrollHeight = container.scrollHeight;
-        const clientHeight = container.clientHeight;
-        
-        this.isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-        this.isAtTop = scrollTop < 50;
-        
-        this.updateNavigationButtons();
-        this.autoScrollEnabled = this.isAtBottom;
-    }
-
-    updateNavigationButtons() {
-        const scrollToLastAI = document.getElementById('scrollToLastAI');
-        const scrollToBottomBtn = document.getElementById('scrollToBottom');
-        const chatNavigation = document.getElementById('chatNavigation');
-
-        if (!scrollToLastAI || !scrollToBottomBtn || !chatNavigation) return;
-
-        const aiMessages = document.querySelectorAll('.message-assistant:not(.typing-indicator)');
-        const hasAIMessages = aiMessages.length > 0;
-        
-        scrollToLastAI.classList.toggle('active', !this.isAtBottom && hasAIMessages);
-        scrollToLastAI.disabled = !hasAIMessages;
-        
-        scrollToBottomBtn.classList.toggle('active', !this.isAtBottom);
-        scrollToBottomBtn.disabled = this.isAtBottom;
-        
-        if (this.isAtBottom) {
-            chatNavigation.classList.remove('visible');
-        } else {
-            chatNavigation.classList.add('visible');
-        }
-    }
-
-    handleSendButtonClick() {
-        if (this.isGenerating) {
-            this.stopGeneration();
-        } else {
-            this.sendMessage();
-        }
-    }
-
-    handleInputChange() {
-        const hasInput = document.getElementById('userInput')?.value.trim().length > 0 || this.attachedFiles.length > 0;
-        
-        if (this.isGenerating && hasInput) {
-            this.updateSendButton(false);
-        }
-    }
-
-    async sendMessage() {
-        if (this.isGenerating) {
-            this.showNotification('Подождите, идет генерация ответа...', 'warning');
+    async deleteChat(chatId) {
+        if (Object.keys(this.chats).length <= 1) {
+            this.showNotification('Нельзя удалить последний чат', 'warning');
             return;
         }
 
-        const userInput = document.getElementById('userInput');
-        const message = userInput.value.trim();
-        const files = this.attachedFiles;
+        const confirmed = await this.showConfirmModal(
+            'Удаление чата',
+            `Вы уверены, что хотите удалить чат "${this.chats[chatId]?.name}"? Это действие нельзя отменить.`
+        );
+
+        if (!confirmed) return;
+
+        delete this.chats[chatId];
+
+        // Switch to another chat if current was deleted
+        if (this.ui.state.currentChatId === chatId) {
+            const remainingChats = Object.keys(this.chats);
+            this.ui.state.currentChatId = remainingChats[0];
+        }
+
+        await this.saveChats();
+        this.renderChatList();
+        this.loadCurrentChat();
+        
+        this.showNotification('Чат удален', 'success');
+    }
+
+    // Message Handling
+    async sendMessage() {
+        if (this.ui.state.isGenerating) return;
+
+        const input = this.ui.elements.userInput;
+        const message = input.value.trim();
+        const files = Array.from(this.ui.elements.fileInput.files);
 
         if (!message && files.length === 0) {
             this.showNotification('Введите сообщение или прикрепите файл', 'warning');
             return;
         }
 
-        if (message.length > 8000) {
-            this.showError('Сообщение слишком длинное. Максимум 8000 символов.');
-            return;
-        }
-
         try {
-            this.isGenerating = true;
-            this.generationAborted = false;
-            this.updateSendButton(true);
-
-            // Add to message queue for processing
-            await this.addToMessageQueue({ message, files });
-
-        } catch (error) {
-            console.error('Error sending message:', error);
-            this.handleError('Не удалось отправить сообщение', error);
-        } finally {
-            if (!this.generationAborted) {
-                this.isGenerating = false;
-                this.updateSendButton(false);
-                this.saveChatHistory();
-                this.updateUI();
-            }
-        }
-    }
-
-    async getAIResponse(userMessage, files) {
-        this.showTypingIndicator();
-        
-        try {
-            const prompt = await this.buildPrompt(userMessage, files);
-            const response = await this.callAIService(prompt);
+            this.checkRateLimit();
             
+            // Sanitize input
+            const sanitizedMessage = message ? this.sanitizeInput(message) : '';
+            
+            // Validate files
+            for (const file of files) {
+                if (file.size > this.security.maxFileSize) {
+                    throw new Error(`Файл ${file.name} слишком большой (макс. 5MB)`);
+                }
+            }
+
+            this.ui.state.isGenerating = true;
+            this.updateUIState();
+
+            // Add user message
+            await this.addMessage({
+                type: 'user',
+                content: sanitizedMessage,
+                files: files.map(file => ({
+                    name: file.name,
+                    type: file.type,
+                    size: file.size
+                })),
+                timestamp: new Date().toISOString()
+            });
+
+            // Clear input
+            this.clearInput();
+            this.clearAttachedFiles();
+
+            // Show typing indicator
+            if (this.ui.state.typingIndicator) {
+                this.showTypingIndicator();
+            }
+
+            // Generate AI response
+            const response = await this.generateAIResponse(sanitizedMessage, files);
+            
+            // Remove typing indicator
             this.hideTypingIndicator();
-            await this.processAIResponse(response);
-            
+
+            // Add AI message
+            await this.addMessage({
+                type: 'ai',
+                content: response,
+                model: this.ui.elements.modelSelect.value,
+                timestamp: new Date().toISOString()
+            });
+
+            this.playSound('message');
+
         } catch (error) {
             this.hideTypingIndicator();
-            this.handleError('Ошибка при получении ответа от ИИ', error);
-        }
-    }
-
-    async buildPrompt(userMessage, files) {
-        if (files.length > 0) {
-            const file = files[0];
-            
-            if (file.type.startsWith('image/')) {
-                if (!this.puterAI || typeof this.puterAI.ai?.img2txt !== 'function') {
-                    throw new Error('Функция анализа изображений недоступна');
-                }
-                
-                const extractedText = await this.puterAI.ai.img2txt(file.data);
-                
-                if (userMessage.trim()) {
-                    return `Пользователь отправил изображение "${file.name}" с сопроводительным сообщением: "${userMessage}"
-
-Извлеченный текст с изображения: "${extractedText}"
-
-Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
-                } else {
-                    return `Пользователь отправил изображение "${file.name}".
-
-Извлеченный текст с изображения: "${extractedText}"
-
-Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
-                }
-            } else if (file.type.startsWith('text/') || file.name.endsWith('.txt')) {
-                const fileContent = file.data;
-                
-                if (userMessage.trim()) {
-                    return `Пользователь отправил текстовый файл "${file.name}" с сопроводительным сообщением: "${userMessage}"
-
-Содержимое файла:
-"""
-${fileContent}
-"""
-
-Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержимое прикрепленного файла. Проанализируй текст и дай развернутый ответ на основе предоставленной информации. Отвечай на русском языке.`;
-                } else {
-                    return `Пользователь отправил текстовый файл "${file.name}".
-
-Содержимое файла:
-"""
-${fileContent}
-"""
-
-Проанализируй содержимое этого файла. Суммируй основную информацию, выдели ключевые моменты, предложи выводы или рекомендации на основе представленного текста. Отвечай подробно на русском языке.`;
-                }
-            }
-        } else {
-            return this.buildContextPrompt(userMessage);
-        }
-    }
-
-    buildContextPrompt(currentMessage) {
-        const recentHistory = this.conversationHistory.slice(-6);
-        
-        if (recentHistory.length === 0) {
-            return currentMessage;
-        }
-
-        let context = "Контекст предыдущего разговора:\n";
-        
-        recentHistory.forEach(msg => {
-            const role = msg.role === 'user' ? 'Пользователь' : 'Ассистент';
-            const content = msg.content.length > 500 ? msg.content.substring(0, 500) + '...' : msg.content;
-            context += `${role}: ${content}\n`;
-        });
-
-        context += `\nТекущий вопрос пользователя: ${currentMessage}\n\nОтветь, учитывая контекст выше:`;
-
-        return context;
-    }
-
-    async callAIService(prompt) {
-        if (!this.puterAI || typeof this.puterAI.ai?.chat !== 'function') {
-            throw new Error('Функция чата недоступна');
-        }
-        
-        const modelConfig = this.models[this.currentModel];
-        
-        const options = {
-            model: this.currentModel,
-            systemPrompt: this.modeConfigs[this.currentMode].systemPrompt,
-            stream: true,
-            maxTokens: this.aiConfig.maxTokens,
-            temperature: this.aiConfig.temperature,
-            topP: this.aiConfig.topP
-        };
-        
-        return await this.puterAI.ai.chat(prompt, options);
-    }
-
-    async processAIResponse(response) {
-        this.activeStreamingMessage = this.createStreamingMessage();
-        this.currentStreamController = response;
-        
-        let fullResponse = '';
-        try {
-            for await (const part of response) {
-                if (this.generationAborted) break;
-                
-                if (part?.text) {
-                    fullResponse += part.text;
-                    this.updateStreamingMessage(this.activeStreamingMessage, fullResponse);
-                    await this.delay(10);
-                }
-            }
-            
-            if (!this.generationAborted) {
-                this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
-                this.addToConversationHistory('assistant', fullResponse);
-            }
-        } catch (error) {
-            if (!this.generationAborted) {
-                console.error('Error processing AI response:', error);
-                this.handleError('Ошибка при обработке ответа ИИ', error);
-            }
+            await this.addMessage({
+                type: 'error',
+                content: error.message,
+                timestamp: new Date().toISOString()
+            });
+            this.playSound('error');
         } finally {
-            this.activeStreamingMessage = null;
-            this.currentStreamController = null;
+            this.ui.state.isGenerating = false;
+            this.updateUIState();
         }
     }
 
-    delay(ms) {
-        return new Promise(resolve => this.setTimeout(resolve, ms));
-    }
+    async addMessage(messageData) {
+        const chat = this.chats[this.ui.state.currentChatId];
+        if (!chat) return;
 
-    createStreamingMessage() {
-        const messageElement = document.createElement('div');
-        messageElement.className = 'message message-assistant streaming-message';
-        messageElement.id = 'streaming-' + Date.now();
-        
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content streaming-content';
-        
-        messageContent.innerHTML = `
-            <div class="typing-indicator-inline">
-                <div class="typing-dots">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                </div>
-                <span>ИИ печатает...</span>
-            </div>
-            <div class="streaming-text"></div>
-        `;
-        
-        messageElement.appendChild(messageContent);
-        document.getElementById('messagesContainer').appendChild(messageElement);
-        this.scrollToBottom();
-        
-        return messageElement.id;
-    }
+        chat.messages.push(messageData);
+        chat.updatedAt = new Date().toISOString();
 
-    updateStreamingMessage(messageId, content) {
-        const messageElement = document.getElementById(messageId);
-        if (!messageElement) return;
-        
-        const streamingText = messageElement.querySelector('.streaming-text');
-        const typingIndicator = messageElement.querySelector('.typing-indicator-inline');
-        
-        if (content.length > 100 && typingIndicator && !typingIndicator.classList.contains('fade-out')) {
-            typingIndicator.classList.add('fade-out');
-            this.setTimeout(() => {
-                if (typingIndicator.parentNode) {
-                    typingIndicator.style.display = 'none';
-                }
-            }, 300);
-        }
-        
-        const processedContent = this.processCodeBlocks(content);
-        streamingText.innerHTML = processedContent;
-        
-        this.attachCopyButtons(streamingText);
-        
-        if (this.autoScrollEnabled) {
+        await this.saveChats();
+        this.renderMessage(messageData);
+
+        if (this.ui.state.autoScroll) {
             this.scrollToBottom();
         }
     }
 
-    finalizeStreamingMessage(messageId, fullContent) {
-        const messageElement = document.getElementById(messageId);
-        if (!messageElement) return;
-        
-        messageElement.classList.remove('streaming-message');
-        const messageContent = messageElement.querySelector('.message-content');
-        messageContent.classList.remove('streaming-content');
-        
-        const typingIndicator = messageContent.querySelector('.typing-indicator-inline');
-        if (typingIndicator) {
-            typingIndicator.remove();
-        }
-        
-        const processedContent = this.processCodeBlocks(fullContent);
-        messageContent.innerHTML = processedContent;
-        
-        const modelIndicator = document.createElement('div');
-        modelIndicator.className = 'model-indicator';
-        modelIndicator.textContent = `Модель: ${this.models[this.currentModel]?.name || this.currentModel} • ${new Date().toLocaleTimeString('ru-RU')}`;
-        messageContent.appendChild(modelIndicator);
-        
-        this.attachMessageHandlers(messageElement);
-        this.addDownloadButtons(messageElement, fullContent);
-        
-        this.scrollToBottom();
-    }
+    renderMessages(messages) {
+        const container = this.ui.elements.messagesContainer;
+        if (!container) return;
 
-    processCodeBlocks(content) {
-        if (typeof marked !== 'undefined') {
-            let html = marked.parse(content);
-            
-            html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
-                const language = lang || 'text';
-                return `
-                    <div class="code-header">
-                        <span class="code-language">${language}</span>
-                        <button class="copy-code-btn" data-language="${language}">
-                            <i class="ti ti-copy"></i>
-                            Копировать
-                        </button>
-                    </div>
-                    <pre><code class="${lang}">`;
-            });
-            
-            return html;
-        } else {
-            return content.replace(/\n/g, '<br>');
+        container.innerHTML = '';
+
+        messages.forEach(message => {
+            this.renderMessage(message);
+        });
+
+        if (this.ui.state.autoScroll) {
+            this.scrollToBottom();
         }
     }
 
-    stopGeneration() {
-        if (this.isGenerating && this.currentStreamController) {
-            this.generationAborted = true;
-            this.isGenerating = false;
-            
-            if (this.currentStreamController.abort) {
-                this.currentStreamController.abort();
-            }
-            
-            this.hideTypingIndicator();
-            this.updateSendButton(false);
-            if (this.activeStreamingMessage) {
-                const streamingElement = document.getElementById(this.activeStreamingMessage);
-                if (streamingElement) {
-                    const currentContent = streamingElement.querySelector('.streaming-text')?.innerHTML || '';
-                    this.finalizeStreamingMessage(this.activeStreamingMessage, currentContent);
+    renderMessage(messageData) {
+        const container = this.ui.elements.messagesContainer;
+        if (!container) return;
+
+        const messageElement = this.createMessageElement(messageData);
+        container.appendChild(messageElement);
+    }
+
+    createMessageElement(messageData) {
+        const div = document.createElement('div');
+        div.className = `message message-${messageData.type} fade-in`;
+
+        let content = '';
+
+        switch (messageData.type) {
+            case 'user':
+                content = this.createUserMessageContent(messageData);
+                break;
+            case 'ai':
+                content = this.createAIMessageContent(messageData);
+                break;
+            case 'error':
+                content = this.createErrorMessageContent(messageData);
+                break;
+            default:
+                content = this.createTextMessageContent(messageData);
+        }
+
+        div.innerHTML = content;
+        this.initializeMessageInteractions(div, messageData);
+        return div;
+    }
+
+    createUserMessageContent(messageData) {
+        const time = this.formatTime(messageData.timestamp);
+        let filesHtml = '';
+
+        if (messageData.files && messageData.files.length > 0) {
+            filesHtml = `
+                <div class="message-files">
+                    ${messageData.files.map(file => `
+                        <div class="message-file">
+                            <i class="ti ti-file"></i>
+                            ${this.escapeHtml(file.name)}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        return `
+            <div class="message-content">${this.escapeHtml(messageData.content)}</div>
+            ${filesHtml}
+            <div class="message-metadata">
+                <span class="message-time">${time}</span>
+                <span class="message-type">Вы</span>
+            </div>
+        `;
+    }
+
+    createAIMessageContent(messageData) {
+        const time = this.formatTime(messageData.timestamp);
+        const model = messageData.model || 'AI';
+        const content = marked.parse(messageData.content);
+
+        return `
+            <div class="message-content">${content}</div>
+            <div class="message-metadata">
+                <span class="message-time">${time}</span>
+                <span class="message-model">${model}</span>
+            </div>
+        `;
+    }
+
+    createErrorMessageContent(messageData) {
+        const time = this.formatTime(messageData.timestamp);
+
+        return `
+            <div class="message-content">
+                <i class="ti ti-alert-triangle"></i>
+                ${this.escapeHtml(messageData.content)}
+            </div>
+            <div class="message-metadata">
+                <span class="message-time">${time}</span>
+                <span class="message-type">Ошибка</span>
+            </div>
+        `;
+    }
+
+    createTextMessageContent(messageData) {
+        const time = this.formatTime(messageData.timestamp);
+
+        return `
+            <div class="message-content">${this.escapeHtml(messageData.content)}</div>
+            <div class="message-metadata">
+                <span class="message-time">${time}</span>
+            </div>
+        `;
+    }
+
+    initializeMessageInteractions(messageElement, messageData) {
+        // Initialize code copy buttons
+        const codeBlocks = messageElement.querySelectorAll('pre');
+        codeBlocks.forEach(block => {
+            const code = block.querySelector('code');
+            if (!code) return;
+
+            const language = this.getCodeLanguage(code.className);
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-code-btn';
+            copyButton.innerHTML = '<i class="ti ti-copy"></i> Копировать';
+            copyButton.title = 'Копировать код';
+
+            copyButton.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(code.textContent);
+                    copyButton.innerHTML = '<i class="ti ti-check"></i> Скопировано!';
+                    copyButton.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        copyButton.innerHTML = '<i class="ti ti-copy"></i> Копировать';
+                        copyButton.classList.remove('copied');
+                    }, 2000);
+                } catch (error) {
+                    console.error('Failed to copy code:', error);
                 }
-            }
-            
-            this.showNotification('Генерация остановлена', 'info');
-            this.currentStreamController = null;
-        }
+            });
+
+            const header = document.createElement('div');
+            header.className = 'code-header';
+            header.innerHTML = `<span class="code-language">${language}</span>`;
+            header.appendChild(copyButton);
+
+            block.insertBefore(header, block.firstChild);
+        });
     }
 
-    updateSendButton(isGenerating) {
-        const sendBtn = document.getElementById('sendBtn');
-        const userInput = document.getElementById('userInput');
-        const inputSection = document.getElementById('inputSection');
-        
-        if (!sendBtn) return;
-
-        if (isGenerating) {
-            sendBtn.classList.add('stop-generation');
-            sendBtn.innerHTML = '<i class="ti ti-player-stop"></i>';
-            sendBtn.title = 'Остановить генерацию';
-            
-            if (inputSection) inputSection.classList.add('input-disabled');
-            if (userInput) {
-                userInput.disabled = true;
-                userInput.placeholder = 'ИИ генерирует ответ... Нажмите остановить для прерывания';
-            }
-        } else {
-            sendBtn.classList.remove('stop-generation');
-            sendBtn.innerHTML = '<i class="ti ti-send"></i>';
-            sendBtn.title = 'Отправить сообщение';
-            
-            if (inputSection) inputSection.classList.remove('input-disabled');
-            if (userInput) {
-                userInput.disabled = false;
-                userInput.placeholder = this.modeConfigs[this.currentMode].placeholder;
-            }
-        }
+    getCodeLanguage(className) {
+        const match = className.match(/language-(\w+)/);
+        return match ? match[1].toUpperCase() : 'CODE';
     }
 
     showTypingIndicator() {
-        this.hideTypingIndicator();
-        
-        const typingElement = document.createElement('div');
-        typingElement.className = 'message message-assistant typing-indicator';
-        typingElement.id = 'typing-indicator';
-        
-        typingElement.innerHTML = `
-            <div class="message-content">
-                <div class="typing-dots">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                </div>
-                <span>ИИ печатает...</span>
+        const container = this.ui.elements.messagesContainer;
+        if (!container) return;
+
+        const indicator = document.createElement('div');
+        indicator.className = 'typing-indicator';
+        indicator.id = 'typing-indicator';
+        indicator.innerHTML = `
+            <span>AI печатает</span>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
             </div>
         `;
-        
-        document.getElementById('messagesContainer').appendChild(typingElement);
-        this.typingIndicator = typingElement.id;
+
+        container.appendChild(indicator);
         this.scrollToBottom();
     }
 
     hideTypingIndicator() {
-        if (this.typingIndicator) {
-            const element = document.getElementById(this.typingIndicator);
-            if (element) {
-                element.remove();
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+
+    // AI Integration
+    initializeAI() {
+        this.ai = {
+            client: null,
+            models: {
+                'gpt-5-nano': { name: 'GPT-5 Nano', context: 'Улучшенная скорость и точность' },
+                'o3-mini': { name: 'O3 Mini', context: 'Оптимизирован для рассуждений' },
+                'deepseek-chat': { name: 'DeepSeek Chat', context: 'Сбалансированная производительность' },
+                'deepseek-reasoner': { name: 'DeepSeek Reasoner', context: 'Специализирован на логических задачах' },
+                'gemini-2.0-flash': { name: 'Gemini 2.0 Flash', context: 'Быстрый и эффективный' },
+                'gemini-1.5-flash': { name: 'Gemini 1.5 Flash', context: 'Улучшенный контекст' },
+                'grok-beta': { name: 'xAI Grok', context: 'Творческий и юмористический' }
             }
-            this.typingIndicator = null;
-        }
+        };
+
+        this.initializeAIClient();
     }
 
-    addMessageToChat(message) {
-        if (!this.chats.has(this.currentChatId)) {
-            this.chats.set(this.currentChatId, []);
-        }
-        
-        this.chats.get(this.currentChatId).push(message);
-        this.renderMessage(message);
-        this.updateLastAIMessageIndex();
-    }
-
-    renderMessage(message) {
-        const messageElement = document.createElement('div');
-        messageElement.className = `message message-${message.role}`;
-        messageElement.dataset.messageId = message.id;
-        
-        let content = '';
-        
-        if (message.role === 'user') {
-            content = this.renderUserMessage(message);
-        } else {
-            content = this.renderAssistantMessage(message);
-        }
-        
-        messageElement.innerHTML = content;
-        document.getElementById('messagesContainer').appendChild(messageElement);
-        this.attachMessageHandlers(messageElement);
-        
-        if (this.autoScrollEnabled) {
-            this.scrollToBottom();
-        }
-        
-        return messageElement;
-    }
-
-    renderUserMessage(message) {
-        let filesHtml = '';
-        if (message.files && message.files.length > 0) {
-            filesHtml = message.files.map(file => `
-                <div class="attached-file">
-                    <i class="ti ${this.getFileIcon(file.type)}"></i>
-                    <span>${this.escapeHtml(file.name)}</span>
-                    ${file.type.startsWith('image/') ? `<img src="${file.data}" alt="${this.escapeHtml(file.name)}" class="file-preview">` : ''}
-                </div>
-            `).join('');
-        }
-        
-        return `
-            <div class="message-content">
-                <div class="message-header">
-                    <div class="message-avatar">
-                        <i class="ti ti-user"></i>
-                    </div>
-                    <div class="message-info">
-                        <span class="message-author">Вы</span>
-                        <span class="message-time">${this.formatTime(message.timestamp)}</span>
-                    </div>
-                </div>
-                <div class="message-text">${this.escapeHtml(message.content)}</div>
-                ${filesHtml ? `<div class="message-files">${filesHtml}</div>` : ''}
-            </div>
-        `;
-    }
-
-    renderAssistantMessage(message) {
-        const processedContent = this.processCodeBlocks(message.content);
-        
-        return `
-            <div class="message-content">
-                <div class="message-header">
-                    <div class="message-avatar">
-                        <i class="ti ${this.models[this.currentModel]?.icon || 'ti ti-brain'}"></i>
-                    </div>
-                    <div class="message-info">
-                        <span class="message-author">${this.models[this.currentModel]?.name || 'AI'}</span>
-                        <span class="message-time">${this.formatTime(message.timestamp)}</span>
-                    </div>
-                </div>
-                <div class="message-text">${processedContent}</div>
-                <div class="model-indicator">
-                    Модель: ${this.models[this.currentModel]?.name || this.currentModel} • ${new Date(message.timestamp).toLocaleTimeString('ru-RU')}
-                </div>
-            </div>
-        `;
-    }
-
-    attachMessageHandlers(messageElement) {
-        this.attachCopyButtons(messageElement);
-        
-        const copyBtn = messageElement.querySelector('.copy-message-btn');
-        if (copyBtn) {
-            this.addEventListener(copyBtn, 'click', () => {
-                const messageText = messageElement.querySelector('.message-text').textContent;
-                this.copyToClipboard(messageText);
-                this.showNotification('Сообщение скопировано', 'success');
-            });
-        }
-        
-        const editBtn = messageElement.querySelector('.edit-message-btn');
-        if (editBtn) {
-            this.addEventListener(editBtn, 'click', () => {
-                this.editMessage(messageElement);
-            });
-        }
-        
-        const regenerateBtn = messageElement.querySelector('.regenerate-btn');
-        if (regenerateBtn) {
-            this.addEventListener(regenerateBtn, 'click', () => {
-                this.regenerateMessage(messageElement);
-            });
-        }
-        
-        const downloadBtn = messageElement.querySelector('.download-message-btn');
-        if (downloadBtn) {
-            this.addEventListener(downloadBtn, 'click', () => {
-                this.downloadMessage(messageElement);
-            });
-        }
-        
-        const speakBtn = messageElement.querySelector('.speak-message-btn');
-        if (speakBtn) {
-            this.addEventListener(speakBtn, 'click', () => {
-                this.speakMessage(messageElement);
-            });
-        }
-    }
-
-    attachCopyButtons(container) {
-        const copyButtons = container.querySelectorAll('.copy-code-btn');
-        copyButtons.forEach(btn => {
-            this.addEventListener(btn, 'click', async () => {
-                const codeBlock = btn.closest('.code-header')?.nextElementSibling;
-                if (codeBlock) {
-                    const code = codeBlock.textContent;
-                    await this.copyToClipboard(code);
-                    
-                    const originalHTML = btn.innerHTML;
-                    btn.innerHTML = '<i class="ti ti-check"></i> Скопировано!';
-                    btn.classList.add('copied');
-                    
-                    this.setTimeout(() => {
-                        btn.innerHTML = originalHTML;
-                        btn.classList.remove('copied');
-                    }, 2000);
-                }
-            });
-        });
-    }
-
-    addDownloadButtons(messageElement, content) {
-        const messageContent = messageElement.querySelector('.message-content');
-        if (!messageContent) return;
-        
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'message-actions';
-        
-        actionsDiv.innerHTML = `
-            <button class="message-action-btn copy-message-btn" title="Копировать сообщение">
-                <i class="ti ti-copy"></i>
-            </button>
-            <button class="message-action-btn download-message-btn" title="Скачать как файл">
-                <i class="ti ti-download"></i>
-            </button>
-            <button class="message-action-btn speak-message-btn" title="Озвучить сообщение">
-                <i class="ti ti-volume"></i>
-            </button>
-            ${messageElement.classList.contains('message-assistant') ? `
-                <button class="message-action-btn regenerate-btn" title="Перегенерировать ответ">
-                    <i class="ti ti-refresh"></i>
-                </button>
-            ` : `
-                <button class="message-action-btn edit-message-btn" title="Редактировать сообщение">
-                    <i class="ti ti-edit"></i>
-                </button>
-            `}
-        `;
-        
-        messageContent.appendChild(actionsDiv);
-    }
-
-    async copyToClipboard(text) {
+    initializeAIClient() {
         try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(text);
-            } else {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                textArea.style.position = 'fixed';
-                textArea.style.opacity = '0';
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            }
-            return true;
+            // Initialize Puter.js client for AI services
+            this.ai.client = puter;
         } catch (error) {
-            console.error('Failed to copy text:', error);
-            return false;
+            console.warn('AI client initialization failed:', error);
         }
     }
 
-    editMessage(messageElement) {
-        const messageText = messageElement.querySelector('.message-text');
-        const originalContent = messageText.textContent;
+    async generateAIResponse(message, files = []) {
+        const model = this.ui.elements.modelSelect.value;
         
-        const textarea = document.createElement('textarea');
-        textarea.className = 'message-edit-textarea';
-        textarea.value = originalContent;
-        textarea.rows = 4;
+        // Simulate AI response for demo
+        // In production, integrate with actual AI APIs
         
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'message-edit-actions';
-        buttonContainer.innerHTML = `
-            <button class="btn-primary save-edit-btn">Сохранить</button>
-            <button class="btn-secondary cancel-edit-btn">Отмена</button>
-        `;
+        await this.delay(1000 + Math.random() * 2000);
         
-        messageText.parentNode.replaceChild(textarea, messageText);
-        messageElement.querySelector('.message-actions').style.display = 'none';
-        messageElement.appendChild(buttonContainer);
-        
-        textarea.focus();
-        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-        
-        this.addEventListener(textarea, 'keydown', (e) => {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                this.saveMessageEdit(messageElement, textarea.value);
-            } else if (e.key === 'Escape') {
-                this.cancelMessageEdit(messageElement, originalContent);
-            }
-        });
-        
-        this.addEventListener(buttonContainer.querySelector('.save-edit-btn'), 'click', () => {
-            this.saveMessageEdit(messageElement, textarea.value);
-        });
-        
-        this.addEventListener(buttonContainer.querySelector('.cancel-edit-btn'), 'click', () => {
-            this.cancelMessageEdit(messageElement, originalContent);
-        });
+        const responses = {
+            'gpt-5-nano': `Я - GPT-5 Nano. Вы сказали: "${message}". Это очень интересно! Могу помочь с анализом, генерацией кода или ответами на вопросы.`,
+            'o3-mini': `Как O3 Mini, я вижу ваш запрос: "${message}". Давайте разберем это подробно и найдем оптимальное решение.`,
+            'deepseek-chat': `DeepSeek Chat здесь! Ваше сообщение: "${message}". Готов помочь с техническими вопросами, программированием и анализом.`,
+            'deepseek-reasoner': `Как DeepSeek Reasoner, я анализирую: "${message}". Давайте построим логическую цепочку рассуждений для решения этой задачи.`,
+            'gemini-2.0-flash': `Gemini 2.0 Flash к вашим услугам! Запрос: "${message}". Могу быстро обработать информацию и предоставить четкий ответ.`,
+            'gemini-1.5-flash': `Это Gemini 1.5 Flash. Понимаю ваш запрос: "${message}". Использую расширенный контекст для более точного ответа.`,
+            'grok-beta': `Грок здесь! 😄 Вы сказали: "${message}". Давайте разберемся с этим с долей юмора и творческим подходом!`
+        };
+
+        return responses[model] || `Я получил ваше сообщение: "${message}". Чем могу помочь?`;
     }
 
-    saveMessageEdit(messageElement, newContent) {
-        const messageId = messageElement.dataset.messageId;
-        const chat = this.chats.get(this.currentChatId);
-        const message = chat.find(msg => msg.id === messageId);
-        
-        if (message) {
-            message.content = newContent;
-            message.timestamp = Date.now();
-            
-            const messageText = document.createElement('div');
-            messageText.className = 'message-text';
-            messageText.textContent = newContent;
-            
-            const textarea = messageElement.querySelector('.message-edit-textarea');
-            textarea.parentNode.replaceChild(messageText, textarea);
-            
-            messageElement.querySelector('.message-time').textContent = this.formatTime(message.timestamp);
-            messageElement.querySelector('.message-actions').style.display = 'flex';
-            messageElement.querySelector('.message-edit-actions').remove();
-            
-            this.saveChatHistory();
-            this.showNotification('Сообщение обновлено', 'success');
+    updateModelInfo(model) {
+        const tooltip = this.ui.elements.modelInfoTooltip;
+        if (!tooltip) return;
+
+        const modelInfo = this.ai.models[model];
+        if (modelInfo) {
+            tooltip.textContent = modelInfo.context;
         }
     }
 
-    cancelMessageEdit(messageElement, originalContent) {
-        const messageText = document.createElement('div');
-        messageText.className = 'message-text';
-        messageText.textContent = originalContent;
-        
-        const textarea = messageElement.querySelector('.message-edit-textarea');
-        textarea.parentNode.replaceChild(messageText, textarea);
-        
-        messageElement.querySelector('.message-actions').style.display = 'flex';
-        messageElement.querySelector('.message-edit-actions').remove();
-    }
+    // Voice Handling
+    initializeVoice() {
+        this.voice = {
+            recognition: null,
+            isSupported: 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window
+        };
 
-    regenerateMessage(messageElement) {
-        const messageId = messageElement.dataset.messageId;
-        const chat = this.chats.get(this.currentChatId);
-        const messageIndex = chat.findIndex(msg => msg.id === messageId);
-        
-        if (messageIndex > 0) {
-            const userMessage = chat[messageIndex - 1];
-            if (userMessage.role === 'user') {
-                messageElement.remove();
-                chat.splice(messageIndex, 1);
-                
-                this.processUserMessage(userMessage.content, userMessage.files || []);
-            }
+        if (this.voice.isSupported) {
+            this.initializeSpeechRecognition();
+        } else {
+            this.ui.elements.voiceInputBtn.style.display = 'none';
         }
     }
 
-    downloadMessage(messageElement) {
-        const messageText = messageElement.querySelector('.message-text').textContent;
-        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-        const blob = new Blob([messageText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `message-${timestamp}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    speakMessage(messageElement) {
-        if (this.isSpeaking) {
-            this.stopSpeaking();
+    initializeSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            this.voice.isSupported = false;
+            this.ui.elements.voiceInputBtn.style.display = 'none';
             return;
         }
-        
-        const messageText = messageElement.querySelector('.message-text').textContent;
-        
-        if ('speechSynthesis' in window) {
-            this.stopSpeaking();
-            
-            this.currentUtterance = new SpeechSynthesisUtterance(messageText);
-            this.currentUtterance.lang = 'ru-RU';
-            this.currentUtterance.rate = 1.0;
-            this.currentUtterance.pitch = 1.0;
-            this.currentUtterance.volume = 1.0;
-            
-            this.currentUtterance.onstart = () => {
-                this.isSpeaking = true;
-                messageElement.classList.add('speaking');
-                this.showNotification('Озвучивание началось', 'info');
-            };
-            
-            this.currentUtterance.onend = () => {
-                this.isSpeaking = false;
-                messageElement.classList.remove('speaking');
-            };
-            
-            this.currentUtterance.onerror = (event) => {
-                console.error('Speech synthesis error:', event);
-                this.isSpeaking = false;
-                messageElement.classList.remove('speaking');
-                this.showError('Ошибка озвучивания');
-            };
-            
-            speechSynthesis.speak(this.currentUtterance);
-        } else {
-            this.showError('Озвучивание не поддерживается вашим браузером');
-        }
-    }
 
-    stopSpeaking() {
-        if (this.isSpeaking && speechSynthesis) {
-            speechSynthesis.cancel();
-            this.isSpeaking = false;
-            document.querySelectorAll('.message.speaking').forEach(msg => {
-                msg.classList.remove('speaking');
-            });
-        }
-    }
+        this.voice.recognition = new SpeechRecognition();
+        this.voice.recognition.continuous = false;
+        this.voice.recognition.interimResults = true;
+        this.voice.recognition.lang = 'ru-RU';
 
-    setMode(mode) {
-        if (this.modeConfigs[mode]) {
-            this.currentMode = mode;
-            
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
-            
-            const userInput = document.getElementById('userInput');
-            if (userInput) {
-                userInput.placeholder = this.modeConfigs[mode].placeholder;
-            }
-            
-            this.updateModeIndicator();
-            this.showNotification(`Режим изменен: ${this.getModeDisplayName(mode)}`, 'info');
-        }
-    }
-
-    getModeDisplayName(mode) {
-        const names = {
-            normal: 'Обычный',
-            creative: 'Креативный',
-            code: 'Программирование',
-            analyze: 'Анализ'
+        this.voice.recognition.onstart = () => {
+            this.ui.state.isRecording = true;
+            this.ui.elements.voiceInputBtn.classList.add('voice-recording');
+            this.updateUIState();
+            this.showNotification('Голосовой ввод активен...', 'info');
         };
-        return names[mode] || mode;
-    }
 
-    updateModeIndicator() {
-        const modeIndicator = document.getElementById('modeIndicator');
-        if (modeIndicator) {
-            const config = this.modeConfigs[this.currentMode];
-            modeIndicator.innerHTML = `<i class="${config.icon}"></i>`;
-            modeIndicator.style.color = config.color;
-            modeIndicator.title = this.getModeDisplayName(this.currentMode);
-        }
-    }
-
-    showModelSelection() {
-        const modelSelection = document.getElementById('modelSelection');
-        if (!modelSelection) return;
-        
-        modelSelection.innerHTML = '';
-        
-        Object.entries(this.models).forEach(([id, model]) => {
-            const modelBtn = document.createElement('button');
-            modelBtn.className = `model-option ${id === this.currentModel ? 'active' : ''}`;
-            modelBtn.innerHTML = `
-                <i class="${model.icon}"></i>
-                <div class="model-info">
-                    <div class="model-name">${model.name}</div>
-                    <div class="model-desc">${model.description}</div>
-                </div>
-                ${id === this.currentModel ? '<i class="ti ti-check"></i>' : ''}
-            `;
-            
-            this.addEventListener(modelBtn, 'click', () => {
-                this.setModel(id);
-                this.hideModelSelection();
-            });
-            
-            modelSelection.appendChild(modelBtn);
-        });
-        
-        const modelBtn = document.getElementById('modelSelectBtn');
-        if (modelBtn) {
-            const rect = modelBtn.getBoundingClientRect();
-            modelSelection.style.top = (rect.bottom + window.scrollY + 5) + 'px';
-            modelSelection.style.right = (window.innerWidth - rect.right) + 'px';
-        }
-        
-        modelSelection.style.display = 'block';
-        
-        this.addEventListener(document, 'click', (e) => {
-            if (!e.target.closest('#modelSelectBtn') && !e.target.closest('#modelSelection')) {
-                this.hideModelSelection();
-            }
-        });
-    }
-
-    hideModelSelection() {
-        const modelSelection = document.getElementById('modelSelection');
-        if (modelSelection) {
-            modelSelection.style.display = 'none';
-        }
-    }
-
-    setModel(modelId) {
-        if (this.models[modelId]) {
-            this.currentModel = modelId;
-            this.setupModelSelector();
-            this.showNotification(`Модель изменена: ${this.models[modelId].name}`, 'success');
-            this.saveChatHistory();
-        }
-    }
-
-    handleFileUpload(files) {
-        if (!files || files.length === 0) return;
-        
-        Array.from(files).forEach(file => {
-            if (this.attachedFiles.length >= 5) {
-                this.showError('Можно прикрепить не более 5 файлов');
-                return;
+        this.voice.recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    transcript += event.results[i][0].transcript;
+                }
             }
             
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-                const fileData = {
-                    name: file.name,
-                    type: file.type,
-                    size: file.size,
-                    data: e.target.result,
-                    lastModified: file.lastModified
-                };
-                
-                this.attachedFiles.push(fileData);
-                this.updateAttachedFilesDisplay();
-                this.showNotification(`Файл "${file.name}" прикреплен`, 'success');
-            };
-            
-            reader.onerror = () => {
-                this.showError(`Ошибка чтения файла: ${file.name}`);
-            };
-            
-            if (file.type.startsWith('image/')) {
-                reader.readAsDataURL(file);
-            } else if (file.type.startsWith('text/') || file.name.endsWith('.txt')) {
-                reader.readAsText(file);
-            } else {
-                reader.readAsDataURL(file);
+            if (transcript) {
+                this.ui.elements.userInput.value += transcript + ' ';
+                this.handleInputChange();
             }
-        });
-    }
+        };
 
-    updateAttachedFilesDisplay() {
-        const filesContainer = document.getElementById('attachedFiles');
-        if (!filesContainer) return;
-        
-        filesContainer.innerHTML = '';
-        
-        this.attachedFiles.forEach((file, index) => {
-            const fileElement = document.createElement('div');
-            fileElement.className = 'attached-file';
-            fileElement.innerHTML = `
-                <i class="ti ${this.getFileIcon(file.type)}"></i>
-                <span class="file-name">${this.escapeHtml(file.name)}</span>
-                <button class="remove-file-btn" data-index="${index}">
-                    <i class="ti ti-x"></i>
-                </button>
-                ${file.type.startsWith('image/') ? `<img src="${file.data}" alt="${this.escapeHtml(file.name)}" class="file-preview">` : ''}
-            `;
-            
-            this.addEventListener(fileElement.querySelector('.remove-file-btn'), 'click', (e) => {
-                e.stopPropagation();
-                this.removeAttachedFile(index);
-            });
-            
-            filesContainer.appendChild(fileElement);
-        });
-        
-        filesContainer.style.display = this.attachedFiles.length > 0 ? 'flex' : 'none';
-    }
+        this.voice.recognition.onend = () => {
+            this.ui.state.isRecording = false;
+            this.ui.elements.voiceInputBtn.classList.remove('voice-recording');
+            this.updateUIState();
+        };
 
-    removeAttachedFile(index) {
-        if (index >= 0 && index < this.attachedFiles.length) {
-            const removedFile = this.attachedFiles[index];
-            this.attachedFiles.splice(index, 1);
-            this.updateAttachedFilesDisplay();
-            this.showNotification(`Файл "${removedFile.name}" удален`, 'info');
-        }
-    }
-
-    clearAttachedFiles() {
-        this.attachedFiles = [];
-        this.updateAttachedFilesDisplay();
-    }
-
-    getFileIcon(fileType) {
-        if (fileType.startsWith('image/')) return 'ti-photo';
-        if (fileType.startsWith('audio/')) return 'ti-music';
-        if (fileType.startsWith('video/')) return 'ti-video';
-        if (fileType.includes('pdf')) return 'ti-file-text';
-        if (fileType.includes('word') || fileType.includes('document')) return 'ti-file-text';
-        if (fileType.includes('excel') || fileType.includes('spreadsheet')) return 'ti-file-spreadsheet';
-        if (fileType.includes('zip') || fileType.includes('archive')) return 'ti-file-zip';
-        return 'ti-file';
+        this.voice.recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            this.showNotification(`Ошибка голосового ввода: ${event.error}`, 'error');
+            this.ui.state.isRecording = false;
+            this.ui.elements.voiceInputBtn.classList.remove('voice-recording');
+            this.updateUIState();
+        };
     }
 
     toggleVoiceInput() {
-        if (!this.isListening) {
-            this.startVoiceInput();
+        if (!this.voice.recognition) return;
+
+        if (this.ui.state.isRecording) {
+            this.voice.recognition.stop();
         } else {
-            this.stopVoiceInput();
+            try {
+                this.voice.recognition.start();
+            } catch (error) {
+                console.error('Failed to start voice recognition:', error);
+            }
         }
     }
 
-    startVoiceInput() {
-        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            this.showError('Голосовой ввод не поддерживается вашим браузером');
+    // File Handling
+    initializeFileHandling() {
+        this.files = {
+            attached: [],
+            maxSize: this.security.maxFileSize,
+            allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain']
+        };
+    }
+
+    handleFileSelect(event) {
+        const files = Array.from(event.target.files);
+        
+        for (const file of files) {
+            this.addAttachedFile(file);
+        }
+        
+        // Reset file input
+        event.target.value = '';
+    }
+
+    addAttachedFile(file) {
+        // Validate file
+        if (file.size > this.files.maxSize) {
+            this.showNotification(`Файл ${file.name} слишком большой (макс. 5MB)`, 'error');
             return;
         }
-        
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        this.recognition = new SpeechRecognition();
-        
-        this.recognition.continuous = false;
-        this.recognition.interimResults = true;
-        this.recognition.lang = 'ru-RU';
-        
-        this.recognition.onstart = () => {
-            this.isListening = true;
-            this.updateVoiceInputButton();
-            this.showNotification('Слушаю... Говорите', 'info');
-        };
-        
-        this.recognition.onresult = (event) => {
-            let finalTranscript = '';
-            let interimTranscript = '';
-            
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
-            }
-            
-            const userInput = document.getElementById('userInput');
-            if (finalTranscript) {
-                userInput.value = finalTranscript;
-                this.autoResizeTextarea(userInput);
-                this.toggleClearInputButton();
-            } else if (interimTranscript) {
-                userInput.value = interimTranscript;
-                this.autoResizeTextarea(userInput);
-            }
-        };
-        
-        this.recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            this.isListening = false;
-            this.updateVoiceInputButton();
-            
-            if (event.error === 'not-allowed') {
-                this.showError('Доступ к микрофону запрещен. Разрешите доступ в настройках браузера.');
-            } else {
-                this.showError(`Ошибка распознавания: ${event.error}`);
-            }
-        };
-        
-        this.recognition.onend = () => {
-            this.isListening = false;
-            this.updateVoiceInputButton();
-        };
-        
-        try {
-            this.recognition.start();
-        } catch (error) {
-            console.error('Error starting speech recognition:', error);
-            this.showError('Не удалось запустить распознавание речи');
+
+        if (!this.files.allowedTypes.includes(file.type)) {
+            this.showNotification(`Тип файла ${file.name} не поддерживается`, 'error');
+            return;
         }
+
+        this.files.attached.push(file);
+        this.renderAttachedFiles();
     }
 
-    stopVoiceInput() {
-        if (this.recognition) {
-            this.recognition.stop();
-            this.isListening = false;
-            this.updateVoiceInputButton();
-        }
+    removeAttachedFile(index) {
+        this.files.attached.splice(index, 1);
+        this.renderAttachedFiles();
     }
 
-    updateVoiceInputButton() {
-        const voiceBtn = document.getElementById('voiceInputBtn');
-        if (!voiceBtn) return;
-        
-        if (this.isListening) {
-            voiceBtn.classList.add('listening');
-            voiceBtn.innerHTML = '<i class="ti ti-microphone-off"></i>';
-            voiceBtn.title = 'Остановить запись';
-        } else {
-            voiceBtn.classList.remove('listening');
-            voiceBtn.innerHTML = '<i class="ti ti-microphone"></i>';
-            voiceBtn.title = 'Голосовой ввод';
-        }
-    }
+    renderAttachedFiles() {
+        const container = this.ui.elements.attachedFiles;
+        if (!container) return;
 
-    setupEmojiPicker() {
-        this.addEventListener(document, 'click', this.emojiPickerOutsideClick);
-    }
+        container.innerHTML = '';
 
-    toggleEmojiPicker(button) {
-        const picker = document.getElementById('emojiPicker');
-        if (!picker) return;
-        
-        if (picker.style.display === 'block') {
-            picker.style.display = 'none';
-        } else {
-            picker.style.display = 'block';
-            
-            const rect = button.getBoundingClientRect();
-            picker.style.top = (rect.bottom + window.scrollY + 5) + 'px';
-            picker.style.left = (rect.left + window.scrollX) + 'px';
-            
-            this.populateEmojiPicker();
-        }
-    }
+        this.files.attached.forEach((file, index) => {
+            const fileElement = document.createElement('div');
+            fileElement.className = 'attached-file';
+            fileElement.innerHTML = `
+                <i class="ti ti-file"></i>
+                <span class="file-name">${this.escapeHtml(file.name)}</span>
+                <button class="remove-file" data-index="${index}">
+                    <i class="ti ti-x"></i>
+                </button>
+            `;
 
-    emojiPickerOutsideClick(event) {
-        const picker = document.getElementById('emojiPicker');
-        const button = document.getElementById('emojiBtn');
-        
-        if (picker && picker.style.display === 'block' && 
-            !picker.contains(event.target) && 
-            !button.contains(event.target)) {
-            picker.style.display = 'none';
-        }
-    }
+            const removeBtn = fileElement.querySelector('.remove-file');
+            removeBtn.addEventListener('click', () => this.removeAttachedFile(index));
 
-    populateEmojiPicker() {
-        const picker = document.getElementById('emojiPicker');
-        if (!picker) return;
-        
-        const emojiCategories = {
-            'Часто используемые': ['😀', '😂', '🤔', '👍', '❤️', '🔥', '🎉', '🙏'],
-            'Эмоции': ['😊', '😍', '🤩', '😎', '🥳', '😢', '😡', '🤯'],
-            'Жесты': ['👋', '🤝', '✌️', '🤟', '👌', '🤙', '👏', '🙌'],
-            'Предметы': ['💻', '📱', '🎧', '📚', '✏️', '🎨', '⚡', '🔑'],
-            'Символы': ['⭐', '🌈', '🎯', '💡', '🔔', '🎵', '📌', '📍']
-        };
-        
-        picker.innerHTML = '';
-        
-        Object.entries(emojiCategories).forEach(([category, emojis]) => {
-            const categoryDiv = document.createElement('div');
-            categoryDiv.className = 'emoji-category';
-            
-            const categoryTitle = document.createElement('div');
-            categoryTitle.className = 'emoji-category-title';
-            categoryTitle.textContent = category;
-            categoryDiv.appendChild(categoryTitle);
-            
-            const emojisDiv = document.createElement('div');
-            emojisDiv.className = 'emoji-grid';
-            
-            emojis.forEach(emoji => {
-                const emojiSpan = document.createElement('span');
-                emojiSpan.className = 'emoji';
-                emojiSpan.textContent = emoji;
-                emojiSpan.title = emoji;
-                
-                this.addEventListener(emojiSpan, 'click', () => {
-                    this.insertEmoji(emoji);
-                    picker.style.display = 'none';
-                });
-                
-                emojisDiv.appendChild(emojiSpan);
-            });
-            
-            categoryDiv.appendChild(emojisDiv);
-            picker.appendChild(categoryDiv);
+            container.appendChild(fileElement);
         });
     }
 
-    insertEmoji(emoji) {
-        const userInput = document.getElementById('userInput');
-        if (!userInput) return;
+    clearAttachedFiles() {
+        this.files.attached = [];
+        this.renderAttachedFiles();
+        this.ui.elements.fileInput.value = '';
+    }
+
+    // Input Handling
+    handleInputChange() {
+        const input = this.ui.elements.userInput;
+        const lengthIndicator = this.ui.elements.inputLength;
         
-        const start = userInput.selectionStart;
-        const end = userInput.selectionEnd;
-        const text = userInput.value;
+        if (!input || !lengthIndicator) return;
+
+        const length = input.value.length;
+        const maxLength = this.security.maxMessageLength;
         
-        userInput.value = text.substring(0, start) + emoji + text.substring(end);
-        userInput.selectionStart = userInput.selectionEnd = start + emoji.length;
-        userInput.focus();
+        lengthIndicator.textContent = `${length}/${maxLength}`;
         
-        this.autoResizeTextarea(userInput);
-        this.toggleClearInputButton();
+        // Update indicator color based on length
+        lengthIndicator.className = 'input-length';
+        if (length > maxLength * 0.9) {
+            lengthIndicator.classList.add('warning');
+        }
+        if (length > maxLength) {
+            lengthIndicator.classList.add('error');
+        }
+
+        // Auto-resize textarea
+        this.autoResizeTextarea(input);
     }
 
     autoResizeTextarea(textarea) {
-        if (!textarea) return;
-        
         textarea.style.height = 'auto';
-        const newHeight = Math.min(textarea.scrollHeight, 150);
-        textarea.style.height = newHeight + 'px';
-        
-        const inputSection = document.getElementById('inputSection');
-        if (inputSection) {
-            inputSection.style.height = 'auto';
-            inputSection.style.minHeight = Math.max(newHeight + 40, 80) + 'px';
-        }
+        textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
     }
 
-    toggleClearInputButton() {
-        const clearBtn = document.getElementById('clearInputBtn');
-        const userInput = document.getElementById('userInput');
-        
-        if (clearBtn && userInput) {
-            if (userInput.value.trim().length > 0 || this.attachedFiles.length > 0) {
-                clearBtn.style.display = 'flex';
-            } else {
-                clearBtn.style.display = 'none';
-            }
-        }
+    clearInput() {
+        this.ui.elements.userInput.value = '';
+        this.handleInputChange();
+        this.ui.elements.userInput.focus();
     }
 
-    clearChat() {
-        if (this.messages.length === 0 && this.chats.get(this.currentChatId)?.length === 0) {
-            this.showNotification('Чат уже пуст', 'info');
+    // Notifications
+    initializeNotifications() {
+        this.notifications = {
+            queue: [],
+            isShowing: false
+        };
+    }
+
+    showNotification(message, type = 'info', duration = 5000) {
+        const notification = {
+            id: Date.now().toString(),
+            message,
+            type,
+            duration
+        };
+
+        this.notifications.queue.push(notification);
+        this.processNotificationQueue();
+    }
+
+    processNotificationQueue() {
+        if (this.notifications.isShowing || this.notifications.queue.length === 0) {
             return;
         }
-        
-        if (confirm('Вы уверены, что хотите очистить чат? Это действие нельзя отменить.')) {
-            this.messages = [];
-            this.chats.set(this.currentChatId, []);
-            this.conversationHistory = [];
-            
-            const messagesContainer = document.getElementById('messagesContainer');
-            if (messagesContainer) {
-                messagesContainer.innerHTML = '';
-            }
-            
-            this.hideTypingIndicator();
-            this.stopGeneration();
-            this.clearAttachedFiles();
-            
-            this.saveChatHistory();
-            this.showNotification('Чат очищен', 'success');
-            this.showWelcomeMessage();
-        }
+
+        this.notifications.isShowing = true;
+        const notification = this.notifications.queue.shift();
+        this.displayNotification(notification);
     }
 
-    showWelcomeMessage() {
-        const messagesContainer = document.getElementById('messagesContainer');
-        if (!messagesContainer || messagesContainer.children.length > 0) return;
-        
-        const welcomeMessage = document.createElement('div');
-        welcomeMessage.className = 'welcome-message';
-        welcomeMessage.innerHTML = `
-            <div class="welcome-content">
-                <div class="welcome-icon">
-                    <i class="ti ti-sparkles"></i>
-                </div>
-                <h2>Добро пожаловать в KHAI!</h2>
-                <p>Продвинутый AI-ассистент с интеграцией Puter.js. Готов помочь с:</p>
-                <ul>
-                    <li><i class="ti ti-message"></i> Ответами на вопросы и обсуждениями</li>
-                    <li><i class="ti ti-code"></i> Написанием и анализом кода</li>
-                    <li><i class="ti ti-sparkles"></i> Креативными задачами и идеями</li>
-                    <li><i class="ti ti-chart-bar"></i> Анализом информации и данных</li>
-                </ul>
-                <div class="welcome-tips">
-                    <strong>Советы:</strong>
-                    <div class="tip">• Используйте разные режимы для разных типов задач</div>
-                    <div class="tip">• Прикрепляйте файлы для анализа</div>
-                    <div class="tip">• Используйте голосовой ввод для удобства</div>
-                    <div class="tip">• Переключайте модели AI для лучших результатов</div>
-                </div>
+    displayNotification(notification) {
+        const container = this.ui.elements.notificationsContainer;
+        if (!container) return;
+
+        const element = document.createElement('div');
+        element.className = `notification ${notification.type}`;
+        element.innerHTML = `
+            <div class="notification-icon">
+                <i class="ti ti-${this.getNotificationIcon(notification.type)}"></i>
             </div>
-        `;
-        
-        messagesContainer.appendChild(welcomeMessage);
-    }
-
-    async exportChat() {
-        try {
-            const chatData = this.chats.get(this.currentChatId) || [];
-            if (chatData.length === 0) {
-                this.showNotification('Нет сообщений для экспорта', 'warning');
-                return;
-            }
-            
-            let exportContent = `KHAI - Экспорт чата\n`;
-            exportContent += `Дата: ${new Date().toLocaleString('ru-RU')}\n`;
-            exportContent += `Модель: ${this.models[this.currentModel]?.name || this.currentModel}\n`;
-            exportContent += `Режим: ${this.getModeDisplayName(this.currentMode)}\n`;
-            exportContent += `\n${'='.repeat(50)}\n\n`;
-            
-            chatData.forEach(message => {
-                const role = message.role === 'user' ? 'Вы' : 'AI';
-                const time = this.formatTime(message.timestamp, true);
-                exportContent += `${role} (${time}):\n`;
-                exportContent += `${message.content}\n\n`;
-                
-                if (message.files && message.files.length > 0) {
-                    exportContent += `Прикрепленные файлы: ${message.files.map(f => f.name).join(', ')}\n\n`;
-                }
-                
-                exportContent += `${'-'.repeat(30)}\n\n`;
-            });
-            
-            const blob = new Blob([exportContent], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            a.href = url;
-            a.download = `khai-chat-${timestamp}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            this.showNotification('Чат экспортирован', 'success');
-        } catch (error) {
-            console.error('Error exporting chat:', error);
-            this.showError('Ошибка при экспорте чата');
-        }
-    }
-
-    renderChat() {
-        const messagesContainer = document.getElementById('messagesContainer');
-        if (!messagesContainer) return;
-        
-        messagesContainer.innerHTML = '';
-        
-        const chat = this.chats.get(this.currentChatId) || [];
-        chat.forEach(message => {
-            this.renderMessage(message);
-        });
-        
-        this.updateLastAIMessageIndex();
-        this.scrollToBottom();
-    }
-
-    updateLastAIMessageIndex() {
-        const aiMessages = document.querySelectorAll('.message-assistant:not(.typing-indicator)');
-        if (aiMessages.length > 0) {
-            this.lastAIMessageIndex = Array.from(aiMessages).length - 1;
-        } else {
-            this.lastAIMessageIndex = -1;
-        }
-    }
-
-    scrollToTop() {
-        const container = document.getElementById('messagesContainer');
-        if (container) {
-            container.scrollTop = 0;
-        }
-    }
-
-    scrollToLastAIMessage() {
-        const aiMessages = document.querySelectorAll('.message-assistant:not(.typing-indicator)');
-        if (aiMessages.length > 0) {
-            const lastAIMessage = aiMessages[aiMessages.length - 1];
-            lastAIMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }
-
-    scrollToBottom(force = false) {
-        if (force || this.autoScrollEnabled) {
-            const container = document.getElementById('messagesContainer');
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-                this.autoScrollEnabled = true;
-            }
-        }
-    }
-
-    showHelp() {
-        const helpContent = `
-            <div class="help-content">
-                <h2>📚 Помощь по KHAI</h2>
-                
-                <div class="help-section">
-                    <h3>🔧 Основные возможности</h3>
-                    <ul>
-                        <li><strong>Мультимодальный AI:</strong> Работа с текстом, кодом и файлами через Puter.js</li>
-                        <li><strong>Разные модели:</strong> GPT-4, Claude, Gemini и другие</li>
-                        <li><strong>Режимы работы:</strong> Обычный, Креативный, Программирование, Анализ</li>
-                        <li><strong>Голосовой ввод:</strong> Нажмите микрофон для голосового ввода</li>
-                        <li><strong>Прикрепление файлов:</strong> Перетащите файлы или используйте кнопку прикрепления</li>
-                    </ul>
-                </div>
-                
-                <div class="help-section">
-                    <h3>⌨️ Горячие клавиши</h3>
-                    <ul>
-                        <li><kbd>Enter</kbd> - Отправить сообщение</li>
-                        <li><kbd>Shift + Enter</kbd> - Новая строка</li>
-                        <li><kbd>Ctrl + /</kbd> - Показать справку</li>
-                        <li><kbd>Ctrl + K</kbd> - Очистить чат</li>
-                        <li><kbd>Ctrl + E</kbd> - Экспорт чата</li>
-                        <li><kbd>Ctrl + M</kbd> - Сменить режим</li>
-                    </ul>
-                </div>
-                
-                <div class="help-section">
-                    <h3>🎯 Советы по использованию</h3>
-                    <ul>
-                        <li>Будьте конкретны в запросах для лучших результатов</li>
-                        <li>Используйте соответствующий режим для разных типов задач</li>
-                        <li>Прикрепляйте файлы для анализа изображений и текста</li>
-                        <li>Используйте кнопку "Перегенерировать" для получения альтернативных ответов</li>
-                        <li>Экспортируйте важные беседы для сохранения истории</li>
-                    </ul>
-                </div>
-            </div>
-        `;
-        
-        this.showModal('Помощь по KHAI', helpContent);
-    }
-
-    showSettings() {
-        const settingsContent = `
-            <div class="settings-content">
-                <div class="setting-group">
-                    <h3>Настройки интерфейса</h3>
-                    
-                    <div class="setting-item">
-                        <label for="autoScroll">Автопрокрутка к новым сообщениям</label>
-                        <div class="checkbox-wrapper">
-                            <input type="checkbox" id="autoScroll" ${this.autoScrollEnabled ? 'checked' : ''}>
-                            <span class="checkmark"></span>
-                        </div>
-                    </div>
-                    
-                    <div class="setting-item">
-                        <label for="themeSelect">Тема оформления</label>
-                        <select id="themeSelect" class="styled-select">
-                            <option value="auto">Автоматически</option>
-                            <option value="light">Светлая</option>
-                            <option value="dark">Темная</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="setting-group">
-                    <h3>Настройки AI</h3>
-                    
-                    <div class="setting-item">
-                        <label for="defaultModel">Модель по умолчанию</label>
-                        <select id="defaultModel" class="styled-select">
-                            ${Object.entries(this.models).map(([id, model]) => 
-                                `<option value="${id}" ${id === this.currentModel ? 'selected' : ''}>${model.name}</option>`
-                            ).join('')}
-                        </select>
-                    </div>
-                    
-                    <div class="setting-item">
-                        <label for="defaultMode">Режим по умолчанию</label>
-                        <select id="defaultMode" class="styled-select">
-                            ${Object.entries(this.modeConfigs).map(([id, config]) => 
-                                `<option value="${id}" ${id === this.currentMode ? 'selected' : ''}>${this.getModeDisplayName(id)}</option>`
-                            ).join('')}
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="setting-group">
-                    <h3>Управление данными</h3>
-                    
-                    <div class="setting-item">
-                        <label>Экспорт всех данных</label>
-                        <button class="btn-secondary" id="exportAllData">Экспортировать</button>
-                    </div>
-                    
-                    <div class="setting-item">
-                        <label>Очистить все данные</label>
-                        <button class="btn-danger" id="clearAllData">Очистить</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        this.showModal('Настройки', settingsContent, 'large');
-        
-        this.attachSettingsHandlers();
-    }
-
-    attachSettingsHandlers() {
-        const autoScroll = document.getElementById('autoScroll');
-        if (autoScroll) {
-            this.addEventListener(autoScroll, 'change', (e) => {
-                this.autoScrollEnabled = e.target.checked;
-                this.saveSettings();
-            });
-        }
-        
-        const themeSelect = document.getElementById('themeSelect');
-        if (themeSelect) {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'auto';
-            themeSelect.value = currentTheme;
-            
-            this.addEventListener(themeSelect, 'change', (e) => {
-                this.setTheme(e.target.value);
-                this.saveSettings();
-            });
-        }
-        
-        const defaultModel = document.getElementById('defaultModel');
-        if (defaultModel) {
-            this.addEventListener(defaultModel, 'change', (e) => {
-                this.currentModel = e.target.value;
-                this.setupModelSelector();
-                this.saveSettings();
-            });
-        }
-        
-        const defaultMode = document.getElementById('defaultMode');
-        if (defaultMode) {
-            this.addEventListener(defaultMode, 'change', (e) => {
-                this.setMode(e.target.value);
-                this.saveSettings();
-            });
-        }
-        
-        const exportAllData = document.getElementById('exportAllData');
-        if (exportAllData) {
-            this.addEventListener(exportAllData, 'click', () => {
-                this.exportAllData();
-            });
-        }
-        
-        const clearAllData = document.getElementById('clearAllData');
-        if (clearAllData) {
-            this.addEventListener(clearAllData, 'click', () => {
-                if (confirm('Вы уверены, что хотите удалить все данные? Это действие нельзя отменить.')) {
-                    this.clearAllData();
-                }
-            });
-        }
-    }
-
-    setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('khai-theme', theme);
-    }
-
-    loadThemePreference() {
-        const savedTheme = localStorage.getItem('khai-theme') || 'auto';
-        this.setTheme(savedTheme);
-    }
-
-    saveSettings() {
-        const settings = {
-            autoScroll: this.autoScrollEnabled,
-            theme: document.documentElement.getAttribute('data-theme'),
-            defaultModel: this.currentModel,
-            defaultMode: this.currentMode
-        };
-        
-        localStorage.setItem('khai-settings', JSON.stringify(settings));
-        this.showNotification('Настройки сохранены', 'success');
-    }
-
-    exportAllData() {
-        try {
-            const allData = {
-                version: '2.1.0',
-                exportDate: new Date().toISOString(),
-                settings: {
-                    autoScroll: this.autoScrollEnabled,
-                    theme: document.documentElement.getAttribute('data-theme'),
-                    defaultModel: this.currentModel,
-                    defaultMode: this.currentMode
-                },
-                chats: Object.fromEntries(this.chats),
-                conversationHistory: this.conversationHistory
-            };
-            
-            const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            a.href = url;
-            a.download = `khai-backup-${timestamp}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            this.showNotification('Все данные экспортированы', 'success');
-        } catch (error) {
-            console.error('Error exporting all data:', error);
-            this.showError('Ошибка при экспорте данных');
-        }
-    }
-
-    clearAllData() {
-        localStorage.clear();
-        this.chats.clear();
-        this.conversationHistory = [];
-        this.currentChatId = 'main-chat';
-        this.chats.set(this.currentChatId, []);
-        
-        const messagesContainer = document.getElementById('messagesContainer');
-        if (messagesContainer) {
-            messagesContainer.innerHTML = '';
-        }
-        
-        this.showWelcomeMessage();
-        this.showNotification('Все данные очищены', 'success');
-    }
-
-    showModal(title, content, size = 'medium') {
-        this.hideModal();
-        
-        const modal = document.createElement('div');
-        modal.className = `modal-overlay ${size}`;
-        modal.id = 'modalOverlay';
-        
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>${title}</h3>
-                    <button class="modal-close" id="modalClose">
-                        <i class="ti ti-x"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    ${content}
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        this.addEventListener(modal, 'click', (e) => {
-            if (e.target === modal) {
-                this.hideModal();
-            }
-        });
-        
-        this.addEventListener(document.getElementById('modalClose'), 'click', () => {
-            this.hideModal();
-        });
-        
-        this.addEventListener(document, 'keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.hideModal();
-            }
-        });
-    }
-
-    hideModal() {
-        const existingModal = document.getElementById('modalOverlay');
-        if (existingModal) {
-            existingModal.remove();
-        }
-    }
-
-    showNotification(message, type = 'info') {
-        const existingNotifications = document.querySelectorAll('.notification');
-        existingNotifications.forEach(notification => notification.remove());
-        
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="ti ti-${this.getNotificationIcon(type)}"></i>
-                <span>${message}</span>
-            </div>
+            <div class="notification-message">${this.escapeHtml(notification.message)}</div>
             <button class="notification-close">
                 <i class="ti ti-x"></i>
             </button>
         `;
-        
-        const container = document.getElementById('notificationContainer');
-        if (container) {
-            container.appendChild(notification);
-        } else {
-            document.body.appendChild(notification);
-        }
-        
-        const header = document.querySelector('.app-header');
-        if (header) {
-            notification.style.top = (header.offsetHeight + 20) + 'px';
-        }
-        
-        this.addEventListener(notification.querySelector('.notification-close'), 'click', () => {
-            notification.remove();
+
+        const closeBtn = element.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            element.remove();
+            this.notificationClosed();
         });
-        
-        this.setTimeout(() => {
-            if (notification.parentNode) {
-                notification.classList.add('fade-out');
-                this.setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
-                    }
-                }, 300);
+
+        container.appendChild(element);
+
+        // Auto-remove after duration
+        setTimeout(() => {
+            if (element.parentNode) {
+                element.remove();
+                this.notificationClosed();
             }
-        }, 5000);
+        }, notification.duration);
+
+        this.playSound(notification.type);
+    }
+
+    notificationClosed() {
+        this.notifications.isShowing = false;
+        this.processNotificationQueue();
     }
 
     getNotificationIcon(type) {
         const icons = {
             success: 'check',
-            error: 'x',
+            error: 'alert-circle',
             warning: 'alert-triangle',
             info: 'info-circle'
         };
         return icons[type] || 'info-circle';
     }
 
-    showError(message, error = null) {
-        console.error(message, error);
-        this.showNotification(message, 'error');
-    }
-
-    handleError(message, error = null) {
-        console.error(message, error);
-        this.showNotification(message, 'error');
+    // Modal System
+    showModal(title, content, actions = []) {
+        this.ui.elements.modalTitle.textContent = title;
+        this.ui.elements.modalContent.innerHTML = content;
         
-        if (this.isGenerating) {
-            this.isGenerating = false;
-            this.updateSendButton(false);
-            this.hideTypingIndicator();
-        }
-    }
-
-    setOnlineStatus(online) {
-        this.isOnline = online;
-        const statusIndicator = document.getElementById('connectionStatus');
+        // Clear existing actions
+        this.ui.elements.modalActions.innerHTML = '';
         
-        if (statusIndicator) {
-            if (online) {
-                statusIndicator.className = 'connection-status';
-                statusIndicator.innerHTML = '<i class="ti ti-wifi"></i><span>Онлайн</span>';
-                statusIndicator.title = 'Подключено к AI сервисам';
-            } else {
-                statusIndicator.className = 'connection-status offline';
-                statusIndicator.innerHTML = '<i class="ti ti-wifi-off"></i><span>Офлайн</span>';
-                statusIndicator.title = 'Нет подключения к AI сервисам';
-            }
-        }
-    }
-
-    toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'auto';
-        let newTheme;
-        
-        if (currentTheme === 'auto') {
-            newTheme = 'dark';
-        } else if (currentTheme === 'dark') {
-            newTheme = 'light';
-        } else {
-            newTheme = 'auto';
-        }
-        
-        this.setTheme(newTheme);
-        this.showNotification(`Тема изменена: ${this.getThemeDisplayName(newTheme)}`, 'info');
-    }
-
-    getThemeDisplayName(theme) {
-        const names = {
-            auto: 'Авто',
-            light: 'Светлая',
-            dark: 'Темная'
-        };
-        return names[theme] || theme;
-    }
-
-    toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                console.error('Error attempting to enable fullscreen:', err);
-            });
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-        }
-    }
-
-    toggleSidebarMenu() {
-        const sidebar = document.getElementById('mobileSidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        
-        if (sidebar && overlay) {
-            const isOpen = sidebar.classList.contains('active');
-            
-            if (isOpen) {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
-            } else {
-                sidebar.classList.add('active');
-                overlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-    }
-
-    handleSearch(term) {
-        this.searchTerm = term.toLowerCase().trim();
-        
-        const messages = document.querySelectorAll('.message');
-        let foundCount = 0;
-        
-        messages.forEach(message => {
-            const messageContent = message.querySelector('.message-text');
-            const messageAuthor = message.querySelector('.message-author');
-            
-            if (messageContent) {
-                const text = messageContent.textContent.toLowerCase();
-                const author = messageAuthor ? messageAuthor.textContent.toLowerCase() : '';
-                const shouldHighlight = this.searchTerm && 
-                    (text.includes(this.searchTerm) || author.includes(this.searchTerm));
-                
-                if (shouldHighlight) {
-                    message.classList.add('search-highlight');
-                    foundCount++;
-                    
-                    const originalHTML = messageContent.innerHTML;
-                    const regex = new RegExp(`(${this.escapeRegex(this.searchTerm)})`, 'gi');
-                    messageContent.innerHTML = originalHTML.replace(regex, '<mark class="search-match">$1</mark>');
-                    
-                    this.attachCopyButtons(messageContent);
-                } else {
-                    message.classList.remove('search-highlight');
-                    
-                    const markedHTML = messageContent.innerHTML;
-                    messageContent.innerHTML = markedHTML.replace(/<mark class="search-match">(.+?)<\/mark>/gi, '$1');
-                }
-            }
+        // Add new actions
+        actions.forEach(action => {
+            const button = document.createElement('button');
+            button.className = `modal-btn ${action.primary ? 'primary' : 'secondary'}`;
+            button.textContent = action.text;
+            button.addEventListener('click', action.handler);
+            this.ui.elements.modalActions.appendChild(button);
         });
         
-        const searchClear = document.getElementById('headerSearchClear');
-        if (searchClear) {
-            searchClear.style.display = this.searchTerm ? 'flex' : 'none';
-        }
-        
-        if (this.searchTerm) {
-            this.showNotification(`Найдено сообщений: ${foundCount}`, foundCount > 0 ? 'success' : 'warning');
-        }
+        // Show modal
+        this.ui.elements.modalOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
 
-    escapeRegex(string) {
-        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    hideModal() {
+        this.ui.elements.modalOverlay.style.display = 'none';
+        document.body.style.overflow = '';
     }
 
-    handleKeyboardShortcuts(e) {
-        if (e.ctrlKey || e.metaKey) {
-            switch (e.key) {
-                case 'Enter':
-                    e.preventDefault();
-                    this.handleSendButtonClick();
-                    break;
-                case 'k':
-                    e.preventDefault();
-                    this.clearChat();
-                    break;
-                case 'e':
-                    e.preventDefault();
-                    this.exportChat();
-                    break;
-                case 'm':
-                    e.preventDefault();
-                    this.cycleMode();
-                    break;
-                case '/':
-                    e.preventDefault();
-                    this.showHelp();
-                    break;
-            }
-        }
-        
-        if (e.key === 'Escape') {
-            this.hideModal();
-            this.hideModelSelection();
-            
-            const emojiPicker = document.getElementById('emojiPicker');
-            if (emojiPicker) {
-                emojiPicker.style.display = 'none';
-            }
-            
-            if (this.fullscreenInputActive) {
-                this.exitFullscreenInput();
-            }
-        }
-    }
-
-    cycleMode() {
-        const modes = Object.keys(this.modeConfigs);
-        const currentIndex = modes.indexOf(this.currentMode);
-        const nextIndex = (currentIndex + 1) % modes.length;
-        this.setMode(modes[nextIndex]);
-    }
-
-    handlePaste(event) {
-        const items = event.clipboardData?.items;
-        if (!items) return;
-        
-        for (let item of items) {
-            if (item.type.indexOf('image') !== -1) {
-                event.preventDefault();
-                const file = item.getAsFile();
-                if (file) {
-                    this.handleFileUpload([file]);
+    async showConfirmModal(title, message) {
+        return new Promise((resolve) => {
+            this.showModal(title, message, [
+                {
+                    text: 'Отмена',
+                    primary: false,
+                    handler: () => {
+                        this.hideModal();
+                        resolve(false);
+                    }
+                },
+                {
+                    text: 'Подтвердить',
+                    primary: true,
+                    handler: () => {
+                        this.hideModal();
+                        resolve(true);
+                    }
                 }
-                break;
-            }
+            ]);
+        });
+    }
+
+    // Utility Methods
+    escapeHtml(unsafe) {
+        if (typeof unsafe !== 'string') return '';
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    formatTime(timestamp) {
+        return new Date(timestamp).toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    scrollToBottom() {
+        const container = this.ui.elements.messagesContainer;
+        if (container) {
+            container.scrollTop = container.scrollHeight;
         }
     }
 
-    showDropZone() {
-        let dropZone = document.getElementById('dropZone');
-        if (!dropZone) {
-            dropZone = document.createElement('div');
-            dropZone.id = 'dropZone';
-            dropZone.innerHTML = `
-                <div class="drop-zone-content">
-                    <i class="ti ti-upload"></i>
-                    <h3>Перетащите файлы сюда</h3>
-                    <p>Поддерживаются изображения, текстовые файлы и другие документы</p>
+    playSound(type) {
+        if (!this.ui.state.soundEffects) return;
+
+        const sounds = {
+            message: 'assets/sounds/message.mp3',
+            error: 'assets/sounds/error.mp3',
+            success: 'assets/sounds/success.mp3',
+            toggle: 'assets/sounds/toggle.mp3'
+        };
+
+        // In a real app, you would play the actual sound files
+        console.log(`Playing sound: ${type}`);
+    }
+
+    // Sidebar Management
+    toggleSidebar(show) {
+        this.ui.state.sidebarOpen = show;
+        
+        if (this.ui.elements.sidebarMenu) {
+            this.ui.elements.sidebarMenu.classList.toggle('active', show);
+        }
+        
+        if (this.ui.elements.sidebarOverlay) {
+            this.ui.elements.sidebarOverlay.classList.toggle('active', show);
+        }
+
+        document.body.style.overflow = show ? 'hidden' : '';
+        
+        if (show) {
+            this.updateAppStats();
+        }
+    }
+
+    updateAppStats() {
+        const statsElement = document.getElementById('appStats');
+        if (!statsElement) return;
+
+        const totalMessages = Object.values(this.chats).reduce(
+            (sum, chat) => sum + chat.messages.length, 0
+        );
+
+        const totalChats = Object.keys(this.chats).length;
+        const storageUsage = this.getStorageUsage();
+
+        statsElement.textContent = 
+            `${totalMessages} сообщений, ${totalChats} чатов, ${storageUsage} использовано`;
+    }
+
+    getStorageUsage() {
+        let total = 0;
+        for (const key in localStorage) {
+            if (key.startsWith(this.storage.prefix)) {
+                total += localStorage[key].length;
+            }
+        }
+        return (total / 1024).toFixed(2) + ' KB';
+    }
+
+    // Emergency Features
+    emergencyStop() {
+        this.ui.state.isGenerating = false;
+        this.hideTypingIndicator();
+        this.updateUIState();
+        this.showNotification('Генерация остановлена', 'warning');
+        this.playSound('error');
+    }
+
+    async clearCurrentChat() {
+        const confirmed = await this.showConfirmModal(
+            'Очистка чата',
+            'Вы уверены, что хотите очистить текущий чат? Все сообщения будут удалены.'
+        );
+
+        if (!confirmed) return;
+
+        const chat = this.chats[this.ui.state.currentChatId];
+        if (chat) {
+            chat.messages = [];
+            chat.updatedAt = new Date().toISOString();
+            await this.saveChats();
+            this.renderMessages([]);
+            this.showNotification('Чат очищен', 'success');
+        }
+    }
+
+    async clearAllData() {
+        const confirmed = await this.showConfirmModal(
+            'Очистка всех данных',
+            'ВНИМАНИЕ: Это удалит все чаты, сообщения и настройки. Действие нельзя отменить. Продолжить?'
+        );
+
+        if (!confirmed) return;
+
+        // Clear all app data
+        for (const key in localStorage) {
+            if (key.startsWith(this.storage.prefix)) {
+                localStorage.removeItem(key);
+            }
+        }
+
+        // Reset app state
+        this.chats = {};
+        this.ui.state.currentChatId = 'default';
+        
+        // Reinitialize
+        await this.createDefaultChat();
+        this.showNotification('Все данные очищены', 'success');
+    }
+
+    clearSensitiveData() {
+        // Clear sensitive data while preserving settings
+        const settings = localStorage.getItem(this.storage.prefix + 'app-settings');
+        
+        for (const key in localStorage) {
+            if (key.startsWith(this.storage.prefix) && !key.includes('settings')) {
+                localStorage.removeItem(key);
+            }
+        }
+
+        if (settings) {
+            localStorage.setItem(this.storage.prefix + 'app-settings', settings);
+        }
+
+        this.showNotification('Чувствительные данные очищены', 'info');
+    }
+
+    // Export Features
+    exportChat() {
+        const chat = this.chats[this.ui.state.currentChatId];
+        if (!chat || chat.messages.length === 0) {
+            this.showNotification('Нет сообщений для экспорта', 'warning');
+            return;
+        }
+
+        const exportData = {
+            chatName: chat.name,
+            exportDate: new Date().toISOString(),
+            messageCount: chat.messages.length,
+            messages: chat.messages
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+            type: 'application/json'
+        });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `khuyew-ai-chat-${chat.name}-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        this.showNotification('Чат экспортирован', 'success');
+    }
+
+    exportAllChats() {
+        if (Object.keys(this.chats).length === 0) {
+            this.showNotification('Нет чатов для экспорта', 'warning');
+            return;
+        }
+
+        const exportData = {
+            exportDate: new Date().toISOString(),
+            totalChats: Object.keys(this.chats).length,
+            totalMessages: Object.values(this.chats).reduce((sum, chat) => sum + chat.messages.length, 0),
+            chats: this.chats
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+            type: 'application/json'
+        });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `khuyew-ai-all-chats-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        this.showNotification('Все чаты экспортированы', 'success');
+    }
+
+    // Additional Features
+    showHelp() {
+        const helpContent = `
+            <h4>📖 Руководство по использованию Khuyew AI</h4>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                <div>
+                    <strong>💬 Основные функции:</strong>
+                    <ul>
+                        <li>Напишите сообщение и нажмите Enter или кнопку отправки</li>
+                        <li>Используйте Shift+Enter для новой строки</li>
+                        <li>Прикрепляйте файлы (изображения, PDF, текстовые) до 5MB</li>
+                        <li>Используйте голосовой ввод для удобства</li>
+                    </ul>
                 </div>
-            `;
-            document.body.appendChild(dropZone);
-        }
-        
-        dropZone.style.display = 'flex';
-    }
+                
+                <div>
+                    <strong>🤖 Модели ИИ:</strong>
+                    <ul>
+                        <li><strong>GPT-5 Nano</strong> - быстрая и точная</li>
+                        <li><strong>O3 Mini</strong> - оптимизирована для рассуждений</li>
+                        <li><strong>DeepSeek Chat</strong> - сбалансированная</li>
+                        <li><strong>DeepSeek Reasoner</strong> - для логических задач</li>
+                        <li><strong>Gemini 2.0 Flash</strong> - эффективный</li>
+                        <li><strong>Gemini 1.5 Flash</strong> - расширенный контекст</li>
+                        <li><strong>xAI Grok</strong> - творческий подход</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <strong>⚡ Горячие клавиши:</strong>
+                    <ul>
+                        <li><kbd>Enter</kbd> - отправить сообщение</li>
+                        <li><kbd>Shift+Enter</kbd> - новая строка</li>
+                        <li><kbd>Ctrl+K</kbd> - очистить чат</li>
+                        <li><kbd>Ctrl+N</kbd> - новый чат</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <strong>🔒 Безопасность:</strong>
+                    <ul>
+                        <li>Все данные шифруются локально</li>
+                        <li>Автоматическая очистка чувствительных данных</li>
+                        <li>Защита от утечки конфиденциальной информации</li>
+                        <li>Контроль лимитов использования</li>
+                    </ul>
+                </div>
+            </div>
+        `;
 
-    hideDropZone() {
-        const dropZone = document.getElementById('dropZone');
-        if (dropZone) {
-            dropZone.style.display = 'none';
-        }
-    }
-
-    handleResize() {
-        this.autoResizeTextarea(document.getElementById('userInput'));
-        this.updateNavigationButtons();
-    }
-
-    handleBeforeUnload() {
-        this.saveChatHistory();
-        
-        if (this.isGenerating) {
-            return 'Идет генерация ответа. Вы уверены, что хотите покинуть страницу?';
-        }
-    }
-
-    startChatDurationTimer() {
-        this.chatStartTime = Date.now();
-        this.updateChatDuration();
-        
-        this.durationTimer = setInterval(() => {
-            this.updateChatDuration();
-        }, 60000);
-    }
-
-    updateChatDuration() {
-        const durationElement = document.getElementById('chatDuration');
-        if (!durationElement) return;
-        
-        const duration = Date.now() - this.chatStartTime;
-        const minutes = Math.floor(duration / 60000);
-        const hours = Math.floor(minutes / 60);
-        
-        let durationText = '';
-        if (hours > 0) {
-            durationText = `${hours}ч ${minutes % 60}м`;
-        } else {
-            durationText = `${minutes}м`;
-        }
-        
-        durationElement.textContent = `Время: ${durationText}`;
-    }
-
-    startPlaceholderAnimation() {
-        const userInput = document.getElementById('userInput');
-        if (!userInput) return;
-        
-        let currentExampleIndex = 0;
-        let animationTimeout;
-        
-        const stopAnimation = () => {
-            if (animationTimeout) {
-                clearTimeout(animationTimeout);
-                animationTimeout = null;
+        this.showModal('Справка Khuyew AI', helpContent, [
+            {
+                text: 'Закрыть',
+                primary: true,
+                handler: () => this.hideModal()
             }
-            userInput.placeholder = this.modeConfigs[this.currentMode].placeholder;
-        };
-        
-        const startAnimation = () => {
-            if (document.activeElement === userInput || userInput.value) {
-                stopAnimation();
-                return;
-            }
-            
-            const animatePlaceholder = () => {
-                if (document.activeElement === userInput || userInput.value) {
-                    stopAnimation();
-                    return;
-                }
-                
-                const example = this.placeholderExamples[currentExampleIndex];
-                let displayedText = '';
-                let charIndex = 0;
-                
-                const typeNextChar = () => {
-                    if (document.activeElement === userInput || userInput.value) {
-                        stopAnimation();
-                        return;
-                    }
-                    
-                    if (charIndex < example.length) {
-                        displayedText += example.charAt(charIndex);
-                        userInput.placeholder = displayedText;
-                        charIndex++;
-                        animationTimeout = setTimeout(typeNextChar, 50);
-                    } else {
-                        animationTimeout = setTimeout(() => {
-                            deleteText();
-                        }, 2000);
-                    }
-                };
-                
-                const deleteText = () => {
-                    if (document.activeElement === userInput || userInput.value) {
-                        stopAnimation();
-                        return;
-                    }
-                    
-                    if (displayedText.length > 0) {
-                        displayedText = displayedText.slice(0, -1);
-                        userInput.placeholder = displayedText;
-                        animationTimeout = setTimeout(deleteText, 30);
-                    } else {
-                        currentExampleIndex = (currentExampleIndex + 1) % this.placeholderExamples.length;
-                        animationTimeout = setTimeout(animatePlaceholder, 500);
-                    }
-                };
-                
-                typeNextChar();
-            };
-            
-            animatePlaceholder();
-        };
-        
-        this.addEventListener(userInput, 'focus', stopAnimation);
-        this.addEventListener(userInput, 'blur', () => {
-            this.setTimeout(() => {
-                if (document.activeElement !== userInput && !userInput.value) {
-                    startAnimation();
-                }
-            }, 1000);
-        });
-        
-        if (!userInput.value) {
-            startAnimation();
-        }
+        ]);
     }
 
-    setupServiceWorker() {
+    generateImage() {
+        this.showNotification('Генерация изображений в разработке', 'info');
+        // Implementation for image generation would go here
+    }
+
+    generateVoice() {
+        this.showNotification('Генерация голоса в разработке', 'info');
+        // Implementation for voice generation would go here
+    }
+
+    showPrivacySettings() {
+        const privacyContent = `
+            <h4>🔐 Настройки конфиденциальности</h4>
+            <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 12px;">
+                <div>
+                    <strong>Текущий уровень безопасности: <span style="color: var(--accent-success)">ВЫСОКИЙ</span></strong>
+                </div>
+                
+                <div>
+                    <strong>🛡️ Функции безопасности:</strong>
+                    <ul>
+                        <li>✓ Сквозное шифрование сообщений</li>
+                        <li>✓ Локальное хранение данных</li>
+                        <li>✓ Автоматическое удаление сессий</li>
+                        <li>✓ Защита от утечки данных</li>
+                        <li>✓ Контроль лимитов запросов</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <strong>📊 Сбор данных:</strong>
+                    <p>Khuyew AI не собирает и не передает ваши данные третьим лицам. Все обрабатывается локально в вашем браузере.</p>
+                </div>
+                
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-md);">
+                    <strong>ℹ️ Информация</strong>
+                    <p style="margin: 8px 0 0 0; font-size: 12px;">
+                        Для максимальной безопасности используйте приложение по HTTPS и регулярно обновляйте браузер.
+                    </p>
+                </div>
+            </div>
+        `;
+
+        this.showModal('Настройки конфиденциальности', privacyContent, [
+            {
+                text: 'Закрыть',
+                primary: true,
+                handler: () => this.hideModal()
+            }
+        ]);
+    }
+
+    // PWA Service Worker
+    registerServiceWorker() {
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered:', registration);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
         }
-    }
-
-    setupPerformanceMonitoring() {
-        if ('performance' in window) {
-            const observer = new PerformanceObserver((list) => {
-                for (const entry of list.getEntries()) {
-                    if (entry.entryType === 'longtask') {
-                        console.warn('Long task detected:', entry);
-                    }
-                }
-            });
-            
-            observer.observe({ entryTypes: ['longtask'] });
-        }
-        
-        if ('memory' in performance) {
-            setInterval(() => {
-                const memory = performance.memory;
-                if (memory.usedJSHeapSize > memory.jsHeapSizeLimit * 0.8) {
-                    console.warn('High memory usage detected');
-                    this.cleanupOldMessages();
-                }
-            }, 30000);
-        }
-    }
-
-    cleanupOldMessages() {
-        const messages = document.querySelectorAll('.message');
-        if (messages.length > 100) {
-            const messagesToRemove = Array.from(messages).slice(0, messages.length - 100);
-            messagesToRemove.forEach(msg => msg.remove());
-        }
-    }
-
-    updateUI() {
-        this.updateModeIndicator();
-        this.updateNavigationButtons();
-        this.updateAttachedFilesDisplay();
-        this.toggleClearInputButton();
-        
-        const messageCount = document.getElementById('messageCount');
-        if (messageCount) {
-            const count = this.chats.get(this.currentChatId)?.length || 0;
-            messageCount.textContent = `Сообщений: ${count}`;
-        }
-    }
-
-    addToConversationHistory(role, content, files = []) {
-        this.conversationHistory.push({
-            role,
-            content,
-            files: files.map(f => ({ name: f.name, type: f.type })),
-            timestamp: Date.now()
-        });
-        
-        if (this.conversationHistory.length > 50) {
-            this.conversationHistory = this.conversationHistory.slice(-50);
-        }
-    }
-
-    async loadChatHistory() {
-        try {
-            const saved = localStorage.getItem('khai-chats');
-            if (saved) {
-                const data = JSON.parse(saved);
-                this.chats = new Map(Object.entries(data.chats || {}));
-                this.currentChatId = data.currentChatId || 'main-chat';
-                this.conversationHistory = data.conversationHistory || [];
-                this.currentModel = data.currentModel || 'gpt-4';
-                this.currentMode = data.currentMode || 'normal';
-                
-                this.renderChat();
-                this.setupModelSelector();
-                this.setMode(this.currentMode);
-            }
-        } catch (error) {
-            console.error('Error loading chat history:', error);
-            this.chats.set('main-chat', []);
-        }
-    }
-
-    saveChatHistory() {
-        try {
-            const data = {
-                chats: Object.fromEntries(this.chats),
-                currentChatId: this.currentChatId,
-                conversationHistory: this.conversationHistory,
-                currentModel: this.currentModel,
-                currentMode: this.currentMode,
-                timestamp: Date.now()
-            };
-            
-            localStorage.setItem('khai-chats', JSON.stringify(data));
-        } catch (error) {
-            console.error('Error saving chat history:', error);
-        }
-    }
-
-    generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    }
-
-    formatTime(timestamp, full = false) {
-        const date = new Date(timestamp);
-        
-        if (full) {
-            return date.toLocaleString('ru-RU');
-        }
-        
-        const now = new Date();
-        const diff = now - date;
-        
-        if (diff < 60000) {
-            return 'только что';
-        } else if (diff < 3600000) {
-            const minutes = Math.floor(diff / 60000);
-            return `${minutes} мин назад`;
-        } else if (diff < 86400000) {
-            return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-        } else {
-            return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
-        }
-    }
-
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    showPWAInstallPrompt() {
-        const prompt = document.getElementById('pwaInstallPrompt');
-        if (prompt) {
-            prompt.style.display = 'flex';
-        }
-    }
-
-    hidePWAInstallPrompt() {
-        const prompt = document.getElementById('pwaInstallPrompt');
-        if (prompt) {
-            prompt.style.display = 'none';
-        }
-    }
-
-    async installPWA() {
-        try {
-            const promptEvent = this.deferredPrompt;
-            if (promptEvent) {
-                promptEvent.prompt();
-                const { outcome } = await promptEvent.userChoice;
-                if (outcome === 'accepted') {
-                    this.showNotification('KHAI успешно установлен!', 'success');
-                }
-                this.deferredPrompt = null;
-            }
-            this.hidePWAInstallPrompt();
-        } catch (error) {
-            console.error('Error installing PWA:', error);
-            this.showError('Ошибка при установке приложения');
-        }
-    }
-
-    destroy() {
-        this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
-        this.activeTimeouts.clear();
-        
-        if (this.durationTimer) {
-            clearInterval(this.durationTimer);
-        }
-        
-        this.activeEventListeners.forEach((listeners, element) => {
-            listeners.forEach(({ event, handler }) => {
-                element.removeEventListener(event, handler);
-            });
-        });
-        this.activeEventListeners.clear();
-        
-        this.stopSpeaking();
-        this.stopVoiceInput();
-        
-        this.stopGeneration();
-        
-        this.hideModal();
-        
-        console.log('KHAI Chat destroyed');
     }
 }
 
-// Global PWA installation handling
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    const khaiChat = window.khaiChat;
-    if (khaiChat && khaiChat.isInitialized) {
-        khaiChat.deferredPrompt = e;
-        khaiChat.showPWAInstallPrompt();
+// Additional utility functions
+function initializeApp() {
+    // Prevent multiple initializations
+    if (window.khuyewAI) {
+        return window.khuyewAI;
     }
-});
 
-window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    const khaiChat = window.khaiChat;
-    if (khaiChat) {
-        khaiChat.deferredPrompt = null;
-    }
-});
+    // Create and initialize the app
+    window.khuyewAI = new KhuyewAI();
+    return window.khuyewAI;
+}
 
-// Initialize application
-document.addEventListener('DOMContentLoaded', () => {
-    window.khaiChat = new KHAIChat();
-});
-
-window.addEventListener('beforeunload', () => {
-    if (window.khaiChat) {
-        window.khaiChat.destroy();
-    }
-});
-
-// Global error handling
+// Global error handler
 window.addEventListener('error', (event) => {
     console.error('Global error:', event.error);
+    if (window.khuyewAI) {
+        window.khuyewAI.showNotification('Произошла непредвиденная ошибка', 'error');
+    }
 });
 
+// Unhandled promise rejection handler
 window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
+    event.preventDefault();
 });
+
+// Initialize app when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+    initializeApp();
+}
+
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { KhuyewAI };
+}
