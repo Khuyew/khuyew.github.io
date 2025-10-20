@@ -65,13 +65,13 @@ class KHAIChat {
                 name: 'GPT-5 Nano', 
                 description: 'Быстрая и эффективная модель для повседневных задач',
                 icon: 'ti ti-bolt',
-                puterModel: 'gpt-4' // fallback
+                puterModel: 'gpt-4'
             },
             'o3-mini': { 
                 name: 'O3 Mini', 
                 description: 'Продвинутая модель с улучшенными возможностями рассуждения',
                 icon: 'ti ti-cpu',
-                puterModel: 'gpt-4' // fallback
+                puterModel: 'gpt-4'
             },
             'claude-sonnet': { 
                 name: 'Claude Sonnet', 
@@ -83,13 +83,13 @@ class KHAIChat {
                 name: 'DeepSeek Chat', 
                 description: 'Универсальная модель для общения и решения задач',
                 icon: 'ti ti-search',
-                puterModel: 'gpt-4' // fallback
+                puterModel: 'gpt-4'
             },
             'deepseek-reasoner': { 
                 name: 'DeepSeek Reasoner', 
                 description: 'Специализированная модель для сложных логических рассуждений',
                 icon: 'ti ti-logic-and',
-                puterModel: 'gpt-4' // fallback
+                puterModel: 'gpt-4'
             },
             'gemini-2.0-flash': { 
                 name: 'Gemini 2.0 Flash', 
@@ -173,7 +173,6 @@ class KHAIChat {
             this.setupPerformanceMonitoring();
             this.setupFullscreenInput();
             
-            // Показываем основное приложение
             this.setTimeout(() => {
                 const appLoader = document.getElementById('appLoader');
                 const appContainer = document.querySelector('.app-container');
@@ -265,7 +264,6 @@ class KHAIChat {
     }
 
     async mockAIResponse(prompt, options) {
-        // Заменяем mock на реальные вызовы Puter.ai
         try {
             if (!this.puterAI || typeof this.puterAI.ai?.chat !== 'function') {
                 throw new Error('Puter.ai chat function not available');
@@ -274,8 +272,8 @@ class KHAIChat {
             const response = await this.puterAI.ai.chat(prompt, options);
             return response;
         } catch (error) {
-            console.error('Real AI response failed, using fallback:', error);
-            // Fallback responses
+            console.error('Real AI response failed:', error);
+            
             const responses = {
                 normal: ["Привет! Я KHAI - ваш AI-ассистент. Готов помочь с любыми вопросами!"],
                 creative: ["О, креативная задача! Давайте придумаем что-то необычное..."],
@@ -287,7 +285,6 @@ class KHAIChat {
             const modeResponses = responses[this.currentMode] || responses.normal;
             const response = modeResponses[Math.floor(Math.random() * modeResponses.length)];
             
-            // Создаем асинхронный генератор для имитации стриминга
             const mockStream = {
                 [Symbol.asyncIterator]: async function* () {
                     const words = response.split(' ');
@@ -305,7 +302,6 @@ class KHAIChat {
 
     async setupEventListeners() {
         try {
-            // Send message
             this.addEventListener(document.getElementById('sendBtn'), 'click', () => this.handleSendButtonClick());
             
             const userInput = document.getElementById('userInput');
@@ -316,7 +312,6 @@ class KHAIChat {
                 }
             });
 
-            // Input auto-resize
             this.addEventListener(userInput, 'input', () => {
                 this.autoResizeTextarea(userInput);
                 this.toggleClearInputButton();
@@ -324,7 +319,6 @@ class KHAIChat {
                 this.checkFullscreenInput();
             });
 
-            // Clear input
             this.addEventListener(document.getElementById('clearInputBtn'), 'click', () => {
                 userInput.value = '';
                 this.autoResizeTextarea(userInput);
@@ -332,14 +326,12 @@ class KHAIChat {
                 userInput.focus();
             });
 
-            // Mode buttons
             document.querySelectorAll('.mode-btn').forEach(btn => {
                 this.addEventListener(btn, 'click', (e) => {
                     this.setMode(e.currentTarget.dataset.mode);
                 });
             });
 
-            // File attachment
             this.addEventListener(document.getElementById('attachImageBtn'), 'click', () => {
                 document.getElementById('fileInput').click();
             });
@@ -353,47 +345,38 @@ class KHAIChat {
                 e.target.value = '';
             });
 
-            // Voice input
             this.addEventListener(document.getElementById('voiceInputBtn'), 'click', () => {
                 this.toggleVoiceInput();
             });
 
-            // Emoji picker
             this.addEventListener(document.getElementById('emojiBtn'), 'click', (e) => {
                 this.toggleEmojiPicker(e.currentTarget);
             });
 
-            // Clear chat
             this.addEventListener(document.getElementById('clearChatBtn'), 'click', () => {
                 this.clearChat();
             });
 
-            // Export chat
             this.addEventListener(document.getElementById('exportBtn'), 'click', () => {
                 this.exportChat();
             });
 
-            // Help
             this.addEventListener(document.getElementById('helpBtn'), 'click', () => {
                 this.showHelp();
             });
 
-            // Theme toggle
             this.addEventListener(document.getElementById('themeToggle'), 'click', () => {
                 this.toggleTheme();
             });
 
-            // Fullscreen toggle
             this.addEventListener(document.getElementById('fullscreenToggle'), 'click', () => {
                 this.toggleFullscreen();
             });
 
-            // Model selection
             this.addEventListener(document.getElementById('modelSelectBtn'), 'click', () => {
                 this.showModelSelection();
             });
 
-            // Menu toggle
             this.addEventListener(document.getElementById('menuToggle'), 'click', () => {
                 this.toggleSidebarMenu();
             });
@@ -406,7 +389,6 @@ class KHAIChat {
                 this.toggleSidebarMenu();
             });
 
-            // Quick actions
             this.addEventListener(document.getElementById('quickNewChat'), 'click', () => {
                 this.createNewChat();
             });
@@ -419,7 +401,6 @@ class KHAIChat {
                 this.showSettings();
             });
 
-            // Navigation
             this.addEventListener(document.getElementById('scrollToTop'), 'click', () => {
                 this.scrollToTop();
             });
@@ -432,7 +413,6 @@ class KHAIChat {
                 this.scrollToBottom(true);
             });
 
-            // Mobile navigation
             this.addEventListener(document.getElementById('scrollToTopNav'), 'click', () => {
                 this.scrollToTop();
             });
@@ -445,7 +425,6 @@ class KHAIChat {
                 this.scrollToBottom(true);
             });
 
-            // Search in header
             const headerSearch = document.getElementById('headerSearch');
             this.addEventListener(headerSearch, 'input', this.debounce((e) => {
                 this.handleSearch(e.target.value);
@@ -457,7 +436,6 @@ class KHAIChat {
                 headerSearch.focus();
             });
 
-            // Chat search in sidebar
             const chatSearchInput = document.getElementById('chatSearchInput');
             if (chatSearchInput) {
                 this.addEventListener(chatSearchInput, 'input', this.debounce((e) => {
@@ -465,7 +443,6 @@ class KHAIChat {
                 }, 300));
             }
 
-            // Context menu
             this.addEventListener(document, 'contextmenu', (e) => {
                 if (e.target.closest('.message')) {
                     e.preventDefault();
@@ -479,12 +456,10 @@ class KHAIChat {
                 }
             });
 
-            // Keyboard shortcuts
             this.addEventListener(document, 'keydown', (e) => {
                 this.handleKeyboardShortcuts(e);
             });
 
-            // Online/offline detection
             this.addEventListener(window, 'online', () => {
                 this.setOnlineStatus(true);
             });
@@ -493,17 +468,14 @@ class KHAIChat {
                 this.setOnlineStatus(false);
             });
 
-            // Resize handling with debounce
             this.addEventListener(window, 'resize', this.debounce(() => {
                 this.handleResize();
             }, 250));
 
-            // Paste handling for images
             this.addEventListener(document, 'paste', (e) => {
                 this.handlePaste(e);
             });
 
-            // Drag and drop for files
             this.addEventListener(document, 'dragover', (e) => {
                 e.preventDefault();
                 this.showDropZone();
@@ -523,14 +495,12 @@ class KHAIChat {
                 }
             });
 
-            // Minimap scroll sync
             const messagesContainer = document.getElementById('messagesContainer');
             this.addEventListener(messagesContainer, 'scroll', this.debounce(() => {
                 this.updateMinimapViewport();
                 this.handleScroll();
             }, 100));
 
-            // Sidebar quick access buttons
             this.addEventListener(document.getElementById('qaNewChat'), 'click', () => {
                 this.createNewChat();
                 this.toggleSidebarMenu();
@@ -551,7 +521,6 @@ class KHAIChat {
                 this.toggleSidebarMenu();
             });
 
-            // Chat management
             this.addEventListener(document.getElementById('newChatBtn'), 'click', () => {
                 this.createNewChat();
                 this.toggleSidebarMenu();
@@ -562,17 +531,14 @@ class KHAIChat {
                 this.toggleSidebarMenu();
             });
 
-            // Logo click
             this.addEventListener(document.getElementById('logoBtn'), 'click', () => {
                 this.showAbout();
             });
 
-            // Before unload
             this.addEventListener(window, 'beforeunload', () => {
                 this.handleBeforeUnload();
             });
 
-            // Preset buttons
             document.querySelectorAll('.preset-btn').forEach(btn => {
                 this.addEventListener(btn, 'click', (e) => {
                     this.handlePreset(e.currentTarget.dataset.preset);
@@ -586,7 +552,6 @@ class KHAIChat {
                 });
             });
 
-            // PWA install prompt
             this.addEventListener(document.getElementById('pwaInstallConfirm'), 'click', () => {
                 this.installPWA();
             });
@@ -595,12 +560,10 @@ class KHAIChat {
                 this.hidePWAInstallPrompt();
             });
 
-            // Chat management in sidebar
             this.addEventListener(document.getElementById('deleteAllChatsBtn'), 'click', () => {
                 this.deleteAllChats();
             });
 
-            // Mobile chat search
             const mobileChatSearchInput = document.getElementById('mobileChatSearchInput');
             if (mobileChatSearchInput) {
                 this.addEventListener(mobileChatSearchInput, 'input', this.debounce((e) => {
@@ -620,7 +583,6 @@ class KHAIChat {
                 this.deleteAllChats();
             });
 
-            // Добавляем новые обработчики для импорта/экспорта всех чатов
             this.addEventListener(document.getElementById('exportAllChatsBtn'), 'click', () => {
                 this.exportAllChats();
             });
@@ -637,7 +599,6 @@ class KHAIChat {
                 this.importAllChats();
             });
 
-            // Touch events for mobile
             this.setupTouchEvents();
 
         } catch (error) {
@@ -1396,7 +1357,6 @@ ${fileContent}
     }
 
     attachMessageHandlers(messageElement) {
-        // Copy button
         const copyBtn = messageElement.querySelector('.copy-message-btn');
         if (copyBtn) {
             this.addEventListener(copyBtn, 'click', () => {
@@ -1406,10 +1366,8 @@ ${fileContent}
             });
         }
         
-        // Code copy buttons
         this.attachCopyButtons(messageElement);
         
-        // Edit button
         const editBtn = messageElement.querySelector('.edit-message-btn');
         if (editBtn) {
             this.addEventListener(editBtn, 'click', () => {
@@ -1417,7 +1375,6 @@ ${fileContent}
             });
         }
         
-        // Regenerate button
         const regenerateBtn = messageElement.querySelector('.regenerate-btn');
         if (regenerateBtn) {
             this.addEventListener(regenerateBtn, 'click', () => {
@@ -1425,7 +1382,6 @@ ${fileContent}
             });
         }
         
-        // Download button
         const downloadBtn = messageElement.querySelector('.download-message-btn');
         if (downloadBtn) {
             this.addEventListener(downloadBtn, 'click', () => {
@@ -1433,7 +1389,6 @@ ${fileContent}
             });
         }
         
-        // Speak button
         const speakBtn = messageElement.querySelector('.speak-message-btn');
         if (speakBtn) {
             this.addEventListener(speakBtn, 'click', () => {
@@ -1497,14 +1452,13 @@ ${fileContent}
         
         messageContent.appendChild(actionsDiv);
         
-        // Добавляем обработчик для кнопки "Поделиться"
         const shareBtn = actionsDiv.querySelector('.share-message-btn');
         if (shareBtn && navigator.share) {
             this.addEventListener(shareBtn, 'click', () => {
                 this.shareMessage(messageElement);
             });
         } else if (shareBtn) {
-            shareBtn.style.display = 'none'; // Скрываем если Web Share API не поддерживается
+            shareBtn.style.display = 'none';
         }
     }
 
@@ -1520,7 +1474,6 @@ ${fileContent}
                     url: window.location.href
                 });
             } else {
-                // Fallback - копируем в буфер обмена
                 await this.copyToClipboard(`${messageAuthor}: ${messageText}`);
                 this.showNotification('Сообщение скопировано в буфер обмена', 'success');
             }
@@ -1778,7 +1731,6 @@ ${fileContent}
             modelSelection.appendChild(modelBtn);
         });
         
-        // Позиционирование
         const modelBtn = document.getElementById('modelSelectBtn');
         if (modelBtn) {
             const rect = modelBtn.getBoundingClientRect();
@@ -2484,7 +2436,6 @@ ${fileContent}
     }
 
     attachSettingsHandlers() {
-        // Auto scroll
         const autoScroll = document.getElementById('autoScroll');
         if (autoScroll) {
             this.addEventListener(autoScroll, 'change', (e) => {
@@ -2493,7 +2444,6 @@ ${fileContent}
             });
         }
         
-        // Theme
         const themeSelect = document.getElementById('themeSelect');
         if (themeSelect) {
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'auto';
@@ -2505,7 +2455,6 @@ ${fileContent}
             });
         }
         
-        // Font size
         const fontSize = document.getElementById('fontSize');
         if (fontSize) {
             const currentFontSize = document.documentElement.getAttribute('data-font-size') || 'medium';
@@ -2517,7 +2466,6 @@ ${fileContent}
             });
         }
         
-        // Default model
         const defaultModel = document.getElementById('defaultModel');
         if (defaultModel) {
             this.addEventListener(defaultModel, 'change', (e) => {
@@ -2527,7 +2475,6 @@ ${fileContent}
             });
         }
         
-        // Default mode
         const defaultMode = document.getElementById('defaultMode');
         if (defaultMode) {
             this.addEventListener(defaultMode, 'change', (e) => {
@@ -2536,7 +2483,6 @@ ${fileContent}
             });
         }
         
-        // Export all data
         const exportAllData = document.getElementById('exportAllData');
         if (exportAllData) {
             this.addEventListener(exportAllData, 'click', () => {
@@ -2544,7 +2490,6 @@ ${fileContent}
             });
         }
         
-        // Clear all data
         const clearAllData = document.getElementById('clearAllData');
         if (clearAllData) {
             this.addEventListener(clearAllData, 'click', () => {
@@ -3008,7 +2953,7 @@ ${fileContent}
         };
         
         this.chats.set(newChatId, newChat);
-        this.switchToChat(newChatId); // Автоматически переключаемся на новый чат
+        this.switchToChat(newChatId);
         this.saveChatHistory();
         
         this.showNotification('Новый чат создан', 'success');
@@ -3034,17 +2979,14 @@ ${fileContent}
                     message.classList.add('search-highlight');
                     foundCount++;
                     
-                    // Подсветка текста в содержимом
                     const originalHTML = messageContent.innerHTML;
                     const regex = new RegExp(`(${this.escapeRegex(this.searchTerm)})`, 'gi');
                     messageContent.innerHTML = originalHTML.replace(regex, '<mark class="search-match">$1</mark>');
                     
-                    // Восстановление подсветки кода
                     this.attachCopyButtons(messageContent);
                 } else {
                     message.classList.remove('search-highlight');
                     
-                    // Убираем подсветку
                     const markedHTML = messageContent.innerHTML;
                     messageContent.innerHTML = markedHTML.replace(/<mark class="search-match">(.+?)<\/mark>/gi, '$1');
                 }
@@ -3927,15 +3869,12 @@ ${fileContent}
                 const data = JSON.parse(content);
                 
                 if (data.chats && typeof data.chats === 'object') {
-                    // Сохраняем текущий чат
                     const currentChatId = this.currentChatId;
                     
-                    // Импортируем все чаты
                     Object.entries(data.chats).forEach(([id, chat]) => {
                         this.chats.set(id, chat);
                     });
                     
-                    // Восстанавливаем настройки если есть
                     if (data.settings) {
                         if (data.settings.currentModel && this.models[data.settings.currentModel]) {
                             this.currentModel = data.settings.currentModel;
@@ -3945,7 +3884,6 @@ ${fileContent}
                         }
                     }
                     
-                    // Возвращаемся к текущему чату или первому импортированному
                     this.switchToChat(currentChatId);
                     this.setupModelSelector();
                     this.setMode(this.currentMode);
@@ -3990,7 +3928,6 @@ ${fileContent}
     }
 }
 
-// Глобальные обработчики для PWA
 let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -4012,7 +3949,6 @@ window.addEventListener('appinstalled', () => {
     }
 });
 
-// Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
     window.khaiChat = new KHAIChat();
 });
