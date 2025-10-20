@@ -131,7 +131,7 @@
                 <div class="minimap-section">
                     <div class="minimap-header">
                         <span>Обзор чата</span>
-                        <button class="minimap-toggle" title="Свернуть/развернуть">
+                        <button class="minimap-toggle" title="Свернуть/развернуть" style="position: absolute; right: 16px; top: -45px;">
                             <i class="ti ti-chevron-down"></i>
                         </button>
                     </div>
@@ -139,6 +139,17 @@
                         <div class="chat-minimap" id="chatMinimap">
                             <div class="minimap-content" id="minimapContent"></div>
                             <div class="minimap-viewport" id="minimapViewport"></div>
+                        </div>
+                        <div class="minimap-navigation">
+                            <button id="scrollToTop" class="nav-btn" title="В начало">
+                                <i class="ti ti-arrow-up"></i>
+                            </button>
+                            <button id="scrollToLastAI" class="nav-btn" title="К последнему ответу ИИ">
+                                <i class="ti ti-message-chatbot"></i>
+                            </button>
+                            <button id="scrollToBottom" class="nav-btn" title="В конец">
+                                <i class="ti ti-arrow-down"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -177,10 +188,6 @@
                             <!-- Chat list will be dynamically populated -->
                         </div>
                         <div class="chat-management-buttons">
-                            <button id="newChatBtn" class="utility-btn">
-                                <i class="ti ti-plus"></i>
-                                Новый чат
-                            </button>
                             <button id="exportChatBtn" class="utility-btn">
                                 <i class="ti ti-download"></i>
                                 Экспорт чата
@@ -226,11 +233,9 @@
 
         <!-- Input Section -->
         <section class="input-section" id="inputSection">
-            <div class="mode-indicator-wrapper">
-                <div class="mode-indicator" id="modeIndicator">
-                    <i class="ti ti-message"></i>
-                    <span>Обычный режим</span>
-                </div>
+            <div class="mode-indicator" id="modeIndicator">
+                <i class="ti ti-message"></i>
+                <span>Обычный режим</span>
             </div>
             
             <div class="input-wrapper">
@@ -266,15 +271,20 @@
             <div class="attached-files" id="attachedFiles" style="display: none;"></div>
 
             <div class="action-buttons compact">
-                <button id="clearChatBtn" class="utility-btn compact" title="Очистить чат">
-                    <i class="ti ti-trash"></i>
-                </button>
-                <button id="exportBtn" class="utility-btn compact" title="Экспорт чата">
-                    <i class="ti ti-download"></i>
-                </button>
-                <button id="helpBtn" class="utility-btn compact" title="Помощь">
-                    <i class="ti ti-help"></i>
-                </button>
+                <div class="utility-buttons compact">
+                    <button id="clearChatBtn" class="utility-btn compact" title="Очистить чат">
+                        <i class="ti ti-trash"></i>
+                        Очистить
+                    </button>
+                    <button id="exportBtn" class="utility-btn compact" title="Экспорт чата">
+                        <i class="ti ti-download"></i>
+                        Экспорт
+                    </button>
+                    <button id="helpBtn" class="utility-btn compact" title="Помощь">
+                        <i class="ti ti-help"></i>
+                        Помощь
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -327,17 +337,13 @@
                         <!-- Chat list will be dynamically populated -->
                     </div>
                     <div class="chat-management-buttons">
-                        <button id="mobileNewChatBtn" class="sidebar-btn">
-                            <i class="ti ti-plus"></i>
-                            Новый чат
-                        </button>
                         <button id="mobileExportChatBtn" class="sidebar-btn">
                             <i class="ti ti-download"></i>
-                            Экспорт чатов
+                            Экспорт чата
                         </button>
                         <button id="mobileImportChatBtn" class="sidebar-btn">
                             <i class="ti ti-upload"></i>
-                            Импорт чата(-ов)
+                            Импорт чата
                         </button>
                         <button id="mobileDeleteAllChatsBtn" class="btn-danger">
                             <i class="ti ti-trash"></i>
@@ -441,20 +447,20 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Выбор модели AI</h3>
-                <button class="modal-close" id="modelSelectionClose">
+                <button class="modal-close" id="modelModalClose">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="model-selection-content">
                     <div class="model-category">
-                        <div class="model-category-title">Основные модели</div>
+                        <div class="model-category-title">Доступные модели</div>
                         <div class="model-list">
                             <button class="model-option active" data-model="gpt-5-nano">
                                 <i class="ti ti-bolt"></i>
                                 <div class="model-info">
                                     <div class="model-name">GPT-5 Nano</div>
-                                    <div class="model-desc">Быстрая и эффективная модель</div>
+                                    <div class="model-desc">Быстрая и эффективная модель для повседневных задач</div>
                                 </div>
                                 <i class="ti ti-check"></i>
                             </button>
@@ -462,21 +468,16 @@
                                 <i class="ti ti-cpu"></i>
                                 <div class="model-info">
                                     <div class="model-name">O3 Mini</div>
-                                    <div class="model-desc">Продвинутая модель с улучшенными возможностями</div>
+                                    <div class="model-desc">Продвинутая модель с улучшенными возможностями рассуждения</div>
                                 </div>
                             </button>
-                            <button class="model-option" data-model="deepseek">
+                            <button class="model-option" data-model="deepseek-chat">
                                 <i class="ti ti-search"></i>
                                 <div class="model-info">
                                     <div class="model-name">DeepSeek</div>
                                     <div class="model-desc">Универсальная модель для общения и решения задач</div>
                                 </div>
                             </button>
-                        </div>
-                    </div>
-                    <div class="model-category">
-                        <div class="model-category-title">Специализированные модели</div>
-                        <div class="model-list">
                             <button class="model-option" data-model="gemini-flash">
                                 <i class="ti ti-flash"></i>
                                 <div class="model-info">
@@ -488,7 +489,7 @@
                                 <i class="ti ti-message-circle"></i>
                                 <div class="model-info">
                                     <div class="model-name">xAI Grok</div>
-                                    <div class="model-desc">Модель с уникальным характером и остроумными ответами</div>
+                                    <div class="model-desc">Модель от xAI с уникальным характером и остроумными ответами</div>
                                 </div>
                             </button>
                         </div>
