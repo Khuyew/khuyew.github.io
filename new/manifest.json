@@ -1,24 +1,23 @@
-// manifest.json
 {
-    "name": "KHAI",
-    "short_name": "KHAI",
-    "description": "Первый белорусский ИИ чат",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#0f0f23",
-    "theme_color": "#0f0f23",
-    "orientation": "portrait-primary",
-    "icons": [
-        {
-            "src": "/logo.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/logo.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ],
-    "categories": ["education", "productivity", "utilities"]
+  "name": "KHAI",
+  "short_name": "KHAI", 
+  "description": "Первый белорусский ИИ чат с поддержкой файлов и голоса",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f23",
+  "theme_color": "#0f0f23",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["education", "productivity", "utilities"]
 }
