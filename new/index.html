@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KHAI — Первый белорусский ИИ чат с генерацией изображений и голоса</title>
-    <meta name="description" content="KHAI — первый белорусский ИИ чат с поддержкой генерации изображений, голосового ввода и анализа файлов. Бесплатный AI ассистент на русском языке.">
-    <meta name="keywords" content="KHAI, ИИ чат, белорусский ИИ, генерация изображений, голосовой ввод, AI ассистент">
+    <title>KHAI — Первый белорусский ИИ чат</title>
+    <meta name="description" content="KHAI — Первый белорусский ИИ чат с генерацией изображений, голоса и поддержкой файлов">
+    <meta name="keywords" content="KHAI, ИИ, чат, Беларусь, искусственный интеллект, генерация изображений, голосовой помощник">
     <meta name="author" content="KHAI Team">
     <meta name="theme-color" content="#0f0f23">
     
     <!-- Open Graph -->
     <meta property="og:title" content="KHAI — Первый белорусский ИИ чат">
-    <meta property="og:description" content="Бесплатный ИИ ассистент с генерацией изображений и голосовым вводом">
+    <meta property="og:description" content="Продвинутый ИИ-ассистент с генерацией изображений и голоса">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://khuyew.github.io/khai">
-    <meta property="og:image" content="https://khuyew.github.io/khai/logo.png">
+    <meta property="og:image" content="/logo.png">
     
     <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
-    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -32,10 +31,7 @@
         <header class="app-header">
             <div class="header-content">
                 <div class="header-main">
-                    <div class="logo">
-                        <img src="logo.png" alt="KHAI Logo" class="logo-image">
-                        KHAI
-                    </div>
+                    <img src="/logo.png" alt="KHAI" class="logo-img">
                     <div class="subtitle">Первый белорусский ИИ чат</div>
                 </div>
                 <div class="header-controls">
@@ -114,17 +110,17 @@
                     <button class="action-btn" id="clearChatBtn" title="Очистить чат">
                         <i class="ti ti-trash"></i>
                     </button>
-                    <button class="action-btn mode-btn" id="imageModeBtn" title="Режим генерации изображений">
+                    <button class="action-btn mode-btn" id="imageModeBtn" data-mode="image">
                         <i class="ti ti-photo"></i>
-                        <span class="mode-text">Изображение</span>
+                        <span class="mode-text">Изобр.</span>
                     </button>
-                    <button class="action-btn mode-btn" id="voiceModeBtn" title="Режим генерации голоса">
+                    <button class="action-btn mode-btn" id="voiceModeBtn" data-mode="voice">
                         <i class="ti ti-microphone"></i>
                         <span class="mode-text">Голос</span>
                     </button>
-                    <button class="action-btn mode-btn active" id="textModeBtn" title="Текстовый режим">
+                    <button class="action-btn mode-btn active" id="chatModeBtn" data-mode="chat">
                         <i class="ti ti-message"></i>
-                        <span class="mode-text">Текст</span>
+                        <span class="mode-text">Чат</span>
                     </button>
                 </div>
             </div>
@@ -197,7 +193,7 @@
                     </div>
                     <div class="about-item">
                         <strong>GitHub</strong>
-                        <a href="https://github.com/Khuyew" target="_blank">
+                        <a href="https://github.com/Khuyew" target="_blank" rel="noopener">
                             <i class="ti ti-brand-github"></i>
                             Khuyew на GitHub
                         </a>
@@ -239,7 +235,7 @@
     <div class="pwa-prompt" id="pwaPrompt">
         <div class="pwa-content">
             <div class="pwa-icon">
-                <img src="logo.png" alt="KHAI" class="pwa-logo">
+                <img src="/logo.png" alt="KHAI" class="pwa-logo">
             </div>
             <div class="pwa-text">
                 <h4>Установите KHAI</h4>
