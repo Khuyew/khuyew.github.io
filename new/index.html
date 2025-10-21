@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KHAI — Первый белорусский ИИ чат</title>
-    <meta name="description" content="KHAI — первый белорусский ИИ чат с поддержкой голоса и анализа изображений">
+    <meta name="description" content="KHAI — Первый белорусский ИИ чат с расширенными возможностями">
+    <meta name="theme-color" content="#0a0a0a">
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -18,20 +25,22 @@
     <div class="app-container">
         <header class="app-header">
             <div class="header-content">
-                <div>
+                <div class="logo-section">
                     <div class="logo">KHAI</div>
                     <div class="subtitle">Первый белорусский ИИ чат</div>
                 </div>
                 <div class="header-controls">
-                    <select class="model-select" id="modelSelect">
-                        <option value="gpt-5-nano">GPT-5 Nano</option>
-                        <option value="o3-mini">O3 Mini</option>
-                        <option value="deepseek-chat">DeepSeek Chat</option>
-                        <option value="deepseek-reasoner">DeepSeek Reasoner</option>
-                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                        <option value="grok-beta">xAI Grok</option>
-                    </select>
+                    <div class="model-select-wrapper">
+                        <select class="model-select" id="modelSelect">
+                            <option value="gpt-5-nano">GPT-5 Nano</option>
+                            <option value="o3-mini">O3 Mini</option>
+                            <option value="deepseek-chat">DeepSeek Chat</option>
+                            <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                            <option value="grok-beta">xAI Grok</option>
+                        </select>
+                    </div>
                     <button class="control-btn" id="themeToggle">
                         <i class="ti ti-moon"></i>
                     </button>
@@ -104,6 +113,10 @@
                     <i class="ti ti-message"></i>
                     <span id="currentChatName">Основной чат</span>
                 </div>
+                <div class="status-indicator" id="statusIndicator">
+                    <div class="status-dot"></div>
+                    <span>В сети</span>
+                </div>
             </div>
         </footer>
     </div>
@@ -122,17 +135,46 @@
         
         <div class="sidebar-content">
             <div class="sidebar-section">
-                <h4>Управление чатами</h4>
-                <div class="chat-list" id="chatList">
-                    <!-- Chat items will be dynamically added here -->
+                <div class="search-container">
+                    <input type="text" class="search-input" id="chatSearchInput" placeholder="Поиск чатов...">
+                    <i class="ti ti-search search-icon"></i>
                 </div>
-                <button class="sidebar-btn primary" id="newChatBtn">
-                    <i class="ti ti-plus"></i> Новый чат
-                </button>
             </div>
             
             <div class="sidebar-section">
-                <h4>О KHAI</h4>
+                <h4>Управление чатами</h4>
+                <div class="chat-management-buttons">
+                    <button class="sidebar-btn primary" id="newChatBtn">
+                        <i class="ti ti-plus"></i> Новый чат
+                    </button>
+                    <button class="sidebar-btn" id="importChatBtn">
+                        <i class="ti ti-upload"></i> Импорт
+                    </button>
+                    <button class="sidebar-btn" id="exportAllBtn">
+                        <i class="ti ti-download"></i> Экспорт всех
+                    </button>
+                    <button class="sidebar-btn danger" id="deleteAllChatsBtn">
+                        <i class="ti ti-trash"></i> Удалить все
+                    </button>
+                </div>
+                <div class="chat-list" id="chatList">
+                    <!-- Chat items will be dynamically added here -->
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h4>Поиск по сообщениям</h4>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="messageSearchInput" placeholder="Поиск по сообщениям...">
+                    <i class="ti ti-search search-icon"></i>
+                </div>
+                <div class="search-results" id="messageSearchResults">
+                    <!-- Search results will appear here -->
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h4>О программе</h4>
                 <div class="about-content">
                     <div class="about-item">
                         <strong>Сделано в Беларуси</strong>
@@ -143,15 +185,8 @@
                         <span>Ваши данные защищены и не передаются третьим лицам</span>
                     </div>
                     <div class="about-item">
-                        <strong>GitHub</strong>
-                        <a href="https://github.com/Khuyew" target="_blank">
-                            <i class="ti ti-brand-github"></i>
-                            Khuyew на GitHub
-                        </a>
-                    </div>
-                    <div class="about-item">
                         <strong>Версия</strong>
-                        <span>KHAI v3.0</span>
+                        <span>KHAI v2.5</span>
                     </div>
                 </div>
             </div>
@@ -160,6 +195,44 @@
 
     <!-- Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Modal for chat rename -->
+    <div class="modal" id="renameChatModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Переименовать чат</h3>
+                <button class="modal-close" id="renameChatClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="renameChatInput" placeholder="Введите новое название чата">
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="renameChatCancel">Отмена</button>
+                <button class="modal-btn primary" id="renameChatSave">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for PWA install prompt -->
+    <div class="modal" id="pwaInstallModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Установить KHAI</h3>
+                <button class="modal-close" id="pwaInstallClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Установите KHAI на свое устройство для быстрого доступа и работы офлайн.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="pwaInstallLater">Позже</button>
+                <button class="modal-btn primary" id="pwaInstallNow">Установить</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
