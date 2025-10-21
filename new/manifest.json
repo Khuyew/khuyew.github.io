@@ -1,61 +1,26 @@
 {
-    "name": "KHAI - Первый белорусский ИИ чат",
+    "name": "KHAI — Первый белорусский ИИ чат",
     "short_name": "KHAI",
-    "description": "Бесплатный ИИ-помощник с генерацией изображений и голоса на русском языке",
-    "lang": "ru-BY",
-    "dir": "ltr",
-    "display": "standalone",
-    "orientation": "portrait",
-    "scope": "/",
+    "description": "Современный AI-помощник с поддержкой голоса, анализа изображений и генерацией контента",
     "start_url": "/",
+    "display": "standalone",
     "background_color": "#0f0f23",
-    "theme_color": "#0f0f23",
+    "theme_color": "#0099ff",
+    "orientation": "portrait-primary",
     "categories": ["utilities", "productivity"],
+    "lang": "ru",
+    "dir": "ltr",
+    "scope": "/",
+    "id": "/",
     "icons": [
         {
-            "src": "/assets/icons/icon-72x72.png",
-            "sizes": "72x72",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/assets/icons/icon-96x96.png",
-            "sizes": "96x96",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/assets/icons/icon-128x128.png",
-            "sizes": "128x128",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/assets/icons/icon-144x144.png",
-            "sizes": "144x144",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/assets/icons/icon-152x152.png",
-            "sizes": "152x152",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/assets/icons/icon-192x192.png",
+            "src": "/images/icons/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "/assets/icons/icon-384x384.png",
-            "sizes": "384x384",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/assets/icons/icon-512x512.png",
+            "src": "/images/icons/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
@@ -63,42 +28,48 @@
     ],
     "screenshots": [
         {
-            "src": "/assets/screenshots/mobile-1.png",
-            "sizes": "375x667",
+            "src": "/images/screenshots/mobile-light.png",
+            "sizes": "390x844",
             "type": "image/png",
-            "form_factor": "narrow"
+            "form_factor": "narrow",
+            "label": "KHAI чат в светлой теме"
         },
         {
-            "src": "/assets/screenshots/desktop-1.png",
-            "sizes": "1280x720",
+            "src": "/images/screenshots/mobile-dark.png",
+            "sizes": "390x844",
             "type": "image/png",
-            "form_factor": "wide"
+            "form_factor": "narrow",
+            "label": "KHAI чат в темной теме"
         }
     ],
     "shortcuts": [
         {
             "name": "Новый чат",
-            "short_name": "Новый чат",
+            "short_name": "Новый",
             "description": "Начать новый разговор с ИИ",
-            "url": "/?action=new-chat",
+            "url": "/?new=true",
             "icons": [
                 {
-                    "src": "/assets/icons/shortcut-chat.png",
+                    "src": "/images/icons/shortcut-new.png",
                     "sizes": "96x96"
                 }
             ]
         },
         {
-            "name": "Генерация голоса",
+            "name": "Голосовой ввод",
             "short_name": "Голос",
-            "description": "Сгенерировать голос из текста",
-            "url": "/?action=voice",
+            "description": "Начать голосовой ввод",
+            "url": "/?voice=true",
             "icons": [
                 {
-                    "src": "/assets/icons/shortcut-voice.png",
+                    "src": "/images/icons/shortcut-voice.png",
                     "sizes": "96x96"
                 }
             ]
         }
-    ]
+    ],
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "permissions": ["clipboard-write", "clipboard-read"]
 }
