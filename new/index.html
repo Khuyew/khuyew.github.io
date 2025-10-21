@@ -2,10 +2,10 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KHAI — Первый белорусский ИИ чат</title>
-    <meta name="description" content="KHAI — Первый белорусский ИИ чат с поддержкой мультимодальных функций">
-    <meta name="theme-color" content="#0f0f23">
+    <meta name="description" content="KHAI — полностью бесплатный белорусский ИИ-помощник">
+    <meta name="theme-color" content="#667eea">
     
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -25,23 +25,20 @@
     <div class="app-container">
         <header class="app-header">
             <div class="header-content">
-                <div class="header-title">
+                <div class="header-left">
                     <div class="logo">KHAI</div>
-                    <div class="subtitle">Первый белорусский ИИ чат</div>
+                    <div class="subtitle">Первый белорусский ИИ</div>
                 </div>
                 <div class="header-controls">
-                    <button class="control-btn search-btn" id="searchMessagesBtn" title="Поиск по сообщениям">
+                    <button class="control-btn" id="searchMessagesBtn" title="Поиск по сообщениям">
                         <i class="ti ti-search"></i>
                     </button>
                     <select class="model-select" id="modelSelect">
                         <option value="gpt-5-nano">GPT-5 Nano</option>
                         <option value="o3-mini">O3 Mini</option>
-                        <option value="claude-sonnet">Claude Sonnet</option>
                         <option value="deepseek-chat">DeepSeek Chat</option>
                         <option value="deepseek-reasoner">DeepSeek Reasoner</option>
                         <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                        <option value="grok-beta">xAI Grok</option>
                     </select>
                     <button class="control-btn" id="themeToggle">
                         <i class="ti ti-moon"></i>
@@ -53,7 +50,39 @@
             </div>
         </header>
 
+        <!-- Notifications Container -->
+        <div class="notifications-container" id="notificationsContainer"></div>
+
+        <!-- Search Overlay -->
+        <div class="search-overlay" id="searchOverlay">
+            <div class="search-header">
+                <h3>Поиск по сообщениям</h3>
+                <button class="search-close" id="searchClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="search-input-wrapper">
+                <input type="text" id="searchInput" placeholder="Введите текст для поиска...">
+                <button class="search-clear" id="searchClear">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
         <main class="chat-main">
+            <div class="chat-controls">
+                <button class="chat-control-btn" id="scrollToTopBtn" title="К началу">
+                    <i class="ti ti-arrow-up"></i>
+                </button>
+                <button class="chat-control-btn" id="scrollToBottomBtn" title="К последнему сообщению">
+                    <i class="ti ti-arrow-down"></i>
+                </button>
+                <button class="chat-control-btn" id="nextMessageBtn" title="Следующее сообщение">
+                    <i class="ti ti-chevron-down"></i>
+                </button>
+            </div>
+
             <div class="messages-container" id="messagesContainer">
                 <!-- Messages will be added here -->
             </div>
@@ -66,7 +95,7 @@
                     
                     <textarea 
                         id="userInput" 
-                        placeholder="Задайте вопрос или опишите изображение..." 
+                        placeholder="Задайте вопрос..." 
                         autocomplete="off" 
                         rows="1"
                     ></textarea>
@@ -116,7 +145,7 @@
     <!-- Sidebar Menu -->
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
-            <h3>Меню чатов</h3>
+            <h3>Чаты</h3>
             <button class="sidebar-close" id="sidebarClose">
                 <i class="ti ti-x"></i>
             </button>
@@ -124,11 +153,9 @@
         
         <div class="sidebar-content">
             <div class="sidebar-section">
-                <div class="search-chats-container">
-                    <div class="search-input-wrapper">
-                        <i class="ti ti-search"></i>
-                        <input type="text" id="searchChatsInput" placeholder="Поиск чатов...">
-                    </div>
+                <div class="search-chat-wrapper">
+                    <input type="text" id="searchChatInput" placeholder="Поиск чатов...">
+                    <i class="ti ti-search"></i>
                 </div>
                 
                 <div class="chat-list" id="chatList">
@@ -136,14 +163,11 @@
                 </div>
                 
                 <div class="chat-management-buttons">
-                    <button class="sidebar-btn" id="newChatBtn">
+                    <button class="sidebar-btn primary" id="newChatBtn">
                         <i class="ti ti-plus"></i> Новый чат
                     </button>
-                    <button class="sidebar-btn" id="importChatBtn">
-                        <i class="ti ti-upload"></i> Импорт
-                    </button>
                     <button class="sidebar-btn" id="exportAllChatsBtn">
-                        <i class="ti ti-download"></i> Экспорт всех
+                        <i class="ti ti-download"></i> Скачать все
                     </button>
                     <button class="sidebar-btn danger" id="deleteAllChatsBtn">
                         <i class="ti ti-trash"></i> Удалить все
@@ -152,26 +176,19 @@
             </div>
             
             <div class="sidebar-section">
-                <h4>О KHAI</h4>
+                <h4>О программе</h4>
                 <div class="about-content">
                     <div class="about-item">
-                        <strong>Первый белорусский ИИ чат</strong>
-                        <span>Разработано с ❤️ для Беларуси</span>
+                        <strong>KHAI</strong>
+                        <span>Первый белорусский ИИ-помощник</span>
                     </div>
                     <div class="about-item">
                         <strong>Конфиденциальность</strong>
-                        <span>Ваши данные защищены и не передаются третьим лицам</span>
-                    </div>
-                    <div class="about-item">
-                        <strong>Статус системы</strong>
-                        <span class="status-indicator online">
-                            <i class="ti ti-circle"></i>
-                            Все системы работают
-                        </span>
+                        <span>Ваши данные защищены</span>
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>KHAI v2.5</span>
+                        <span>KHAI v3.0</span>
                     </div>
                 </div>
             </div>
@@ -180,65 +197,6 @@
 
     <!-- Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- Search Messages Modal -->
-    <div class="modal" id="searchMessagesModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Поиск по сообщениям</h3>
-                <button class="modal-close" id="searchMessagesClose">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="search-input-wrapper">
-                    <i class="ti ti-search"></i>
-                    <input type="text" id="searchMessagesInput" placeholder="Введите текст для поиска...">
-                </div>
-                <div class="search-results" id="searchResults">
-                    <!-- Search results will appear here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Rename Chat Modal -->
-    <div class="modal" id="renameChatModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Переименовать чат</h3>
-                <button class="modal-close" id="renameChatClose">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="renameChatInput" placeholder="Введите новое название чата...">
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn secondary" id="renameChatCancel">Отмена</button>
-                <button class="modal-btn primary" id="renameChatSave">Сохранить</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- PWA Install Prompt -->
-    <div class="pwa-prompt" id="pwaPrompt">
-        <div class="pwa-content">
-            <div class="pwa-icon">
-                <i class="ti ti-device-mobile"></i>
-            </div>
-            <div class="pwa-text">
-                <h4>Установите KHAI</h4>
-                <p>Добавьте приложение на главный экран для быстрого доступа</p>
-            </div>
-            <button class="pwa-close" id="pwaClose">
-                <i class="ti ti-x"></i>
-            </button>
-            <button class="pwa-install" id="pwaInstall">
-                Установить
-            </button>
-        </div>
-    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
