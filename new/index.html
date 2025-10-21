@@ -1,293 +1,230 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KHAI — Первый белорусский ИИ чат</title>
-    <meta name="description" content="KHAI — Первый белорусский ИИ чат с генерацией изображений и голоса">
-    <meta name="theme-color" content="#0f0f23">
+    <meta name="description" content="KHAI — первый белорусский ИИ чат с поддержкой генерации изображений, голосового ввода и анализа файлов. Современный AI-ассистент для решения повседневных задач.">
+    <meta name="keywords" content="ии чат, белорусский ии, искусственный интеллект, голосовой ввод, генерация изображений, ai ассистент">
+    <meta name="author" content="KHAI">
     
-    <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <!-- Open Graph -->
+    <meta property="og:title" content="KHAI — Первый белорусский ИИ чат">
+    <meta property="og:description" content="Первый белорусский ИИ чат с генерацией изображений и голосовым вводом">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://khai.chat">
+    <meta property="og:image" content="/logo.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="KHAI — Первый белорусский ИИ чат">
+    <meta name="twitter:description" content="Первый белорусский ИИ чат с генерацией изображений и голосовым вводом">
+    <meta name="twitter:image" content="/logo.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/logo.png">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f0f23">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Styles -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Прогресс-бар скролла -->
-        <div class="scroll-progress" id="scrollProgress"></div>
-        
-        <header class="app-header">
+        <!-- Header -->
+        <header class="app-header" id="appHeader">
             <div class="header-content">
-                <!-- Логотип -->
-                <div class="logo-container">
-                    <div class="logo">KHAI</div>
+                <div class="header-main">
+                    <div class="logo" id="appLogo">KHAI</div>
+                    <div class="subtitle">Первый белорусский ИИ чат</div>
                 </div>
-                
-                <!-- Выбор модели с иконкой -->
-                <button class="model-select-btn" id="modelSelectBtn">
-                    <i class="ti ti-cpu"></i>
-                </button>
-                
-                <!-- Поисковая строка -->
-                <div class="search-container">
-                    <i class="ti ti-search"></i>
-                    <input type="text" id="globalSearch" placeholder="Поиск по чатам и сообщениям...">
-                </div>
-                
-                <!-- Управление -->
                 <div class="header-controls">
-                    <button class="control-btn" id="themeToggle" title="Сменить тему">
-                        <i class="ti ti-moon"></i>
+                    <select class="model-select" id="modelSelect">
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-3.5">GPT-3.5 Turbo</option>
+                        <option value="claude-2">Claude 2</option>
+                        <option value="dalle-3">DALL-E 3</option>
+                    </select>
+                    <button class="control-btn search-btn" id="searchBtn" title="Поиск по чатам">
+                        <i class="fas fa-search"></i>
                     </button>
-                    <button class="control-btn menu-toggle" id="menuToggle" title="Меню">
-                        <i class="ti ti-menu-2"></i>
+                    <button class="control-btn" id="newChatBtn" title="Новый чат">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="control-btn" id="menuBtn" title="Меню">
+                        <i class="fas fa-bars"></i>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Модальное окно выбора модели -->
-        <div class="modal" id="modelSelectModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Выбор модели ИИ</h3>
-                    <button class="modal-close" id="modelSelectClose">
-                        <i class="ti ti-x"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="model-grid" id="modelGrid">
-                        <!-- Модели будут добавлены динамически -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Навигационные кнопки -->
-        <div class="navigation-controls" id="navigationControls">
-            <button class="nav-btn" id="scrollToTopBtn" title="К началу чата">
-                <i class="ti ti-arrow-up"></i>
-            </button>
-            <button class="nav-btn" id="scrollToBottomBtn" title="К последнему сообщению">
-                <i class="ti ti-arrow-down"></i>
-            </button>
-        </div>
-
-        <main class="chat-main">
+        <!-- Main Chat Area -->
+        <main class="chat-main" id="chatMain">
             <div class="messages-container" id="messagesContainer">
-                <!-- Сообщения будут добавлены здесь -->
+                <!-- Messages will be inserted here dynamically -->
             </div>
+        </main>
 
-            <!-- Информация о запросе -->
-            <div class="request-info" id="requestInfo">
-                <div class="request-stats">
-                    <span id="charCount">0 символов</span>
-                    <span id="fileCount">0 файлов</span>
-                    <span id="totalSize">0 КБ</span>
-                </div>
-            </div>
-
-            <!-- Панель ввода -->
-            <div class="input-section">
-                <!-- Выбор режима ввода -->
-                <div class="input-mode-selector">
-                    <button class="mode-btn active" data-mode="text" title="Текстовый режим">
-                        <i class="ti ti-keyboard"></i>
-                        <span>Текст</span>
-                    </button>
-                    <button class="mode-btn" data-mode="image" title="Графический режим">
-                        <i class="ti ti-photo"></i>
-                        <span>Рисунок</span>
-                    </button>
-                    <button class="mode-btn" data-mode="voice" title="Голосовой режим">
-                        <i class="ti ti-microphone"></i>
-                        <span>Голос</span>
-                    </button>
-                </div>
+        <!-- Input Section -->
+        <section class="input-section" id="inputSection">
+            <div class="input-wrapper">
+                <button class="attach-btn" id="attachBtn" title="Прикрепить файл">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <input type="file" id="fileInput" multiple accept="image/*,.pdf,.txt" style="display: none;">
                 
-                <div class="input-wrapper">
-                    <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
-                        <i class="ti ti-plus"></i>
-                    </button>
-                    
+                <div class="input-container">
                     <textarea 
                         id="userInput" 
-                        placeholder="Задайте вопрос или опишите изображение..." 
-                        autocomplete="off" 
+                        placeholder="Введите ваше сообщение..." 
                         rows="1"
                     ></textarea>
                     
                     <div class="input-controls">
-                        <button class="input-btn" id="clearInputBtn" title="Очистить ввод">
-                            <i class="ti ti-x"></i>
+                        <button class="clear-input-btn" id="clearInputBtn" title="Очистить">
+                            <i class="fas fa-times"></i>
                         </button>
-                        <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
-                            <i class="ti ti-microphone"></i>
+                        <button class="input-btn" id="voiceBtn" title="Голосовой ввод">
+                            <i class="fas fa-microphone"></i>
                         </button>
-                        <button class="send-btn" id="sendBtn" title="Отправить сообщение">
-                            <i class="ti ti-send"></i>
+                        <button class="send-btn" id="sendBtn" title="Отправить сообщение" disabled>
+                            <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 </div>
-
-                <!-- Дополнительные настройки формата -->
-                <div class="format-settings" id="formatSettings">
-                    <div class="format-option">
-                        <label for="fontSize">Размер шрифта:</label>
-                        <select id="fontSize">
-                            <option value="14">Маленький</option>
-                            <option value="16" selected>Средний</option>
-                            <option value="18">Большой</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="attached-files" id="attachedFiles">
-                    <!-- Прикрепленные файлы появятся здесь -->
-                </div>
             </div>
-        </main>
 
-        <footer class="app-footer">
-            <div class="footer-main">
-                <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
-                    <i class="ti ti-trash"></i>
+            <!-- Attached Files -->
+            <div class="attached-files" id="attachedFiles"></div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn" id="expandBtn" title="Режим чтения">
+                    <i class="fas fa-expand"></i>
                 </button>
-                <button class="footer-btn" id="downloadHistoryBtn" title="Скачать историю">
-                    <i class="ti ti-download"></i>
+                <button class="action-btn" title="Скачать чат">
+                    <i class="fas fa-download"></i>
                 </button>
-                <button class="footer-btn" id="helpBtn" title="Помощь">
-                    <i class="ti ti-help"></i>
+                <button class="action-btn" title="Поделиться">
+                    <i class="fas fa-share"></i>
                 </button>
             </div>
-            <div class="footer-info">
-                <div class="room-info">
-                    <span id="currentChatName">Основной чат</span>
+        </section>
+
+        <!-- Footer -->
+        <footer class="app-footer" id="appFooter">
+            <div class="footer-content">
+                <div class="current-chat-info">
+                    <i class="fas fa-comment"></i>
+                    <span id="currentChatInfo">Новый чат</span>
                 </div>
-                <div class="status-indicator" id="statusIndicator">
+                <div class="status-indicator">
                     <div class="status-dot"></div>
-                    <span>Онлайн</span>
+                    <span>KHAI онлайн</span>
                 </div>
             </div>
         </footer>
+
+        <!-- Navigation Controls -->
+        <div class="navigation-controls hidden">
+            <button class="nav-btn" id="scrollToTop" title="В начало">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            <button class="nav-btn" id="scrollToBottom" title="В конец">
+                <i class="fas fa-arrow-down"></i>
+            </button>
+        </div>
+
+        <!-- Notifications -->
+        <div class="notifications-container" id="notificationsContainer"></div>
     </div>
 
-    <!-- Скрытый input для файлов -->
-    <input type="file" id="fileInput" accept="image/*, .txt, .pdf, .doc, .docx" style="display: none;">
-
-    <!-- Боковое меню -->
+    <!-- Sidebar Menu -->
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
             <h3>Меню KHAI</h3>
             <button class="sidebar-close" id="sidebarClose">
-                <i class="ti ti-x"></i>
+                <i class="fas fa-times"></i>
             </button>
         </div>
-        
         <div class="sidebar-content">
-            <!-- Главное меню -->
             <div class="sidebar-section">
-                <h4>Главное меню</h4>
-                <button class="sidebar-btn" id="newChatBtn">
-                    <i class="ti ti-plus"></i> Новый чат
+                <h4>Управление чатами</h4>
+                <div class="search-chats">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="chatSearchInput" placeholder="Поиск по чатам...">
+                </div>
+                <div class="chat-list" id="chatList">
+                    <!-- Chat list will be populated dynamically -->
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h4>Действия</h4>
+                <button class="sidebar-btn primary" id="exportChats">
+                    <i class="fas fa-download"></i> Экспорт чатов
                 </button>
-                <button class="sidebar-btn" id="activeFunctionsBtn">
-                    <i class="ti ti-apps"></i> Активные функции
+                <button class="sidebar-btn" id="importChats">
+                    <i class="fas fa-upload"></i> Импорт чатов
                 </button>
-                <button class="sidebar-btn" id="toolsBtn">
-                    <i class="ti ti-tool"></i> Инструменты
+                <button class="sidebar-btn danger" id="clearAllChats">
+                    <i class="fas fa-trash"></i> Удалить все чаты
                 </button>
             </div>
             
-            <!-- Профиль пользователя -->
-            <div class="sidebar-section">
-                <h4>Профиль</h4>
-                <button class="sidebar-btn" id="profileBtn">
-                    <i class="ti ti-user"></i> Настройки профиля
-                </button>
-                <button class="sidebar-btn" id="personalDataBtn">
-                    <i class="ti ti-lock"></i> Персональные данные
-                </button>
-            </div>
-            
-            <!-- Настройки -->
             <div class="sidebar-section">
                 <h4>Настройки</h4>
-                <button class="sidebar-btn" id="interfaceSettingsBtn">
-                    <i class="ti ti-palette"></i> Внешний вид
+                <button class="sidebar-btn" id="settingsBtn">
+                    <i class="fas fa-cog"></i> Настройки приложения
                 </button>
-                <button class="sidebar-btn" id="behaviorSettingsBtn">
-                    <i class="ti ti-settings"></i> Поведение системы
-                </button>
-                <button class="sidebar-btn" id="soundSettingsBtn">
-                    <i class="ti ti-volume"></i> Звуковые эффекты
-                </button>
-            </div>
-            
-            <!-- Уведомления -->
-            <div class="sidebar-section">
-                <h4>Уведомления</h4>
-                <div class="notifications-list" id="notificationsList">
-                    <!-- Уведомления будут добавлены динамически -->
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px;">
+                    <span>Тема:</span>
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="theme-slider"></span>
+                    </label>
+                    <span id="themeLabel">Темная</span>
                 </div>
-                <button class="sidebar-btn" id="clearNotificationsBtn">
-                    <i class="ti ti-bell-off"></i> Очистить уведомления
-                </button>
             </div>
             
-            <!-- Поддержка -->
             <div class="sidebar-section">
-                <h4>Поддержка</h4>
-                <button class="sidebar-btn" id="supportBtn">
-                    <i class="ti ti-headset"></i> Связь с поддержкой
-                </button>
-                <button class="sidebar-btn" id="aboutBtn">
-                    <i class="ti ti-info-circle"></i> О программе
-                </button>
-            </div>
-            
-            <!-- Водяной знак -->
-            <div class="watermark">
-                <div class="watermark-logo">KHAI</div>
-                <span>Первый белорусский ИИ</span>
+                <h4>О приложении</h4>
+                <div style="padding: 12px 16px; font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+                    <p><strong>KHAI v1.2.0</strong></p>
+                    <p>Первый белорусский ИИ чат с поддержкой генерации изображений и голосового ввода.</p>
+                    <p style="margin-top: 8px;">&copy; 2024 KHAI. Все права защищены.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Оверлей -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
 
-    <!-- Водяной знак на странице -->
-    <div class="page-watermark">
-        <div class="watermark-text">KHAI</div>
-    </div>
-
-    <!-- PWA Install Prompt -->
-    <div class="pwa-prompt" id="pwaPrompt">
-        <div class="pwa-content">
-            <div class="pwa-icon">
-                <i class="ti ti-device-mobile"></i>
-            </div>
-            <div class="pwa-text">
-                <h4>Установите KHAI</h4>
-                <p>Добавьте приложение на главный экран для быстрого доступа</p>
-            </div>
-            <div class="pwa-actions">
-                <button class="pwa-btn secondary" id="pwaDismiss">Позже</button>
-                <button class="pwa-btn primary" id="pwaInstall">Установить</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Scripts -->
     <script src="script.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
