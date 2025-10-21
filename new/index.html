@@ -3,30 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KHAI — Первый белорусский ИИ чат</title>
-    <meta name="description" content="KHAI — Первый белорусский ИИ чат с генерацией изображений и голоса">
+    <title>KHAI — Первый белорусский ИИ чат с генерацией изображений и голоса</title>
+    <meta name="description" content="KHAI — первый белорусский ИИ чат с поддержкой генерации изображений, голосового ввода и анализа файлов. Бесплатный AI ассистент на русском языке.">
+    <meta name="keywords" content="KHAI, ИИ чат, белорусский ИИ, генерация изображений, голосовой ввод, AI ассистент">
+    <meta name="author" content="KHAI Team">
     <meta name="theme-color" content="#0f0f23">
     
+    <!-- Open Graph -->
+    <meta property="og:title" content="KHAI — Первый белорусский ИИ чат">
+    <meta property="og:description" content="Бесплатный ИИ ассистент с генерацией изображений и голосовым вводом">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://khuyew.github.io/khai">
+    <meta property="og:image" content="https://khuyew.github.io/khai/logo.png">
+    
     <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
+    <link rel="manifest" href="manifest.json">
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="styles.css">
-    
-    <!-- Puter AI SDK -->
-    <script src="https://js.puter.com/v2/"></script>
 </head>
 <body>
     <div class="app-container">
         <header class="app-header">
             <div class="header-content">
                 <div class="header-main">
-                    <div class="logo">KHAI</div>
+                    <div class="logo">
+                        <img src="logo.png" alt="KHAI Logo" class="logo-image">
+                        KHAI
+                    </div>
                     <div class="subtitle">Первый белорусский ИИ чат</div>
                 </div>
                 <div class="header-controls">
@@ -52,29 +61,25 @@
             </div>
         </header>
 
-        <div class="navigation-controls" id="navigationControls">
-            <button class="nav-btn" id="scrollToTopBtn" title="В начало">
-                <i class="ti ti-arrow-up"></i>
-            </button>
-            <button class="nav-btn" id="scrollToBottomBtn" title="В конец">
-                <i class="ti ti-arrow-down"></i>
-            </button>
-            <button class="nav-btn" id="nextMessageBtn" title="Следующее сообщение">
-                <i class="ti ti-chevron-down"></i>
-            </button>
-        </div>
-
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer">
                 <!-- Messages will be added here -->
             </div>
 
+            <div class="chat-navigation-controls" id="chatNavigationControls">
+                <button class="nav-btn" id="scrollToTopBtn" title="В начало">
+                    <i class="ti ti-arrow-up"></i>
+                </button>
+                <button class="nav-btn" id="scrollToBottomBtn" title="В конец">
+                    <i class="ti ti-arrow-down"></i>
+                </button>
+                <button class="nav-btn" id="nextMessageBtn" title="Следующее сообщение">
+                    <i class="ti ti-chevron-down"></i>
+                </button>
+            </div>
+
             <div class="input-section">
                 <div class="input-wrapper">
-                    <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
-                        <i class="ti ti-plus"></i>
-                    </button>
-                    
                     <textarea 
                         id="userInput" 
                         placeholder="Задайте вопрос или опишите изображение..." 
@@ -83,6 +88,9 @@
                     ></textarea>
                     
                     <div class="input-controls">
+                        <button class="input-btn" id="attachFileBtn" title="Прикрепить файл">
+                            <i class="ti ti-plus"></i>
+                        </button>
                         <button class="input-btn" id="clearInputBtn" title="Очистить ввод">
                             <i class="ti ti-x"></i>
                         </button>
@@ -106,11 +114,17 @@
                     <button class="action-btn" id="clearChatBtn" title="Очистить чат">
                         <i class="ti ti-trash"></i>
                     </button>
-                    <button class="action-btn" id="generateImageBtn" title="Генерация изображения">
+                    <button class="action-btn mode-btn" id="imageModeBtn" title="Режим генерации изображений">
                         <i class="ti ti-photo"></i>
+                        <span class="mode-text">Изображение</span>
                     </button>
-                    <button class="action-btn" id="generateVoiceBtn" title="Генерация голоса">
+                    <button class="action-btn mode-btn" id="voiceModeBtn" title="Режим генерации голоса">
                         <i class="ti ti-microphone"></i>
+                        <span class="mode-text">Голос</span>
+                    </button>
+                    <button class="action-btn mode-btn active" id="textModeBtn" title="Текстовый режим">
+                        <i class="ti ti-message"></i>
+                        <span class="mode-text">Текст</span>
                     </button>
                 </div>
             </div>
@@ -131,7 +145,7 @@
     </div>
 
     <!-- Hidden file input -->
-    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    <input type="file" id="fileInput" accept="image/*,text/*,.pdf,.doc,.docx" multiple style="display: none;">
 
     <!-- Sidebar Menu -->
     <div class="sidebar-menu" id="sidebarMenu">
@@ -225,7 +239,7 @@
     <div class="pwa-prompt" id="pwaPrompt">
         <div class="pwa-content">
             <div class="pwa-icon">
-                <i class="ti ti-device-mobile"></i>
+                <img src="logo.png" alt="KHAI" class="pwa-logo">
             </div>
             <div class="pwa-text">
                 <h4>Установите KHAI</h4>
