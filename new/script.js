@@ -1,418 +1,333 @@
-// Main application script
+// KHAI Chat Application
 class KHAIChat {
     constructor() {
         this.currentChatId = 'default';
         this.chats = new Map();
-        this.currentModel = 'gpt-5-nano';
-        this.isGenerating = false;
-        this.isVoiceMode = false;
-        this.isScrolling = false;
-        this.scrollTimer = null;
-        this.notifications = [];
-        this.typingAnimation = null;
-        this.currentTypingMessage = null;
+        this.currentMode = 'chat';
+        this.isRecording = false;
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+        this.isProcessing = false;
+        this.notificationId = 0;
+        this.isSidebarOpen = false;
+        this.isSearchModalOpen = false;
+        this.currentSearchResults = [];
+        this.currentSearchIndex = -1;
         
         this.initializeApp();
-        this.setupEventListeners();
         this.loadChats();
-        this.showPWAInstallPrompt();
+        this.setupEventListeners();
+        this.setupPWA();
     }
-    
+
     initializeApp() {
-        // Initialize chat if none exists
+        // Initialize theme
+        const savedTheme = localStorage.getItem('khai-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        this.updateThemeIcon(savedTheme);
+
+        // Initialize current chat
         if (!this.chats.has(this.currentChatId)) {
             this.chats.set(this.currentChatId, {
                 id: this.currentChatId,
                 name: 'Основной чат',
                 messages: [],
-                createdAt: new Date()
+                createdAt: new Date().toISOString()
             });
         }
-        
+
         this.renderChatList();
         this.renderMessages();
-        this.updateCurrentChatInfo();
-        
-        // Initialize theme
-        const savedTheme = localStorage.getItem('khai-theme') || 'dark';
-        this.setTheme(savedTheme);
-        
-        // Initialize marked for markdown rendering
-        marked.setOptions({
-            highlight: function(code, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    return hljs.highlight(code, { language: lang }).value;
-                }
-                return hljs.highlightAuto(code).value;
-            },
-            breaks: true,
-            gfm: true
-        });
+        this.updateCurrentChatName();
     }
-    
+
     setupEventListeners() {
         // Input handling
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
-        
-        userInput.addEventListener('input', this.handleInputChange.bind(this));
-        userInput.addEventListener('keydown', this.handleKeyDown.bind(this));
-        sendBtn.addEventListener('click', this.sendMessage.bind(this));
-        
-        // Voice input
-        const voiceInputBtn = document.getElementById('voiceInputBtn');
-        voiceInputBtn.addEventListener('click', this.toggleVoiceInput.bind(this));
-        
-        // File attachment
+        const clearInputBtn = document.getElementById('clearInputBtn');
         const attachFileBtn = document.getElementById('attachFileBtn');
         const fileInput = document.getElementById('fileInput');
-        
+        const voiceInputBtn = document.getElementById('voiceInputBtn');
+
+        userInput.addEventListener('input', this.handleInputResize.bind(this));
+        userInput.addEventListener('keydown', this.handleKeyDown.bind(this));
+        sendBtn.addEventListener('click', () => this.sendMessage());
+        clearInputBtn.addEventListener('click', () => this.clearInput());
         attachFileBtn.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', this.handleFileUpload.bind(this));
-        
-        // Clear input
-        const clearInputBtn = document.getElementById('clearInputBtn');
-        clearInputBtn.addEventListener('click', this.clearInput.bind(this));
-        
-        // Sidebar menu
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebarClose = document.getElementById('sidebarClose');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        
-        menuToggle.addEventListener('click', this.toggleSidebar.bind(this));
-        sidebarClose.addEventListener('click', this.toggleSidebar.bind(this));
-        sidebarOverlay.addEventListener('click', this.toggleSidebar.bind(this));
-        
-        // Chat actions
-        const newChatBtn = document.getElementById('newChatBtn');
-        const deleteAllChatsBtn = document.getElementById('deleteAllChatsBtn');
-        const importChatBtn = document.getElementById('importChatBtn');
-        const downloadAllChatsBtn = document.getElementById('downloadAllChatsBtn');
-        
-        newChatBtn.addEventListener('click', this.createNewChat.bind(this));
-        deleteAllChatsBtn.addEventListener('click', this.deleteAllChats.bind(this));
-        importChatBtn.addEventListener('click', this.importChat.bind(this));
-        downloadAllChatsBtn.addEventListener('click', this.downloadAllChats.bind(this));
-        
-        // Search
-        const chatSearchInput = document.getElementById('chatSearchInput');
-        const searchMessagesBtn = document.getElementById('searchMessagesBtn');
-        const searchMessagesClose = document.getElementById('searchMessagesClose');
-        const searchMessagesInput = document.getElementById('searchMessagesInput');
-        
-        chatSearchInput.addEventListener('input', this.filterChats.bind(this));
-        searchMessagesBtn.addEventListener('click', this.openSearchMessagesModal.bind(this));
-        searchMessagesClose.addEventListener('click', this.closeSearchMessagesModal.bind(this));
-        searchMessagesInput.addEventListener('input', this.searchMessages.bind(this));
-        
+        fileInput.addEventListener('change', this.handleFileSelect.bind(this));
+        voiceInputBtn.addEventListener('click', this.toggleVoiceRecording.bind(this));
+
+        // Mode buttons
+        document.getElementById('imageModeBtn').addEventListener('click', () => this.setMode('image'));
+        document.getElementById('voiceModeBtn').addEventListener('click', () => this.setMode('voice'));
+        document.getElementById('chatModeBtn').addEventListener('click', () => this.setMode('chat'));
+
         // Navigation controls
-        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
-        const scrollToBottomBtn = document.getElementById('scrollToBottomBtn');
-        const nextMessageBtn = document.getElementById('nextMessageBtn');
-        
-        scrollToTopBtn.addEventListener('click', () => this.scrollTo('top'));
-        scrollToBottomBtn.addEventListener('click', () => this.scrollTo('bottom'));
-        nextMessageBtn.addEventListener('click', () => this.scrollTo('next'));
-        
+        document.getElementById('scrollToTopBtn').addEventListener('click', () => this.scrollToTop());
+        document.getElementById('scrollToBottomBtn').addEventListener('click', () => this.scrollToBottom());
+        document.getElementById('nextMessageBtn').addEventListener('click', () => this.scrollToNextMessage());
+
         // Theme toggle
-        const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', this.toggleTheme.bind(this));
-        
-        // Model selection
-        const modelSelect = document.getElementById('modelSelect');
-        modelSelect.addEventListener('change', (e) => {
-            this.currentModel = e.target.value;
-            this.showNotification(`Модель изменена на: ${e.target.options[e.target.selectedIndex].text}`, 'info');
-        });
-        
-        // Action buttons
-        const helpBtn = document.getElementById('helpBtn');
-        const clearChatBtn = document.getElementById('clearChatBtn');
-        const generateImageBtn = document.getElementById('generateImageBtn');
-        const generateVoiceBtn = document.getElementById('generateVoiceBtn');
-        
-        helpBtn.addEventListener('click', this.showHelp.bind(this));
-        clearChatBtn.addEventListener('click', this.clearCurrentChat.bind(this));
-        generateImageBtn.addEventListener('click', this.generateImage.bind(this));
-        generateVoiceBtn.addEventListener('click', this.generateVoice.bind(this));
-        
-        // Scroll handling for compact mode
+        document.getElementById('themeToggle').addEventListener('click', this.toggleTheme.bind(this));
+
+        // Menu and sidebar
+        document.getElementById('menuToggle').addEventListener('click', this.toggleSidebar.bind(this));
+        document.getElementById('sidebarClose').addEventListener('click', this.toggleSidebar.bind(this));
+        document.getElementById('sidebarOverlay').addEventListener('click', this.toggleSidebar.bind(this));
+
+        // Chat management
+        document.getElementById('newChatBtn').addEventListener('click', () => this.createNewChat());
+        document.getElementById('clearChatBtn').addEventListener('click', () => this.clearCurrentChat());
+        document.getElementById('deleteAllChatsBtn').addEventListener('click', () => this.deleteAllChats());
+
+        // Search functionality
+        document.getElementById('searchMessagesBtn').addEventListener('click', () => this.openSearchModal());
+        document.getElementById('searchMessagesClose').addEventListener('click', () => this.closeSearchModal());
+        document.getElementById('searchMessagesInput').addEventListener('input', (e) => this.handleSearchInput(e.target.value));
+
+        // Help button
+        document.getElementById('helpBtn').addEventListener('click', () => this.showHelp());
+
+        // Auto-save when leaving page
+        window.addEventListener('beforeunload', () => this.saveChats());
+        window.addEventListener('pagehide', () => this.saveChats());
+
+        // Scroll handling for navigation controls visibility
         const messagesContainer = document.getElementById('messagesContainer');
         messagesContainer.addEventListener('scroll', this.handleScroll.bind(this));
-        
-        // PWA install
-        const pwaInstall = document.getElementById('pwaInstall');
-        const pwaDismiss = document.getElementById('pwaDismiss');
-        
-        pwaInstall.addEventListener('click', this.installPWA.bind(this));
-        pwaDismiss.addEventListener('click', this.dismissPWA.bind(this));
-        
-        // Handle before install prompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            this.deferredPrompt = e;
-        });
-        
-        // Handle online/offline status
-        window.addEventListener('online', this.updateStatusIndicator.bind(this));
-        window.addEventListener('offline', this.updateStatusIndicator.bind(this));
-        this.updateStatusIndicator();
     }
-    
-    handleInputChange(e) {
-        const textarea = e.target;
+
+    handleInputResize() {
+        const textarea = document.getElementById('userInput');
         textarea.style.height = 'auto';
         textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-        
-        // Update clear button visibility
-        const clearInputBtn = document.getElementById('clearInputBtn');
-        clearInputBtn.style.display = textarea.value ? 'flex' : 'none';
     }
-    
-    handleKeyDown(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
+
+    handleKeyDown(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
             this.sendMessage();
         }
     }
-    
+
     async sendMessage() {
         const userInput = document.getElementById('userInput');
         const message = userInput.value.trim();
-        const attachedFiles = document.getElementById('attachedFiles');
-        const files = Array.from(attachedFiles.querySelectorAll('.attached-file')).map(file => {
-            return {
-                name: file.dataset.name,
-                type: file.dataset.type,
-                content: file.dataset.content
-            };
-        });
-        
+        const files = Array.from(document.querySelectorAll('.attached-file')).map(file => file.dataset.filename);
+
         if (!message && files.length === 0) return;
-        
+
+        // Add user message
+        this.addMessage('user', message, files);
+
         // Clear input and files
         userInput.value = '';
-        userInput.style.height = 'auto';
-        attachedFiles.innerHTML = '';
-        document.getElementById('clearInputBtn').style.display = 'none';
-        
-        // Add user message
-        const userMessage = {
-            id: Date.now().toString(),
-            type: 'user',
-            content: message,
-            files: files,
-            timestamp: new Date()
-        };
-        
-        this.addMessageToCurrentChat(userMessage);
-        this.renderMessages();
-        this.scrollToBottom();
-        
+        this.clearInput();
+        this.handleInputResize();
+
         // Show typing indicator
         this.showTypingIndicator();
-        
+
         // Simulate AI response (replace with actual API call)
-        setTimeout(async () => {
+        setTimeout(() => {
             this.hideTypingIndicator();
-            
-            const aiResponse = await this.generateAIResponse(message, files);
-            const aiMessage = {
-                id: (Date.now() + 1).toString(),
-                type: 'ai',
-                content: aiResponse,
-                model: this.currentModel,
-                timestamp: new Date()
-            };
-            
-            this.addMessageToCurrentChat(aiMessage);
-            this.renderMessages();
-            this.scrollToBottom();
-            
-            // Show push notification when response is complete
-            if (document.hidden) {
-                this.showPushNotification('KHAI ответил', aiResponse.substring(0, 100) + '...');
-            }
-            
-            // Auto-speak if voice mode is active
-            if (this.isVoiceMode) {
-                this.speakMessage(aiResponse);
-            }
+            this.addMessage('ai', this.generateResponse(message, files), []);
         }, 1000 + Math.random() * 2000);
     }
-    
-    async generateAIResponse(message, files) {
-        // This is a mock implementation - replace with actual AI API calls
-        let response = '';
-        
-        if (files.length > 0) {
-            response = `Я проанализировал прикреплённые файлы (${files.map(f => f.name).join(', ')}). `;
-            
-            if (message) {
-                response += `На основе вашего вопроса "${message}", я могу сказать следующее: `;
-            } else {
-                response += 'Вот что я могу сказать о содержимом файлов: ';
-            }
-            
-            response += 'Это интересный материал, который требует более глубокого анализа. ';
-            
-            if (files.some(f => f.type.startsWith('image/'))) {
-                response += 'Изображения содержат визуальную информацию, которую я обработал. ';
-            }
-            
-            response += 'Если у вас есть конкретные вопросы по содержанию, задавайте их, и я постараюсь помочь более детально.';
-        } else if (message.toLowerCase().includes('привет') || message.toLowerCase().includes('здравствуй')) {
-            response = 'Привет! Я KHAI — первый белорусский ИИ-ассистент. Чем могу помочь?';
-        } else if (message.toLowerCase().includes('погода')) {
-            response = 'К сожалению, у меня нет доступа к актуальным данным о погоде. Рекомендую проверить специализированные сервисы для получения точной информации.';
-        } else if (message.toLowerCase().includes('помощь')) {
-            response = 'Я могу помочь с различными задачами: ответить на вопросы, сгенерировать текст, проанализировать изображения, создать голосовые сообщения. Просто опишите, что вам нужно!';
-        } else {
-            const responses = [
-                'Интересный вопрос! На основе моих знаний могу сказать, что это перспективное направление для изучения.',
-                'Спасибо за вопрос! Это действительно важная тема, которая требует внимательного рассмотрения.',
-                'Отличный вопрос! Я проанализировал информацию и могу предложить следующий ответ...',
-                'На основе предоставленных данных, я пришёл к следующим выводам...',
-                'Это сложный вопрос, требующий многостороннего подхода. Вот что я могу сказать по этому поводу...'
-            ];
-            
-            response = responses[Math.floor(Math.random() * responses.length)];
-            
-            // Add some context-specific responses
-            if (message.length > 100) {
-                response += ' Вы предоставили подробное описание, что помогает мне лучше понять суть вопроса.';
-            }
-            
-            if (message.includes('?')) {
-                response += ' Если у вас есть дополнительные вопросы, не стесняйтесь задавать их!';
-            }
-        }
-        
-        return response;
-    }
-    
-    addMessageToCurrentChat(message) {
+
+    addMessage(role, content, files = []) {
         const chat = this.chats.get(this.currentChatId);
+        const message = {
+            id: Date.now().toString(),
+            role,
+            content,
+            files: [...files],
+            timestamp: new Date().toISOString(),
+            model: role === 'ai' ? this.getCurrentModel() : null
+        };
+
         chat.messages.push(message);
-        chat.updatedAt = new Date();
-        
-        // Update chat preview
-        if (message.type === 'user') {
-            chat.preview = message.content.substring(0, 50) + (message.content.length > 50 ? '...' : '');
-        }
-        
+        this.renderMessages();
         this.saveChats();
-        this.renderChatList();
+        this.scrollToBottom();
     }
-    
+
     renderMessages() {
-        const messagesContainer = document.getElementById('messagesContainer');
+        const container = document.getElementById('messagesContainer');
         const chat = this.chats.get(this.currentChatId);
         
-        if (!chat) return;
-        
-        messagesContainer.innerHTML = '';
-        
+        container.innerHTML = '';
+
         chat.messages.forEach(message => {
             const messageElement = this.createMessageElement(message);
-            messagesContainer.appendChild(messageElement);
+            container.appendChild(messageElement);
         });
-        
-        // Add typing indicator if active
-        if (this.currentTypingMessage) {
-            messagesContainer.appendChild(this.createTypingIndicator());
+
+        // Add typing indicator if needed
+        if (document.querySelector('.typing-indicator')) {
+            container.appendChild(this.createTypingIndicator());
         }
     }
-    
+
     createMessageElement(message) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message message-${message.type}`;
+        messageDiv.className = `message message-${message.role}`;
         messageDiv.dataset.messageId = message.id;
-        
+
         let content = '';
-        
-        if (message.type === 'user') {
-            // User message
-            if (message.files && message.files.length > 0) {
-                content += '<div class="message-files">';
-                message.files.forEach(file => {
-                    if (file.type.startsWith('image/')) {
-                        content += `<div class="message-image"><img src="${file.content}" alt="${file.name}"></div>`;
-                    } else {
-                        content += `<div class="file-attachment"><i class="ti ti-file"></i> ${file.name}</div>`;
-                    }
-                });
-                content += '</div>';
-            }
-            
-            if (message.content) {
-                content += `<div class="message-content">${this.escapeHtml(message.content)}</div>`;
-            }
+
+        if (message.role === 'user') {
+            content = this.formatUserMessage(message);
         } else {
-            // AI message
-            content += `<div class="message-content">${marked.parse(message.content)}</div>`;
-            
-            // Add model indicator
-            if (message.model) {
-                content += `<div class="model-indicator">Сгенерировано с помощью: ${message.model}</div>`;
-            }
-            
-            // Add message actions
-            content += `
-                <div class="message-actions">
-                    <button class="action-btn-small speak-btn" onclick="khaiChat.speakMessage('${this.escapeSingleQuotes(message.content)}')">
-                        <i class="ti ti-volume"></i> Озвучить
-                    </button>
-                    <button class="action-btn-small" onclick="khaiChat.copyMessage('${this.escapeSingleQuotes(message.content)}')">
-                        <i class="ti ti-copy"></i> Копировать
-                    </button>
-                    <button class="action-btn-small" onclick="khaiChat.downloadMessage('${message.id}')">
-                        <i class="ti ti-download"></i> Скачать
-                    </button>
-                </div>
-            `;
+            content = this.formatAIMessage(message);
         }
-        
+
         messageDiv.innerHTML = content;
-        
-        // Add code copy functionality
-        messageDiv.querySelectorAll('pre code').forEach((codeBlock) => {
-            const pre = codeBlock.parentElement;
-            const language = codeBlock.className.replace('language-', '') || 'text';
-            
-            const codeHeader = document.createElement('div');
-            codeHeader.className = 'code-header';
-            codeHeader.innerHTML = `
-                <span class="code-language">${language}</span>
-                <button class="copy-code-btn">
-                    <i class="ti ti-copy"></i> Копировать
-                </button>
-            `;
-            
-            pre.insertBefore(codeHeader, codeBlock);
-            
-            const copyBtn = codeHeader.querySelector('.copy-code-btn');
-            copyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(codeBlock.textContent).then(() => {
-                    copyBtn.innerHTML = '<i class="ti ti-check"></i> Скопировано';
-                    copyBtn.classList.add('copied');
-                    
-                    setTimeout(() => {
-                        copyBtn.innerHTML = '<i class="ti ti-copy"></i> Копировать';
-                        copyBtn.classList.remove('copied');
-                    }, 2000);
-                });
-            });
-        });
+        this.setupMessageActions(messageDiv, message);
         
         return messageDiv;
     }
-    
+
+    formatUserMessage(message) {
+        let content = `<div class="message-content">${this.escapeHtml(message.content)}</div>`;
+        
+        if (message.files && message.files.length > 0) {
+            content += '<div class="message-files">';
+            message.files.forEach(file => {
+                content += `<div class="message-file">📎 ${this.escapeHtml(file)}</div>`;
+            });
+            content += '</div>';
+        }
+
+        return content;
+    }
+
+    formatAIMessage(message) {
+        let content = `<div class="message-content">${this.parseMarkdown(message.content)}</div>`;
+        
+        if (message.model) {
+            content += `<div class="model-indicator">Сгенерировано моделью: ${message.model}</div>`;
+        }
+
+        return content;
+    }
+
+    setupMessageActions(messageElement, message) {
+        if (message.role === 'ai') {
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'message-actions';
+            
+            actionsDiv.innerHTML = `
+                <button class="action-btn-small copy-btn" title="Копировать">
+                    <i class="ti ti-copy"></i> Копировать
+                </button>
+                <button class="action-btn-small speak-btn" title="Озвучить">
+                    <i class="ti ti-volume"></i> Озвучить
+                </button>
+                <button class="action-btn-small regenerate-btn" title="Перегенерировать">
+                    <i class="ti ti-refresh"></i> Перегенерировать
+                </button>
+            `;
+
+            messageElement.appendChild(actionsDiv);
+
+            // Setup action listeners
+            this.setupCopyButton(actionsDiv.querySelector('.copy-btn'), message.content);
+            this.setupSpeakButton(actionsDiv.querySelector('.speak-btn'), message.content);
+            this.setupRegenerateButton(actionsDiv.querySelector('.regenerate-btn'), message);
+        }
+    }
+
+    setupCopyButton(button, text) {
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(text);
+                this.showNotification('Текст скопирован в буфер обмена', 'success');
+                
+                // Visual feedback
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="ti ti-check"></i> Скопировано';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                this.showNotification('Не удалось скопировать текст', 'error');
+            }
+        });
+    }
+
+    setupSpeakButton(button, text) {
+        let speech = null;
+        
+        button.addEventListener('click', () => {
+            if (button.classList.contains('speaking')) {
+                // Stop speaking
+                if (speech) {
+                    speechSynthesis.cancel();
+                }
+                button.classList.remove('speaking');
+                button.innerHTML = '<i class="ti ti-volume"></i> Озвучить';
+            } else {
+                // Start speaking
+                speech = new SpeechSynthesisUtterance(text);
+                speech.lang = 'ru-RU';
+                speech.rate = 1.0;
+                speech.pitch = 1.0;
+                
+                speech.onstart = () => {
+                    button.classList.add('speaking');
+                    button.innerHTML = '<i class="ti ti-square"></i> Остановить';
+                };
+                
+                speech.onend = () => {
+                    button.classList.remove('speaking');
+                    button.innerHTML = '<i class="ti ti-volume"></i> Озвучить';
+                };
+                
+                speech.onerror = () => {
+                    button.classList.remove('speaking');
+                    button.innerHTML = '<i class="ti ti-volume"></i> Озвучить';
+                    this.showNotification('Ошибка при озвучивании', 'error');
+                };
+                
+                speechSynthesis.speak(speech);
+            }
+        });
+    }
+
+    setupRegenerateButton(button, message) {
+        button.addEventListener('click', () => {
+            // Find the user message that prompted this AI response
+            const chat = this.chats.get(this.currentChatId);
+            const messageIndex = chat.messages.findIndex(m => m.id === message.id);
+            
+            if (messageIndex > 0) {
+                const userMessage = chat.messages[messageIndex - 1];
+                
+                // Remove this AI message and regenerate
+                chat.messages.splice(messageIndex, 1);
+                this.renderMessages();
+                
+                // Show typing indicator and generate new response
+                this.showTypingIndicator();
+                
+                setTimeout(() => {
+                    this.hideTypingIndicator();
+                    this.addMessage('ai', this.generateResponse(userMessage.content, userMessage.files), []);
+                }, 1000 + Math.random() * 2000);
+            }
+        });
+    }
+
     createTypingIndicator() {
         const typingDiv = document.createElement('div');
         typingDiv.className = 'typing-indicator';
         typingDiv.innerHTML = `
-            <div>KHAI печатает</div>
+            <div class="typing-text">KHAI печатает...</div>
             <div class="typing-dots">
                 <div class="typing-dot"></div>
                 <div class="typing-dot"></div>
@@ -421,846 +336,674 @@ class KHAIChat {
         `;
         return typingDiv;
     }
-    
+
     showTypingIndicator() {
-        this.currentTypingMessage = true;
-        this.renderMessages();
-        this.scrollToBottom();
-    }
-    
-    hideTypingIndicator() {
-        this.currentTypingMessage = false;
-        this.renderMessages();
-    }
-    
-    scrollToBottom() {
-        const messagesContainer = document.getElementById('messagesContainer');
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-    
-    scrollTo(position) {
-        const messagesContainer = document.getElementById('messagesContainer');
-        const messages = Array.from(messagesContainer.querySelectorAll('.message'));
-        
-        if (position === 'top') {
-            messagesContainer.scrollTop = 0;
-        } else if (position === 'bottom') {
+        const container = document.getElementById('messagesContainer');
+        if (!document.querySelector('.typing-indicator')) {
+            container.appendChild(this.createTypingIndicator());
             this.scrollToBottom();
-        } else if (position === 'next') {
-            const currentScroll = messagesContainer.scrollTop;
-            const containerHeight = messagesContainer.clientHeight;
+        }
+    }
+
+    hideTypingIndicator() {
+        const typingIndicator = document.querySelector('.typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    generateResponse(userMessage, files) {
+        const responses = {
+            greeting: [
+                "Привет! Я KHAI, первый белорусский ИИ-ассистент. Чем могу помочь?",
+                "Здравствуйте! Рад вас видеть. Задавайте свои вопросы!",
+                "Приветствую! Я здесь, чтобы помочь вам с любыми вопросами."
+            ],
+            question: [
+                "Это интересный вопрос! На основе моих знаний, я могу сказать, что это требует внимательного изучения.",
+                "Отличный вопрос! Позвольте мне подробно на него ответить.",
+                "Понимаю ваш интерес к этой теме. Вот что я могу сказать по этому поводу:"
+            ],
+            image: [
+                "На основе вашего описания я создал изображение. Надеюсь, оно соответствует вашим ожиданиям!",
+                "Вот сгенерированное изображение по вашему запросу. Если нужно что-то изменить, просто скажите!",
+                "Я создал визуализацию по вашему описанию. Что вы думаете?"
+            ],
+            default: [
+                "Спасибо за ваше сообщение! Я обработал информацию и готов помочь дальше.",
+                "Понял вас! Есть ли что-то конкретное, с чем я могу помочь?",
+                "Интересно! Расскажите подробнее, что вас интересует."
+            ]
+        };
+
+        let responseType = 'default';
+        
+        if (userMessage.toLowerCase().includes('привет') || userMessage.toLowerCase().includes('здравствуй')) {
+            responseType = 'greeting';
+        } else if (userMessage.includes('?')) {
+            responseType = 'question';
+        } else if (files.length > 0 || userMessage.toLowerCase().includes('изображен') || userMessage.toLowerCase().includes('картинк')) {
+            responseType = 'image';
+        }
+
+        const possibleResponses = responses[responseType];
+        return possibleResponses[Math.floor(Math.random() * possibleResponses.length)];
+    }
+
+    setMode(mode) {
+        this.currentMode = mode;
+        
+        // Update mode buttons
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById(`${mode}ModeBtn`).classList.add('active');
+
+        // Update input placeholder based on mode
+        const userInput = document.getElementById('userInput');
+        switch (mode) {
+            case 'image':
+                userInput.placeholder = 'Опишите изображение для генерации...';
+                break;
+            case 'voice':
+                userInput.placeholder = 'Готов к голосовому вводу...';
+                break;
+            default:
+                userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+        }
+
+        this.showNotification(`Режим ${this.getModeDisplayName(mode)} активирован`, 'info');
+    }
+
+    getModeDisplayName(mode) {
+        const names = {
+            chat: 'чат',
+            image: 'генерации изображений',
+            voice: 'голосового ввода'
+        };
+        return names[mode] || mode;
+    }
+
+    async toggleVoiceRecording() {
+        if (!this.isRecording) {
+            await this.startVoiceRecording();
+        } else {
+            this.stopVoiceRecording();
+        }
+    }
+
+    async startVoiceRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.mediaRecorder = new MediaRecorder(stream);
+            this.audioChunks = [];
+
+            this.mediaRecorder.ondataavailable = (event) => {
+                this.audioChunks.push(event.data);
+            };
+
+            this.mediaRecorder.onstop = () => {
+                this.processAudioRecording();
+            };
+
+            this.mediaRecorder.start();
+            this.isRecording = true;
             
-            for (let i = 0; i < messages.length; i++) {
-                const messageTop = messages[i].offsetTop;
-                if (messageTop > currentScroll + 100) {
-                    messagesContainer.scrollTop = messageTop - 20;
-                    break;
-                }
+            const voiceBtn = document.getElementById('voiceInputBtn');
+            voiceBtn.classList.add('active');
+            voiceBtn.innerHTML = '<i class="ti ti-square"></i>';
+            
+            this.showNotification('Запись началась...', 'info');
+        } catch (error) {
+            this.showNotification('Не удалось получить доступ к микрофону', 'error');
+            console.error('Error accessing microphone:', error);
+        }
+    }
+
+    stopVoiceRecording() {
+        if (this.mediaRecorder && this.isRecording) {
+            this.mediaRecorder.stop();
+            this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            this.isRecording = false;
+            
+            const voiceBtn = document.getElementById('voiceInputBtn');
+            voiceBtn.classList.remove('active');
+            voiceBtn.innerHTML = '<i class="ti ti-microphone"></i>';
+            
+            this.showNotification('Запись завершена, обрабатывается...', 'info');
+        }
+    }
+
+    async processAudioRecording() {
+        // Simulate audio processing (replace with actual speech-to-text API)
+        this.showNotification('Аудио обрабатывается...', 'info');
+        
+        setTimeout(() => {
+            const mockTranscriptions = [
+                "Привет! Как дела?",
+                "Расскажи мне о возможностях искусственного интеллекта",
+                "Сгенерируй изображение заката над морем",
+                "Какая сегодня погода?"
+            ];
+            
+            const transcribedText = mockTranscriptions[Math.floor(Math.random() * mockTranscriptions.length)];
+            document.getElementById('userInput').value = transcribedText;
+            this.handleInputResize();
+            
+            this.showNotification('Текст распознан успешно', 'success');
+        }, 2000);
+    }
+
+    handleFileSelect(event) {
+        const files = Array.from(event.target.files);
+        const attachedFilesContainer = document.getElementById('attachedFiles');
+        
+        files.forEach(file => {
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                this.showNotification(`Файл ${file.name} слишком большой (макс. 10MB)`, 'error');
+                return;
+            }
+
+            const fileElement = document.createElement('div');
+            fileElement.className = 'attached-file';
+            fileElement.dataset.filename = file.name;
+            fileElement.innerHTML = `
+                <span>📎 ${file.name}</span>
+                <button class="remove-file" title="Удалить файл">
+                    <i class="ti ti-x"></i>
+                </button>
+            `;
+
+            const removeBtn = fileElement.querySelector('.remove-file');
+            removeBtn.addEventListener('click', () => {
+                fileElement.remove();
+            });
+
+            attachedFilesContainer.appendChild(fileElement);
+        });
+
+        event.target.value = '';
+    }
+
+    clearInput() {
+        document.getElementById('userInput').value = '';
+        document.getElementById('attachedFiles').innerHTML = '';
+        this.handleInputResize();
+    }
+
+    scrollToTop() {
+        const container = document.getElementById('messagesContainer');
+        container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    scrollToBottom() {
+        const container = document.getElementById('messagesContainer');
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    }
+
+    scrollToNextMessage() {
+        const container = document.getElementById('messagesContainer');
+        const messages = container.querySelectorAll('.message');
+        const currentScroll = container.scrollTop;
+        const containerHeight = container.clientHeight;
+
+        for (let i = 0; i < messages.length; i++) {
+            const messageTop = messages[i].offsetTop;
+            if (messageTop > currentScroll + 100) {
+                container.scrollTo({ top: messageTop - 20, behavior: 'smooth' });
+                break;
             }
         }
     }
-    
+
     handleScroll() {
-        const messagesContainer = document.getElementById('messagesContainer');
-        const appHeader = document.querySelector('.app-header');
-        const appFooter = document.querySelector('.app-footer');
-        const inputSection = document.querySelector('.input-section');
-        const navigationControls = document.getElementById('navigationControls');
-        const chatMain = document.querySelector('.chat-main');
-        const messages = document.querySelector('.messages-container');
+        const container = document.getElementById('messagesContainer');
+        const navigationControls = document.getElementById('chatNavigationControls');
         
-        // Show/hide navigation controls based on scroll position
-        if (messagesContainer.scrollTop > 100) {
+        if (container.scrollHeight > container.clientHeight + 100) {
             navigationControls.classList.remove('hidden');
         } else {
             navigationControls.classList.add('hidden');
         }
-        
-        // Handle compact mode on scroll
-        clearTimeout(this.scrollTimer);
-        
-        if (!this.isScrolling) {
-            this.isScrolling = true;
-            appHeader.classList.add('compact');
-            appFooter.classList.add('compact');
-            inputSection.classList.add('compact');
-            chatMain.classList.add('expanded');
-            messages.classList.add('expanded');
-        }
-        
-        this.scrollTimer = setTimeout(() => {
-            this.isScrolling = false;
-            appHeader.classList.remove('compact');
-            appFooter.classList.remove('compact');
-            inputSection.classList.remove('compact');
-            chatMain.classList.remove('expanded');
-            messages.classList.remove('expanded');
-        }, 1500);
     }
-    
-    toggleVoiceInput() {
-        const voiceInputBtn = document.getElementById('voiceInputBtn');
+
+    toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         
-        if (!this.isVoiceMode) {
-            // Start voice input
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                this.recognition = new SpeechRecognition();
-                this.recognition.continuous = false;
-                this.recognition.interimResults = false;
-                this.recognition.lang = 'ru-RU';
-                
-                this.recognition.onstart = () => {
-                    this.isVoiceMode = true;
-                    voiceInputBtn.classList.add('active');
-                    this.showNotification('Голосовой ввод активирован. Говорите...', 'info');
-                };
-                
-                this.recognition.onresult = (event) => {
-                    const transcript = event.results[0][0].transcript;
-                    document.getElementById('userInput').value = transcript;
-                    this.handleInputChange({ target: document.getElementById('userInput') });
-                };
-                
-                this.recognition.onerror = (event) => {
-                    this.showNotification('Ошибка распознавания голоса: ' + event.error, 'error');
-                    this.isVoiceMode = false;
-                    voiceInputBtn.classList.remove('active');
-                };
-                
-                this.recognition.onend = () => {
-                    this.isVoiceMode = false;
-                    voiceInputBtn.classList.remove('active');
-                };
-                
-                this.recognition.start();
-            } else {
-                this.showNotification('Голосовой ввод не поддерживается вашим браузером', 'error');
-            }
-        } else {
-            // Stop voice input
-            if (this.recognition) {
-                this.recognition.stop();
-            }
-            this.isVoiceMode = false;
-            voiceInputBtn.classList.remove('active');
-        }
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('khai-theme', newTheme);
+        this.updateThemeIcon(newTheme);
     }
-    
-    speakMessage(text) {
-        if ('speechSynthesis' in window) {
-            // Cancel any ongoing speech
-            window.speechSynthesis.cancel();
-            
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ru-RU';
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
-            
-            // Find and update the speak button for this message
-            const speakButtons = document.querySelectorAll('.speak-btn');
-            speakButtons.forEach(btn => btn.classList.remove('speaking'));
-            
-            const currentMessage = document.querySelector(`[data-message-id] .speak-btn`);
-            if (currentMessage) {
-                currentMessage.classList.add('speaking');
-            }
-            
-            utterance.onend = () => {
-                speakButtons.forEach(btn => btn.classList.remove('speaking'));
-            };
-            
-            utterance.onerror = () => {
-                speakButtons.forEach(btn => btn.classList.remove('speaking'));
-                this.showNotification('Ошибка воспроизведения голоса', 'error');
-            };
-            
-            window.speechSynthesis.speak(utterance);
-        } else {
-            this.showNotification('Голосовое воспроизведение не поддерживается вашим браузером', 'error');
-        }
+
+    updateThemeIcon(theme) {
+        const themeBtn = document.getElementById('themeToggle');
+        themeBtn.innerHTML = theme === 'light' ? '<i class="ti ti-sun"></i>' : '<i class="ti ti-moon"></i>';
     }
-    
-    handleFileUpload(event) {
-        const files = event.target.files;
-        const attachedFiles = document.getElementById('attachedFiles');
-        
-        for (let file of files) {
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-                const fileElement = document.createElement('div');
-                fileElement.className = 'attached-file';
-                fileElement.dataset.name = file.name;
-                fileElement.dataset.type = file.type;
-                fileElement.dataset.content = e.target.result;
-                
-                fileElement.innerHTML = `
-                    <i class="ti ti-file"></i>
-                    <span>${file.name}</span>
-                    <button class="remove-file" onclick="this.parentElement.remove()">
-                        <i class="ti ti-x"></i>
-                    </button>
-                `;
-                
-                attachedFiles.appendChild(fileElement);
-            };
-            
-            if (file.type.startsWith('image/')) {
-                reader.readAsDataURL(file);
-            } else {
-                reader.readAsText(file);
-            }
-        }
-        
-        // Reset file input
-        event.target.value = '';
-    }
-    
-    clearInput() {
-        document.getElementById('userInput').value = '';
-        document.getElementById('userInput').style.height = 'auto';
-        document.getElementById('attachedFiles').innerHTML = '';
-        document.getElementById('clearInputBtn').style.display = 'none';
-    }
-    
+
     toggleSidebar() {
         const sidebar = document.getElementById('sidebarMenu');
         const overlay = document.getElementById('sidebarOverlay');
         
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
+        this.isSidebarOpen = !this.isSidebarOpen;
+        
+        if (this.isSidebarOpen) {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     }
-    
+
     createNewChat() {
         const chatId = 'chat-' + Date.now();
-        const chatName = `Новый чат ${this.chats.size + 1}`;
+        const chatName = `Чат ${this.chats.size + 1}`;
         
         this.chats.set(chatId, {
             id: chatId,
             name: chatName,
             messages: [],
-            createdAt: new Date()
+            createdAt: new Date().toISOString()
         });
         
+        this.switchToChat(chatId);
+        this.toggleSidebar();
+        this.showNotification('Новый чат создан', 'success');
+    }
+
+    switchToChat(chatId) {
         this.currentChatId = chatId;
-        this.saveChats();
+        this.renderMessages();
+        this.updateCurrentChatName();
         this.renderChatList();
-        this.renderMessages();
-        this.updateCurrentChatInfo();
-        this.toggleSidebar();
-        
-        this.showNotification(`Создан новый чат: ${chatName}`, 'success');
     }
-    
-    switchChat(chatId) {
-        this.currentChatId = chatId;
-        this.renderMessages();
-        this.updateCurrentChatInfo();
-        this.toggleSidebar();
-        this.scrollToBottom();
+
+    updateCurrentChatName() {
+        const chat = this.chats.get(this.currentChatId);
+        document.getElementById('currentChatName').textContent = chat.name;
     }
-    
-    deleteChat(chatId, event) {
-        event.stopPropagation();
-        
-        if (this.chats.size <= 1) {
-            this.showNotification('Нельзя удалить единственный чат', 'error');
-            return;
-        }
-        
-        if (confirm('Вы уверены, что хотите удалить этот чат?')) {
-            this.chats.delete(chatId);
-            
-            if (this.currentChatId === chatId) {
-                // Switch to another chat
-                const remainingChats = Array.from(this.chats.keys());
-                this.currentChatId = remainingChats[0];
-                this.renderMessages();
-                this.updateCurrentChatInfo();
-            }
-            
-            this.saveChats();
-            this.renderChatList();
-            this.showNotification('Чат удалён', 'success');
-        }
+
+    renderChatList() {
+        const chatList = document.getElementById('chatList');
+        chatList.innerHTML = '';
+
+        Array.from(this.chats.values())
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .forEach(chat => {
+                const chatItem = document.createElement('div');
+                chatItem.className = `chat-item ${chat.id === this.currentChatId ? 'active' : ''}`;
+                chatItem.innerHTML = `
+                    <span class="chat-name">${this.escapeHtml(chat.name)}</span>
+                    <div class="chat-item-actions">
+                        <button class="chat-item-action edit-chat-btn" title="Редактировать название">
+                            <i class="ti ti-edit"></i>
+                        </button>
+                        <button class="chat-item-action delete-chat-btn" title="Удалить чат">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>
+                `;
+
+                chatItem.addEventListener('click', (e) => {
+                    if (!e.target.closest('.chat-item-action')) {
+                        this.switchToChat(chat.id);
+                        this.toggleSidebar();
+                    }
+                });
+
+                const editBtn = chatItem.querySelector('.edit-chat-btn');
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.editChatName(chat.id);
+                });
+
+                const deleteBtn = chatItem.querySelector('.delete-chat-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.deleteChat(chat.id);
+                });
+
+                chatList.appendChild(chatItem);
+            });
     }
-    
-    renameChat(chatId, event) {
-        event.stopPropagation();
-        
+
+    editChatName(chatId) {
         const chat = this.chats.get(chatId);
         const newName = prompt('Введите новое название чата:', chat.name);
         
         if (newName && newName.trim()) {
             chat.name = newName.trim();
-            this.saveChats();
             this.renderChatList();
-            this.updateCurrentChatInfo();
+            if (chatId === this.currentChatId) {
+                this.updateCurrentChatName();
+            }
+            this.saveChats();
             this.showNotification('Название чата изменено', 'success');
         }
     }
-    
-    downloadChat(chatId, event) {
-        event.stopPropagation();
-        
-        const chat = this.chats.get(chatId);
-        const chatData = {
-            ...chat,
-            messages: chat.messages.map(msg => ({
-                ...msg,
-                timestamp: msg.timestamp.toISOString()
-            })),
-            createdAt: chat.createdAt.toISOString(),
-            updatedAt: chat.updatedAt ? chat.updatedAt.toISOString() : null
-        };
-        
-        const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `khai-chat-${chat.name}-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        this.showNotification(`Чат "${chat.name}" скачан`, 'success');
+
+    deleteChat(chatId) {
+        if (this.chats.size <= 1) {
+            this.showNotification('Нельзя удалить последний чат', 'error');
+            return;
+        }
+
+        if (confirm('Вы уверены, что хотите удалить этот чат?')) {
+            this.chats.delete(chatId);
+            
+            if (chatId === this.currentChatId) {
+                // Switch to another chat
+                const remainingChat = Array.from(this.chats.values())[0];
+                this.switchToChat(remainingChat.id);
+            }
+            
+            this.renderChatList();
+            this.saveChats();
+            this.showNotification('Чат удален', 'success');
+        }
     }
-    
+
+    clearCurrentChat() {
+        const chat = this.chats.get(this.currentChatId);
+        if (chat.messages.length === 0) {
+            this.showNotification('Чат уже пуст', 'info');
+            return;
+        }
+
+        if (confirm('Вы уверены, что хотите очистить историю текущего чата?')) {
+            chat.messages = [];
+            this.renderMessages();
+            this.saveChats();
+            this.showNotification('История чата очищена', 'success');
+        }
+    }
+
     deleteAllChats() {
-        if (confirm('Вы уверены, что хотите удалить все чаты? Это действие нельзя отменить.')) {
+        if (confirm('Вы уверены, что хотите удалить ВСЕ чаты? Это действие нельзя отменить.')) {
             const defaultChat = this.chats.get('default');
             this.chats.clear();
             
+            // Keep only the default chat but clear its messages
             if (defaultChat) {
-                this.chats.set('default', {
-                    ...defaultChat,
-                    messages: []
-                });
-                this.currentChatId = 'default';
+                defaultChat.messages = [];
+                this.chats.set('default', defaultChat);
+                this.switchToChat('default');
             } else {
                 this.createNewChat();
             }
             
             this.saveChats();
-            this.renderChatList();
-            this.renderMessages();
-            this.updateCurrentChatInfo();
-            
             this.showNotification('Все чаты удалены', 'success');
         }
     }
-    
-    importChat() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const chatData = JSON.parse(event.target.result);
-                    
-                    // Validate chat data structure
-                    if (!chatData.id || !chatData.name || !Array.isArray(chatData.messages)) {
-                        throw new Error('Неверный формат файла чата');
-                    }
-                    
-                    // Generate new ID to avoid conflicts
-                    chatData.id = 'imported-' + Date.now();
-                    chatData.createdAt = new Date(chatData.createdAt);
-                    
-                    if (chatData.updatedAt) {
-                        chatData.updatedAt = new Date(chatData.updatedAt);
-                    }
-                    
-                    // Convert message timestamps
-                    chatData.messages = chatData.messages.map(msg => ({
-                        ...msg,
-                        timestamp: new Date(msg.timestamp)
-                    }));
-                    
-                    this.chats.set(chatData.id, chatData);
-                    this.saveChats();
-                    this.renderChatList();
-                    this.showNotification(`Чат "${chatData.name}" импортирован`, 'success');
-                    
-                } catch (error) {
-                    this.showNotification('Ошибка импорта чата: ' + error.message, 'error');
-                }
-            };
-            
-            reader.readAsText(file);
-        };
-        
-        input.click();
-    }
-    
-    downloadAllChats() {
-        const allChats = Array.from(this.chats.values()).map(chat => ({
-            ...chat,
-            messages: chat.messages.map(msg => ({
-                ...msg,
-                timestamp: msg.timestamp.toISOString()
-            })),
-            createdAt: chat.createdAt.toISOString(),
-            updatedAt: chat.updatedAt ? chat.updatedAt.toISOString() : null
-        }));
-        
-        const blob = new Blob([JSON.stringify(allChats, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `khai-all-chats-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        this.showNotification('Все чаты скачаны', 'success');
-    }
-    
-    filterChats() {
-        const searchTerm = document.getElementById('chatSearchInput').value.toLowerCase();
-        const chatItems = document.querySelectorAll('.chat-item');
-        
-        chatItems.forEach(item => {
-            const chatName = item.querySelector('.chat-name').textContent.toLowerCase();
-            const chatPreview = item.querySelector('.chat-preview').textContent.toLowerCase();
-            
-            if (chatName.includes(searchTerm) || chatPreview.includes(searchTerm)) {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
-    
-    openSearchMessagesModal() {
+
+    openSearchModal() {
+        this.isSearchModalOpen = true;
         document.getElementById('searchMessagesModal').classList.add('active');
+        document.getElementById('searchMessagesInput').focus();
     }
-    
-    closeSearchMessagesModal() {
+
+    closeSearchModal() {
+        this.isSearchModalOpen = false;
         document.getElementById('searchMessagesModal').classList.remove('active');
         document.getElementById('searchMessagesInput').value = '';
-        document.getElementById('searchResults').innerHTML = '';
+        this.clearSearchResults();
     }
-    
-    searchMessages() {
-        const searchTerm = document.getElementById('searchMessagesInput').value.toLowerCase();
-        const searchResults = document.getElementById('searchResults');
-        
-        if (!searchTerm) {
-            searchResults.innerHTML = '';
+
+    handleSearchInput(query) {
+        if (!query.trim()) {
+            this.clearSearchResults();
             return;
         }
-        
-        const currentChat = this.chats.get(this.currentChatId);
-        const results = currentChat.messages.filter(msg => 
-            msg.content.toLowerCase().includes(searchTerm)
+
+        const chat = this.chats.get(this.currentChatId);
+        const results = chat.messages.filter(message => 
+            message.content.toLowerCase().includes(query.toLowerCase())
         );
-        
-        searchResults.innerHTML = '';
-        
+
+        this.displaySearchResults(results, query);
+    }
+
+    displaySearchResults(results, query) {
+        const resultsContainer = document.getElementById('searchResults');
+        this.currentSearchResults = results;
+        this.currentSearchIndex = -1;
+
         if (results.length === 0) {
-            searchResults.innerHTML = '<div class="no-results">Сообщения не найдены</div>';
+            resultsContainer.innerHTML = '<div class="search-result">Сообщения не найдены</div>';
             return;
         }
-        
-        results.forEach(msg => {
-            const resultItem = document.createElement('div');
-            resultItem.className = 'search-result-item';
-            resultItem.innerHTML = `
-                <div class="search-result-content">${msg.content.substring(0, 100)}...</div>
-                <div class="search-result-meta">
-                    <span>${msg.type === 'user' ? 'Вы' : 'KHAI'}</span>
-                    <span>${msg.timestamp.toLocaleString()}</span>
+
+        resultsContainer.innerHTML = results.map((message, index) => `
+            <div class="search-result" data-index="${index}">
+                <div class="result-preview">
+                    ${this.highlightText(message.content, query)}
                 </div>
-            `;
-            
-            resultItem.addEventListener('click', () => {
-                this.closeSearchMessagesModal();
-                this.scrollToMessage(msg.id);
-            });
-            
-            searchResults.appendChild(resultItem);
+                <div class="result-meta">
+                    ${message.role === 'user' ? '👤 Вы' : '🤖 KHAI'} • 
+                    ${new Date(message.timestamp).toLocaleString()}
+                </div>
+            </div>
+        `).join('');
+
+        // Add click handlers
+        resultsContainer.querySelectorAll('.search-result').forEach((result, index) => {
+            result.addEventListener('click', () => this.navigateToSearchResult(index));
         });
     }
-    
-    scrollToMessage(messageId) {
-        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+
+    highlightText(text, query) {
+        const regex = new RegExp(`(${this.escapeRegex(query)})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    navigateToSearchResult(index) {
+        const message = this.currentSearchResults[index];
+        const messageElement = document.querySelector(`[data-message-id="${message.id}"]`);
+        
         if (messageElement) {
             messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Highlight the message temporarily
-            messageElement.style.backgroundColor = 'var(--accent-primary-alpha)';
+            messageElement.style.animation = 'gentlePulse 2s ease-in-out';
             setTimeout(() => {
-                messageElement.style.backgroundColor = '';
+                messageElement.style.animation = '';
             }, 2000);
         }
+        
+        this.closeSearchModal();
     }
-    
-    renderChatList() {
-        const chatList = document.getElementById('chatList');
-        chatList.innerHTML = '';
-        
-        this.chats.forEach(chat => {
-            const chatItem = document.createElement('div');
-            chatItem.className = `chat-item ${chat.id === this.currentChatId ? 'active' : ''}`;
-            chatItem.addEventListener('click', () => this.switchChat(chat.id));
-            
-            const preview = chat.messages.length > 0 ? 
-                (chat.messages[chat.messages.length - 1].content.substring(0, 50) + 
-                 (chat.messages[chat.messages.length - 1].content.length > 50 ? '...' : '')) : 
-                'Нет сообщений';
-            
-            chatItem.innerHTML = `
-                <div class="chat-info">
-                    <div class="chat-name">${this.escapeHtml(chat.name)}</div>
-                    <div class="chat-preview">${this.escapeHtml(preview)}</div>
-                </div>
-                <div class="chat-actions">
-                    <button class="chat-action-btn" onclick="khaiChat.renameChat('${chat.id}', event)" title="Переименовать">
-                        <i class="ti ti-edit"></i>
-                    </button>
-                    <button class="chat-action-btn" onclick="khaiChat.downloadChat('${chat.id}', event)" title="Скачать чат">
-                        <i class="ti ti-download"></i>
-                    </button>
-                    ${this.chats.size > 1 ? `
-                        <button class="chat-action-btn danger" onclick="khaiChat.deleteChat('${chat.id}', event)" title="Удалить чат">
-                            <i class="ti ti-trash"></i>
-                        </button>
-                    ` : ''}
-                </div>
-            `;
-            
-            chatList.appendChild(chatItem);
-        });
+
+    clearSearchResults() {
+        document.getElementById('searchResults').innerHTML = '';
+        this.currentSearchResults = [];
+        this.currentSearchIndex = -1;
     }
-    
-    updateCurrentChatInfo() {
-        const currentChat = this.chats.get(this.currentChatId);
-        if (currentChat) {
-            document.getElementById('currentChatName').textContent = currentChat.name;
-        }
-    }
-    
-    clearCurrentChat() {
-        if (confirm('Вы уверены, что хотите очистить текущий чат?')) {
-            const chat = this.chats.get(this.currentChatId);
-            chat.messages = [];
-            this.saveChats();
-            this.renderMessages();
-            this.renderChatList();
-            this.showNotification('Чат очищен', 'success');
-        }
-    }
-    
-    generateImage() {
-        const userInput = document.getElementById('userInput');
-        const prompt = userInput.value.trim();
-        
-        if (!prompt) {
-            this.showNotification('Введите описание для генерации изображения', 'warning');
-            return;
-        }
-        
-        this.showNotification('Генерация изображения...', 'info');
-        
-        // Simulate image generation (replace with actual API call)
-        setTimeout(() => {
-            // For demo purposes, we'll use a placeholder
-            const mockImageUrl = `https://picsum.photos/512/512?random=${Date.now()}`;
-            
-            const message = {
-                id: Date.now().toString(),
-                type: 'ai',
-                content: `Сгенерировано изображение по запросу: "${prompt}"`,
-                image: mockImageUrl,
-                timestamp: new Date()
-            };
-            
-            this.addMessageToCurrentChat(message);
-            this.renderMessages();
-            this.scrollToBottom();
-            this.showNotification('Изображение сгенерировано', 'success');
-        }, 2000);
-    }
-    
-    generateVoice() {
-        const userInput = document.getElementById('userInput');
-        const text = userInput.value.trim();
-        
-        if (!text) {
-            this.showNotification('Введите текст для генерации голоса', 'warning');
-            return;
-        }
-        
-        this.showNotification('Генерация голосового сообщения...', 'info');
-        
-        // Simulate voice generation (replace with actual API call)
-        setTimeout(() => {
-            const message = {
-                id: Date.now().toString(),
-                type: 'ai',
-                content: `Сгенерировано голосовое сообщение для текста: "${text}"`,
-                audio: 'mock-audio-url', // In a real app, this would be the audio URL
-                timestamp: new Date()
-            };
-            
-            this.addMessageToCurrentChat(message);
-            this.renderMessages();
-            this.scrollToBottom();
-            this.showNotification('Голосовое сообщение сгенерировано', 'success');
-            
-            // Auto-play the generated audio
-            this.speakMessage(text);
-        }, 2000);
-    }
-    
+
     showHelp() {
         const helpMessage = `
-## KHAI — Помощь
+## 🤖 KHAI - Первый белорусский ИИ чат
 
-### Основные функции:
-- **Общение с ИИ**: Задавайте вопросы и получайте развернутые ответы
-- **Генерация изображений**: Создавайте изображения по текстовому описанию
-- **Голосовой ввод/вывод**: Общайтесь с помощью голоса
-- **Поиск по сообщениям**: Быстро находите нужную информацию в чатах
-- **Управление чатами**: Создавайте, переименовывайте, удаляйте чаты
+### 🎯 Основные возможности:
+- **💬 Чат режим** - Общение с ИИ-ассистентом
+- **🖼️ Генерация изображений** - Создание картинок по описанию
+- **🎤 Голосовой ввод** - Запись и распознавание речи
+- **📁 Поддержка файлов** - Загрузка изображений и документов
 
-### Горячие клавиши:
-- **Enter**: Отправить сообщение
-- **Shift + Enter**: Новая строка
-- **Голосовой ввод**: Нажмите на микрофон для активации
+### 🎛️ Управление:
+- **Enter** - Отправить сообщение
+- **Shift+Enter** - Новая строка
+- **Кнопки навигации** - Быстрая прокрутка чата
 
-### Советы:
-- Будьте конкретны в запросах для лучших результатов
-- Используйте разные чаты для разных тем
-- Экспортируйте важные беседы для сохранения
+### 💾 Управление чатами:
+- Создавайте несколько чатов для разных тем
+- Переименовывайте и удаляйте чаты
+- Ищите сообщения по ключевым словам
 
-### Поддерживаемые модели:
-- GPT-5 Nano, O3 Mini, DeepSeek, Gemini, Grok и другие
-        `;
-        
-        const message = {
-            id: 'help-' + Date.now(),
-            type: 'ai',
-            content: helpMessage,
-            timestamp: new Date()
-        };
-        
-        this.addMessageToCurrentChat(message);
-        this.renderMessages();
-        this.scrollToBottom();
+### 🎨 Персонализация:
+- Темная/светлая тема
+- Разные модели ИИ
+- Настройка под ваши нужды
+
+*KHAI - сделано в Беларуси с ❤️*
+        `.trim();
+
+        this.addMessage('ai', helpMessage, []);
     }
-    
-    copyMessage(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            this.showNotification('Текст скопирован в буфер обмена', 'success');
-        }).catch(() => {
-            this.showNotification('Не удалось скопировать текст', 'error');
-        });
+
+    getCurrentModel() {
+        return document.getElementById('modelSelect').value;
     }
-    
-    downloadMessage(messageId) {
-        const chat = this.chats.get(this.currentChatId);
-        const message = chat.messages.find(m => m.id === messageId);
-        
-        if (message) {
-            const content = `Сообщение от ${message.timestamp.toLocaleString()}\n\n${message.content}`;
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `khai-message-${messageId}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            this.showNotification('Сообщение скачано', 'success');
-        }
-    }
-    
-    toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        this.setTheme(newTheme);
-        localStorage.setItem('khai-theme', newTheme);
-        
-        const themeIcon = document.querySelector('#themeToggle i');
-        themeIcon.className = newTheme === 'dark' ? 'ti ti-moon' : 'ti ti-sun';
-        
-        this.showNotification(`Тема изменена на ${newTheme === 'dark' ? 'тёмную' : 'светлую'}`, 'info');
-    }
-    
-    setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-    }
-    
-    updateStatusIndicator() {
-        const statusIndicator = document.getElementById('statusIndicator');
-        const statusDot = statusIndicator.querySelector('.status-dot');
-        const statusText = statusIndicator.querySelector('span');
-        
-        if (navigator.onLine) {
-            statusDot.style.background = 'var(--success-text)';
-            statusText.textContent = 'Онлайн';
-        } else {
-            statusDot.style.background = 'var(--error-text)';
-            statusText.textContent = 'Офлайн';
-        }
-    }
-    
+
     showNotification(message, type = 'info') {
-        const notificationsContainer = document.querySelector('.notifications-container') || this.createNotificationsContainer();
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.innerHTML = `
+            <i class="ti ti-${this.getNotificationIcon(type)}"></i>
             <span>${message}</span>
-            <button class="notification-close">
-                <i class="ti ti-x"></i>
-            </button>
         `;
-        
-        notificationsContainer.appendChild(notification);
-        
-        // Auto remove after 5 seconds
+
+        const container = document.querySelector('.notifications-container') || this.createNotificationsContainer();
+        container.appendChild(notification);
+
+        // Auto-remove after 5 seconds
         setTimeout(() => {
-            if (notification.parentElement) {
-                notification.style.animation = 'slideIn 0.3s ease reverse';
+            if (notification.parentNode) {
+                notification.style.animation = 'slideDown 0.3s ease reverse';
                 setTimeout(() => notification.remove(), 300);
             }
         }, 5000);
-        
-        // Close button
-        notification.querySelector('.notification-close').addEventListener('click', () => {
-            notification.style.animation = 'slideIn 0.3s ease reverse';
-            setTimeout(() => notification.remove(), 300);
-        });
-        
-        // Remove previous notification if there are too many
-        if (notificationsContainer.children.length > 3) {
-            notificationsContainer.removeChild(notificationsContainer.children[0]);
-        }
     }
-    
+
+    getNotificationIcon(type) {
+        const icons = {
+            success: 'check',
+            error: 'x',
+            warning: 'alert-triangle',
+            info: 'info-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+
     createNotificationsContainer() {
         const container = document.createElement('div');
         container.className = 'notifications-container';
         document.body.appendChild(container);
         return container;
     }
-    
-    showPushNotification(title, body) {
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification(title, { body, icon: '/apple-touch-icon.png' });
-        }
-    }
-    
-    showPWAInstallPrompt() {
-        // Show PWA install prompt if conditions are met
-        if (this.deferredPrompt && !this.isPWAInstalled()) {
-            setTimeout(() => {
-                document.getElementById('pwaPrompt').style.display = 'block';
-            }, 5000);
-        }
-    }
-    
-    installPWA() {
-        if (this.deferredPrompt) {
-            this.deferredPrompt.prompt();
-            
-            this.deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    this.showNotification('Приложение установлено', 'success');
-                }
-                this.deferredPrompt = null;
-                document.getElementById('pwaPrompt').style.display = 'none';
+
+    setupPWA() {
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
             });
         }
-    }
-    
-    dismissPWA() {
-        document.getElementById('pwaPrompt').style.display = 'none';
-        localStorage.setItem('khai-pwa-dismissed', 'true');
-    }
-    
-    isPWAInstalled() {
-        return window.matchMedia('(display-mode: standalone)').matches || 
-               navigator.standalone ||
-               document.referrer.includes('android-app://');
-    }
-    
-    saveChats() {
-        const chatsData = Array.from(this.chats.values()).map(chat => ({
-            ...chat,
-            messages: chat.messages.map(msg => ({
-                ...msg,
-                timestamp: msg.timestamp.toISOString()
-            })),
-            createdAt: chat.createdAt.toISOString(),
-            updatedAt: chat.updatedAt ? chat.updatedAt.toISOString() : null
-        }));
-        
-        localStorage.setItem('khai-chats', JSON.stringify(chatsData));
-    }
-    
-    loadChats() {
-        try {
-            const chatsData = JSON.parse(localStorage.getItem('khai-chats'));
-            
-            if (chatsData && Array.isArray(chatsData)) {
-                this.chats.clear();
-                
-                chatsData.forEach(chatData => {
-                    // Convert timestamps back to Date objects
-                    chatData.createdAt = new Date(chatData.createdAt);
-                    
-                    if (chatData.updatedAt) {
-                        chatData.updatedAt = new Date(chatData.updatedAt);
+
+        // Show install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            this.showInstallPrompt();
+        });
+
+        document.getElementById('pwaInstall')?.addEventListener('click', () => {
+            this.hideInstallPrompt();
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        this.showNotification('Приложение установлено!', 'success');
                     }
-                    
-                    chatData.messages = chatData.messages.map(msg => ({
-                        ...msg,
-                        timestamp: new Date(msg.timestamp)
-                    }));
-                    
-                    this.chats.set(chatData.id, chatData);
+                    deferredPrompt = null;
                 });
-                
-                // Set current chat to the first one or create default
-                if (this.chats.size > 0) {
-                    this.currentChatId = Array.from(this.chats.keys())[0];
-                } else {
-                    this.createNewChat();
-                }
             }
-        } catch (error) {
-            console.error('Error loading chats:', error);
-            // Initialize with default chat if loading fails
-            if (this.chats.size === 0) {
-                this.createNewChat();
-            }
+        });
+
+        document.getElementById('pwaDismiss')?.addEventListener('click', () => {
+            this.hideInstallPrompt();
+        });
+    }
+
+    showInstallPrompt() {
+        const prompt = document.getElementById('pwaPrompt');
+        if (prompt) {
+            prompt.style.display = 'block';
         }
     }
-    
+
+    hideInstallPrompt() {
+        const prompt = document.getElementById('pwaPrompt');
+        if (prompt) {
+            prompt.style.display = 'none';
+        }
+    }
+
     // Utility methods
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
-    escapeSingleQuotes(text) {
-        return text.replace(/'/g, "\\'");
+
+    escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    parseMarkdown(text) {
+        // Simple markdown parser
+        return marked.parse(text, {
+            breaks: true,
+            gfm: true,
+            highlight: (code, lang) => {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            }
+        });
+    }
+
+    // Data persistence
+    saveChats() {
+        const chatsData = Array.from(this.chats.values());
+        localStorage.setItem('khai-chats', JSON.stringify(chatsData));
+        localStorage.setItem('khai-current-chat', this.currentChatId);
+    }
+
+    loadChats() {
+        try {
+            const savedChats = localStorage.getItem('khai-chats');
+            const currentChatId = localStorage.getItem('khai-current-chat');
+            
+            if (savedChats) {
+                const chatsArray = JSON.parse(savedChats);
+                this.chats.clear();
+                chatsArray.forEach(chat => {
+                    this.chats.set(chat.id, chat);
+                });
+            }
+            
+            if (currentChatId && this.chats.has(currentChatId)) {
+                this.currentChatId = currentChatId;
+            }
+        } catch (error) {
+            console.error('Error loading chats:', error);
+            // Initialize with default chat if loading fails
+            this.chats.clear();
+            this.chats.set('default', {
+                id: 'default',
+                name: 'Основной чат',
+                messages: [],
+                createdAt: new Date().toISOString()
+            });
+        }
     }
 }
 
@@ -1269,15 +1012,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.khaiChat = new KHAIChat();
 });
 
-// Service Worker registration for PWA
+// Service Worker for PWA
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
+    navigator.serviceWorker.register('/sw.js').catch(console.error);
 }
