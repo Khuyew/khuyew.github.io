@@ -1,223 +1,378 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KHAI — Первый белорусский ИИ чат | Бесплатный ИИ-помощник</title>
-    <meta name="description" content="KHAI — первый белорусский ИИ-помощник с генерацией изображений и голоса. Полностью бесплатный AI-чат с поддержкой мультимодальных моделей.">
-    <meta name="keywords" content="KHAI, белорусский ИИ, ИИ чат, искусственный интеллект, генерация изображений, голосовой ассистент, AI Беларусь">
-    <meta name="theme-color" content="#0a0a1a">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="KHAI — Первый белорусский ИИ чат">
-    <meta property="og:description" content="Бесплатный ИИ-помощник с генерацией изображений и голоса">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>KHAI — Первый белорусский чат с ИИ | Бесплатный AI-ассистент 2025</title>
+    <meta name="description" content="KHAI — первый белорусский AI-чат с поддержкой голоса, изображений и различных моделей ИИ. Бесплатный интеллектуальный помощник на русском языке.">
+    <meta name="keywords" content="KHAI, белорусский ИИ, чат с искусственным интеллектом, AI помощник, Беларусь, 2025, голосовой ИИ, анализ изображений">
+    <meta name="theme-color" content="#0099ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KHAI">
+    
+    <!-- Open Graph для социальных сетей -->
+    <meta property="og:title" content="KHAI — Первый белорусский чат с ИИ">
+    <meta property="og:description" content="Бесплатный AI-ассистент с поддержкой голоса, изображений и различных моделей ИИ">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://khai.by">
+    <meta property="og:image" content="https://khai.by/og-image.jpg">
     
-    <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <!-- Структурированные данные для SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "KHAI — Первый белорусский чат с ИИ",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web Browser",
+        "description": "Бесплатный AI-ассистент с поддержкой голоса, изображений и различных моделей ИИ",
+        "url": "https://khai.by",
+        "author": {
+            "@type": "Organization",
+            "name": "KHAI"
+        },
+        "datePublished": "2025-01-01",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "BYN"
+        },
+        "countryOfOrigin": "BY"
+    }
+    </script>
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" as="style">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" as="style">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
     
-    <!-- Puter AI SDK -->
-    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        /* Critical CSS для быстрой загрузки на мобильных */
+        .app-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f0f23;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #0099ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Быстрые исправления для мобильных устройств */
+        .mobile-optimized {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        .safe-area-padding {
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* Оптимизация для iOS */
+        @supports (-webkit-touch-callout: none) {
+            .app-container {
+                height: -webkit-fill-available;
+            }
+        }
+    </style>
 </head>
-<body>
-    <div class="app-container">
-        <!-- Floating Header -->
-        <header class="app-header">
+<body class="mobile-optimized">
+    <div class="app-loader" id="appLoader">
+        <div class="loader-spinner"></div>
+        <div style="color: #fff; font-size: 16px;">Загрузка KHAI...</div>
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <div id="pwaInstallPrompt" class="pwa-prompt" style="display: none;">
+        <div class="pwa-prompt-content">
+            <div class="pwa-prompt-icon">
+                <i class="ti ti-download"></i>
+            </div>
+            <div class="pwa-prompt-text">
+                <h3>Установить KHAI</h3>
+                <p>Установите приложение для быстрого доступа и работы офлайн</p>
+            </div>
+            <div class="pwa-prompt-buttons">
+                <button id="pwaInstallCancel" class="pwa-btn secondary">Позже</button>
+                <button id="pwaInstallConfirm" class="pwa-btn primary">Установить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" style="opacity: 0;">
+        <!-- Мобильный Header -->
+        <header class="app-header safe-area-padding">
             <div class="header-content">
-                <div class="logo-section">
-                    <div class="logo">KHAI</div>
-                    <div class="subtitle">Первый белорусский ИИ</div>
-                </div>
-                <div class="header-controls">
-                    <div class="model-select-wrapper">
-                        <select class="model-select" id="modelSelect">
-                            <option value="gpt-5-nano">GPT-5 Nano</option>
-                            <option value="o3-mini">O3 Mini</option>
-                            <option value="claude-sonnet" disabled>Claude Sonnet</option>
-                            <option value="deepseek-chat">DeepSeek Chat</option>
-                            <option value="deepseek-reasoner">DeepSeek Reasoner</option>
-                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                            <option value="grok-beta">xAI Grok</option>
-                        </select>
-                    </div>
-                    <button class="control-btn floating-btn" id="themeToggle" aria-label="Переключить тему">
-                        <i class="ti ti-moon"></i>
-                    </button>
-                    <button class="control-btn floating-btn menu-toggle" id="menuToggle" aria-label="Открыть меню">
+                <div class="logo-container">
+                    <button id="menuToggle" class="control-btn" title="Меню">
                         <i class="ti ti-menu-2"></i>
+                    </button>
+                    <div class="logo" id="logoBtn" title="KHAI — Первый белорусский ИИ">
+                        <i class="ti ti-brain" style="color: white; font-size: 20px;"></i>
+                    </div>
+                    <div class="app-name">KHAI</div>
+                </div>
+                
+                <div class="header-controls">
+                    <button id="modelSelectBtn" class="control-btn model-select-btn" title="Выбор модели">
+                        <i class="ti ti-brain"></i>
+                    </button>
+                    <button id="searchToggle" class="control-btn" title="Поиск">
+                        <i class="ti ti-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Мобильный поиск -->
+            <div class="mobile-search-container" id="mobileSearchContainer" style="display: none;">
+                <div class="search-wrapper">
+                    <i class="ti ti-search"></i>
+                    <input type="text" id="mobileSearchInput" placeholder="Поиск в сообщениях...">
+                    <button id="mobileSearchClear" class="search-clear" title="Очистить поиск" style="display: none;">
+                        <i class="ti ti-x"></i>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Main Chat Area -->
+        <!-- Основная область чата -->
         <main class="chat-main">
+            <!-- Контейнер сообщений -->
             <div class="messages-container" id="messagesContainer">
-                <!-- Messages will be dynamically added here -->
+                <!-- Сообщения добавляются динамически -->
             </div>
 
-            <!-- Enhanced Input Section -->
-            <div class="input-section">
-                <div class="input-wrapper">
-                    <!-- Quick Action Buttons -->
-                    <div class="quick-actions">
-                        <button class="quick-action-btn" id="attachFileBtn" aria-label="Прикрепить изображение">
-                            <i class="ti ti-photo-plus"></i>
-                        </button>
-                        <button class="quick-action-btn" id="voiceInputBtn" aria-label="Голосовой ввод">
-                            <i class="ti ti-microphone"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Main Input -->
-                    <div class="input-area">
-                        <textarea 
-                            id="userInput" 
-                            placeholder="Спросите меня о чем угодно..." 
-                            autocomplete="off" 
-                            rows="1"
-                            aria-label="Введите сообщение"
-                        ></textarea>
-                        
-                        <div class="input-controls">
-                            <button class="input-btn clear-btn" id="clearInputBtn" aria-label="Очистить ввод">
-                                <i class="ti ti-x"></i>
-                            </button>
-                            <button class="send-btn pulse-animation" id="sendBtn" aria-label="Отправить сообщение">
-                                <i class="ti ti-send"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Attached Files -->
-                <div class="attached-files" id="attachedFiles">
-                    <!-- Attached files will appear here -->
-                </div>
-
-                <!-- Action Buttons Grid -->
-                <div class="action-grid">
-                    <button class="action-card" id="helpBtn">
-                        <i class="ti ti-help"></i>
-                        <span>Помощь</span>
-                    </button>
-                    <button class="action-card" id="clearChatBtn">
-                        <i class="ti ti-trash"></i>
-                        <span>Очистить</span>
-                    </button>
-                    <button class="action-card" id="generateVoiceBtn">
-                        <i class="ti ti-microphone"></i>
-                        <span>Голос</span>
-                    </button>
-                    <button class="action-card premium-feature" id="generateImageBtn" disabled>
-                        <i class="ti ti-sparkles"></i>
-                        <span>Изображение</span>
-                    </button>
-                </div>
-            </div>
+            <!-- Плавающая кнопка нового чата -->
+            <button id="floatingNewChat" class="floating-action-btn" title="Новый чат">
+                <i class="ti ti-plus"></i>
+            </button>
         </main>
 
-        <!-- Minimal Footer -->
-        <footer class="app-footer">
-            <div class="footer-content">
-                <div class="current-chat-info">
-                    <i class="ti ti-message-circle"></i>
-                    <span id="currentChatName">Основной чат</span>
-                </div>
-                <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span>KHAI активен</span>
-                </div>
-            </div>
-        </footer>
-    </div>
-
-    <!-- Hidden file input -->
-    <input type="file" id="fileInput" accept="image/*" style="display: none;">
-
-    <!-- Enhanced Sidebar Menu -->
-    <div class="sidebar-menu" id="sidebarMenu">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <div class="logo">KHAI</div>
-                <span>ИИ-помощник</span>
-            </div>
-            <button class="sidebar-close" id="sidebarClose" aria-label="Закрыть меню">
-                <i class="ti ti-x"></i>
-            </button>
-        </div>
-        
-        <div class="sidebar-content">
-            <!-- Chats Section -->
-            <div class="sidebar-section">
-                <div class="section-header">
-                    <h4>Ваши чаты</h4>
-                    <button class="section-action" id="newChatBtn" aria-label="Создать новый чат">
-                        <i class="ti ti-plus"></i>
-                    </button>
-                </div>
-                <div class="chat-list" id="chatList">
-                    <!-- Chat items will be dynamically added here -->
-                </div>
+        <!-- Мобильная панель ввода -->
+        <section class="mobile-input-section safe-area-padding" id="inputSection">
+            <!-- Индикатор режима -->
+            <div class="mode-indicator" id="modeIndicator">
+                <i class="ti ti-message"></i>
+                <span>Обычный режим</span>
             </div>
             
-            <!-- About Section -->
-            <div class="sidebar-section">
-                <div class="section-header">
-                    <h4>О KHAI</h4>
+            <!-- Основная область ввода -->
+            <div class="input-wrapper">
+                <div class="input-area">
+                    <textarea id="userInput" placeholder="Задайте вопрос ИИ..." rows="1"></textarea>
+                    <div class="input-controls">
+                        <button id="attachBtn" class="input-btn" title="Прикрепить файл">
+                            <i class="ti ti-paperclip"></i>
+                        </button>
+                        <button id="voiceInputBtn" class="input-btn" title="Голосовой ввод">
+                            <i class="ti ti-microphone"></i>
+                        </button>
+                        <button id="sendBtn" class="send-btn" title="Отправить">
+                            <i class="ti ti-send"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="about-grid">
-                    <div class="about-card">
-                        <i class="ti ti-flag-belarus"></i>
-                        <div class="about-content">
-                            <strong>Сделано в Беларуси</strong>
-                            <span>Для белорусского сообщества</span>
-                        </div>
+            </div>
+
+            <!-- Прикрепленные файлы -->
+            <div class="attached-files" id="attachedFiles" style="display: none;"></div>
+
+            <!-- Быстрые действия -->
+            <div class="quick-actions-bar">
+                <button class="quick-action" data-action="clear">
+                    <i class="ti ti-trash"></i>
+                    <span>Очистить</span>
+                </button>
+                <button class="quick-action" data-action="export">
+                    <i class="ti ti-download"></i>
+                    <span>Экспорт</span>
+                </button>
+                <button class="quick-action" data-action="help">
+                    <i class="ti ti-help"></i>
+                    <span>Помощь</span>
+                </button>
+                <button class="quick-action" data-action="settings">
+                    <i class="ti ti-settings"></i>
+                    <span>Настройки</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Мобильная навигация -->
+        <nav class="mobile-bottom-nav safe-area-padding">
+            <button class="nav-item active" data-page="chat">
+                <i class="ti ti-message"></i>
+                <span>Чат</span>
+            </button>
+            <button class="nav-item" data-page="chats">
+                <i class="ti ti-messages"></i>
+                <span>Чаты</span>
+            </button>
+            <button class="nav-item" data-page="models">
+                <i class="ti ti-brain"></i>
+                <span>Модели</span>
+            </button>
+            <button class="nav-item" data-page="profile">
+                <i class="ti ti-user"></i>
+                <span>Профиль</span>
+            </button>
+        </nav>
+
+        <!-- Мобильное меню -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="menu-header">
+                <div class="menu-user">
+                    <div class="user-avatar">
+                        <i class="ti ti-user"></i>
                     </div>
-                    <div class="about-card">
-                        <i class="ti ti-shield-lock"></i>
-                        <div class="about-content">
-                            <strong>Конфиденциальность</strong>
-                            <span>Ваши данные защищены</span>
-                        </div>
+                    <div class="user-info">
+                        <div class="user-name">Пользователь KHAI</div>
+                        <div class="user-status">Онлайн</div>
                     </div>
-                    <div class="about-card">
-                        <i class="ti ti-brand-github"></i>
-                        <div class="about-content">
-                            <strong>GitHub</strong>
-                            <a href="https://github.com/Khuyew" target="_blank" rel="noopener">Khuyew</a>
-                        </div>
+                </div>
+                <button class="menu-close" id="menuClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+
+            <div class="menu-content">
+                <!-- Управление чатами -->
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Мои чаты</h3>
+                    <div class="chats-list" id="mobileChatsList">
+                        <!-- Список чатов -->
                     </div>
-                    <div class="about-card">
-                        <i class="ti ti-versions"></i>
-                        <div class="about-content">
-                            <strong>Версия</strong>
-                            <span>KHAI v2.3</span>
+                    <button class="menu-btn primary" id="mobileNewChat">
+                        <i class="ti ti-plus"></i>
+                        <span>Новый чат</span>
+                    </button>
+                </div>
+
+                <!-- Быстрые действия -->
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Быстрые действия</h3>
+                    <div class="quick-presets-grid">
+                        <button class="preset-btn" data-preset="explain">
+                            <i class="ti ti-help"></i>
+                            <span>Объяснить</span>
+                        </button>
+                        <button class="preset-btn" data-preset="summarize">
+                            <i class="ti ti-summary"></i>
+                            <span>Суммаризировать</span>
+                        </button>
+                        <button class="preset-btn" data-preset="translate">
+                            <i class="ti ti-language"></i>
+                            <span>Перевести</span>
+                        </button>
+                        <button class="preset-btn" data-preset="code">
+                            <i class="ti ti-code"></i>
+                            <span>Код</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Настройки -->
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Настройки</h3>
+                    <div class="settings-list">
+                        <button class="menu-btn" data-setting="theme">
+                            <i class="ti ti-moon"></i>
+                            <span>Тема</span>
+                            <i class="ti ti-chevron-right"></i>
+                        </button>
+                        <button class="menu-btn" data-setting="language">
+                            <i class="ti ti-language"></i>
+                            <span>Язык</span>
+                            <i class="ti ti-chevron-right"></i>
+                        </button>
+                        <button class="menu-btn" data-setting="notifications">
+                            <i class="ti ti-bell"></i>
+                            <span>Уведомления</span>
+                            <i class="ti ti-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Информация -->
+                <div class="menu-section">
+                    <div class="app-info">
+                        <div class="info-item">
+                            <i class="ti ti-versions"></i>
+                            <span>KHAI v2.1.0</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="ti ti-calendar"></i>
+                            <span>Беларусь 2025</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Оверлей меню -->
+        <div class="menu-overlay" id="menuOverlay"></div>
+
+        <!-- Мобильный выбор моделей -->
+        <div class="mobile-models-sheet" id="modelsSheet">
+            <div class="sheet-header">
+                <h3 class="sheet-title">Выбор модели ИИ</h3>
+                <button class="sheet-close" id="modelsClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="sheet-content">
+                <div class="models-list" id="mobileModelsList">
+                    <!-- Список моделей -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Уведомления -->
+        <div class="notification-container" id="notificationContainer"></div>
+
+        <!-- Контекстное меню -->
+        <div class="context-menu" id="contextMenu" style="display: none;"></div>
+
+        <!-- Эмодзи пикер -->
+        <div class="emoji-picker" id="emojiPicker" style="display: none;"></div>
+
+        <!-- Зона перетаскивания -->
+        <div class="drop-zone" id="dropZone" style="display: none;">
+            <div class="drop-zone-content">
+                <div class="drop-zone-icon">
+                    <i class="ti ti-upload"></i>
+                </div>
+                <div class="drop-zone-text">Перетащите файлы сюда</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
