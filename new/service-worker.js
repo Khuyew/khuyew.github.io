@@ -1,21 +1,23 @@
-const CACHE_NAME = 'khai-chat-v1.2.0';
-const urlsToCache = [
+// Service Worker для KHAI - оптимизированная версия
+const CACHE_NAME = 'khai-critical-v2.1.0';
+const CRITICAL_ASSETS = [
     '/',
-    '/index.html',
     '/styles.css',
-    '/script.js',
     '/manifest.json',
-    '/logo.png'
+    'data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' fill=\'%230099ff\' rx=\'20\'/><text x=\'50\' y=\'65\' font-family=\'Arial\' font-size=\'45\' text-anchor=\'middle\' fill=\'white\'>K</text></svg>'
 ];
 
+// Стратегия: Network First для критических ресурсов
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
+    
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                return cache.addAll(urlsToCache);
+                return cache.addAll(CRITICAL_ASSETS);
             })
             .then(() => {
-                return self.skipWaiting();
+                console.log('KHAI: Critical assets cached');
             })
     );
 });
@@ -30,52 +32,57 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             );
-        }).then(() => {
-            return self.clients.claim();
-        })
+        }).then(() => self.clients.claim())
     );
 });
 
 self.addEventListener('fetch', (event) => {
-    if (event.request.url.startsWith('http')) {
+    if (event.request.method !== 'GET') return;
+
+    const url = new URL(event.request.url);
+    
+    // Критические ресурсы - Network First
+    if (url.pathname === '/' || url.pathname.includes('styles.css')) {
         event.respondWith(
-            caches.match(event.request)
+            fetch(event.request)
                 .then((response) => {
-                    // Return cached version or fetch from network
-                    if (response) {
-                        return response;
-                    }
-
-                    return fetch(event.request)
-                        .then((response) => {
-                            // Check if we received a valid response
-                            if (!response || response.status !== 200 || response.type !== 'basic') {
-                                return response;
-                            }
-
-                            // Clone the response
-                            const responseToCache = response.clone();
-
-                            caches.open(CACHE_NAME)
-                                .then((cache) => {
-                                    cache.put(event.request, responseToCache);
-                                });
-
-                            return response;
-                        })
-                        .catch(() => {
-                            // If both cache and network fail, show offline page
-                            if (event.request.destination === 'document') {
-                                return caches.match('/');
-                            }
+                    // Клонируем ответ для кеширования
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME)
+                        .then((cache) => {
+                            cache.put(event.request, responseToCache);
                         });
+                    return response;
+                })
+                .catch(() => {
+                    return caches.match(event.request);
                 })
         );
+        return;
     }
-});
-
-self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
+    
+    // Для остальных - Cache First
+    event.respondWith(
+        caches.match(event.request)
+            .then((cachedResponse) => {
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+                
+                return fetch(event.request)
+                    .then((response) => {
+                        if (!response || response.status !== 200) {
+                            return response;
+                        }
+                        
+                        const responseToCache = response.clone();
+                        caches.open(CACHE_NAME)
+                            .then((cache) => {
+                                cache.put(event.request, responseToCache);
+                            });
+                        
+                        return response;
+                    });
+            })
+    );
 });
