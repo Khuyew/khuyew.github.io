@@ -1,204 +1,262 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KHAI — Первый белорусский ИИ чат</title>
-    <meta name="description" content="KHAI — Первый белорусский ИИ чат с генерацией изображений и голоса">
-    <meta name="theme-color" content="#0f0f23">
+    <title>KHAI - Первый белорусский ИИ чат</title>
+    <meta name="description" content="Первый белорусский ИИ чат">
     
-    <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <!-- PWA Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f0f23">
+    <link rel="icon" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
     
     <!-- Styles -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="styles.css">
     
-    <!-- Puter AI SDK -->
-    <script src="https://js.puter.com/v2/"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 </head>
 <body>
     <div class="app-container">
+        <!-- Header -->
         <header class="app-header">
             <div class="header-content">
-                <div class="header-main">
-                    <div class="logo">KHAI</div>
-                    <div class="subtitle">Первый белорусский ИИ чат</div>
-                </div>
-                <div class="header-controls">
-                    <button class="control-btn search-btn" id="searchMessagesBtn" title="Поиск по сообщениям">
-                        <i class="ti ti-search"></i>
+                <div class="header-left">
+                    <!-- Logo -->
+                    <div class="logo-container">
+                        <img src="/logo.png" alt="KHAI" class="logo-img">
+                    </div>
+                    
+                    <!-- Model Selector -->
+                    <button class="model-selector-btn" id="modelSelectorBtn">
+                        <i class="ti ti-chevron-down"></i>
                     </button>
-                    <select class="model-select" id="modelSelect">
-                        <option value="gpt-5-nano">GPT-5 Nano</option>
-                        <option value="o3-mini">O3 Mini</option>
-                        <option value="deepseek-chat">DeepSeek Chat</option>
-                        <option value="deepseek-reasoner">DeepSeek Reasoner</option>
-                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                        <option value="grok-beta">xAI Grok</option>
-                    </select>
+                    
+                    <!-- Search -->
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Поиск...">
+                        <i class="ti ti-search"></i>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <!-- Theme Toggle -->
                     <button class="control-btn" id="themeToggle">
                         <i class="ti ti-moon"></i>
                     </button>
-                    <button class="control-btn menu-toggle" id="menuToggle">
+                    
+                    <!-- Menu Toggle -->
+                    <button class="control-btn" id="menuToggle">
                         <i class="ti ti-menu-2"></i>
                     </button>
                 </div>
             </div>
+            
+            <!-- Scroll Progress Bar -->
+            <div class="scroll-progress" id="scrollProgress"></div>
         </header>
 
-        <div class="navigation-controls" id="navigationControls">
-            <button class="nav-btn" id="scrollToTopBtn" title="В начало">
-                <i class="ti ti-arrow-up"></i>
-            </button>
-            <button class="nav-btn" id="scrollToBottomBtn" title="В конец">
-                <i class="ti ti-arrow-down"></i>
-            </button>
-            <button class="nav-btn" id="nextMessageBtn" title="Следующее сообщение">
-                <i class="ti ti-chevron-down"></i>
-            </button>
-        </div>
-
+        <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer">
-                <!-- Messages will be added here -->
+                <!-- Messages will be rendered here -->
             </div>
-
-            <div class="input-section">
-                <div class="input-wrapper">
-                    <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
-                        <i class="ti ti-plus"></i>
-                    </button>
-                    
-                    <textarea 
-                        id="userInput" 
-                        placeholder="Задайте вопрос или опишите изображение..." 
-                        autocomplete="off" 
-                        rows="1"
-                    ></textarea>
-                    
-                    <div class="input-controls">
-                        <button class="input-btn" id="clearInputBtn" title="Очистить ввод" style="display: none;">
-                            <i class="ti ti-x"></i>
-                        </button>
-                        <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
-                            <i class="ti ti-microphone"></i>
-                        </button>
-                        <button class="send-btn" id="sendBtn" title="Отправить сообщение">
-                            <i class="ti ti-send"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="attached-files" id="attachedFiles">
-                    <!-- Attached files will appear here -->
-                </div>
-
-                <div class="action-buttons">
-                    <button class="action-btn" id="helpBtn" title="Помощь">
-                        <i class="ti ti-help"></i>
-                    </button>
-                    <button class="action-btn" id="clearChatBtn" title="Очистить чат">
-                        <i class="ti ti-trash"></i>
-                    </button>
-                    <button class="action-btn" id="generateImageBtn" title="Генерация изображения">
-                        <i class="ti ti-photo"></i>
-                    </button>
-                    <button class="action-btn" id="generateVoiceBtn" title="Генерация голоса">
-                        <i class="ti ti-microphone"></i>
-                    </button>
-                </div>
+            
+            <!-- Navigation Controls -->
+            <div class="navigation-controls" id="navigationControls">
+                <button class="nav-btn" id="scrollToTopBtn">
+                    <i class="ti ti-arrow-up"></i>
+                </button>
+                <button class="nav-btn" id="scrollToBottomBtn">
+                    <i class="ti ti-arrow-down"></i>
+                </button>
             </div>
         </main>
 
+        <!-- Input Section -->
+        <section class="input-section">
+            <!-- Input Modes -->
+            <div class="input-modes">
+                <button class="mode-btn active" data-mode="text">
+                    <i class="ti ti-pencil"></i>
+                    <span>Текст</span>
+                </button>
+                <button class="mode-btn" data-mode="image">
+                    <i class="ti ti-photo"></i>
+                    <span>Рисунок</span>
+                </button>
+                <button class="mode-btn" data-mode="voice">
+                    <i class="ti ti-microphone"></i>
+                    <span>Голос</span>
+                </button>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="input-wrapper">
+                <button class="attach-btn" id="attachFileBtn">
+                    <i class="ti ti-paperclip"></i>
+                </button>
+                
+                <textarea 
+                    id="userInput" 
+                    placeholder="Введите ваше сообщение..." 
+                    rows="1"
+                ></textarea>
+                
+                <div class="input-controls">
+                    <button class="input-btn" id="clearInputBtn" style="display: none;">
+                        <i class="ti ti-x"></i>
+                    </button>
+                    <button class="send-btn" id="sendBtn">
+                        <i class="ti ti-send"></i>
+                    </button>
+                </div>
+                
+                <input type="file" id="fileInput" multiple style="display: none;">
+            </div>
+            
+            <!-- Attached Files -->
+            <div class="attached-files" id="attachedFiles"></div>
+            
+            <!-- Input Info -->
+            <div class="input-info">
+                <span class="char-count">0/4000</span>
+                <span class="files-count">Файлы: 0</span>
+                <span class="total-size">Общий размер: 0 MB</span>
+            </div>
+        </section>
+
+        <!-- Footer -->
         <footer class="app-footer">
             <div class="footer-content">
-                <div class="current-chat-info">
-                    <i class="ti ti-message"></i>
-                    <span id="currentChatName">Основной чат</span>
+                <div class="footer-actions">
+                    <button class="action-btn" id="clearChatBtn" title="Очистить чат">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                    <button class="action-btn" id="downloadAllChatsBtn" title="Скачать историю">
+                        <i class="ti ti-download"></i>
+                    </button>
+                    <button class="action-btn" id="helpBtn" title="Помощь">
+                        <i class="ti ti-help"></i>
+                    </button>
                 </div>
-                <div class="status-indicator" id="statusIndicator">
-                    <div class="status-dot"></div>
-                    <span>Онлайн</span>
+                
+                <div class="footer-info">
+                    <div class="current-chat-info">
+                        <span id="currentChatName">Основной чат</span>
+                    </div>
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span id="statusIndicator">Онлайн</span>
+                    </div>
                 </div>
             </div>
         </footer>
     </div>
 
-    <!-- Hidden file input -->
-    <input type="file" id="fileInput" accept="image/*,text/*,.pdf,.doc,.docx" multiple style="display: none;">
-
     <!-- Sidebar Menu -->
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
-            <h3>Меню чатов</h3>
+            <h3>Меню</h3>
             <button class="sidebar-close" id="sidebarClose">
                 <i class="ti ti-x"></i>
             </button>
         </div>
         
         <div class="sidebar-content">
+            <!-- Chat Management -->
             <div class="sidebar-section">
-                <button class="sidebar-btn primary" id="newChatBtn">
-                    <i class="ti ti-plus"></i> Новый чат
-                </button>
-                
+                <h4>Управление чатами</h4>
                 <div class="search-chats">
                     <i class="ti ti-search"></i>
                     <input type="text" id="chatSearchInput" placeholder="Поиск чатов...">
                 </div>
-                
-                <div class="chat-list" id="chatList">
-                    <!-- Chat items will be dynamically added here -->
-                </div>
+                <div class="chat-list" id="chatList"></div>
                 
                 <div class="chat-management-buttons">
-                    <button class="sidebar-btn" id="importChatBtn">
-                        <i class="ti ti-upload"></i> Импорт чата
+                    <button class="sidebar-btn primary" id="newChatBtn">
+                        <i class="ti ti-plus"></i>
+                        Новый чат
                     </button>
-                    <button class="sidebar-btn" id="downloadAllChatsBtn">
-                        <i class="ti ti-download"></i> Скачать все
+                    <button class="sidebar-btn" id="importChatBtn">
+                        <i class="ti ti-upload"></i>
+                        Импорт чата
                     </button>
                     <button class="sidebar-btn danger" id="deleteAllChatsBtn">
-                        <i class="ti ti-trash"></i> Удалить все
+                        <i class="ti ti-trash"></i>
+                        Удалить все чаты
                     </button>
                 </div>
             </div>
             
+            <!-- Settings -->
             <div class="sidebar-section">
-                <h4>О программе</h4>
+                <h4>Настройки</h4>
+                <button class="sidebar-btn" id="searchMessagesBtn">
+                    <i class="ti ti-search"></i>
+                    Поиск по сообщениям
+                </button>
+                <button class="sidebar-btn">
+                    <i class="ti ti-bell"></i>
+                    Уведомления
+                </button>
+                <button class="sidebar-btn">
+                    <i class="ti ti-user"></i>
+                    Профиль
+                </button>
+            </div>
+            
+            <!-- About -->
+            <div class="sidebar-section">
+                <h4>О приложении</h4>
                 <div class="about-content">
                     <div class="about-item">
-                        <strong>Сделано в Беларуси</strong>
-                        <span>Разработано с ❤️ для сообщества</span>
-                    </div>
-                    <div class="about-item">
-                        <strong>Конфиденциальность</strong>
-                        <span>Ваши данные защищены и не передаются третьим лицам</span>
-                    </div>
-                    <div class="about-item">
-                        <strong>GitHub</strong>
-                        <a href="https://github.com/Khuyew" target="_blank">
-                            <i class="ti ti-brand-github"></i>
-                            Khuyew на GitHub
-                        </a>
+                        <strong>KHAI</strong>
+                        <span>Первый белорусский ИИ чат</span>
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>KHAI v2.5</span>
+                        <span>1.0.0</span>
+                    </div>
+                    <div class="about-item">
+                        <a href="#">
+                            <i class="ti ti-help"></i>
+                            Помощь и поддержка
+                        </a>
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- Watermark -->
+        <div class="sidebar-watermark">
+            <img src="/logo.png" alt="KHAI">
         </div>
     </div>
 
     <!-- Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Modals -->
+    
+    <!-- Model Selection Modal -->
+    <div class="modal" id="modelSelectionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Выбор модели</h3>
+                <button class="modal-close" id="modelSelectionClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="models-list">
+                    <!-- Models will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Search Messages Modal -->
     <div class="modal" id="searchMessagesModal">
@@ -214,9 +272,7 @@
                     <i class="ti ti-search"></i>
                     <input type="text" id="searchMessagesInput" placeholder="Введите текст для поиска...">
                 </div>
-                <div class="search-results" id="searchResults">
-                    <!-- Search results will appear here -->
-                </div>
+                <div class="search-results" id="searchResults"></div>
             </div>
         </div>
     </div>
@@ -225,21 +281,25 @@
     <div class="pwa-prompt" id="pwaPrompt" style="display: none;">
         <div class="pwa-content">
             <div class="pwa-icon">
-                <i class="ti ti-device-mobile"></i>
+                <img src="/logo.png" alt="KHAI">
             </div>
             <div class="pwa-text">
-                <h4>Установите KHAI</h4>
-                <p>Добавьте приложение на главный экран для быстрого доступа</p>
+                <h4>Установить KHAI</h4>
+                <p>Установите приложение для лучшего опыта</p>
             </div>
-            <div class="pwa-actions">
-                <button class="pwa-btn secondary" id="pwaDismiss">Позже</button>
-                <button class="pwa-btn primary" id="pwaInstall">Установить</button>
-            </div>
+        </div>
+        <div class="pwa-actions">
+            <button class="pwa-btn secondary" id="pwaDismiss">Позже</button>
+            <button class="pwa-btn primary" id="pwaInstall">Установить</button>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Notifications Container -->
+    <div class="notifications-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
