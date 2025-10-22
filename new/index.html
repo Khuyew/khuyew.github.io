@@ -64,6 +64,21 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* Quick fixes for immediate functionality */
+        .mobile-visible {
+            display: flex !important;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                display: none;
+            }
+            
+            .mobile-sidebar-toggle {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
@@ -164,46 +179,9 @@
                                 <i class="ti ti-trash"></i>
                                 Очистить чат
                             </button>
-                            <button class="action-btn coming-soon" disabled>
-                                <i class="ti ti-download"></i>
-                                Экспорт
-                                <span class="coming-soon-badge">СКОРО</span>
-                            </button>
                             <button class="action-btn" id="helpBtn">
                                 <i class="ti ti-help"></i>
                                 Помощь
-                            </button>
-                            <button class="action-btn coming-soon" disabled>
-                                <i class="ti ti-settings"></i>
-                                Настройки
-                                <span class="coming-soon-badge">СКОРО</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Advanced Features -->
-                    <div class="sidebar-section">
-                        <h4 class="sidebar-title">Расширенные функции</h4>
-                        <div class="quick-actions-grid">
-                            <button class="action-btn coming-soon" disabled>
-                                <i class="ti ti-photo"></i>
-                                Анализ фото
-                                <span class="coming-soon-badge">СКОРО</span>
-                            </button>
-                            <button class="action-btn coming-soon" disabled>
-                                <i class="ti ti-file-text"></i>
-                                Документы
-                                <span class="coming-soon-badge">СКОРО</span>
-                            </button>
-                            <button class="action-btn coming-soon" disabled>
-                                <i class="ti ti-chart-bar"></i>
-                                Аналитика
-                                <span class="coming-soon-badge">СКОРО</span>
-                            </button>
-                            <button class="action-btn coming-soon" disabled>
-                                <i class="ti ti-share"></i>
-                                Поделиться
-                                <span class="coming-soon-badge">СКОРО</span>
                             </button>
                         </div>
                     </div>
@@ -266,7 +244,7 @@
                 </div>
 
                 <!-- File Input (hidden) -->
-                <input type="file" id="fileInput" accept="image/*,.txt,.pdf,.doc,.docx" multiple style="display: none;">
+                <input type="file" id="fileInput" accept="image/*,.txt" multiple style="display: none;">
             </div>
 
             <!-- Action Buttons -->
@@ -278,16 +256,6 @@
                 <button id="generateVoiceBtn" class="mode-btn" title="Генерация голоса">
                     <i class="ti ti-microphone"></i>
                     <span>Голос</span>
-                </button>
-                <button class="mode-btn coming-soon" disabled title="Скоро будет доступно">
-                    <i class="ti ti-chart-bar"></i>
-                    <span>Анализ</span>
-                    <span class="coming-soon-badge">СКОРО</span>
-                </button>
-                <button class="mode-btn coming-soon" disabled title="Скоро будет доступно">
-                    <i class="ti ti-file-text"></i>
-                    <span>Документы</span>
-                    <span class="coming-soon-badge">СКОРО</span>
                 </button>
             </div>
         </section>
