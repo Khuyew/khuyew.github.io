@@ -3,79 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KHAI — Первый белорусский чат с ИИ | Бесплатный AI-ассистент 2025</title>
-    <meta name="description" content="KHAI — первый белорусский AI-чат с поддержкой голоса, изображений и различных моделей ИИ. Бесплатный интеллектуальный помощник на русском языке.">
-    <meta name="keywords" content="KHAI, белорусский ИИ, чат с искусственным интеллектом, AI помощник, Беларусь, 2025, голосовой ИИ, анализ изображений">
+    <title>KHAI — Первый белорусский чат с ИИ | Бесплатный AI-ассистент</title>
+    <meta name="description" content="KHAI — первый белорусский чат с искусственным интеллектом. Бесплатный AI-ассистент с поддержкой GPT-5, Claude, Gemini и других моделей. Работа с текстом, изображениями, голосом и файлами.">
+    <meta name="keywords" content="KHAI, белорусский ИИ, AI чат, искусственный интеллект Беларусь, GPT-5, Claude, Gemini, голосовой ассистент">
+    <meta name="author" content="KHAI Team">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="KHAI — Первый белорусский чат с ИИ">
+    <meta property="og:description" content="Бесплатный AI-ассистент с поддержкой передовых моделей искусственного интеллекта">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_BY">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="KHAI — Первый белорусский чат с ИИ">
+    <meta name="twitter:description" content="Бесплатный AI-ассистент для решения любых задач">
+    
     <meta name="theme-color" content="#0099ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KHAI">
     
-    <!-- Preload критических ресурсов -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="preload" href="script.js" as="script">
     
-    <!-- Структурированные данные для SEO -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "KHAI — Первый белорусский чат с ИИ",
-        "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "Web Browser",
-        "description": "Бесплатный AI-ассистент с поддержкой голоса, изображений и различных моделей ИИ",
-        "url": "https://khai.by",
-        "author": {
-            "@type": "Organization",
-            "name": "KHAI"
-        },
-        "datePublished": "2025-01-01",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "BYN"
-        },
-        "countryOfOrigin": "BY"
-    }
-    </script>
-
-    <!-- Critical CSS - встроенный для мгновенного рендера -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
+    
+    <!-- Critical CSS for initial render -->
     <style>
-        /* Critical CSS - минимизирован для быстрой загрузки */
-        :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: rgba(255,255,255,0.03);
-            --text-primary: #ffffff;
-            --accent-primary: #0099ff;
-            --radius-lg: 16px;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow: hidden;
-            height: 100vh;
-            height: 100dvh;
-            -webkit-font-smoothing: antialiased;
-        }
-        
         .app-loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--bg-primary);
+            background: #0f0f23;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -83,441 +52,269 @@
             flex-direction: column;
             gap: 20px;
         }
-        
         .loader-spinner {
             width: 40px;
             height: 40px;
             border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid var(--accent-primary);
+            border-top: 3px solid #0099ff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            height: 100dvh;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        /* Quick fixes for immediate functionality */
+        .mobile-visible {
+            display: flex !important;
         }
         
-        /* Critical mobile header */
-        .app-header {
-            padding: 12px 16px;
-            padding-top: calc(12px + env(safe-area-inset-top, 0px));
-            background: var(--bg-secondary);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.15);
-            flex-shrink: 0;
-            z-index: 100;
-        }
-        
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 44px;
-        }
-        
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .logo {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--accent-primary), #0066ff);
-            color: white;
-            font-size: 20px;
-        }
-        
-        .app-name {
-            font-size: 18px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-primary), #0066ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        /* Critical messages area */
-        .chat-main {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .messages-container {
-            height: 100%;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* Critical input section */
-        .mobile-input-section {
-            background: var(--bg-secondary);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.15);
-            padding: 16px;
-            padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-            flex-shrink: 0;
-        }
-        
-        .input-area {
-            position: relative;
-        }
-        
-        .input-area textarea {
-            width: 100%;
-            min-height: 44px;
-            padding: 12px 50px 12px 16px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: var(--radius-lg);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 16px;
-            line-height: 1.4;
-            resize: none;
-            outline: none;
-            font-family: inherit;
-        }
-        
-        .input-controls {
-            position: absolute;
-            right: 8px;
-            bottom: 8px;
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-        
-        .send-btn {
-            background: linear-gradient(135deg, var(--accent-primary), #0066ff);
-            border: none;
-            color: white;
-            padding: 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-        }
-        
-        /* Critical bottom nav */
-        .mobile-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-secondary);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.15);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-            z-index: 100;
-        }
-        
-        .nav-item {
-            background: none;
-            border: none;
-            color: #a0a0c0;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            min-width: 60px;
-        }
-        
-        .nav-item.active {
-            color: var(--accent-primary);
-        }
-        
-        .nav-item i {
-            font-size: 20px;
-        }
-        
-        /* Улучшения для очень быстрого FCP */
-        .skeleton-loader {
-            background: linear-gradient(90deg, #1a1a2e 25%, #2d2d4d 50%, #1a1a2e 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 8px;
-        }
-        
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
-        /* Оптимизация для iOS */
-        @supports (-webkit-touch-callout: none) {
-            .app-container {
-                height: -webkit-fill-available;
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                display: none;
+            }
+            
+            .mobile-sidebar-toggle {
+                display: flex;
             }
         }
-        
-        /* Предотвращение layout shift */
-        .messages-container {
-            scrollbar-gutter: stable;
-        }
     </style>
-    
-    <!-- Отложенная загрузка некритических стилей -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    </noscript>
-    
-    <link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="styles.css">
-    </noscript>
-    
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
 </head>
 <body>
-    <!-- Skeleton Loader для контента -->
     <div class="app-loader" id="appLoader">
         <div class="loader-spinner"></div>
         <div style="color: #fff; font-size: 16px;">Загрузка KHAI...</div>
     </div>
 
-    <!-- Основной контейнер приложения -->
-    <div class="app-container" id="appContainer">
-        <!-- Мобильный Header -->
+    <!-- PWA Install Prompt -->
+    <div id="pwaInstallPrompt" class="pwa-prompt" style="display: none;">
+        <div class="pwa-prompt-content">
+            <div class="pwa-prompt-icon">
+                <i class="ti ti-download"></i>
+            </div>
+            <div class="pwa-prompt-text">
+                <h3>Установить KHAI</h3>
+                <p>Установите приложение для быстрого доступа и работы офлайн</p>
+            </div>
+            <div class="pwa-prompt-buttons">
+                <button id="pwaInstallCancel" class="pwa-btn secondary">Позже</button>
+                <button id="pwaInstallConfirm" class="pwa-btn primary">Установить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" style="opacity: 0;">
+        <!-- Enhanced Mobile-First Header -->
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-container">
-                    <button class="control-btn" id="menuToggle" title="Меню">
+                    <button id="menuToggle" class="control-btn mobile-visible" title="Меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
                     <div class="logo" id="logoBtn" title="KHAI — Первый белорусский ИИ">
-                        <i class="ti ti-brain"></i>
+                        <i class="ti ti-brain" style="color: white; font-size: 20px;"></i>
                     </div>
                     <div class="app-name">KHAI</div>
                 </div>
                 
+                <div class="header-center">
+                    <div class="current-chat-info">
+                        <span id="currentChatName">Основной чат</span>
+                    </div>
+                </div>
+                
                 <div class="header-controls">
-                    <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбор модели">
-                        <i class="ti ti-brain"></i>
-                    </button>
-                    <button class="control-btn" id="searchToggle" title="Поиск">
-                        <i class="ti ti-search"></i>
+                    <select id="modelSelect" class="model-select" title="Выбор модели ИИ">
+                        <option value="gpt-5-nano">GPT-5 Nano</option>
+                        <option value="o3-mini">O3 Mini</option>
+                        <option value="claude-sonnet">Claude Sonnet</option>
+                        <option value="deepseek-chat">DeepSeek Chat</option>
+                        <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                        <option value="grok-beta">Grok Beta</option>
+                    </select>
+                    <button id="themeToggle" class="control-btn" title="Переключить тему">
+                        <i class="ti ti-moon"></i>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Основная область чата -->
+        <!-- Main Chat Area -->
         <main class="chat-main">
+            <!-- Messages Container -->
             <div class="messages-container" id="messagesContainer">
-                <!-- Skeleton messages для предотвращения layout shift -->
-                <div class="message-skeleton">
-                    <div class="skeleton-loader" style="height: 60px; width: 70%; margin-bottom: 16px;"></div>
-                    <div class="skeleton-loader" style="height: 80px; width: 85%; margin-left: auto; margin-bottom: 16px;"></div>
-                    <div class="skeleton-loader" style="height: 100px; width: 75%; margin-bottom: 16px;"></div>
-                </div>
+                <!-- Messages will be dynamically added here -->
             </div>
+
+            <!-- Enhanced Mobile Sidebar -->
+            <aside class="mobile-sidebar" id="mobileSidebar">
+                <div class="sidebar-header">
+                    <h3>KHAI</h3>
+                    <button id="sidebarClose" class="sidebar-close">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+
+                <div class="sidebar-content">
+                    <!-- Chat Management -->
+                    <div class="sidebar-section">
+                        <h4 class="sidebar-title">Управление чатами</h4>
+                        <button id="newChatBtn" class="sidebar-btn primary">
+                            <i class="ti ti-plus"></i>
+                            Новый чат
+                        </button>
+                        <div class="chats-list" id="chatsList">
+                            <!-- Chat list will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="sidebar-section">
+                        <h4 class="sidebar-title">Быстрые действия</h4>
+                        <div class="quick-actions-grid">
+                            <button class="action-btn" id="clearChatBtn">
+                                <i class="ti ti-trash"></i>
+                                Очистить чат
+                            </button>
+                            <button class="action-btn" id="exportChatBtn">
+                                <i class="ti ti-download"></i>
+                                Экспорт
+                            </button>
+                            <button class="action-btn" id="helpBtn">
+                                <i class="ti ti-help"></i>
+                                Помощь
+                            </button>
+                            <button class="action-btn" id="settingsBtn">
+                                <i class="ti ti-settings"></i>
+                                Настройки
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- App Info -->
+                    <div class="sidebar-section">
+                        <div class="app-info">
+                            <div class="info-item">
+                                <i class="ti ti-versions"></i>
+                                <span>KHAI v2.1.0</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="ti ti-calendar"></i>
+                                <span>2025</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="ti ti-map-pin"></i>
+                                <span>Беларусь</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="sidebar-overlay" id="sidebarOverlay"></div>
         </main>
 
-        <!-- Мобильная панель ввода -->
-        <section class="mobile-input-section">
+        <!-- Enhanced Input Section for Mobile -->
+        <section class="input-section" id="inputSection">
             <div class="input-wrapper">
+                <!-- Attached Files -->
+                <div class="attached-files" id="attachedFiles" style="display: none;"></div>
+
+                <!-- Main Input Area -->
                 <div class="input-area">
-                    <textarea id="userInput" placeholder="Задайте вопрос ИИ..." rows="1"></textarea>
-                    <div class="input-controls">
-                        <button class="input-btn" id="attachBtn" title="Прикрепить файл">
+                    <div class="input-buttons">
+                        <button id="attachFileBtn" class="input-btn" title="Прикрепить файл">
                             <i class="ti ti-paperclip"></i>
                         </button>
-                        <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
+                        <button id="voiceInputBtn" class="input-btn" title="Голосовой ввод">
                             <i class="ti ti-microphone"></i>
                         </button>
-                        <button class="send-btn" id="sendBtn" title="Отправить">
+                    </div>
+                    
+                    <textarea 
+                        id="userInput" 
+                        placeholder="Задайте вопрос или опишите задачу..." 
+                        rows="1"
+                        maxlength="4000"
+                    ></textarea>
+                    
+                    <div class="input-controls">
+                        <button id="clearInputBtn" class="input-btn" title="Очистить" style="display: none;">
+                            <i class="ti ti-x"></i>
+                        </button>
+                        <button id="sendBtn" class="send-btn" title="Отправить сообщение">
                             <i class="ti ti-send"></i>
                         </button>
                     </div>
                 </div>
+
+                <!-- File Input (hidden) -->
+                <input type="file" id="fileInput" accept="image/*,.txt,.pdf,.doc,.docx" multiple style="display: none;">
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="generateImageBtn" class="mode-btn" title="Генерация изображений">
+                    <i class="ti ti-photo"></i>
+                    <span>Изображение</span>
+                </button>
+                <button id="generateVoiceBtn" class="mode-btn" title="Генерация голоса">
+                    <i class="ti ti-microphone"></i>
+                    <span>Голос</span>
+                </button>
             </div>
         </section>
 
-        <!-- Мобильная навигация -->
-        <nav class="mobile-bottom-nav">
-            <button class="nav-item active" data-page="chat">
-                <i class="ti ti-message"></i>
-                <span>Чат</span>
+        <!-- Mobile Navigation -->
+        <div class="mobile-navigation">
+            <button id="scrollToLastAI" class="nav-btn" title="К последнему ответу ИИ">
+                <i class="ti ti-message-chatbot"></i>
             </button>
-            <button class="nav-item" data-page="chats">
-                <i class="ti ti-messages"></i>
-                <span>Чаты</span>
+            <button id="scrollToBottom" class="nav-btn" title="В конец">
+                <i class="ti ti-arrow-down"></i>
             </button>
-            <button class="nav-item" data-page="models">
-                <i class="ti ti-brain"></i>
-                <span>Модели</span>
-            </button>
-            <button class="nav-item" data-page="profile">
-                <i class="ti ti-user"></i>
-                <span>Профиль</span>
-            </button>
-        </nav>
+        </div>
+
+        <!-- Mobile Sidebar Toggle -->
+        <button class="mobile-sidebar-toggle" id="mobileSidebarToggle" title="Открыть меню">
+            <i class="ti ti-menu-2"></i>
+        </button>
     </div>
 
-    <!-- Preload критических скриптов -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/marked/marked.min.js" as="script">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js" as="script">
-    
-    <!-- Inline script для быстрой инициализации -->
-    <script>
-        // Минимальная инициализация для быстрого запуска
-        (function() {
-            'use strict';
-            
-            // Показываем приложение как можно быстрее
-            function initApp() {
-                const appContainer = document.getElementById('appContainer');
-                const appLoader = document.getElementById('appLoader');
-                
-                if (appContainer && appLoader) {
-                    // Показываем основной интерфейс
-                    appContainer.style.opacity = '1';
-                    
-                    // Скрываем лоадер с задержкой для плавности
-                    setTimeout(() => {
-                        appLoader.style.display = 'none';
-                        appContainer.style.display = 'flex';
-                    }, 300);
-                    
-                    // Инициализируем базовые обработчики
-                    initBasicHandlers();
-                }
-            }
-            
-            function initBasicHandlers() {
-                // Базовые обработчики для интерактивности
-                const sendBtn = document.getElementById('sendBtn');
-                const userInput = document.getElementById('userInput');
-                
-                if (sendBtn && userInput) {
-                    sendBtn.addEventListener('click', handleSendMessage);
-                    userInput.addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                        }
-                    });
-                }
-                
-                // Обработчик для авторесайза textarea
-                if (userInput) {
-                    userInput.addEventListener('input', function() {
-                        this.style.height = 'auto';
-                        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-                    });
-                }
-            }
-            
-            function handleSendMessage() {
-                const userInput = document.getElementById('userInput');
-                const message = userInput?.value.trim();
-                
-                if (message) {
-                    // Временная реализация до загрузки основного скрипта
-                    addUserMessage(message);
-                    userInput.value = '';
-                    userInput.style.height = 'auto';
-                    
-                    // Показываем индикатор загрузки
-                    showTypingIndicator();
-                }
-            }
-            
-            function addUserMessage(text) {
-                const container = document.getElementById('messagesContainer');
-                if (!container) return;
-                
-                // Убираем скелетон
-                const skeleton = container.querySelector('.message-skeleton');
-                if (skeleton) {
-                    skeleton.remove();
-                }
-                
-                const messageEl = document.createElement('div');
-                messageEl.className = 'message message-user';
-                messageEl.innerHTML = `
-                    <div class="message-content">${escapeHtml(text)}</div>
-                `;
-                container.appendChild(messageEl);
-                container.scrollTop = container.scrollHeight;
-            }
-            
-            function showTypingIndicator() {
-                const container = document.getElementById('messagesContainer');
-                if (!container) return;
-                
-                const indicator = document.createElement('div');
-                indicator.className = 'message message-assistant typing-indicator';
-                indicator.innerHTML = `
-                    <div class="typing-dots">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                    <span>ИИ печатает...</span>
-                `;
-                container.appendChild(indicator);
-                container.scrollTop = container.scrollHeight;
-            }
-            
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-            
-            // Запускаем инициализацию при DOMContentLoaded
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initApp);
-            } else {
-                initApp();
-            }
-            
-            // Preload основного скрипта
-            const script = document.createElement('script');
-            script.src = 'script.js';
-            script.async = true;
-            document.head.appendChild(script);
-            
-        })();
-    </script>
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
 
-    <!-- Отложенная загрузка некритических скриптов -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" async></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js" async></script>
+    <!-- Edit Chat Modal -->
+    <div class="modal-overlay" id="editChatModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Редактировать название чата</h3>
+                <button class="modal-close" id="editChatModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <input type="text" id="editChatNameInput" placeholder="Введите название чата..." maxlength="50">
+                    <button id="modalClearInput" class="clear-input-btn" style="display: none;">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="editChatModalCancel" class="btn secondary">Отмена</button>
+                <button id="editChatModalSave" class="btn primary">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="script.js"></script>
 </body>
 </html>
