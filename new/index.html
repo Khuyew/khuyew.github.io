@@ -3,448 +3,1096 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KHAI — Первый белорусский чат с ИИ</title>
-    <meta name="description" content="KHAI — первый белорусский AI-чат с поддержкой различных моделей ИИ. Общайтесь, анализируйте файлы, генерируйте контент и программируйте с помощью искусственного интеллекта.">
-    <meta name="keywords" content="KHAI, AI, ИИ, чат, Беларусь, искусственный интеллект, программирование, анализ файлов">
+    <title>KHAI — Первый белорусский AI-ассистент</title>
+    <meta name="description" content="Продвинутый AI-чат с поддержкой различных моделей и режимов работы">
+    <meta name="keywords" content="AI чат, искусственный интеллект, Беларусь, KHAI, программирование">
     <meta name="theme-color" content="#0099ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KHAI">
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
     <style>
-        /* Critical CSS for initial render */
-        .app-loader {
+        /* Critical CSS for mobile first */
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: rgba(255,255,255,0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --accent-primary: #0099ff;
+            --accent-error: #ff4444;
+            --border-color: rgba(255,255,255,0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            height: 100dvh;
+        }
+        
+        .app-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .app-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-primary), #0066ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .app-name {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), #0066ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .control-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+        
+        /* Messages */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .message {
+            max-width: 85%;
+            padding: 16px;
+            border-radius: 16px;
+            line-height: 1.5;
+        }
+        
+        .message-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .message-ai {
+            align-self: flex-start;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Input Section */
+        .input-section {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .input-area {
+            flex: 1;
+            position: relative;
+        }
+        
+        .input-area textarea {
+            width: 100%;
+            min-height: 60px;
+            max-height: 120px;
+            padding: 16px 50px 16px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+        
+        .input-controls {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            display: flex;
+            gap: 6px;
+        }
+        
+        .input-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, var(--accent-primary), #0066ff);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+        }
+        
+        .send-btn.stop-generation {
+            background: var(--accent-error);
+        }
+        
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            right: 16px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            backdrop-filter: blur(20px);
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            max-width: calc(100vw - 32px);
+        }
+        
+        /* Mobile Sidebar */
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: min(320px, 85vw);
+            height: 100%;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mobile-sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .sidebar-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #0f0f23;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .loader-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid #0099ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
         }
         
-        /* Quick fixes for mobile */
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .chat-sidebar {
-                display: none;
+            .app-header {
+                padding: 8px 12px;
             }
             
-            .mobile-sidebar-toggle {
-                display: flex;
+            .messages-container {
+                padding: 12px;
+                gap: 12px;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 12px;
+            }
+            
+            .input-section {
+                padding: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .app-header {
+                padding: 6px 8px;
+            }
+            
+            .logo {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .app-name {
+                font-size: 16px;
+            }
+            
+            .control-btn {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .messages-container {
+                padding: 8px;
+                gap: 8px;
+            }
+            
+            .message {
+                max-width: 95%;
+                padding: 10px;
+            }
+            
+            .input-section {
+                padding: 8px;
+            }
+            
+            .input-area textarea {
+                padding: 12px 45px 12px 12px;
+                min-height: 50px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="app-loader" id="appLoader">
-        <div class="loader-spinner"></div>
-        <div style="color: #fff; font-size: 16px;">Загрузка KHAI...</div>
-    </div>
-
-    <div class="app-container" style="opacity: 0;">
+    <div class="app-container">
         <!-- Header -->
         <header class="app-header">
-            <div class="header-content">
-                <div class="logo-container">
-                    <div class="logo" id="logoBtn" title="KHAI — Первый белорусский чат с ИИ">
-                        <img src="logo.png" alt="KHAI" style="width: 32px; height: 32px;">
-                    </div>
-                </div>
-                
-                <div class="header-center">
-                    <div class="header-search-container">
-                        <div class="search-wrapper">
-                            <i class="ti ti-search"></i>
-                            <input type="text" id="headerSearch" placeholder="Поиск в сообщениях...">
-                            <button id="headerSearchClear" class="search-clear" title="Очистить поиск" style="display: none;">
-                                <i class="ti ti-x"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="header-controls">
-                    <button id="modelSelectBtn" class="control-btn model-select-btn" title="Выбор модели">
-                        <i class="ti ti-brain"></i>
-                    </button>
-                    <button id="themeToggle" class="control-btn" title="Переключить тему">
-                        <i class="ti ti-moon"></i>
-                    </button>
-                    <button id="menuToggle" class="control-btn" title="Меню">
-                        <i class="ti ti-menu-2"></i>
-                    </button>
-                </div>
+            <div class="logo-container">
+                <button class="control-btn" id="menuToggle">
+                    <i class="ti ti-menu-2"></i>
+                </button>
+                <div class="logo">K</div>
+                <div class="app-name">KHAI</div>
+            </div>
+            
+            <div class="header-controls">
+                <button class="control-btn" id="themeToggle">
+                    <i class="ti ti-moon"></i>
+                </button>
+                <button class="control-btn" id="modelSelectBtn">
+                    <i class="ti ti-brain"></i>
+                </button>
             </div>
         </header>
 
-        <!-- Main Chat Area -->
-        <main class="chat-main">
-            <!-- Messages Container -->
-            <div class="messages-container" id="messagesContainer">
-                <!-- Messages will be dynamically added here -->
-            </div>
-
-            <!-- Sidebar -->
-            <aside class="chat-sidebar">
-                <div class="quick-actions">
-                    <button id="quickNewChat" class="quick-btn" title="Новый чат">
-                        <i class="ti ti-plus"></i>
-                    </button>
-                    <button id="quickDownload" class="quick-btn" title="Экспорт чата">
-                        <i class="ti ti-download"></i>
-                    </button>
-                    <button id="quickSettings" class="quick-btn" title="Настройки">
-                        <i class="ti ti-settings"></i>
-                    </button>
-                </div>
-
-                <div class="chat-stats">
-                    <div class="stat-item">
-                        <i class="ti ti-message"></i>
-                        <span id="messageCount">Сообщений: 0</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="ti ti-clock"></i>
-                        <span id="chatDuration">Время: 00:00</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="ti ti-brain"></i>
-                        <span id="currentModelDisplay">Модель: GPT-5 Nano</span>
-                    </div>
-                </div>
-
-                <!-- Chat List Section -->
-                <div class="presets-section">
-                    <div class="presets-header">
-                        <span>Управление чатами</span>
-                    </div>
-                    <div class="chat-list-container">
-                        <div class="chat-search-container">
-                            <div class="search-wrapper">
-                                <i class="ti ti-search"></i>
-                                <input type="text" id="chatSearchInput" placeholder="Поиск чатов...">
-                                <button id="chatSearchClear" class="search-clear" style="display: none;">
-                                    <i class="ti ti-x"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="chats-container" id="chatsContainer">
-                            <!-- Chat list will be dynamically populated -->
-                        </div>
-                        <div class="chat-management-buttons">
-                            <button id="exportAllChatsBtn" class="utility-btn">
-                                <i class="ti ti-download"></i>
-                                Экспорт всех чатов
-                            </button>
-                            <button id="importAllChatsBtn" class="utility-btn">
-                                <i class="ti ti-upload"></i>
-                                Импорт всех чатов
-                            </button>
-                        </div>
-                        <div class="delete-all-container">
-                            <button id="deleteAllChatsBtn" class="btn-danger">
-                                <i class="ti ti-trash"></i>
-                                Удалить все чаты
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Presets -->
-                <div class="presets-section">
-                    <div class="presets-header">
-                        <span>Быстрые пресеты</span>
-                    </div>
-                    <div class="presets-grid">
-                        <button class="preset-btn" data-preset="explain">
-                            <i class="ti ti-help"></i>
-                            Объяснить
-                        </button>
-                        <button class="preset-btn" data-preset="summarize">
-                            <i class="ti ti-summary"></i>
-                            Суммаризировать
-                        </button>
-                        <button class="preset-btn" data-preset="translate">
-                            <i class="ti ti-language"></i>
-                            Перевести
-                        </button>
-                        <button class="preset-btn" data-preset="code">
-                            <i class="ti ti-code"></i>
-                            Код
-                        </button>
-                    </div>
-                </div>
-            </aside>
+        <!-- Messages Container -->
+        <main class="messages-container" id="messagesContainer">
+            <!-- Messages will be loaded here -->
         </main>
 
         <!-- Input Section -->
         <section class="input-section" id="inputSection">
-            <div class="mode-indicator" id="modeIndicator">
-                <i class="ti ti-message"></i>
-                <span>Обычный режим</span>
-            </div>
-            
             <div class="input-wrapper">
-                <div class="attach-buttons">
-                    <button id="attachImageBtn" class="attach-btn" title="Прикрепить изображение">
-                        <i class="ti ti-photo"></i>
-                    </button>
-                    <button id="attachFileBtn" class="attach-btn" title="Прикрепить файл">
-                        <i class="ti ti-file-text"></i>
-                    </button>
-                    <input type="file" id="fileInput" accept="image/*,.txt,.pdf,.doc,.docx,.json" multiple style="display: none;">
-                </div>
-
                 <div class="input-area">
-                    <textarea id="userInput" placeholder="Задайте вопрос или опишите задачу..." rows="1"></textarea>
+                    <textarea 
+                        id="userInput" 
+                        placeholder="Задайте вопрос или опишите задачу..." 
+                        rows="1"
+                    ></textarea>
                     <div class="input-controls">
-                        <button id="emojiBtn" class="input-btn" title="Эмодзи">
-                            <i class="ti ti-mood-smile"></i>
-                        </button>
-                        <button id="voiceInputBtn" class="input-btn" title="Голосовой ввод">
+                        <button class="input-btn" id="voiceInputBtn">
                             <i class="ti ti-microphone"></i>
                         </button>
-                        <button id="clearInputBtn" class="input-btn" title="Очистить" style="display: none;">
+                        <button class="input-btn" id="clearInputBtn" style="display: none;">
                             <i class="ti ti-x"></i>
                         </button>
-                        <button id="sendBtn" class="send-btn" title="Отправить сообщение">
+                        <button class="send-btn" id="sendBtn">
                             <i class="ti ti-send"></i>
                         </button>
                     </div>
                 </div>
             </div>
-
-            <div class="attached-files" id="attachedFiles" style="display: none;"></div>
-
-            <div class="action-buttons">
-                <div class="mode-buttons">
-                    <button class="mode-btn normal active" data-mode="normal" title="Обычный режим">
-                        <i class="ti ti-message"></i>
-                        Обычный
-                    </button>
-                    <button class="mode-btn creative" data-mode="creative" title="Креативный режим">
-                        <i class="ti ti-sparkles"></i>
-                        Креативный
-                    </button>
-                    <button class="mode-btn voice" data-mode="voice" title="Аудио режим">
-                        <i class="ti ti-microphone"></i>
-                        Аудио
-                    </button>
-                    <button class="mode-btn image" data-mode="image" title="Изображения">
-                        <i class="ti ti-photo"></i>
-                        Изображения
-                    </button>
-                    <button class="mode-btn code" data-mode="code" title="Программирование">
-                        <i class="ti ti-code"></i>
-                        Код
-                    </button>
-                    <button class="mode-btn files" data-mode="files" title="Анализ файлов">
-                        <i class="ti ti-file-analytics"></i>
-                        Файлы
-                    </button>
-                </div>
-            </div>
         </section>
 
-        <!-- Footer Stats -->
-        <footer class="footer-stats">
-            <div class="footer-stat-item">
-                <i class="ti ti-message"></i>
-                <span id="footerMessageCount">0 сообщений</span>
-            </div>
-            <div class="footer-stat-item">
-                <i class="ti ti-clock"></i>
-                <span id="footerChatDuration">00:00</span>
-            </div>
-            <div class="footer-stat-item">
-                <i class="ti ti-brain"></i>
-                <span id="footerModelDisplay">GPT-5 Nano</span>
-            </div>
-            <div class="footer-actions">
-                <button id="footerDownloadBtn" class="footer-btn" title="Скачать чат">
-                    <i class="ti ti-download"></i>
-                </button>
-                <button id="footerHelpBtn" class="footer-btn" title="Помощь">
-                    <i class="ti ti-help"></i>
-                </button>
-                <button id="footerClearBtn" class="footer-btn" title="Очистить чат">
-                    <i class="ti ti-trash"></i>
-                </button>
-            </div>
-        </footer>
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav" id="chatNavigation">
+            <button class="nav-btn" id="scrollToLastAI">
+                <i class="ti ti-message-chatbot"></i>
+            </button>
+            <button class="nav-btn" id="scrollToBottom">
+                <i class="ti ti-arrow-down"></i>
+            </button>
+        </div>
 
         <!-- Mobile Sidebar -->
         <div class="mobile-sidebar" id="mobileSidebar">
             <div class="sidebar-header">
-                <h3>KHAI — Первый белорусский чат с ИИ</h3>
-                <button id="sidebarClose" class="sidebar-close">
+                <h3>Меню KHAI</h3>
+                <button class="control-btn" id="sidebarClose">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
-
-            <div class="sidebar-section">
-                <h4 class="sidebar-title">Управление чатами</h4>
-                <div class="chat-list-container">
-                    <div class="chat-search-container">
-                        <div class="search-wrapper">
-                            <i class="ti ti-search"></i>
-                            <input type="text" id="mobileChatSearchInput" placeholder="Поиск чатов...">
-                            <button id="mobileChatSearchClear" class="search-clear" style="display: none;">
-                                <i class="ti ti-x"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="chats-container" id="mobileChatsContainer">
-                        <!-- Chat list will be dynamically populated -->
-                    </div>
-                    <div class="chat-management-buttons">
-                        <button id="mobileExportAllChatsBtn" class="sidebar-btn">
-                            <i class="ti ti-download"></i>
-                            Экспорт всех чатов
-                        </button>
-                        <button id="mobileImportAllChatsBtn" class="sidebar-btn">
-                            <i class="ti ti-upload"></i>
-                            Импорт всех чатов
-                        </button>
-                    </div>
-                    <div class="delete-all-container">
-                        <button id="mobileDeleteAllChatsBtn" class="btn-danger">
-                            <i class="ti ti-trash"></i>
-                            Удалить все чаты
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h4 class="sidebar-title">Быстрый доступ</h4>
-                <div class="sidebar-buttons">
-                    <button id="qaNewChat" class="sidebar-btn">
-                        <i class="ti ti-plus"></i>
-                        Новый чат
-                    </button>
-                    <button id="qaTemplates" class="sidebar-btn">
-                        <i class="ti ti-template"></i>
-                        Шаблоны
-                    </button>
-                    <button id="qaSettings" class="sidebar-btn">
-                        <i class="ti ti-settings"></i>
-                        Настройки
-                    </button>
-                    <button id="qaHelp" class="sidebar-btn">
-                        <i class="ti ti-help"></i>
-                        Помощь
-                    </button>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h4 class="sidebar-title">Быстрые пресеты</h4>
-                <div class="sidebar-buttons">
-                    <button class="sidebar-btn preset-sidebar" data-preset="explain">
-                        <i class="ti ti-help"></i>
-                        Объяснить
-                    </button>
-                    <button class="sidebar-btn preset-sidebar" data-preset="summarize">
-                        <i class="ti ti-summary"></i>
-                        Суммаризировать
-                    </button>
-                    <button class="sidebar-btn preset-sidebar" data-preset="translate">
-                        <i class="ti ti-language"></i>
-                        Перевести
-                    </button>
-                    <button class="sidebar-btn preset-sidebar" data-preset="code">
-                        <i class="ti ti-code"></i>
-                        Написать код
-                    </button>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h4 class="sidebar-title">Информация</h4>
-                <div class="sidebar-info">
-                    <div class="info-item">
-                        <i class="ti ti-versions"></i>
-                        <span>Версия 2.1.0</span>
-                    </div>
-                    <div class="info-item">
-                        <i class="ti ti-calendar"></i>
-                        <span>2025</span>
-                    </div>
-                </div>
-            </div>
+            <!-- Sidebar content will be populated dynamically -->
         </div>
 
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-        <!-- Mobile Sidebar Toggle -->
-        <button class="mobile-sidebar-toggle" id="mobileSidebarToggle" title="Открыть боковую панель">
-            <i class="ti ti-layout-sidebar-right"></i>
-        </button>
-
-        <!-- Chat Navigation -->
-        <div class="chat-navigation" id="chatNavigation">
-            <button id="scrollToTopNav" class="chat-nav-btn" title="В начало">
-                <i class="ti ti-arrow-up"></i>
-            </button>
-            <button id="scrollToLastAINav" class="chat-nav-btn" title="К последнему ответу ИИ">
-                <i class="ti ti-message-chatbot"></i>
-            </button>
-            <button id="scrollToBottomNav" class="chat-nav-btn" title="В конец">
-                <i class="ti ti-arrow-down"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- Notification Container -->
-    <div class="notification-container" id="notificationContainer"></div>
-
-    <!-- Context Menu -->
-    <div class="context-menu" id="contextMenu" style="display: none;"></div>
-
-    <!-- Emoji Picker -->
-    <div class="emoji-picker" id="emojiPicker" style="display: none;"></div>
-
-    <!-- Model Selection -->
-    <div class="model-selection" id="modelSelection" style="display: none;"></div>
-
-    <!-- Drop Zone -->
-    <div class="drop-zone" id="dropZone" style="display: none;">
-        <div class="drop-zone-content">
-            <div class="drop-zone-icon">
-                <i class="ti ti-upload"></i>
-            </div>
-            <div class="drop-zone-text">Перетащите файлы сюда</div>
-            <div class="drop-zone-subtext">Поддерживаются изображения и текстовые файлы</div>
-        </div>
     </div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script src="https://js.puter.com/v2/"></script>
-    <script src="script.js"></script>
+    <script>
+        // KHAI Mobile-First AI Assistant
+        class KHAIAssistant {
+            constructor() {
+                this.initializeElements();
+                this.initializeState();
+                this.setupMarked();
+                this.init();
+            }
+
+            initializeElements() {
+                // Core elements
+                this.messagesContainer = document.getElementById('messagesContainer');
+                this.userInput = document.getElementById('userInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.clearInputBtn = document.getElementById('clearInputBtn');
+                this.voiceInputBtn = document.getElementById('voiceInputBtn');
+                this.themeToggle = document.getElementById('themeToggle');
+                this.modelSelectBtn = document.getElementById('modelSelectBtn');
+                this.menuToggle = document.getElementById('menuToggle');
+                this.sidebarClose = document.getElementById('sidebarClose');
+                this.sidebarOverlay = document.getElementById('sidebarOverlay');
+                this.mobileSidebar = document.getElementById('mobileSidebar');
+                
+                // Navigation
+                this.chatNavigation = document.getElementById('chatNavigation');
+                this.scrollToLastAI = document.getElementById('scrollToLastAI');
+                this.scrollToBottom = document.getElementById('scrollToBottom');
+            }
+
+            initializeState() {
+                this.isGenerating = false;
+                this.generationAborted = false;
+                this.currentStreamController = null;
+                this.activeStreamingMessage = null;
+                this.currentTheme = 'dark';
+                this.currentModel = 'gpt-4';
+                this.isListening = false;
+                this.recognition = null;
+                this.conversationHistory = [];
+                this.autoScrollEnabled = true;
+                this.isAtBottom = true;
+                this.activeTimeouts = new Set();
+                this.activeEventListeners = new Map();
+
+                this.models = {
+                    'gpt-4': { name: 'GPT-4 Turbo', icon: 'ti-brain' },
+                    'claude-3': { name: 'Claude 3', icon: 'ti-cloud' },
+                    'gemini-pro': { name: 'Gemini Pro', icon: 'ti-sparkles' }
+                };
+            }
+
+            setupMarked() {
+                if (typeof marked !== 'undefined') {
+                    marked.setOptions({
+                        highlight: (code, lang) => {
+                            if (lang && typeof hljs !== 'undefined') {
+                                try {
+                                    return hljs.highlight(code, { language: lang }).value;
+                                } catch (err) {
+                                    return code;
+                                }
+                            }
+                            return code;
+                        },
+                        breaks: true,
+                        gfm: true
+                    });
+                }
+            }
+
+            init() {
+                try {
+                    this.bindEvents();
+                    this.setupAutoResize();
+                    this.setupVoiceRecognition();
+                    this.loadThemePreference();
+                    this.loadChatHistory();
+                    this.setupScrollTracking();
+                    this.showWelcomeMessage();
+                    
+                    this.showNotification('KHAI готов к работе!', 'success');
+                } catch (error) {
+                    console.error('Ошибка инициализации:', error);
+                    this.showNotification('Ошибка загрузки приложения', 'error');
+                }
+            }
+
+            bindEvents() {
+                const events = [
+                    [this.sendBtn, 'click', () => this.handleSendButtonClick()],
+                    [this.userInput, 'keydown', (e) => this.handleInputKeydown(e)],
+                    [this.userInput, 'input', () => this.handleInputChange()],
+                    [this.clearInputBtn, 'click', () => this.clearInput()],
+                    [this.voiceInputBtn, 'click', () => this.toggleVoiceInput()],
+                    [this.themeToggle, 'click', () => this.toggleTheme()],
+                    [this.modelSelectBtn, 'click', () => this.showModelSelection()],
+                    [this.menuToggle, 'click', () => this.toggleSidebar()],
+                    [this.sidebarClose, 'click', () => this.closeSidebar()],
+                    [this.sidebarOverlay, 'click', () => this.closeSidebar()],
+                    [this.scrollToLastAI, 'click', () => this.scrollToLastAIMessage()],
+                    [this.scrollToBottom, 'click', () => this.scrollToBottom(true)],
+                    [this.messagesContainer, 'scroll', () => this.handleScroll()],
+                    [window, 'beforeunload', () => this.handleBeforeUnload()]
+                ];
+
+                events.forEach(([element, event, handler]) => {
+                    this.addEventListener(element, event, handler);
+                });
+            }
+
+            handleSendButtonClick() {
+                if (this.isGenerating) {
+                    this.stopGeneration();
+                } else {
+                    this.sendMessage();
+                }
+            }
+
+            async sendMessage() {
+                if (this.isGenerating) {
+                    this.showNotification('Подождите завершения генерации', 'warning');
+                    return;
+                }
+
+                const message = this.userInput.value.trim();
+                if (!message) {
+                    this.showNotification('Введите сообщение', 'warning');
+                    return;
+                }
+
+                this.isGenerating = true;
+                this.generationAborted = false;
+                this.updateSendButton(true);
+
+                try {
+                    await this.processUserMessage(message);
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    this.handleError('Ошибка при отправке сообщения', error);
+                } finally {
+                    if (!this.generationAborted) {
+                        this.isGenerating = false;
+                        this.updateSendButton(false);
+                        this.saveChatHistory();
+                    }
+                }
+            }
+
+            async processUserMessage(message) {
+                this.addMessageToChat('user', message);
+                this.addToConversationHistory('user', message);
+                
+                this.userInput.value = '';
+                this.autoResizeTextarea(this.userInput);
+                this.toggleClearInputButton();
+
+                await this.getAIResponse(message);
+            }
+
+            async getAIResponse(userMessage) {
+                this.showTypingIndicator();
+                
+                try {
+                    const response = await this.callAIService(userMessage);
+                    this.hideTypingIndicator();
+                    await this.processAIResponse(response);
+                } catch (error) {
+                    this.hideTypingIndicator();
+                    this.handleError('Ошибка при получении ответа от ИИ', error);
+                }
+            }
+
+            async callAIService(prompt) {
+                // Используем Puter.ai для реальных запросов
+                if (typeof puter !== 'undefined' && typeof puter.ai?.chat === 'function') {
+                    return await puter.ai.chat(prompt, {
+                        model: this.currentModel,
+                        systemPrompt: "Ты полезный AI-ассистент KHAI. Отвечай подробно и точно на русском языке.",
+                        stream: true
+                    });
+                } else {
+                    // Fallback для демонстрации
+                    return this.mockAIResponse(prompt);
+                }
+            }
+
+            async* mockAIResponse(prompt) {
+                const responses = [
+                    "Привет! Я KHAI - ваш AI-ассистент. Рад помочь вам с любыми вопросами!",
+                    "Отличный вопрос! Давайте разберем его подробнее...",
+                    "Я проанализировал ваш запрос и вот что могу предложить:"
+                ];
+                
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                const words = response.split(' ');
+                
+                for (const word of words) {
+                    if (this.generationAborted) break;
+                    await this.delay(100);
+                    yield { text: word + ' ' };
+                }
+            }
+
+            async processAIResponse(response) {
+                this.activeStreamingMessage = this.createStreamingMessage();
+                this.currentStreamController = response;
+                
+                let fullResponse = '';
+                try {
+                    for await (const part of response) {
+                        if (this.generationAborted) break;
+                        
+                        if (part?.text) {
+                            fullResponse += part.text;
+                            this.updateStreamingMessage(this.activeStreamingMessage, fullResponse);
+                            await this.delay(10);
+                        }
+                    }
+                    
+                    if (!this.generationAborted) {
+                        this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
+                        this.addToConversationHistory('assistant', fullResponse);
+                    }
+                } catch (error) {
+                    if (!this.generationAborted) {
+                        console.error('Error processing AI response:', error);
+                        this.handleError('Ошибка при обработке ответа ИИ', error);
+                    }
+                } finally {
+                    this.activeStreamingMessage = null;
+                    this.currentStreamController = null;
+                }
+            }
+
+            // UI Methods
+            updateSendButton(isGenerating) {
+                if (isGenerating) {
+                    this.sendBtn.classList.add('stop-generation');
+                    this.sendBtn.innerHTML = '<i class="ti ti-player-stop"></i>';
+                    this.sendBtn.title = 'Остановить генерацию';
+                    this.userInput.disabled = true;
+                } else {
+                    this.sendBtn.classList.remove('stop-generation');
+                    this.sendBtn.innerHTML = '<i class="ti ti-send"></i>';
+                    this.sendBtn.title = 'Отправить сообщение';
+                    this.userInput.disabled = false;
+                }
+            }
+
+            stopGeneration() {
+                if (this.isGenerating && this.currentStreamController) {
+                    this.generationAborted = true;
+                    this.isGenerating = false;
+                    
+                    if (this.currentStreamController.abort) {
+                        this.currentStreamController.abort();
+                    }
+                    
+                    this.hideTypingIndicator();
+                    this.updateSendButton(false);
+                    
+                    if (this.activeStreamingMessage) {
+                        const currentContent = document.querySelector(`#${this.activeStreamingMessage} .streaming-text`)?.innerHTML || '';
+                        this.finalizeStreamingMessage(this.activeStreamingMessage, currentContent);
+                    }
+                    
+                    this.showNotification('Генерация остановлена', 'info');
+                    this.currentStreamController = null;
+                }
+            }
+
+            addMessageToChat(role, content) {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message message-${role}`;
+                
+                const processedContent = this.processCodeBlocks(content);
+                messageElement.innerHTML = `
+                    <div class="message-content">${processedContent}</div>
+                `;
+                
+                this.messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+                
+                return messageElement;
+            }
+
+            processCodeBlocks(content) {
+                if (typeof marked !== 'undefined') {
+                    return marked.parse(content);
+                }
+                return content.replace(/\n/g, '<br>');
+            }
+
+            createStreamingMessage() {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-ai streaming-message';
+                messageElement.id = 'streaming-' + Date.now();
+                
+                messageElement.innerHTML = `
+                    <div class="message-content streaming-content">
+                        <div class="typing-indicator-inline">
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                            <span>KHAI печатает...</span>
+                        </div>
+                        <div class="streaming-text"></div>
+                    </div>
+                `;
+                
+                this.messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+                
+                return messageElement.id;
+            }
+
+            updateStreamingMessage(messageId, content) {
+                const messageElement = document.getElementById(messageId);
+                if (!messageElement) return;
+                
+                const streamingText = messageElement.querySelector('.streaming-text');
+                if (streamingText) {
+                    streamingText.innerHTML = this.processCodeBlocks(content);
+                }
+                
+                if (this.autoScrollEnabled) {
+                    this.scrollToBottom();
+                }
+            }
+
+            finalizeStreamingMessage(messageId, fullContent) {
+                const messageElement = document.getElementById(messageId);
+                if (!messageElement) return;
+                
+                messageElement.classList.remove('streaming-message');
+                const messageContent = messageElement.querySelector('.message-content');
+                messageContent.classList.remove('streaming-content');
+                messageContent.innerHTML = this.processCodeBlocks(fullContent);
+                
+                this.scrollToBottom();
+            }
+
+            showTypingIndicator() {
+                this.hideTypingIndicator();
+                
+                const typingElement = document.createElement('div');
+                typingElement.className = 'message message-ai typing-indicator';
+                typingElement.id = 'typing-indicator';
+                
+                typingElement.innerHTML = `
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                    <span>KHAI печатает...</span>
+                `;
+                
+                this.messagesContainer.appendChild(typingElement);
+                this.scrollToBottom();
+                
+                return typingElement.id;
+            }
+
+            hideTypingIndicator() {
+                const typingElement = document.getElementById('typing-indicator');
+                if (typingElement) {
+                    typingElement.remove();
+                }
+            }
+
+            // Navigation and Scroll
+            setupScrollTracking() {
+                this.updateNavigationButtons();
+            }
+
+            handleScroll() {
+                const container = this.messagesContainer;
+                const scrollTop = container.scrollTop;
+                const scrollHeight = container.scrollHeight;
+                const clientHeight = container.clientHeight;
+                
+                this.isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+                this.autoScrollEnabled = this.isAtBottom;
+                this.updateNavigationButtons();
+            }
+
+            updateNavigationButtons() {
+                const aiMessages = document.querySelectorAll('.message-ai:not(.typing-indicator)');
+                const hasAIMessages = aiMessages.length > 0;
+                
+                this.scrollToLastAI.classList.toggle('active', !this.isAtBottom && hasAIMessages);
+                this.scrollToLastAI.disabled = !hasAIMessages;
+                
+                this.scrollToBottom.classList.toggle('active', !this.isAtBottom);
+                this.scrollToBottom.disabled = this.isAtBottom;
+                
+                if (this.isAtBottom) {
+                    this.chatNavigation.classList.remove('visible');
+                } else {
+                    this.chatNavigation.classList.add('visible');
+                }
+            }
+
+            scrollToLastAIMessage() {
+                const aiMessages = document.querySelectorAll('.message-ai:not(.typing-indicator)');
+                if (aiMessages.length > 0) {
+                    const lastAIMessage = aiMessages[aiMessages.length - 1];
+                    lastAIMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            scrollToBottom(force = false) {
+                if (force || this.autoScrollEnabled) {
+                    this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                }
+            }
+
+            // Input Handling
+            handleInputKeydown(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.handleSendButtonClick();
+                }
+            }
+
+            handleInputChange() {
+                this.autoResizeTextarea(this.userInput);
+                this.toggleClearInputButton();
+            }
+
+            autoResizeTextarea(textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+            }
+
+            toggleClearInputButton() {
+                const hasText = this.userInput.value.trim().length > 0;
+                this.clearInputBtn.style.display = hasText ? 'flex' : 'none';
+            }
+
+            clearInput() {
+                this.userInput.value = '';
+                this.autoResizeTextarea(this.userInput);
+                this.toggleClearInputButton();
+                this.userInput.focus();
+            }
+
+            // Voice Input
+            setupVoiceRecognition() {
+                if (!('webkitSpeechRecognition' in window)) {
+                    this.voiceInputBtn.style.display = 'none';
+                    return;
+                }
+
+                this.recognition = new webkitSpeechRecognition();
+                this.recognition.continuous = false;
+                this.recognition.interimResults = false;
+                this.recognition.lang = 'ru-RU';
+
+                this.recognition.onstart = () => {
+                    this.isListening = true;
+                    this.voiceInputBtn.classList.add('active');
+                    this.showNotification('Слушаю...', 'info');
+                };
+
+                this.recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    this.userInput.value = transcript;
+                    this.autoResizeTextarea(this.userInput);
+                    this.toggleClearInputButton();
+                };
+
+                this.recognition.onerror = (event) => {
+                    this.isListening = false;
+                    this.voiceInputBtn.classList.remove('active');
+                };
+
+                this.recognition.onend = () => {
+                    this.isListening = false;
+                    this.voiceInputBtn.classList.remove('active');
+                };
+            }
+
+            toggleVoiceInput() {
+                if (!this.recognition) return;
+
+                if (this.isListening) {
+                    this.recognition.stop();
+                } else {
+                    this.recognition.start();
+                }
+            }
+
+            // Theme
+            toggleTheme() {
+                this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', this.currentTheme);
+                localStorage.setItem('khai-theme', this.currentTheme);
+            }
+
+            loadThemePreference() {
+                const savedTheme = localStorage.getItem('khai-theme') || 'dark';
+                this.currentTheme = savedTheme;
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+
+            // Sidebar
+            toggleSidebar() {
+                this.mobileSidebar.classList.toggle('active');
+                this.sidebarOverlay.classList.toggle('active');
+            }
+
+            closeSidebar() {
+                this.mobileSidebar.classList.remove('active');
+                this.sidebarOverlay.classList.remove('active');
+            }
+
+            // Model Selection
+            showModelSelection() {
+                // Simplified model selection for mobile
+                const modelNames = Object.values(this.models).map(m => m.name);
+                const currentModel = this.models[this.currentModel].name;
+                
+                this.showNotification(`Текущая модель: ${currentModel}`, 'info');
+            }
+
+            // Welcome Message
+            showWelcomeMessage() {
+                if (this.messagesContainer.children.length > 0) return;
+
+                const welcomeMessage = `# 👋 Добро пожаловать в KHAI!
+
+**KHAI** - первый белорусский AI-ассистент с передовыми возможностями:
+
+## 🚀 Основные функции:
+• **Умные ответы** на любые вопросы
+• **Поддержка кода** с подсветкой синтаксиса
+• **Стриминг ответов** - ответы появляются постепенно
+• **Голосовой ввод** - говорите вместо печати
+• **Адаптивный дизайн** - оптимизирован для мобильных устройств
+• **Темная тема** - комфортная работа в любое время суток
+
+## 💡 Как использовать:
+1. **Напишите вопрос** в поле ввода ниже
+2. **Нажмите отправить** или Enter для быстрой отправки
+3. **Используйте голосовой ввод** для удобства
+4. **Переключайте модели** через меню настроек
+
+**Начните общение прямо сейчас!**`;
+
+                this.addMessageToChat('ai', welcomeMessage);
+            }
+
+            // Utility Methods
+            delay(ms) {
+                return new Promise(resolve => this.setTimeout(resolve, ms));
+            }
+
+            setTimeout(callback, delay) {
+                const timeoutId = setTimeout(() => {
+                    this.activeTimeouts.delete(timeoutId);
+                    callback();
+                }, delay);
+                this.activeTimeouts.add(timeoutId);
+                return timeoutId;
+            }
+
+            addEventListener(element, event, handler) {
+                if (!element) return;
+                
+                const wrappedHandler = (...args) => {
+                    try {
+                        handler(...args);
+                    } catch (error) {
+                        console.error(`Error in ${event} handler:`, error);
+                    }
+                };
+
+                element.addEventListener(event, wrappedHandler);
+                
+                if (!this.activeEventListeners.has(element)) {
+                    this.activeEventListeners.set(element, []);
+                }
+                this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                this.setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 3000);
+            }
+
+            handleError(userMessage, error) {
+                console.error(userMessage, error);
+                this.showNotification(userMessage, 'error');
+            }
+
+            addToConversationHistory(role, content) {
+                this.conversationHistory.push({
+                    role,
+                    content,
+                    timestamp: Date.now()
+                });
+            }
+
+            // Data Management
+            saveChatHistory() {
+                try {
+                    const data = {
+                        conversationHistory: this.conversationHistory,
+                        currentModel: this.currentModel,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('khai-chat-data', JSON.stringify(data));
+                } catch (error) {
+                    console.error('Error saving chat history:', error);
+                }
+            }
+
+            loadChatHistory() {
+                try {
+                    const saved = localStorage.getItem('khai-chat-data');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.conversationHistory = data.conversationHistory || [];
+                        this.currentModel = data.currentModel || 'gpt-4';
+                    }
+                } catch (error) {
+                    console.error('Error loading chat history:', error);
+                }
+            }
+
+            handleBeforeUnload() {
+                this.saveChatHistory();
+                this.cleanup();
+            }
+
+            cleanup() {
+                this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+                this.activeTimeouts.clear();
+                
+                this.activeEventListeners.forEach((listeners, element) => {
+                    listeners.forEach(({ event, handler }) => {
+                        element.removeEventListener(event, handler);
+                    });
+                });
+                this.activeEventListeners.clear();
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            window.khaiAssistant = new KHAIAssistant();
+        });
+    </script>
 </body>
 </html>
