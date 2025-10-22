@@ -3,951 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KHAI — Чат с ИИ</title>
+    <title>KHAI — Первый белорусский ИИ чат</title>
+    <meta name="description" content="KHAI — Первый белорусский ИИ чат с генерацией изображений и голоса">
     <meta name="theme-color" content="#0f0f23">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: rgba(255, 255, 255, 0.05);
-            --bg-tertiary: rgba(255, 255, 255, 0.08);
-            --bg-hover: rgba(255, 255, 255, 0.12);
-            --bg-glass: rgba(255, 255, 255, 0.1);
-            --bg-glass-hover: rgba(255, 255, 255, 0.15);
-            
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0c0;
-            --text-tertiary: #8888aa;
-            
-            --border-color: rgba(255, 255, 255, 0.15);
-            --border-glass: rgba(255, 255, 255, 0.2);
-            
-            --accent-primary: #0099ff;
-            --accent-secondary: #0066ff;
-            --accent-primary-alpha: rgba(0, 153, 255, 0.2);
-            
-            --user-message-bg: linear-gradient(135deg, #667eea, #764ba2);
-            --user-message-text: #ffffff;
-            
-            --ai-message-bg: rgba(255, 255, 255, 0.08);
-            --ai-message-text: #e8e8ff;
-            --ai-message-border: rgba(255, 255, 255, 0.12);
-            
-            --error-bg: rgba(255, 107, 107, 0.2);
-            --error-text: #ff6b6b;
-            --error-border: #ff4444;
-            
-            --success-bg: rgba(0, 255, 0, 0.2);
-            --success-text: #00ff00;
-            
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
-            
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
-            
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.5;
-            overflow: hidden;
-            height: 100vh;
-            user-select: none;
-        }
-
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            max-width: 100%;
-            position: relative;
-            background: var(--bg-primary);
-        }
-
-        /* Header */
-        .app-header {
-            padding: 12px 16px;
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-glass);
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 10;
-            box-shadow: var(--shadow-glass);
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #00d4ff, #0099ff, #00d4ff);
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 3s ease infinite;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .control-btn {
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            color: var(--text-secondary);
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 16px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .control-btn:hover {
-            background: var(--bg-glass-hover);
-            color: var(--text-primary);
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        /* Chat area */
-        .chat-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            scroll-behavior: smooth;
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: var(--radius-xl);
-            line-height: 1.5;
-            animation: fadeIn 0.3s ease;
-            position: relative;
-            font-size: 14px;
-            word-wrap: break-word;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-glass);
-        }
-
-        .message-user {
-            align-self: flex-end;
-            background: var(--user-message-bg);
-            color: var(--user-message-text);
-            margin-left: auto;
-        }
-
-        .message-ai {
-            align-self: flex-start;
-            background: var(--bg-glass);
-            color: var(--ai-message-text);
-            border: 1px solid var(--border-glass);
-            margin-right: auto;
-        }
-
-        .message-content {
-            line-height: 1.5;
-        }
-
-        .message-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border-glass);
-            justify-content: flex-end;
-        }
-
-        .action-btn-small {
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            color: var(--text-secondary);
-            padding: 6px 10px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 12px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .action-btn-small:hover {
-            background: var(--bg-glass-hover);
-            color: var(--text-primary);
-        }
-
-        .delete-btn {
-            background: var(--error-bg);
-            color: var(--error-text);
-            border-color: var(--error-border);
-        }
-
-        .delete-btn:hover {
-            background: rgba(255, 107, 107, 0.3);
-        }
-
-        .typing-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
-
-        .typing-dots {
-            display: flex;
-            gap: 3px;
-        }
-
-        .typing-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--accent-primary);
-            border-radius: 50%;
-            animation: typingBounce 1.4s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes typingBounce {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Input area */
-        .input-section {
-            padding: 12px 16px;
-            background: var(--bg-glass);
-            border-top: 1px solid var(--border-glass);
-            flex-shrink: 0;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .input-wrapper {
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            width: 100%;
-            position: relative;
-        }
-
-        .attach-btn {
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            color: var(--text-secondary);
-            width: 44px;
-            height: 44px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 18px;
-            flex-shrink: 0;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .attach-btn:hover {
-            background: var(--bg-glass-hover);
-            color: var(--text-primary);
-        }
-
-        #userInput {
-            flex: 1;
-            padding: 12px 100px 12px 16px;
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-xl);
-            background: var(--bg-glass);
-            color: var(--text-primary);
-            font-size: 14px;
-            outline: none;
-            transition: var(--transition);
-            resize: none;
-            min-height: 44px;
-            max-height: 120px;
-            overflow-y: auto;
-            line-height: 1.4;
-            font-family: inherit;
-            align-self: stretch;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        #userInput::placeholder {
-            color: var(--text-tertiary);
-        }
-
-        #userInput:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 2px var(--accent-primary-alpha);
-        }
-
-        .input-controls {
-            position: absolute;
-            right: 8px;
-            bottom: 8px;
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .input-btn {
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            color: var(--text-secondary);
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 14px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .input-btn:hover {
-            background: var(--bg-glass-hover);
-            color: var(--text-primary);
-        }
-
-        .send-btn {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.3);
-        }
-
-        .send-btn:hover:not(:disabled) {
-            transform: scale(1.05);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Attached files */
-        .attached-files {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-
-        .attached-file {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            padding: 6px 10px;
-            border-radius: var(--radius-md);
-            font-size: 12px;
-            color: var(--text-secondary);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .remove-file {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .remove-file:hover {
-            background: var(--error-bg);
-            color: var(--error-text);
-        }
-
-        /* Action buttons */
-        .action-buttons {
-            display: flex;
-            gap: 6px;
-            margin-top: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            background: var(--bg-glass);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-glass);
-            padding: 8px 12px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-size: 12px;
-            transition: var(--transition);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .action-btn:hover:not(:disabled) {
-            background: var(--bg-glass-hover);
-            color: var(--text-primary);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            color: var(--text-tertiary);
-        }
-
-        /* Footer */
-        .app-footer {
-            padding: 10px 16px;
-            color: var(--text-secondary);
-            font-size: 11px;
-            border-top: 1px solid var(--border-glass);
-            background: var(--bg-glass);
-            flex-shrink: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-
-        /* Notifications */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-            max-width: 300px;
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-
-        .notification.info {
-            background: var(--accent-primary-alpha);
-            color: var(--accent-primary);
-            border: 1px solid var(--accent-primary);
-        }
-
-        .notification.success {
-            background: var(--success-bg);
-            color: var(--success-text);
-            border: 1px solid var(--success-text);
-        }
-
-        .notification.error {
-            background: var(--error-bg);
-            color: var(--error-text);
-            border: 1px solid var(--error-border);
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* Sidebar Menu */
-        .sidebar-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 85%;
-            height: 100vh;
-            background: var(--bg-glass);
-            border-left: 1px solid var(--border-glass);
-            z-index: 1000;
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-glass);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-        }
-
-        .sidebar-menu.active {
-            right: 0;
-        }
-
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-        }
-
-        .sidebar-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            border-bottom: 1px solid var(--border-glass);
-            background: var(--bg-secondary);
-        }
-
-        .sidebar-header h3 {
-            color: var(--text-primary);
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .sidebar-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-        }
-
-        .sidebar-close:hover {
-            background: var(--bg-glass-hover);
-            color: var(--text-primary);
-        }
-
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0;
-        }
-
-        .sidebar-section {
-            padding: 16px;
-            border-bottom: 1px solid var(--border-glass);
-        }
-
-        .sidebar-section:last-child {
-            border-bottom: none;
-        }
-
-        .sidebar-section h4 {
-            color: var(--text-primary);
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sidebar-btn {
-            width: 100%;
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            color: var(--text-secondary);
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-size: 14px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .sidebar-btn:hover {
-            background: var(--bg-glass-hover);
-            color: var(--text-primary);
-        }
-
-        .sidebar-btn.primary {
-            background: var(--accent-primary-alpha);
-            color: var(--accent-primary);
-            border-color: var(--accent-primary);
-        }
-
-        .sidebar-btn.primary:hover {
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        /* Chat list in sidebar */
-        .sidebar-section .chat-list {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-bottom: 12px;
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-md);
-        }
-
-        .sidebar-section .chat-item {
-            padding: 12px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-glass);
-            font-size: 14px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .sidebar-section .chat-item:hover {
-            background: var(--bg-glass-hover);
-        }
-
-        .sidebar-section .chat-item:last-child {
-            border-bottom: none;
-        }
-
-        .sidebar-section .chat-item.active {
-            background: var(--accent-primary-alpha);
-            color: var(--accent-primary);
-        }
-
-        .sidebar-section .chat-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-        }
-
-        .sidebar-section .delete-chat-btn {
-            background: none;
-            border: none;
-            color: var(--text-tertiary);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-        }
-
-        .sidebar-section .delete-chat-btn:hover {
-            background: var(--error-bg);
-            color: var(--error-text);
-        }
-
-        /* Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1100;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: var(--shadow-glass);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-        }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-        }
-
-        .modal-close:hover {
-            background: var(--bg-glass-hover);
-            color: var(--text-primary);
-        }
-
-        .modal-body {
-            margin-bottom: 20px;
-        }
-
-        .modal-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-md);
-            background: var(--bg-glass);
-            color: var(--text-primary);
-            font-size: 14px;
-            outline: none;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .modal-input:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 2px var(--accent-primary-alpha);
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .modal-btn {
-            padding: 10px 16px;
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid var(--border-glass);
-        }
-
-        .modal-btn.primary {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
-
-        .modal-btn.secondary {
-            background: var(--bg-glass);
-            color: var(--text-secondary);
-            border-color: var(--border-glass);
-        }
-
-        .modal-btn:hover {
-            transform: translateY(-1px);
-        }
-
-        /* File preview */
-        .file-preview {
-            max-width: 200px;
-            margin-top: 8px;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-        }
-
-        .file-preview img, .file-preview video, .file-preview audio {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-            border-radius: var(--radius-sm);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: var(--radius-sm);
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .message {
-                max-width: 90%;
-                font-size: 13px;
-            }
-            
-            .input-section {
-                padding: 10px 12px;
-            }
-            
-            #userInput {
-                padding: 10px 90px 10px 12px;
-                font-size: 13px;
-            }
-            
-            .sidebar-menu {
-                width: 90%;
-            }
-        }
-
-        /* PWA styles */
-        .pwa-install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: var(--shadow-glass);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            z-index: 1000;
-            display: none;
-        }
-
-        .pwa-install-prompt.active {
-            display: block;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateX(-50%) translateY(100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-
-        .pwa-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-    </style>
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Puter AI SDK -->
+    <script src="https://js.puter.com/v2/"></script>
 </head>
 <body>
     <div class="app-container">
+        <!-- Quick Actions Bar -->
+        <div class="quick-actions-bar" id="quickActionsBar">
+            <button class="quick-action-btn" id="quickNewChat" title="Новый чат">
+                <i class="ti ti-plus"></i>
+            </button>
+            <button class="quick-action-btn" id="quickSearch" title="Поиск">
+                <i class="ti ti-search"></i>
+            </button>
+            <button class="quick-action-btn" id="quickVoice" title="Голосовой ввод">
+                <i class="ti ti-microphone"></i>
+            </button>
+            <button class="quick-action-btn" id="quickImage" title="Генерация изображения">
+                <i class="ti ti-photo"></i>
+            </button>
+        </div>
+
         <header class="app-header">
-            <div class="logo">KHAI</div>
-            <div class="header-controls">
-                <button class="control-btn" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button class="control-btn menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+            <div class="header-content">
+                <div class="header-main">
+                    <div class="logo" id="logo">KHAI</div>
+                    <div class="subtitle">Первый белорусский ИИ чат</div>
+                </div>
+                <div class="header-controls">
+                    <div class="model-select-wrapper">
+                        <select class="model-select" id="modelSelect">
+                            <option value="gpt-5-nano">GPT-5 Nano</option>
+                            <option value="o3-mini">O3 Mini</option>
+                            <option value="deepseek-chat">DeepSeek Chat</option>
+                            <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                            <option value="grok-beta">xAI Grok</option>
+                        </select>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    
+                    <button class="control-btn" id="searchMessagesBtn" title="Поиск по сообщениям">
+                        <i class="ti ti-search"></i>
+                    </button>
+                    
+                    <div class="header-actions">
+                        <button class="control-btn" id="fullscreenToggle" title="Полноэкранный режим">
+                            <i class="ti ti-arrows-maximize"></i>
+                        </button>
+                        <button class="control-btn" id="themeToggle">
+                            <i class="ti ti-moon"></i>
+                        </button>
+                        <button class="control-btn menu-toggle" id="menuToggle">
+                            <i class="ti ti-menu-2"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-bar" id="progressBar"></div>
         </header>
 
+        <!-- Navigation Controls -->
+        <div class="navigation-controls" id="navigationControls">
+            <button class="nav-btn" id="scrollToTopBtn" title="В начало">
+                <i class="ti ti-arrow-up"></i>
+            </button>
+            <button class="nav-btn" id="scrollToBottomBtn" title="В конец">
+                <i class="ti ti-arrow-down"></i>
+            </button>
+            <button class="nav-btn" id="nextMessageBtn" title="Следующее сообщение">
+                <i class="ti ti-chevron-down"></i>
+            </button>
+            <button class="nav-btn" id="readingModeBtn" title="Режим чтения">
+                <i class="ti ti-book"></i>
+            </button>
+        </div>
+
         <main class="chat-main">
+            <!-- Welcome Screen -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <div class="welcome-logo">KHAI</div>
+                    <h1>Добро пожаловать в первый белорусский ИИ чат</h1>
+                    <p>Задавайте вопросы, генерируйте изображения и общайтесь с помощью голоса</p>
+                    
+                    <div class="welcome-actions">
+                        <button class="welcome-btn primary" id="welcomeStartChat">
+                            <i class="ti ti-message"></i>
+                            Начать общение
+                        </button>
+                        <button class="welcome-btn" id="welcomeTutorial">
+                            <i class="ti ti-help"></i>
+                            Как пользоваться
+                        </button>
+                    </div>
+                    
+                    <div class="quick-prompts">
+                        <h3>Популярные запросы:</h3>
+                        <div class="prompt-chips">
+                            <button class="prompt-chip" data-prompt="Расскажи о возможностях искусственного интеллекта">О возможностях ИИ</button>
+                            <button class="prompt-chip" data-prompt="Напиши план развития IT-проекта">План IT-проекта</button>
+                            <button class="prompt-chip" data-prompt="Объясни машинное обучение простыми словами">Машинное обучение</button>
+                            <button class="prompt-chip" data-prompt="Какие технологии будут популярны через 5 лет?">Технологии будущего</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="messages-container" id="messagesContainer">
                 <!-- Messages will be added here -->
             </div>
@@ -955,22 +135,36 @@
             <div class="input-section">
                 <div class="input-wrapper">
                     <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
-                        <i class="fas fa-plus"></i>
+                        <i class="ti ti-paperclip"></i>
                     </button>
                     
-                    <textarea 
-                        id="userInput" 
-                        placeholder="Введите сообщение..." 
-                        autocomplete="off" 
-                        rows="1"
-                    ></textarea>
+                    <div class="input-area">
+                        <textarea 
+                            id="userInput" 
+                            placeholder="Задайте вопрос или опишите изображение..." 
+                            autocomplete="off" 
+                            rows="1"
+                        ></textarea>
+                        
+                        <div class="input-suggestions" id="inputSuggestions">
+                            <!-- Suggestions will appear here -->
+                        </div>
+                    </div>
                     
                     <div class="input-controls">
                         <button class="input-btn" id="clearInputBtn" title="Очистить ввод">
-                            <i class="fas fa-times"></i>
+                            <i class="ti ti-x"></i>
+                        </button>
+                        <button class="input-btn voice-input-btn" id="voiceInputBtn" title="Голосовой ввод">
+                            <i class="ti ti-microphone"></i>
+                            <div class="voice-levels" id="voiceLevels">
+                                <div class="voice-level"></div>
+                                <div class="voice-level"></div>
+                                <div class="voice-level"></div>
+                            </div>
                         </button>
                         <button class="send-btn" id="sendBtn" title="Отправить сообщение">
-                            <i class="fas fa-paper-plane"></i>
+                            <i class="ti ti-send"></i>
                         </button>
                     </div>
                 </div>
@@ -980,77 +174,146 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="action-btn" id="helpBtn">
-                        <i class="fas fa-question-circle"></i>
-                        Помощь
+                    <button class="action-btn" id="helpBtn" title="Помощь">
+                        <i class="ti ti-help"></i>
                     </button>
-                    <button class="action-btn" id="clearChatBtn">
-                        <i class="fas fa-trash"></i>
-                        Очистить чат
+                    <button class="action-btn" id="clearChatBtn" title="Очистить чат">
+                        <i class="ti ti-trash"></i>
                     </button>
-                    <button class="action-btn" id="newChatBtn">
-                        <i class="fas fa-plus"></i>
-                        Новый чат
+                    <button class="action-btn" id="generateImageBtn" title="Генерация изображения">
+                        <i class="ti ti-photo"></i>
+                    </button>
+                    <button class="action-btn" id="generateVoiceBtn" title="Генерация голоса">
+                        <i class="ti ti-microphone"></i>
+                    </button>
+                    <button class="action-btn" id="exportChatBtn" title="Экспорт чата">
+                        <i class="ti ti-download"></i>
                     </button>
                 </div>
             </div>
         </main>
 
         <footer class="app-footer">
-            <div class="current-chat-info">
-                <i class="fas fa-comment"></i>
-                <span id="currentChatName">Основной чат</span>
+            <div class="footer-content">
+                <div class="current-chat-info">
+                    <i class="ti ti-message"></i>
+                    <span id="currentChatName">Основной чат</span>
+                    <button class="edit-chat-name" id="editChatNameBtn">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                </div>
+                <div class="status-indicator" id="statusIndicator">
+                    <div class="status-dot"></div>
+                    <span>Онлайн</span>
+                </div>
             </div>
         </footer>
     </div>
 
     <!-- Hidden file input -->
-    <input type="file" id="fileInput" accept="*" multiple style="display: none;">
+    <input type="file" id="fileInput" accept="image/*, .txt, .pdf, .doc, .docx" multiple style="display: none;">
 
-    <!-- Sidebar Menu -->
+    <!-- Enhanced Sidebar Menu -->
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
-            <h3>Меню</h3>
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="ti ti-user"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">Пользователь KHAI</div>
+                    <div class="user-status">Online</div>
+                </div>
+            </div>
             <button class="sidebar-close" id="sidebarClose">
-                <i class="fas fa-times"></i>
+                <i class="ti ti-x"></i>
             </button>
         </div>
         
         <div class="sidebar-content">
             <div class="sidebar-section">
-                <h4><i class="fas fa-comments"></i> Управление чатами</h4>
-                <div class="chat-list" id="chatList">
-                    <!-- Chat items will be dynamically added here -->
+                <button class="sidebar-btn primary" id="newChatBtn">
+                    <i class="ti ti-plus"></i> Новый чат
+                </button>
+                
+                <div class="search-chats">
+                    <i class="ti ti-search"></i>
+                    <input type="text" id="chatSearchInput" placeholder="Поиск чатов...">
                 </div>
-                <button class="sidebar-btn primary" id="sidebarNewChatBtn">
-                    <i class="fas fa-plus"></i> Новый чат
-                </button>
-            </div>
-            
-            <div class="sidebar-section">
-                <h4><i class="fas fa-cog"></i> Настройки</h4>
-                <button class="sidebar-btn" id="changeRoomNameBtn">
-                    <i class="fas fa-edit"></i> Изменить имя комнаты
-                </button>
-                <button class="sidebar-btn" id="exportChatBtn">
-                    <i class="fas fa-download"></i> Экспорт чата
-                </button>
-            </div>
-            
-            <div class="sidebar-section">
-                <h4><i class="fas fa-info-circle"></i> О программе</h4>
-                <div class="about-content">
-                    <div class="about-item" style="margin-bottom: 12px;">
-                        <strong>KHAI — Чат с ИИ</strong>
-                        <span style="display: block; margin-top: 4px; font-size: 13px;">Современный чат с искусственным интеллектом</span>
+                
+                <div class="chat-list-container">
+                    <div class="chat-list-header">
+                        <span>История чатов</span>
+                        <button class="chat-list-toggle" id="chatListToggle">
+                            <i class="ti ti-chevron-down"></i>
+                        </button>
                     </div>
-                    <div class="about-item" style="margin-bottom: 12px;">
+                    <div class="chat-list" id="chatList">
+                        <!-- Chat items will be dynamically added here -->
+                    </div>
+                </div>
+                
+                <div class="chat-management-buttons">
+                    <button class="sidebar-btn" id="importChatBtn">
+                        <i class="ti ti-upload"></i> Импорт чата
+                    </button>
+                    <button class="sidebar-btn" id="downloadAllChatsBtn">
+                        <i class="ti ti-download"></i> Скачать все
+                    </button>
+                    <button class="sidebar-btn danger" id="deleteAllChatsBtn">
+                        <i class="ti ti-trash"></i> Удалить все
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h4>Настройки</h4>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <span>Тёмная тема</span>
+                        <label class="switch">
+                            <input type="checkbox" id="themeSwitch" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Авто-озвучка</span>
+                        <label class="switch">
+                            <input type="checkbox" id="autoVoiceSwitch">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Компактный режим</span>
+                        <label class="switch">
+                            <input type="checkbox" id="compactModeSwitch">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h4>О программе</h4>
+                <div class="about-content">
+                    <div class="about-item">
+                        <strong>Сделано в Беларуси</strong>
+                        <span>Разработано с ❤️ для сообщества</span>
+                    </div>
+                    <div class="about-item">
                         <strong>Конфиденциальность</strong>
-                        <span style="display: block; margin-top: 4px; font-size: 13px;">Ваши данные защищены</span>
+                        <span>Ваши данные защищены и не передаются третьим лицам</span>
+                    </div>
+                    <div class="about-item">
+                        <strong>GitHub</strong>
+                        <a href="https://github.com/Khuyew" target="_blank">
+                            <i class="ti ti-brand-github"></i>
+                            Khuyew на GitHub
+                        </a>
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span style="display: block; margin-top: 4px; font-size: 13px;">KHAI v2.0</span>
+                        <span>KHAI v3.0</span>
                     </div>
                 </div>
             </div>
@@ -1060,760 +323,108 @@
     <!-- Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Modal for room name change -->
-    <div class="modal" id="roomNameModal">
+    <!-- Enhanced Search Messages Modal -->
+    <div class="modal" id="searchMessagesModal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title">Изменить имя комнаты</div>
-                <button class="modal-close" id="roomNameModalClose">
-                    <i class="fas fa-times"></i>
+                <h3>Поиск по сообщениям</h3>
+                <button class="modal-close" id="searchMessagesClose">
+                    <i class="ti ti-x"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <input type="text" class="modal-input" id="roomNameInput" placeholder="Введите новое имя комнаты" value="Основной чат">
+                <div class="search-input-wrapper">
+                    <i class="ti ti-search"></i>
+                    <input type="text" id="searchMessagesInput" placeholder="Введите текст для поиска...">
+                    <button class="search-clear" id="searchClearBtn">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+                <div class="search-filters">
+                    <button class="filter-btn active" data-filter="all">Все</button>
+                    <button class="filter-btn" data-filter="user">Мои сообщения</button>
+                    <button class="filter-btn" data-filter="ai">Ответы KHAI</button>
+                </div>
+                <div class="search-results" id="searchResults">
+                    <!-- Search results will appear here -->
+                </div>
             </div>
-            <div class="modal-footer">
-                <button class="modal-btn secondary" id="roomNameCancel">Отмена</button>
-                <button class="modal-btn primary" id="roomNameSave">Сохранить</button>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div class="modal tutorial-modal" id="tutorialModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Добро пожаловать в KHAI</h3>
+                <button class="modal-close" id="tutorialClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tutorial-steps">
+                    <div class="tutorial-step active">
+                        <div class="step-icon">
+                            <i class="ti ti-message"></i>
+                        </div>
+                        <h4>Общение с ИИ</h4>
+                        <p>Задавайте вопросы и получайте развернутые ответы от разных моделей ИИ</p>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-icon">
+                            <i class="ti ti-microphone"></i>
+                        </div>
+                        <h4>Голосовой ввод</h4>
+                        <p>Используйте голос для быстрого ввода сообщений</p>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-icon">
+                            <i class="ti ti-photo"></i>
+                        </div>
+                        <h4>Генерация изображений</h4>
+                        <p>Создавайте изображения по текстовому описанию</p>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-icon">
+                            <i class="ti ti-folders"></i>
+                        </div>
+                        <h4>Управление чатами</h4>
+                        <p>Создавайте несколько чатов для разных тем</p>
+                    </div>
+                </div>
+                <div class="tutorial-navigation">
+                    <button class="tutorial-btn secondary" id="tutorialSkip">Пропустить</button>
+                    <button class="tutorial-btn primary" id="tutorialNext">Далее</button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- PWA Install Prompt -->
-    <div class="pwa-install-prompt" id="pwaInstallPrompt">
-        <div>Установите KHAI на свой телефон для лучшего опыта!</div>
-        <div class="pwa-buttons">
-            <button class="modal-btn secondary" id="pwaInstallCancel">Позже</button>
-            <button class="modal-btn primary" id="pwaInstallConfirm">Установить</button>
+    <div class="pwa-prompt" id="pwaPrompt">
+        <div class="pwa-content">
+            <div class="pwa-icon">
+                <i class="ti ti-device-mobile"></i>
+            </div>
+            <div class="pwa-text">
+                <h4>Установите KHAI</h4>
+                <p>Добавьте приложение на главный экран для быстрого доступа</p>
+            </div>
+            <div class="pwa-actions">
+                <button class="pwa-btn secondary" id="pwaDismiss">Позже</button>
+                <button class="pwa-btn primary" id="pwaInstall">Установить</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        class KHAIApp {
-            constructor() {
-                this.initializeElements();
-                this.initializeState();
-                this.init();
-            }
+    <!-- Connection Status -->
+    <div class="connection-status" id="connectionStatus">
+        <i class="ti ti-wifi"></i>
+        <span>Подключение...</span>
+    </div>
 
-            initializeElements() {
-                // Основные элементы интерфейса
-                this.messagesContainer = document.getElementById('messagesContainer');
-                this.userInput = document.getElementById('userInput');
-                this.sendBtn = document.getElementById('sendBtn');
-                this.clearInputBtn = document.getElementById('clearInputBtn');
-                this.clearChatBtn = document.getElementById('clearChatBtn');
-                this.helpBtn = document.getElementById('helpBtn');
-                this.newChatBtn = document.getElementById('newChatBtn');
-                this.themeToggle = document.getElementById('themeToggle');
-                this.attachFileBtn = document.getElementById('attachFileBtn');
-                this.fileInput = document.getElementById('fileInput');
-                this.attachedFiles = document.getElementById('attachedFiles');
-                this.currentChatName = document.getElementById('currentChatName');
-                
-                // Элементы меню
-                this.menuToggle = document.getElementById('menuToggle');
-                this.sidebarMenu = document.getElementById('sidebarMenu');
-                this.sidebarOverlay = document.getElementById('sidebarOverlay');
-                this.sidebarClose = document.getElementById('sidebarClose');
-                this.chatList = document.getElementById('chatList');
-                this.sidebarNewChatBtn = document.getElementById('sidebarNewChatBtn');
-                this.changeRoomNameBtn = document.getElementById('changeRoomNameBtn');
-                this.exportChatBtn = document.getElementById('exportChatBtn');
-                
-                // Элементы модального окна
-                this.roomNameModal = document.getElementById('roomNameModal');
-                this.roomNameModalClose = document.getElementById('roomNameModalClose');
-                this.roomNameInput = document.getElementById('roomNameInput');
-                this.roomNameCancel = document.getElementById('roomNameCancel');
-                this.roomNameSave = document.getElementById('roomNameSave');
-                
-                // PWA элементы
-                this.pwaInstallPrompt = document.getElementById('pwaInstallPrompt');
-                this.pwaInstallCancel = document.getElementById('pwaInstallCancel');
-                this.pwaInstallConfirm = document.getElementById('pwaInstallConfirm');
-            }
-
-            initializeState() {
-                // Состояние приложения
-                this.state = {
-                    currentChatId: 'chat-1',
-                    chats: {
-                        'chat-1': {
-                            name: 'Основной чат',
-                            messages: []
-                        }
-                    },
-                    attachedFiles: [],
-                    isTyping: false,
-                    isDarkMode: true
-                };
-                
-                // Установка начального состояния
-                this.updateChatList();
-                this.loadFromLocalStorage();
-            }
-
-            init() {
-                this.setupEventListeners();
-                this.autoResizeTextarea();
-                this.showWelcomeMessage();
-                
-                // Показать приветственное сообщение при загрузке
-                setTimeout(() => {
-                    this.showNotification('Добро пожаловать в KHAI — Чат с ИИ!', 'info');
-                }, 1000);
-            }
-
-            setupEventListeners() {
-                // Отправка сообщений
-                this.sendBtn.addEventListener('click', () => this.sendMessage());
-                this.userInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        this.sendMessage();
-                    }
-                });
-
-                // Очистка ввода
-                this.clearInputBtn.addEventListener('click', () => {
-                    this.userInput.value = '';
-                    this.autoResizeTextarea();
-                });
-
-                // Очистка чата
-                this.clearChatBtn.addEventListener('click', () => this.clearChat());
-
-                // Справка
-                this.helpBtn.addEventListener('click', () => this.showHelp());
-
-                // Новый чат
-                this.newChatBtn.addEventListener('click', () => this.createNewChat());
-
-                // Переключение темы
-                this.themeToggle.addEventListener('click', () => this.toggleTheme());
-
-                // Прикрепление файлов
-                this.attachFileBtn.addEventListener('click', () => this.fileInput.click());
-                this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-
-                // Управление меню
-                this.menuToggle.addEventListener('click', () => this.toggleSidebar());
-                this.sidebarOverlay.addEventListener('click', () => this.toggleSidebar());
-                this.sidebarClose.addEventListener('click', () => this.toggleSidebar());
-
-                // Управление чатами в меню
-                this.sidebarNewChatBtn.addEventListener('click', () => {
-                    this.createNewChat();
-                    this.toggleSidebar();
-                });
-
-                // Изменение имени комнаты
-                this.changeRoomNameBtn.addEventListener('click', () => {
-                    this.roomNameInput.value = this.state.chats[this.state.currentChatId].name;
-                    this.roomNameModal.classList.add('active');
-                    this.toggleSidebar();
-                });
-
-                this.roomNameModalClose.addEventListener('click', () => this.closeRoomNameModal());
-                this.roomNameCancel.addEventListener('click', () => this.closeRoomNameModal());
-                this.roomNameSave.addEventListener('click', () => this.saveRoomName());
-
-                // Экспорт чата
-                this.exportChatBtn.addEventListener('click', () => {
-                    this.exportChat();
-                    this.toggleSidebar();
-                });
-
-                // PWA установка
-                this.pwaInstallCancel.addEventListener('click', () => this.hidePWAInstallPrompt());
-                this.pwaInstallConfirm.addEventListener('click', () => this.installPWA());
-
-                // Обработка установки PWA
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    this.deferredPrompt = e;
-                    setTimeout(() => {
-                        this.showPWAInstallPrompt();
-                    }, 3000);
-                });
-            }
-
-            autoResizeTextarea() {
-                this.userInput.style.height = 'auto';
-                this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
-            }
-
-            sendMessage() {
-                const messageText = this.userInput.value.trim();
-                const files = this.state.attachedFiles;
-
-                if (!messageText && files.length === 0) {
-                    this.showNotification('Введите сообщение или прикрепите файл', 'error');
-                    return;
-                }
-
-                // Добавление сообщения пользователя
-                this.addMessage('user', messageText, files);
-                
-                // Очистка ввода и прикрепленных файлов
-                this.userInput.value = '';
-                this.state.attachedFiles = [];
-                this.updateAttachedFiles();
-                this.autoResizeTextarea();
-                
-                // Имитация ответа ИИ
-                this.simulateAIResponse(messageText, files);
-                
-                // Сохранение в localStorage
-                this.saveToLocalStorage();
-            }
-
-            addMessage(sender, text, files = []) {
-                const messageId = Date.now().toString();
-                const message = {
-                    id: messageId,
-                    sender,
-                    text,
-                    files: [...files],
-                    timestamp: new Date()
-                };
-                
-                // Добавление в состояние
-                this.state.chats[this.state.currentChatId].messages.push(message);
-                
-                // Создание элемента сообщения
-                const messageElement = document.createElement('div');
-                messageElement.className = `message message-${sender}`;
-                messageElement.dataset.messageId = messageId;
-                
-                let contentHTML = '';
-                
-                if (text) {
-                    contentHTML += `<div class="message-content">${this.formatMessageText(text)}</div>`;
-                }
-                
-                if (files.length > 0) {
-                    contentHTML += this.renderAttachedFiles(files, true);
-                }
-                
-                // Добавление кнопок действий для сообщений пользователя
-                if (sender === 'user') {
-                    contentHTML += `
-                        <div class="message-actions">
-                            <button class="action-btn-small delete-btn" onclick="app.deleteMessage('${messageId}')">
-                                <i class="fas fa-trash"></i> Удалить
-                            </button>
-                        </div>
-                    `;
-                }
-                
-                messageElement.innerHTML = contentHTML;
-                this.messagesContainer.appendChild(messageElement);
-                
-                // Прокрутка к последнему сообщению
-                this.scrollToBottom();
-                
-                return messageId;
-            }
-
-            formatMessageText(text) {
-                // Простой форматирование текста
-                return text
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/\n/g, '<br>');
-            }
-
-            renderAttachedFiles(files, isInMessage = false) {
-                if (files.length === 0) return '';
-                
-                let filesHTML = '';
-                
-                files.forEach((file, index) => {
-                    const fileIcon = this.getFileIcon(file.type);
-                    const fileSize = this.formatFileSize(file.size);
-                    
-                    if (isInMessage) {
-                        // Отображение в сообщении
-                        filesHTML += `
-                            <div class="attached-file" style="margin-top: 8px;">
-                                <i class="${fileIcon}"></i>
-                                <span>${file.name}</span>
-                                <span style="font-size: 11px; color: var(--text-tertiary);">(${fileSize})</span>
-                            </div>
-                        `;
-                        
-                        // Предпросмотр для изображений
-                        if (file.type.startsWith('image/')) {
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                const img = document.createElement('img');
-                                img.src = e.target.result;
-                                img.style.maxWidth = '200px';
-                                img.style.borderRadius = 'var(--radius-md)';
-                                img.style.marginTop = '8px';
-                                
-                                const messageElement = document.querySelector(`[data-message-id="${this.state.chats[this.state.currentChatId].messages[this.state.chats[this.state.currentChatId].messages.length - 1].id}"]`);
-                                if (messageElement) {
-                                    messageElement.querySelector('.message-content').appendChild(img);
-                                }
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    } else {
-                        // Отображение в области прикрепленных файлов
-                        filesHTML += `
-                            <div class="attached-file">
-                                <i class="${fileIcon}"></i>
-                                <span>${file.name}</span>
-                                <button class="remove-file" onclick="app.removeAttachedFile(${index})">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        `;
-                    }
-                });
-                
-                return filesHTML;
-            }
-
-            getFileIcon(fileType) {
-                if (fileType.startsWith('image/')) return 'fas fa-file-image';
-                if (fileType.startsWith('video/')) return 'fas fa-file-video';
-                if (fileType.startsWith('audio/')) return 'fas fa-file-audio';
-                if (fileType.includes('pdf')) return 'fas fa-file-pdf';
-                if (fileType.includes('word') || fileType.includes('document')) return 'fas fa-file-word';
-                if (fileType.includes('excel') || fileType.includes('spreadsheet')) return 'fas fa-file-excel';
-                if (fileType.includes('zip') || fileType.includes('archive')) return 'fas fa-file-archive';
-                return 'fas fa-file';
-            }
-
-            formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-            }
-
-            simulateAIResponse(userMessage, files) {
-                // Показать индикатор набора текста
-                this.showTypingIndicator();
-                
-                // Имитация задержки ответа ИИ
-                setTimeout(() => {
-                    this.hideTypingIndicator();
-                    
-                    let responseText = '';
-                    
-                    // Простые ответы на основе ключевых слов
-                    if (userMessage.toLowerCase().includes('привет') || userMessage.toLowerCase().includes('здравствуй')) {
-                        responseText = 'Привет! Я ваш ИИ-помощник. Чем могу помочь?';
-                    } else if (userMessage.toLowerCase().includes('как дела')) {
-                        responseText = 'У меня всё отлично, спасибо! Готов помочь вам с любыми вопросами.';
-                    } else if (userMessage.toLowerCase().includes('помощь')) {
-                        responseText = 'Я могу помочь вам с различными задачами: ответить на вопросы, обработать файлы, предоставить информацию. Просто задайте свой вопрос или прикрепите файл для анализа.';
-                    } else if (files.length > 0) {
-                        responseText = `Спасибо за отправку ${files.length} файл(ов). Я обработал их и готов ответить на ваши вопросы.`;
-                    } else {
-                        responseText = 'Спасибо за ваше сообщение! Я готов помочь вам с любыми вопросами или задачами.';
-                    }
-                    
-                    this.addMessage('ai', responseText);
-                    this.saveToLocalStorage();
-                }, 1500 + Math.random() * 2000);
-            }
-
-            showTypingIndicator() {
-                if (this.state.isTyping) return;
-                
-                this.state.isTyping = true;
-                
-                const typingElement = document.createElement('div');
-                typingElement.className = 'typing-indicator';
-                typingElement.id = 'typingIndicator';
-                typingElement.innerHTML = `
-                    <div class="typing-dots">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                    <span>ИИ печатает...</span>
-                `;
-                
-                this.messagesContainer.appendChild(typingElement);
-                this.scrollToBottom();
-            }
-
-            hideTypingIndicator() {
-                this.state.isTyping = false;
-                const typingElement = document.getElementById('typingIndicator');
-                if (typingElement) {
-                    typingElement.remove();
-                }
-            }
-
-            scrollToBottom() {
-                setTimeout(() => {
-                    this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
-                }, 100);
-            }
-
-            handleFileSelect(event) {
-                const files = Array.from(event.target.files);
-                
-                // Проверка размера файлов (максимум 10MB)
-                const maxSize = 10 * 1024 * 1024; // 10MB
-                const validFiles = files.filter(file => file.size <= maxSize);
-                
-                if (validFiles.length < files.length) {
-                    this.showNotification('Некоторые файлы превышают максимальный размер 10MB', 'error');
-                }
-                
-                this.state.attachedFiles = [...this.state.attachedFiles, ...validFiles];
-                this.updateAttachedFiles();
-                
-                // Сброс значения input для возможности повторного выбора тех же файлов
-                event.target.value = '';
-            }
-
-            updateAttachedFiles() {
-                this.attachedFiles.innerHTML = this.renderAttachedFiles(this.state.attachedFiles, false);
-            }
-
-            removeAttachedFile(index) {
-                this.state.attachedFiles.splice(index, 1);
-                this.updateAttachedFiles();
-            }
-
-            deleteMessage(messageId) {
-                // Удаление из состояния
-                const chat = this.state.chats[this.state.currentChatId];
-                const messageIndex = chat.messages.findIndex(msg => msg.id === messageId);
-                
-                if (messageIndex !== -1) {
-                    chat.messages.splice(messageIndex, 1);
-                    
-                    // Удаление из DOM
-                    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                    if (messageElement) {
-                        messageElement.remove();
-                    }
-                    
-                    this.showNotification('Сообщение удалено', 'success');
-                    this.saveToLocalStorage();
-                }
-            }
-
-            clearChat() {
-                if (this.state.chats[this.state.currentChatId].messages.length === 0) {
-                    this.showNotification('Чат уже пуст', 'info');
-                    return;
-                }
-                
-                if (confirm('Вы уверены, что хотите очистить чат? Это действие нельзя отменить.')) {
-                    this.state.chats[this.state.currentChatId].messages = [];
-                    this.messagesContainer.innerHTML = '';
-                    this.showWelcomeMessage();
-                    this.showNotification('Чат очищен', 'success');
-                    this.saveToLocalStorage();
-                }
-            }
-
-            showWelcomeMessage() {
-                const welcomeMessage = `
-                    <div class="message message-ai">
-                        <div class="message-content">
-                            <strong>Добро пожаловать в KHAI — Чат с ИИ!</strong><br><br>
-                            Я ваш интеллектуальный помощник, готовый помочь с любыми вопросами и задачами.<br><br>
-                            <strong>Возможности:</strong><br>
-                            • Отправка текстовых сообщений<br>
-                            • Прикрепление файлов любого типа<br>
-                            • Управление историей переписок<br>
-                            • Смена имени комнаты<br>
-                            • Современный стеклянный дизайн<br><br>
-                            Начните общение, отправив сообщение или прикрепив файл!
-                        </div>
-                    </div>
-                `;
-                
-                this.messagesContainer.innerHTML = welcomeMessage;
-            }
-
-            showHelp() {
-                const helpMessage = `
-                    <div class="message message-ai">
-                        <div class="message-content">
-                            <strong>Справка по KHAI — Чат с ИИ</strong><br><br>
-                            <strong>Основные функции:</strong><br>
-                            • <strong>Отправка сообщений</strong> - введите текст и нажмите кнопку отправки или Enter<br>
-                            • <strong>Прикрепление файлов</strong> - нажмите "+" для выбора файлов любого типа<br>
-                            • <strong>Удаление сообщений</strong> - нажмите "Удалить" под своим сообщением<br>
-                            • <strong>Очистка чата</strong> - удаляет всю историю текущего чата<br>
-                            • <strong>Новый чат</strong> - создает новую комнату для общения<br>
-                            • <strong>Смена имени</strong> - измените название текущей комнаты<br><br>
-                            <strong>Управление:</strong><br>
-                            • Меню открывается кнопкой в правом верхнем углу<br>
-                            • Тема переключается кнопкой с иконкой луны<br>
-                            • История сохраняется автоматически<br><br>
-                            Приятного использования!
-                        </div>
-                    </div>
-                `;
-                
-                this.addMessage('ai', helpMessage);
-            }
-
-            createNewChat() {
-                const chatId = 'chat-' + Date.now();
-                const chatName = 'Чат ' + (Object.keys(this.state.chats).length + 1);
-                
-                this.state.chats[chatId] = {
-                    name: chatName,
-                    messages: []
-                };
-                
-                this.state.currentChatId = chatId;
-                this.currentChatName.textContent = chatName;
-                
-                this.messagesContainer.innerHTML = '';
-                this.showWelcomeMessage();
-                this.updateChatList();
-                this.saveToLocalStorage();
-                
-                this.showNotification(`Создан новый чат: ${chatName}`, 'success');
-            }
-
-            switchChat(chatId) {
-                if (this.state.currentChatId === chatId) return;
-                
-                this.state.currentChatId = chatId;
-                this.currentChatName.textContent = this.state.chats[chatId].name;
-                
-                // Очистка и отображение сообщений выбранного чата
-                this.messagesContainer.innerHTML = '';
-                
-                if (this.state.chats[chatId].messages.length === 0) {
-                    this.showWelcomeMessage();
-                } else {
-                    this.state.chats[chatId].messages.forEach(message => {
-                        this.addMessage(message.sender, message.text, message.files);
-                    });
-                }
-                
-                this.toggleSidebar();
-                this.showNotification(`Переключен на: ${this.state.chats[chatId].name}`, 'info');
-            }
-
-            deleteChat(chatId) {
-                if (Object.keys(this.state.chats).length <= 1) {
-                    this.showNotification('Нельзя удалить последний чат', 'error');
-                    return;
-                }
-                
-                if (confirm(`Вы уверены, что хотите удалить чат "${this.state.chats[chatId].name}"?`)) {
-                    delete this.state.chats[chatId];
-                    
-                    // Если удален текущий чат, переключиться на первый доступный
-                    if (this.state.currentChatId === chatId) {
-                        const remainingChatIds = Object.keys(this.state.chats);
-                        this.switchChat(remainingChatIds[0]);
-                    }
-                    
-                    this.updateChatList();
-                    this.saveToLocalStorage();
-                    this.showNotification('Чат удален', 'success');
-                }
-            }
-
-            updateChatList() {
-                this.chatList.innerHTML = '';
-                
-                Object.keys(this.state.chats).forEach(chatId => {
-                    const chat = this.state.chats[chatId];
-                    const isActive = this.state.currentChatId === chatId;
-                    
-                    const chatItem = document.createElement('div');
-                    chatItem.className = `chat-item ${isActive ? 'active' : ''}`;
-                    chatItem.innerHTML = `
-                        <div class="chat-info">
-                            <i class="fas fa-comment${isActive ? '-dots' : ''}"></i>
-                            <span>${chat.name}</span>
-                        </div>
-                        <button class="delete-chat-btn" onclick="app.deleteChat('${chatId}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    `;
-                    
-                    if (!isActive) {
-                        chatItem.addEventListener('click', () => this.switchChat(chatId));
-                    }
-                    
-                    this.chatList.appendChild(chatItem);
-                });
-            }
-
-            toggleSidebar() {
-                this.sidebarMenu.classList.toggle('active');
-                this.sidebarOverlay.classList.toggle('active');
-            }
-
-            closeRoomNameModal() {
-                this.roomNameModal.classList.remove('active');
-            }
-
-            saveRoomName() {
-                const newName = this.roomNameInput.value.trim();
-                
-                if (!newName) {
-                    this.showNotification('Имя комнаты не может быть пустым', 'error');
-                    return;
-                }
-                
-                this.state.chats[this.state.currentChatId].name = newName;
-                this.currentChatName.textContent = newName;
-                this.updateChatList();
-                this.closeRoomNameModal();
-                this.saveToLocalStorage();
-                
-                this.showNotification('Имя комнаты изменено', 'success');
-            }
-
-            exportChat() {
-                const chat = this.state.chats[this.state.currentChatId];
-                let exportText = `KHAI — Чат с ИИ\nЭкспорт чата: ${chat.name}\nДата: ${new Date().toLocaleString()}\n\n`;
-                
-                chat.messages.forEach(message => {
-                    const sender = message.sender === 'user' ? 'Вы' : 'ИИ';
-                    const time = new Date(message.timestamp).toLocaleTimeString();
-                    exportText += `[${time}] ${sender}: ${message.text}\n`;
-                    
-                    if (message.files.length > 0) {
-                        exportText += `   Прикрепленные файлы: ${message.files.map(f => f.name).join(', ')}\n`;
-                    }
-                    
-                    exportText += '\n';
-                });
-                
-                const blob = new Blob([exportText], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `KHAI-Чат-${chat.name}-${new Date().toISOString().slice(0, 10)}.txt`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                this.showNotification('Чат экспортирован', 'success');
-            }
-
-            toggleTheme() {
-                this.state.isDarkMode = !this.state.isDarkMode;
-                
-                if (this.state.isDarkMode) {
-                    document.documentElement.style.setProperty('--bg-primary', '#0f0f23');
-                    document.documentElement.style.setProperty('--text-primary', '#ffffff');
-                    this.themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-                } else {
-                    document.documentElement.style.setProperty('--bg-primary', '#f5f5f7');
-                    document.documentElement.style.setProperty('--text-primary', '#333333');
-                    this.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-                }
-                
-                this.saveToLocalStorage();
-            }
-
-            showNotification(message, type = 'info') {
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                notification.textContent = message;
-                
-                document.body.appendChild(notification);
-                
-                setTimeout(() => {
-                    notification.remove();
-                }, 3000);
-            }
-
-            showPWAInstallPrompt() {
-                this.pwaInstallPrompt.classList.add('active');
-            }
-
-            hidePWAInstallPrompt() {
-                this.pwaInstallPrompt.classList.remove('active');
-            }
-
-            installPWA() {
-                if (this.deferredPrompt) {
-                    this.deferredPrompt.prompt();
-                    
-                    this.deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') {
-                            this.showNotification('Приложение KHAI установлено!', 'success');
-                        }
-                        this.deferredPrompt = null;
-                        this.hidePWAInstallPrompt();
-                    });
-                }
-            }
-
-            saveToLocalStorage() {
-                try {
-                    localStorage.setItem('khai-app-state', JSON.stringify(this.state));
-                } catch (e) {
-                    console.warn('Не удалось сохранить состояние в localStorage:', e);
-                }
-            }
-
-            loadFromLocalStorage() {
-                try {
-                    const savedState = localStorage.getItem('khai-app-state');
-                    if (savedState) {
-                        const parsedState = JSON.parse(savedState);
-                        
-                        // Восстановление состояния
-                        this.state.chats = parsedState.chats || this.state.chats;
-                        this.state.currentChatId = parsedState.currentChatId || this.state.currentChatId;
-                        this.state.isDarkMode = parsedState.isDarkMode !== undefined ? parsedState.isDarkMode : this.state.isDarkMode;
-                        
-                        // Обновление интерфейса
-                        this.currentChatName.textContent = this.state.chats[this.state.currentChatId].name;
-                        this.updateChatList();
-                        
-                        // Восстановление сообщений текущего чата
-                        this.messagesContainer.innerHTML = '';
-                        if (this.state.chats[this.state.currentChatId].messages.length === 0) {
-                            this.showWelcomeMessage();
-                        } else {
-                            this.state.chats[this.state.currentChatId].messages.forEach(message => {
-                                this.addMessage(message.sender, message.text, message.files);
-                            });
-                        }
-                        
-                        // Применение темы
-                        if (!this.state.isDarkMode) {
-                            this.toggleTheme();
-                        }
-                    }
-                } catch (e) {
-                    console.warn('Не удалось загрузить состояние из localStorage:', e);
-                }
-            }
-        }
-
-        // Инициализация приложения после загрузки DOM
-        document.addEventListener('DOMContentLoaded', () => {
-            window.app = new KHAIApp();
-            
-            // Автоматическое изменение высоты textarea
-            const userInput = document.getElementById('userInput');
-            userInput.addEventListener('input', () => {
-                userInput.style.height = 'auto';
-                userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
-            });
-        });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
