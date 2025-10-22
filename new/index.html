@@ -11,12 +11,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KHAI">
     
-    <!-- Open Graph для социальных сетей -->
-    <meta property="og:title" content="KHAI — Первый белорусский чат с ИИ">
-    <meta property="og:description" content="Бесплатный AI-ассистент с поддержкой голоса, изображений и различных моделей ИИ">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://khai.by">
-    <meta property="og:image" content="https://khai.by/og-image.jpg">
+    <!-- Preload критических ресурсов -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     
     <!-- Структурированные данные для SEO -->
     <script type="application/ld+json">
@@ -41,23 +40,42 @@
         "countryOfOrigin": "BY"
     }
     </script>
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
-    
+
+    <!-- Critical CSS - встроенный для мгновенного рендера -->
     <style>
-        /* Critical CSS для быстрой загрузки на мобильных */
+        /* Critical CSS - минимизирован для быстрой загрузки */
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: rgba(255,255,255,0.03);
+            --text-primary: #ffffff;
+            --accent-primary: #0099ff;
+            --radius-lg: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+        }
+        
         .app-loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #0f0f23;
+            background: var(--bg-primary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -65,30 +83,195 @@
             flex-direction: column;
             gap: 20px;
         }
+        
         .loader-spinner {
             width: 40px;
             height: 40px;
             border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid #0099ff;
+            border-top: 3px solid var(--accent-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         
-        /* Быстрые исправления для мобильных устройств */
-        .mobile-optimized {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
-        .safe-area-padding {
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-            padding-bottom: env(safe-area-inset-bottom);
+        /* Critical mobile header */
+        .app-header {
+            padding: 12px 16px;
+            padding-top: calc(12px + env(safe-area-inset-top, 0px));
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 44px;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-primary), #0066ff);
+            color: white;
+            font-size: 20px;
+        }
+        
+        .app-name {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), #0066ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Critical messages area */
+        .chat-main {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .messages-container {
+            height: 100%;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Critical input section */
+        .mobile-input-section {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding: 16px;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            flex-shrink: 0;
+        }
+        
+        .input-area {
+            position: relative;
+        }
+        
+        .input-area textarea {
+            width: 100%;
+            min-height: 44px;
+            padding: 12px 50px 12px 16px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: var(--radius-lg);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+            line-height: 1.4;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+        
+        .input-controls {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, var(--accent-primary), #0066ff);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+        }
+        
+        /* Critical bottom nav */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+            z-index: 100;
+        }
+        
+        .nav-item {
+            background: none;
+            border: none;
+            color: #a0a0c0;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            min-width: 60px;
+        }
+        
+        .nav-item.active {
+            color: var(--accent-primary);
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+        }
+        
+        /* Улучшения для очень быстрого FCP */
+        .skeleton-loader {
+            background: linear-gradient(90deg, #1a1a2e 25%, #2d2d4d 50%, #1a1a2e 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
         
         /* Оптимизация для iOS */
@@ -97,62 +280,56 @@
                 height: -webkit-fill-available;
             }
         }
+        
+        /* Предотвращение layout shift */
+        .messages-container {
+            scrollbar-gutter: stable;
+        }
     </style>
+    
+    <!-- Отложенная загрузка некритических стилей -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    </noscript>
+    
+    <link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="styles.css">
+    </noscript>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099ff' rx='20'/><text x='50' y='65' font-family='Arial' font-size='45' text-anchor='middle' fill='white'>K</text></svg>">
 </head>
-<body class="mobile-optimized">
+<body>
+    <!-- Skeleton Loader для контента -->
     <div class="app-loader" id="appLoader">
         <div class="loader-spinner"></div>
         <div style="color: #fff; font-size: 16px;">Загрузка KHAI...</div>
     </div>
 
-    <!-- PWA Install Prompt -->
-    <div id="pwaInstallPrompt" class="pwa-prompt" style="display: none;">
-        <div class="pwa-prompt-content">
-            <div class="pwa-prompt-icon">
-                <i class="ti ti-download"></i>
-            </div>
-            <div class="pwa-prompt-text">
-                <h3>Установить KHAI</h3>
-                <p>Установите приложение для быстрого доступа и работы офлайн</p>
-            </div>
-            <div class="pwa-prompt-buttons">
-                <button id="pwaInstallCancel" class="pwa-btn secondary">Позже</button>
-                <button id="pwaInstallConfirm" class="pwa-btn primary">Установить</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="app-container" style="opacity: 0;">
+    <!-- Основной контейнер приложения -->
+    <div class="app-container" id="appContainer">
         <!-- Мобильный Header -->
-        <header class="app-header safe-area-padding">
+        <header class="app-header">
             <div class="header-content">
                 <div class="logo-container">
-                    <button id="menuToggle" class="control-btn" title="Меню">
+                    <button class="control-btn" id="menuToggle" title="Меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
                     <div class="logo" id="logoBtn" title="KHAI — Первый белорусский ИИ">
-                        <i class="ti ti-brain" style="color: white; font-size: 20px;"></i>
+                        <i class="ti ti-brain"></i>
                     </div>
                     <div class="app-name">KHAI</div>
                 </div>
                 
                 <div class="header-controls">
-                    <button id="modelSelectBtn" class="control-btn model-select-btn" title="Выбор модели">
+                    <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбор модели">
                         <i class="ti ti-brain"></i>
                     </button>
-                    <button id="searchToggle" class="control-btn" title="Поиск">
+                    <button class="control-btn" id="searchToggle" title="Поиск">
                         <i class="ti ti-search"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Мобильный поиск -->
-            <div class="mobile-search-container" id="mobileSearchContainer" style="display: none;">
-                <div class="search-wrapper">
-                    <i class="ti ti-search"></i>
-                    <input type="text" id="mobileSearchInput" placeholder="Поиск в сообщениях...">
-                    <button id="mobileSearchClear" class="search-clear" title="Очистить поиск" style="display: none;">
-                        <i class="ti ti-x"></i>
                     </button>
                 </div>
             </div>
@@ -160,69 +337,38 @@
 
         <!-- Основная область чата -->
         <main class="chat-main">
-            <!-- Контейнер сообщений -->
             <div class="messages-container" id="messagesContainer">
-                <!-- Сообщения добавляются динамически -->
+                <!-- Skeleton messages для предотвращения layout shift -->
+                <div class="message-skeleton">
+                    <div class="skeleton-loader" style="height: 60px; width: 70%; margin-bottom: 16px;"></div>
+                    <div class="skeleton-loader" style="height: 80px; width: 85%; margin-left: auto; margin-bottom: 16px;"></div>
+                    <div class="skeleton-loader" style="height: 100px; width: 75%; margin-bottom: 16px;"></div>
+                </div>
             </div>
-
-            <!-- Плавающая кнопка нового чата -->
-            <button id="floatingNewChat" class="floating-action-btn" title="Новый чат">
-                <i class="ti ti-plus"></i>
-            </button>
         </main>
 
         <!-- Мобильная панель ввода -->
-        <section class="mobile-input-section safe-area-padding" id="inputSection">
-            <!-- Индикатор режима -->
-            <div class="mode-indicator" id="modeIndicator">
-                <i class="ti ti-message"></i>
-                <span>Обычный режим</span>
-            </div>
-            
-            <!-- Основная область ввода -->
+        <section class="mobile-input-section">
             <div class="input-wrapper">
                 <div class="input-area">
                     <textarea id="userInput" placeholder="Задайте вопрос ИИ..." rows="1"></textarea>
                     <div class="input-controls">
-                        <button id="attachBtn" class="input-btn" title="Прикрепить файл">
+                        <button class="input-btn" id="attachBtn" title="Прикрепить файл">
                             <i class="ti ti-paperclip"></i>
                         </button>
-                        <button id="voiceInputBtn" class="input-btn" title="Голосовой ввод">
+                        <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
                             <i class="ti ti-microphone"></i>
                         </button>
-                        <button id="sendBtn" class="send-btn" title="Отправить">
+                        <button class="send-btn" id="sendBtn" title="Отправить">
                             <i class="ti ti-send"></i>
                         </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Прикрепленные файлы -->
-            <div class="attached-files" id="attachedFiles" style="display: none;"></div>
-
-            <!-- Быстрые действия -->
-            <div class="quick-actions-bar">
-                <button class="quick-action" data-action="clear">
-                    <i class="ti ti-trash"></i>
-                    <span>Очистить</span>
-                </button>
-                <button class="quick-action" data-action="export">
-                    <i class="ti ti-download"></i>
-                    <span>Экспорт</span>
-                </button>
-                <button class="quick-action" data-action="help">
-                    <i class="ti ti-help"></i>
-                    <span>Помощь</span>
-                </button>
-                <button class="quick-action" data-action="settings">
-                    <i class="ti ti-settings"></i>
-                    <span>Настройки</span>
-                </button>
-            </div>
         </section>
 
         <!-- Мобильная навигация -->
-        <nav class="mobile-bottom-nav safe-area-padding">
+        <nav class="mobile-bottom-nav">
             <button class="nav-item active" data-page="chat">
                 <i class="ti ti-message"></i>
                 <span>Чат</span>
@@ -240,139 +386,138 @@
                 <span>Профиль</span>
             </button>
         </nav>
-
-        <!-- Мобильное меню -->
-        <div class="mobile-menu" id="mobileMenu">
-            <div class="menu-header">
-                <div class="menu-user">
-                    <div class="user-avatar">
-                        <i class="ti ti-user"></i>
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name">Пользователь KHAI</div>
-                        <div class="user-status">Онлайн</div>
-                    </div>
-                </div>
-                <button class="menu-close" id="menuClose">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-
-            <div class="menu-content">
-                <!-- Управление чатами -->
-                <div class="menu-section">
-                    <h3 class="menu-section-title">Мои чаты</h3>
-                    <div class="chats-list" id="mobileChatsList">
-                        <!-- Список чатов -->
-                    </div>
-                    <button class="menu-btn primary" id="mobileNewChat">
-                        <i class="ti ti-plus"></i>
-                        <span>Новый чат</span>
-                    </button>
-                </div>
-
-                <!-- Быстрые действия -->
-                <div class="menu-section">
-                    <h3 class="menu-section-title">Быстрые действия</h3>
-                    <div class="quick-presets-grid">
-                        <button class="preset-btn" data-preset="explain">
-                            <i class="ti ti-help"></i>
-                            <span>Объяснить</span>
-                        </button>
-                        <button class="preset-btn" data-preset="summarize">
-                            <i class="ti ti-summary"></i>
-                            <span>Суммаризировать</span>
-                        </button>
-                        <button class="preset-btn" data-preset="translate">
-                            <i class="ti ti-language"></i>
-                            <span>Перевести</span>
-                        </button>
-                        <button class="preset-btn" data-preset="code">
-                            <i class="ti ti-code"></i>
-                            <span>Код</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Настройки -->
-                <div class="menu-section">
-                    <h3 class="menu-section-title">Настройки</h3>
-                    <div class="settings-list">
-                        <button class="menu-btn" data-setting="theme">
-                            <i class="ti ti-moon"></i>
-                            <span>Тема</span>
-                            <i class="ti ti-chevron-right"></i>
-                        </button>
-                        <button class="menu-btn" data-setting="language">
-                            <i class="ti ti-language"></i>
-                            <span>Язык</span>
-                            <i class="ti ti-chevron-right"></i>
-                        </button>
-                        <button class="menu-btn" data-setting="notifications">
-                            <i class="ti ti-bell"></i>
-                            <span>Уведомления</span>
-                            <i class="ti ti-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Информация -->
-                <div class="menu-section">
-                    <div class="app-info">
-                        <div class="info-item">
-                            <i class="ti ti-versions"></i>
-                            <span>KHAI v2.1.0</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="ti ti-calendar"></i>
-                            <span>Беларусь 2025</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Оверлей меню -->
-        <div class="menu-overlay" id="menuOverlay"></div>
-
-        <!-- Мобильный выбор моделей -->
-        <div class="mobile-models-sheet" id="modelsSheet">
-            <div class="sheet-header">
-                <h3 class="sheet-title">Выбор модели ИИ</h3>
-                <button class="sheet-close" id="modelsClose">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-            <div class="sheet-content">
-                <div class="models-list" id="mobileModelsList">
-                    <!-- Список моделей -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Уведомления -->
-        <div class="notification-container" id="notificationContainer"></div>
-
-        <!-- Контекстное меню -->
-        <div class="context-menu" id="contextMenu" style="display: none;"></div>
-
-        <!-- Эмодзи пикер -->
-        <div class="emoji-picker" id="emojiPicker" style="display: none;"></div>
-
-        <!-- Зона перетаскивания -->
-        <div class="drop-zone" id="dropZone" style="display: none;">
-            <div class="drop-zone-content">
-                <div class="drop-zone-icon">
-                    <i class="ti ti-upload"></i>
-                </div>
-                <div class="drop-zone-text">Перетащите файлы сюда</div>
-            </div>
-        </div>
     </div>
 
-    <!-- Скрипты -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script src="script.js"></script>
+    <!-- Preload критических скриптов -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/marked/marked.min.js" as="script">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js" as="script">
+    
+    <!-- Inline script для быстрой инициализации -->
+    <script>
+        // Минимальная инициализация для быстрого запуска
+        (function() {
+            'use strict';
+            
+            // Показываем приложение как можно быстрее
+            function initApp() {
+                const appContainer = document.getElementById('appContainer');
+                const appLoader = document.getElementById('appLoader');
+                
+                if (appContainer && appLoader) {
+                    // Показываем основной интерфейс
+                    appContainer.style.opacity = '1';
+                    
+                    // Скрываем лоадер с задержкой для плавности
+                    setTimeout(() => {
+                        appLoader.style.display = 'none';
+                        appContainer.style.display = 'flex';
+                    }, 300);
+                    
+                    // Инициализируем базовые обработчики
+                    initBasicHandlers();
+                }
+            }
+            
+            function initBasicHandlers() {
+                // Базовые обработчики для интерактивности
+                const sendBtn = document.getElementById('sendBtn');
+                const userInput = document.getElementById('userInput');
+                
+                if (sendBtn && userInput) {
+                    sendBtn.addEventListener('click', handleSendMessage);
+                    userInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                        }
+                    });
+                }
+                
+                // Обработчик для авторесайза textarea
+                if (userInput) {
+                    userInput.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                    });
+                }
+            }
+            
+            function handleSendMessage() {
+                const userInput = document.getElementById('userInput');
+                const message = userInput?.value.trim();
+                
+                if (message) {
+                    // Временная реализация до загрузки основного скрипта
+                    addUserMessage(message);
+                    userInput.value = '';
+                    userInput.style.height = 'auto';
+                    
+                    // Показываем индикатор загрузки
+                    showTypingIndicator();
+                }
+            }
+            
+            function addUserMessage(text) {
+                const container = document.getElementById('messagesContainer');
+                if (!container) return;
+                
+                // Убираем скелетон
+                const skeleton = container.querySelector('.message-skeleton');
+                if (skeleton) {
+                    skeleton.remove();
+                }
+                
+                const messageEl = document.createElement('div');
+                messageEl.className = 'message message-user';
+                messageEl.innerHTML = `
+                    <div class="message-content">${escapeHtml(text)}</div>
+                `;
+                container.appendChild(messageEl);
+                container.scrollTop = container.scrollHeight;
+            }
+            
+            function showTypingIndicator() {
+                const container = document.getElementById('messagesContainer');
+                if (!container) return;
+                
+                const indicator = document.createElement('div');
+                indicator.className = 'message message-assistant typing-indicator';
+                indicator.innerHTML = `
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                    <span>ИИ печатает...</span>
+                `;
+                container.appendChild(indicator);
+                container.scrollTop = container.scrollHeight;
+            }
+            
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // Запускаем инициализацию при DOMContentLoaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initApp);
+            } else {
+                initApp();
+            }
+            
+            // Preload основного скрипта
+            const script = document.createElement('script');
+            script.src = 'script.js';
+            script.async = true;
+            document.head.appendChild(script);
+            
+        })();
+    </script>
+
+    <!-- Отложенная загрузка некритических скриптов -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js" async></script>
 </body>
 </html>
