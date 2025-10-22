@@ -52,10 +52,10 @@
                 
                 <!-- Правая часть: управление -->
                 <div class="header-controls">
-                    <button class="control-btn" id="themeToggle" title="Переключить тему">
+                    <button class="control-btn" id="themeToggle">
                         <i class="ti ti-moon"></i>
                     </button>
-                    <button class="control-btn menu-toggle" id="menuToggle" title="Меню">
+                    <button class="control-btn menu-toggle" id="menuToggle">
                         <i class="ti ti-menu-2"></i>
                     </button>
                 </div>
@@ -71,7 +71,14 @@
 
             <!-- Навигация и мини-карта (справа) -->
             <div class="chat-minimap-container">
+                <div class="minimap-header">
+                    <!-- Кнопка темы над мини-картой -->
+                    <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
+                        <i class="ti ti-moon"></i>
+                    </button>
+                </div>
                 <div class="minimap-navigation">
+                    <!-- Кнопки навигации под мини-картой -->
                     <button class="nav-btn" id="scrollToLastAI" title="К началу последнего ответа">
                         <i class="ti ti-arrow-up"></i>
                     </button>
@@ -82,11 +89,6 @@
                 <div class="chat-minimap" id="chatMinimap">
                     <div class="minimap-content" id="minimapContent"></div>
                     <div class="minimap-viewport" id="minimapViewport"></div>
-                </div>
-                <div class="minimap-header">
-                    <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
-                        <i class="ti ti-moon"></i>
-                    </button>
                 </div>
             </div>
         </main>
@@ -150,6 +152,7 @@
                     <span id="currentChatName">Основной чат</span>
                 </div>
                 <div class="footer-controls">
+                    <!-- Кнопки футера без текста -->
                     <button class="footer-btn" id="footerHelpBtn" title="Помощь">
                         <i class="ti ti-help"></i>
                     </button>
@@ -174,7 +177,7 @@
                 </div>
                 <h3>KHAI Assistant</h3>
             </div>
-            <button class="sidebar-close" id="sidebarClose" title="Закрыть меню">
+            <button class="sidebar-close" id="sidebarClose">
                 <i class="ti ti-x"></i>
             </button>
         </div>
@@ -244,7 +247,7 @@
                     <img src="//counter.yadro.ru/logo?52.1.1.1" 
                          alt="LiveInternet: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня" 
                          style="border:0;" 
-                         title="LiveInternet: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"/>
+                         title="LiveInternational: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"/>
                 </a>
             </div>
 
@@ -263,7 +266,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3>Выберите модель ИИ</h3>
-                <button class="modal-close" id="modelModalClose" title="Закрыть">
+                <button class="modal-close" id="modelModalClose">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
@@ -339,14 +342,14 @@
         <div class="modal">
             <div class="modal-header">
                 <h3>Редактировать название чата</h3>
-                <button class="modal-close" id="editChatModalClose" title="Закрыть">
+                <button class="modal-close" id="editChatModalClose">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="modal-input-wrapper">
                     <input type="text" id="editChatNameInput" placeholder="Введите название чата..." class="modal-input">
-                    <button class="modal-clear-input" id="modalClearInput" style="display: none;" title="Очистить">
+                    <button class="modal-clear-input" id="modalClearInput" style="display: none;">
                         <i class="ti ti-x"></i>
                     </button>
                 </div>
