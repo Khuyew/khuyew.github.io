@@ -56,7 +56,6 @@ class KHAIAssistant {
         this.editChatModalClose = document.getElementById('editChatModalClose');
         this.editChatModalCancel = document.getElementById('editChatModalCancel');
         this.editChatModalSave = document.getElementById('editChatModalSave');
-        this.editingChatId = null;
 
         // Элементы управления моделями
         this.modelSelectBtn = document.getElementById('modelSelectBtn');
@@ -74,8 +73,9 @@ class KHAIAssistant {
         this.importChatBtn = document.getElementById('importChatBtn');
         
         // Footer
-        this.footerStatus = document.getElementById('footerStatus');
         this.connectionStatusText = document.getElementById('connectionStatusText');
+        
+        this.editingChatId = null;
     }
 
     initializeState() {
@@ -172,6 +172,11 @@ class KHAIAssistant {
     }
 
     setupMarked() {
+        if (typeof marked === 'undefined') {
+            console.error('Marked.js не загружен');
+            return;
+        }
+
         const renderer = new marked.Renderer();
         
         // Кастомный рендерер для улучшения безопасности
@@ -185,14 +190,14 @@ class KHAIAssistant {
         marked.setOptions({
             renderer: renderer,
             highlight: (code, lang) => {
-                if (lang && hljs.getLanguage(lang)) {
+                if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
                     try {
                         return hljs.highlight(code, { language: lang }).value;
                     } catch (err) {
                         console.warn(`Error highlighting ${lang}:`, err);
                     }
                 }
-                return hljs.highlightAuto(code).value;
+                return code;
             },
             langPrefix: 'hljs language-',
             breaks: true,
@@ -294,7 +299,9 @@ class KHAIAssistant {
         ];
 
         events.forEach(([element, event, handler]) => {
-            this.addEventListener(element, event, handler);
+            if (element) {
+                this.addEventListener(element, event, handler);
+            }
         });
     }
 
@@ -322,10 +329,16 @@ class KHAIAssistant {
         if (this.connectionStatusText) {
             if (online) {
                 this.connectionStatusText.textContent = 'Подключено';
-                this.connectionStatusText.previousElementSibling.style.color = 'var(--success-text)';
+                const statusIcon = this.connectionStatusText.previousElementSibling;
+                if (statusIcon) {
+                    statusIcon.style.color = 'var(--success-text)';
+                }
             } else {
                 this.connectionStatusText.textContent = 'Офлайн';
-                this.connectionStatusText.previousElementSibling.style.color = 'var(--error-text)';
+                const statusIcon = this.connectionStatusText.previousElementSibling;
+                if (statusIcon) {
+                    statusIcon.style.color = 'var(--error-text)';
+                }
             }
         }
     }
@@ -413,7 +426,9 @@ class KHAIAssistant {
             this.updateSendButton(false);
         }
         
-        this.clearInputBtn.style.display = this.userInput.value ? 'flex' : 'none';
+        if (this.clearInputBtn) {
+            this.clearInputBtn.style.display = this.userInput.value ? 'flex' : 'none';
+        }
     }
 
     updateSendButton(isGenerating) {
@@ -1019,6 +1034,10 @@ ${fileContent}
     }
 
     processCodeBlocks(content) {
+        if (typeof marked === 'undefined') {
+            return content;
+        }
+        
         let html = marked.parse(content);
         
         html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
@@ -1514,7 +1533,9 @@ ${fileContent}
             session.lastActivity = Date.now();
             this.chatSessions.set(chatId, session);
             
-            this.currentChatName.textContent = session.name;
+            if (this.currentChatName) {
+                this.currentChatName.textContent = session.name;
+            }
             this.loadSession(session);
             this.showNotification(`Переключен на чат: ${session.name}`, 'info');
             
@@ -1566,7 +1587,9 @@ ${fileContent}
 
     handleModalInputChange() {
         const hasText = this.editChatNameInput.value.trim().length > 0;
-        this.modalClearInput.style.display = hasText ? 'flex' : 'none';
+        if (this.modalClearInput) {
+            this.modalClearInput.style.display = hasText ? 'flex' : 'none';
+        }
     }
 
     clearModalInput() {
@@ -1578,7 +1601,9 @@ ${fileContent}
     closeEditChatModal() {
         this.editingChatId = null;
         this.editChatNameInput.value = '';
-        this.modalClearInput.style.display = 'none';
+        if (this.modalClearInput) {
+            this.modalClearInput.style.display = 'none';
+        }
         this.editChatModal.classList.remove('active');
     }
 
@@ -1603,7 +1628,7 @@ ${fileContent}
             this.saveChatSessions();
             this.updateChatList();
             
-            if (this.currentChatId === this.editingChatId) {
+            if (this.currentChatId === this.editingChatId && this.currentChatName) {
                 this.currentChatName.textContent = newName;
             }
             
@@ -1616,18 +1641,20 @@ ${fileContent}
     saveCurrentSession() {
         try {
             const messages = [];
-            this.messagesContainer.querySelectorAll('.message').forEach(message => {
-                if (message.classList.contains('typing-indicator') || 
-                    message.classList.contains('streaming-message')) return;
-                
-                const role = message.classList.contains('message-user') ? 'user' : 
-                           message.classList.contains('message-error') ? 'error' : 'ai';
-                
-                const content = message.querySelector('.message-content')?.innerHTML || '';
-                if (content) {
-                    messages.push({ role, content });
-                }
-            });
+            if (this.messagesContainer) {
+                this.messagesContainer.querySelectorAll('.message').forEach(message => {
+                    if (message.classList.contains('typing-indicator') || 
+                        message.classList.contains('streaming-message')) return;
+                    
+                    const role = message.classList.contains('message-user') ? 'user' : 
+                               message.classList.contains('message-error') ? 'error' : 'ai';
+                    
+                    const content = message.querySelector('.message-content')?.innerHTML || '';
+                    if (content) {
+                        messages.push({ role, content });
+                    }
+                });
+            }
             
             const session = this.chatSessions.get(this.currentChatId);
             if (session) {
@@ -1652,6 +1679,8 @@ ${fileContent}
     }
 
     loadSession(session) {
+        if (!this.messagesContainer) return;
+        
         this.messagesContainer.innerHTML = '';
         this.conversationHistory = session.conversationHistory || [];
         
@@ -1668,6 +1697,8 @@ ${fileContent}
     }
 
     renderMessage(role, content) {
+        if (!this.messagesContainer) return;
+        
         const messageElement = document.createElement('div');
         messageElement.className = `message message-${role}`;
         
@@ -1779,6 +1810,8 @@ ${fileContent}
     }
 
     renderAttachedFiles() {
+        if (!this.attachedFiles) return;
+        
         this.attachedFiles.innerHTML = '';
         
         if (this.attachedImages.length === 0) {
@@ -1832,7 +1865,7 @@ ${fileContent}
 
     // Мини-карта
     updateMinimap() {
-        if (!this.minimapContent) return;
+        if (!this.minimapContent || !this.messagesContainer) return;
         
         this.minimapContent.innerHTML = '';
         const messages = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
@@ -1849,7 +1882,7 @@ ${fileContent}
     }
 
     updateMinimapViewport() {
-        if (!this.minimapViewport || !this.chatMinimap) return;
+        if (!this.minimapViewport || !this.chatMinimap || !this.messagesContainer) return;
         
         const container = this.messagesContainer;
         const containerHeight = container.scrollHeight;
@@ -1876,15 +1909,21 @@ ${fileContent}
     handleSearchInput() {
         const searchTerm = this.headerSearch.value.trim();
         if (searchTerm) {
-            this.headerSearchClear.style.display = 'flex';
+            if (this.headerSearchClear) {
+                this.headerSearchClear.style.display = 'flex';
+            }
             this.highlightSearchTerms(searchTerm);
         } else {
-            this.headerSearchClear.style.display = 'none';
+            if (this.headerSearchClear) {
+                this.headerSearchClear.style.display = 'none';
+            }
             this.clearSearchHighlights();
         }
     }
 
     highlightSearchTerms(term) {
+        if (!this.messagesContainer) return;
+        
         const messages = this.messagesContainer.querySelectorAll('.message-content');
         const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(escapedTerm, 'gi');
@@ -1900,23 +1939,27 @@ ${fileContent}
             message.innerHTML = highlightedContent;
         });
 
-        const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
-        const messageElements = this.messagesContainer.querySelectorAll('.message');
-        
-        minimapMessages.forEach((msg, index) => {
-            const messageElement = messageElements[index];
-            if (messageElement) {
-                const messageText = messageElement.textContent || '';
-                if (regex.test(messageText)) {
-                    msg.classList.add('search-highlighted');
-                } else {
-                    msg.classList.remove('search-highlighted');
+        if (this.minimapContent) {
+            const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
+            const messageElements = this.messagesContainer.querySelectorAll('.message');
+            
+            minimapMessages.forEach((msg, index) => {
+                const messageElement = messageElements[index];
+                if (messageElement) {
+                    const messageText = messageElement.textContent || '';
+                    if (regex.test(messageText)) {
+                        msg.classList.add('search-highlighted');
+                    } else {
+                        msg.classList.remove('search-highlighted');
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     clearSearchHighlights() {
+        if (!this.messagesContainer) return;
+        
         const messages = this.messagesContainer.querySelectorAll('.message-content');
         
         messages.forEach(message => {
@@ -1926,13 +1969,17 @@ ${fileContent}
             }
         });
 
-        const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
-        minimapMessages.forEach(msg => msg.classList.remove('search-highlighted'));
+        if (this.minimapContent) {
+            const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
+            minimapMessages.forEach(msg => msg.classList.remove('search-highlighted'));
+        }
     }
 
     clearSearch() {
         this.headerSearch.value = '';
-        this.headerSearchClear.style.display = 'none';
+        if (this.headerSearchClear) {
+            this.headerSearchClear.style.display = 'none';
+        }
         this.clearSearchHighlights();
     }
 
@@ -2216,8 +2263,12 @@ ${fileContent}
         }
         
         const themeIcon = this.currentTheme === 'dark' ? 'ti-sun' : 'ti-moon';
-        this.themeToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
-        this.themeMinimapToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
+        if (this.themeToggle) {
+            this.themeToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
+        }
+        if (this.themeMinimapToggle) {
+            this.themeMinimapToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
+        }
         
         this.showNotification(
             this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
@@ -2240,7 +2291,9 @@ ${fileContent}
     // Голосовой ввод
     setupVoiceRecognition() {
         if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            this.voiceInputBtn.style.display = 'none';
+            if (this.voiceInputBtn) {
+                this.voiceInputBtn.style.display = 'none';
+            }
             return;
         }
 
@@ -2278,7 +2331,9 @@ ${fileContent}
             };
         } catch (error) {
             console.error('Error setting up voice recognition:', error);
-            this.voiceInputBtn.style.display = 'none';
+            if (this.voiceInputBtn) {
+                this.voiceInputBtn.style.display = 'none';
+            }
         }
     }
 
@@ -2511,7 +2566,7 @@ ${fileContent}
     }
 
     clearChat() {
-        if (this.messagesContainer.children.length === 0) {
+        if (!this.messagesContainer || this.messagesContainer.children.length === 0) {
             return;
         }
 
@@ -2587,14 +2642,7 @@ ${fileContent}
     }
 
     ensureMinimapVisibility() {
-        const minimapContainer = this.chatMinimapContainer;
-        if (minimapContainer) {
-            minimapContainer.style.display = 'flex';
-            minimapContainer.style.flexDirection = 'column';
-            minimapContainer.style.alignItems = 'flex-end';
-            minimapContainer.style.gap = '8px';
-            minimapContainer.style.zIndex = '100';
-        }
+        // Функция для мобильной адаптации мини-карты
     }
 
     setTimeout(callback, delay) {
@@ -2608,7 +2656,6 @@ ${fileContent}
 
     addEventListener(element, event, handler) {
         if (!element) {
-            console.warn('Attempted to add event listener to null element:', event);
             return;
         }
         
@@ -2675,11 +2722,21 @@ ${fileContent}
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
     try {
+        // Проверяем загрузку необходимых библиотек
+        if (typeof marked === 'undefined') {
+            console.warn('Marked.js не загружен');
+        }
+        
+        if (typeof hljs === 'undefined') {
+            console.warn('Highlight.js не загружен');
+        }
+        
         if (typeof puter === 'undefined') {
             console.warn('Puter.ai не загружен, некоторые функции будут недоступны');
         }
         
         if ('speechSynthesis' in window) {
+            // Предзагружаем голоса для синтеза речи
             speechSynthesis.getVoices();
         }
         
