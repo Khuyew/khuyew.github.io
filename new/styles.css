@@ -2313,3 +2313,14 @@ body {
     background: var(--error-bg);
     color: var(--error-text);
 }
+
+/* Performance optimizations */
+.message {
+    content-visibility: auto;
+    contain-intrinsic-size: 100px;
+}
+
+.messages-container {
+    transform: translateZ(0);
+    will-change: transform;
+}
