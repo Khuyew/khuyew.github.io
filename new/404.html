@@ -3,155 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Страница не найдена - KHAI Assistant</title>
-    <link rel="stylesheet" href="./styles.css">
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <title>Страница не найдена | KHAI Assistant</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <style>
-        .error-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent-primary: #0d6efd;
+            --accent-secondary: #6f42c1;
+            --border-color: #dee2e6;
+            --radius-lg: 16px;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --transition-fast: 0.15s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #e9ecef;
+            --text-secondary: #adb5bd;
+            --border-color: #343a40;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg-primary);
-            padding: 2rem;
-        }
-        
-        .error-content {
-            text-align: center;
-            max-width: 500px;
-            animation: fadeInUp 0.8s ease;
-        }
-        
-        .error-logo {
-            margin-bottom: 2rem;
-        }
-        
-        .error-logo img {
-            width: 120px;
-            height: 120px;
-            border-radius: 30px;
-            object-fit: cover;
-        }
-        
-        .error-title {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-            margin-bottom: 1rem;
-        }
-        
-        .error-subtitle {
-            font-size: 1.5rem;
             color: var(--text-primary);
-            margin-bottom: 1rem;
-        }
-        
-        .error-description {
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
             line-height: 1.6;
         }
-        
-        .error-actions {
+
+        .page-404 {
             display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .error-btn {
-            display: inline-flex;
+            flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: var(--spacing-xl);
+            background: var(--bg-primary);
+        }
+
+        .page-404-content {
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xl);
+        }
+
+        .page-404-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-404-title {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .page-404-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .page-404-description {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .page-404-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .page-404-btn {
+            padding: var(--spacing-md) var(--spacing-xl);
             border: none;
-            border-radius: var(--border-radius-sm);
+            border-radius: var(--radius-lg);
             background: var(--accent-primary);
             color: white;
             text-decoration: none;
             font-weight: 500;
-            transition: var(--transition);
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-md);
             cursor: pointer;
         }
-        
-        .error-btn:hover {
+
+        .page-404-btn:hover {
             background: var(--accent-secondary);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        
-        .error-btn.secondary {
+
+        .page-404-btn.secondary {
             background: var(--bg-secondary);
             color: var(--text-primary);
             border: 1px solid var(--border-color);
         }
-        
-        .error-btn.secondary:hover {
-            background: var(--bg-tertiary);
-            border-color: var(--accent-primary);
+
+        .page-404-btn.secondary:hover {
+            background: var(--border-color);
         }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
+
         @media (max-width: 768px) {
-            .error-title {
-                font-size: 2.5rem;
+            .page-404-title {
+                font-size: 3rem;
             }
             
-            .error-subtitle {
-                font-size: 1.25rem;
+            .page-404-subtitle {
+                font-size: 1.125rem;
             }
             
-            .error-actions {
+            .page-404-actions {
                 flex-direction: column;
-                align-items: center;
+                width: 100%;
+                max-width: 300px;
             }
             
-            .error-btn {
-                width: 100%;
-                max-width: 250px;
+            .page-404-btn {
                 justify-content: center;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .page-404-btn {
+                transition: none;
+            }
+            
+            .page-404-btn:hover {
+                transform: none;
             }
         }
     </style>
 </head>
 <body>
-    <div class="error-page">
-        <div class="error-content">
-            <div class="error-logo">
-                <img src="./logo.png" alt="KHAI Assistant" loading="eager">
+    <div class="page-404">
+        <div class="page-404-content">
+            <img src="./logo.png" alt="KHAI Assistant" class="page-404-logo" loading="eager">
+            
+            <div>
+                <h1 class="page-404-title">404</h1>
+                <h2 class="page-404-subtitle">Страница не найдена</h2>
+                <p class="page-404-description">
+                    Запрашиваемая страница не существует или была перемещена.
+                </p>
             </div>
-            
-            <h1 class="error-title">404</h1>
-            <h2 class="error-subtitle">Страница не найдена</h2>
-            
-            <p class="error-description">
-                Запрашиваемая страница не существует или была перемещена. 
-                Возможно, вы перешли по устаревшей ссылке или ввели неправильный адрес.
-            </p>
-            
-            <div class="error-actions">
-                <a href="./" class="error-btn">
+
+            <div class="page-404-actions">
+                <a href="./" class="page-404-btn">
                     <i class="ti ti-arrow-left"></i>
                     Вернуться в приложение
                 </a>
-                <a href="https://github.com/khuyew/khuyew.github.io" target="_blank" rel="noopener" class="error-btn secondary">
-                    <i class="ti ti-brand-github"></i>
-                    GitHub проекта
-                </a>
+                <button onclick="history.back()" class="page-404-btn secondary">
+                    <i class="ti ti-arrow-back"></i>
+                    Назад
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Tabler Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <script>
+        // Автоматическое определение темы
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    </script>
 </body>
 </html>
