@@ -1,5 +1,5 @@
 // Service Worker for KHAI Chat
-const CACHE_NAME = 'khai-v2.1.0';
+const CACHE_NAME = 'khai-v2.1.1';
 
 // Assets to cache immediately on install
 const STATIC_ASSETS = [
@@ -8,6 +8,7 @@ const STATIC_ASSETS = [
     '/styles.css',
     '/script.js',
     '/manifest.json',
+    '/404.html',
     'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css',
     'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js',
@@ -97,6 +98,8 @@ self.addEventListener('fetch', (event) => {
                         if (event.request.mode === 'navigate') {
                             return caches.match('/index.html');
                         }
+                        // For other requests, show 404 page
+                        return caches.match('/404.html');
                     });
             })
     );
