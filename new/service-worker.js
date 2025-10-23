@@ -1,5 +1,5 @@
 // Service Worker for KHAI Chat
-const CACHE_NAME = 'khai-v2.1.1';
+const CACHE_NAME = 'khai-v2.1.0';
 
 // Assets to cache immediately on install
 const STATIC_ASSETS = [
