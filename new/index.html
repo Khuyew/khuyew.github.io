@@ -18,15 +18,15 @@
     <meta property="og:site_name" content="KHAI Assistant">
     <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
-    <meta property="og:image" content="https://your-domain.com/og-image.jpg">
-    <meta property="og:url" content="https://your-domain.com/">
+    <meta property="og:image" content="./logo.png">
+    <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
-    <meta name="twitter:image" content="https://your-domain.com/twitter-image.jpg">
+    <meta name="twitter:image" content="./logo.png">
     <meta name="twitter:site" content="@khai_assistant">
     
     <!-- Schema.org -->
@@ -35,7 +35,7 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "KHAI Assistant",
-        "url": "https://your-domain.com/",
+        "url": "./",
         "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
@@ -48,7 +48,7 @@
         "author": {
             "@type": "Organization",
             "name": "KHAI",
-            "url": "https://your-domain.com/"
+            "url": "./"
         }
     }
     </script>
@@ -56,7 +56,7 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
-    <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="./logo.png">
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
@@ -74,22 +74,30 @@
     <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-content">
-            <img src="./icon.png" alt="KHAI Assistant" class="preloader-logo">
-            <div class="preloader-text">
-                <h2>KHAI Assistant</h2>
-                <p>Загрузка...</p>
-            </div>
+            <img src="./logo.png" alt="KHAI" class="preloader-logo">
             <div class="preloader-spinner"></div>
+            <p class="preloader-text">Загрузка KHAI Assistant...</p>
         </div>
     </div>
 
-    <div class="app-container" id="appContainer" style="display: none;">
+    <!-- 404 Page (hidden by default) -->
+    <div class="page-404" id="page404" style="display: none;">
+        <div class="error-container">
+            <img src="./logo.png" alt="KHAI" class="error-logo">
+            <h1>404 - Страница не найдена</h1>
+            <p>Запрошенная страница не существует или была перемещена.</p>
+            <button class="error-btn" id="errorBackBtn">Вернуться в приложение</button>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer">
         <!-- Header -->
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
-                        <img src="./logo.png" alt="KHAI Assistant" width="36" height="36" loading="eager" onerror="this.style.display='none'">
+                        <img src="./logo.png" alt="KHAI Assistant" width="36" height="36" loading="eager">
                     </div>
                 </div>
                 
@@ -121,7 +129,7 @@
         <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Skeleton messages for initial loading -->
+                <!-- Skeleton loading messages -->
                 <div class="message-skeleton">
                     <div class="skeleton-avatar"></div>
                     <div class="skeleton-content">
@@ -216,22 +224,27 @@
         <!-- Footer -->
         <footer class="app-footer">
             <div class="footer-content">
-                <button class="footer-btn" id="helpBtn" title="Помощь">
-                    <i class="ti ti-help"></i>
-                </button>
-                <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
-                    <i class="ti ti-download"></i>
-                </button>
+                <div class="current-chat-info">
+                    <i class="ti ti-message"></i>
+                    <span id="currentChatName">Новый чат</span>
+                </div>
+                
                 <div class="connection-status">
                     <i class="ti ti-circle"></i>
                     <span id="connectionStatusText">Подключено</span>
                 </div>
-                <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
-                    <i class="ti ti-trash"></i>
-                </button>
-                <button class="footer-btn" id="refreshBtn" title="Обновить">
-                    <i class="ti ti-refresh"></i>
-                </button>
+                
+                <div class="footer-controls">
+                    <button class="footer-btn" id="helpBtn" title="Помощь">
+                        <i class="ti ti-help"></i>
+                    </button>
+                    <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
+                        <i class="ti ti-download"></i>
+                    </button>
+                    <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </div>
             </div>
         </footer>
     </div>
@@ -300,23 +313,27 @@
                     </div>
                     <div class="about-item">
                         <strong>GitHub</strong>
-                        <a href="https://khai.by/github" target="_blank" class="about-link">khai.by/github</a>
+                        <span><a href="https://khai.by/github" target="_blank" class="sidebar-link">khai.by/github</a></span>
                     </div>
                     <div class="about-item">
                         <strong>Сотрудничество</strong>
-                        <a href="mailto:khuyew@proton.me" class="about-link">khuyew@proton.me</a>
+                        <span><a href="mailto:khuyew@proton.me" class="sidebar-link">khuyew@proton.me</a></span>
                     </div>
                 </div>
-                <div class="sidebar-action-buttons">
+            </div>
+
+            <div class="sidebar-section">
+                <h4><i class="ti ti-settings"></i> Дополнительно</h4>
+                <div class="sidebar-buttons-grid">
                     <button class="sidebar-btn" id="importChatBtn">
                         <i class="ti ti-upload"></i> Импорт чата
                     </button>
-                    <button class="sidebar-btn" id="docsBtn" onclick="window.open('https://khai.by/docs', '_blank')">
+                    <a href="https://khai.by/docs" target="_blank" class="sidebar-btn">
                         <i class="ti ti-book"></i> Документация
-                    </button>
-                    <button class="sidebar-btn" id="supportBtn" onclick="window.open('https://khai.by/support', '_blank')">
+                    </a>
+                    <a href="https://khai.by/support" target="_blank" class="sidebar-btn">
                         <i class="ti ti-lifebuoy"></i> Поддержка
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -387,29 +404,6 @@
                     });
             });
         }
-        
-        // Set current year in sidebar
-        document.getElementById('appVersionDate').textContent = new Date().getFullYear();
-        
-        // Hide preloader and show app
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                const preloader = document.getElementById('preloader');
-                const appContainer = document.getElementById('appContainer');
-                
-                if (preloader) {
-                    preloader.style.opacity = '0';
-                    setTimeout(() => {
-                        preloader.style.display = 'none';
-                        if (appContainer) {
-                            appContainer.style.display = 'flex';
-                        }
-                    }, 500);
-                } else if (appContainer) {
-                    appContainer.style.display = 'flex';
-                }
-            }, 1000);
-        });
     </script>
 </body>
 </html>
