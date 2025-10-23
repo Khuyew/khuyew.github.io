@@ -72,23 +72,15 @@
 </head>
 <body>
     <!-- Preloader -->
-    <div id="preloader" class="preloader">
+    <div class="preloader" id="preloader">
         <div class="preloader-content">
-            <div class="preloader-logo">
-                <img src="./logo.png" alt="KHAI Assistant" width="80" height="80" loading="eager">
-            </div>
-            <div class="preloader-text">
-                <div class="typing-dots">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                </div>
-                <span>Загрузка KHAI Assistant...</span>
-            </div>
+            <img src="./icon.png" alt="KHAI Assistant" width="64" height="64" loading="eager">
+            <div class="preloader-text">Загрузка KHAI Assistant...</div>
+            <div class="preloader-spinner"></div>
         </div>
     </div>
 
-    <div class="app-container" style="opacity: 0;">
+    <div class="app-container">
         <!-- Header -->
         <header class="app-header">
             <div class="header-content">
@@ -194,7 +186,7 @@
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateImageBtn" disabled title="В разработке">
+                <button class="action-btn mode-btn" id="generateImageBtn" disabled title="Генерация изображений в разработке">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
                 </button>
@@ -204,24 +196,19 @@
         <!-- Footer -->
         <footer class="app-footer">
             <div class="footer-content">
-                <div class="footer-controls">
-                    <button class="footer-btn" id="helpBtn" title="Помощь">
-                        <i class="ti ti-help"></i>
-                    </button>
-                    <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
-                        <i class="ti ti-download"></i>
-                    </button>
-                    <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
-                        <i class="ti ti-trash"></i>
-                    </button>
-                </div>
-                
+                <button class="footer-btn" id="helpBtn" title="Помощь">
+                    <i class="ti ti-help"></i>
+                </button>
+                <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
+                    <i class="ti ti-download"></i>
+                </button>
                 <div class="connection-status">
                     <i class="ti ti-circle"></i>
                     <span id="connectionStatusText">Подключено</span>
                 </div>
-                
-                <div class="footer-placeholder"></div>
+                <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
+                    <i class="ti ti-trash"></i>
+                </button>
             </div>
         </footer>
     </div>
@@ -290,23 +277,24 @@
                     </div>
                     <div class="about-item">
                         <strong>GitHub</strong>
-                        <a href="https://github.com/khuyew/khuyew.github.io" target="_blank" rel="noopener noreferrer" class="github-link">
-                            <i class="ti ti-brand-github"></i> Репозиторий
-                        </a>
+                        <span><a href="https://khai.by/github" target="_blank" style="color: var(--accent-primary);">khai.by/github</a></span>
+                    </div>
+                    <div class="about-item">
+                        <strong>Сотрудничество</strong>
+                        <span><a href="mailto:khuyew@proton.me" style="color: var(--accent-primary);">khuyew@proton.me</a></span>
                     </div>
                 </div>
-            </div>
-
-            <div class="sidebar-actions">
-                <button class="sidebar-btn" id="importChatBtn">
-                    <i class="ti ti-upload"></i> Импорт чата
-                </button>
-                <button class="sidebar-btn" id="documentationBtn">
-                    <i class="ti ti-book"></i> Документация
-                </button>
-                <button class="sidebar-btn" id="supportBtn">
-                    <i class="ti ti-lifebuoy"></i> Поддержка
-                </button>
+                <div class="sidebar-buttons-group">
+                    <button class="sidebar-btn" id="importChatBtn">
+                        <i class="ti ti-upload"></i> Импорт чата
+                    </button>
+                    <button class="sidebar-btn" id="docsBtn">
+                        <i class="ti ti-book"></i> Документация
+                    </button>
+                    <button class="sidebar-btn" id="supportBtn">
+                        <i class="ti ti-lifebuoy"></i> Поддержка
+                    </button>
+                </div>
             </div>
 
             <div class="sidebar-watermark">
@@ -362,20 +350,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="./script.js"></script>
-
-    <!-- PWA Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker зарегистрирован: ', registration);
-                    })
-                    .catch(error => {
-                        console.log('Ошибка регистрации ServiceWorker: ', error);
-                    });
-            });
-        }
-    </script>
 </body>
 </html>
