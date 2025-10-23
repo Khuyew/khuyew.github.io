@@ -1,11 +1,11 @@
 {
     "name": "KHAI Assistant",
-    "short_name": "KHAI AI",
-    "description": "Продвинутый AI-ассистент с поддержкой мультимодальных возможностей",
+    "short_name": "KHAI",
+    "description": "KHAI — первый белорусский ИИ-помощник",
     "start_url": "./",
     "display": "standalone",
-    "background_color": "#0f172a",
-    "theme_color": "#2563eb",
+    "background_color": "#0f0f23",
+    "theme_color": "#0099ff",
     "orientation": "portrait",
     "scope": "./",
     "lang": "ru",
@@ -20,7 +20,7 @@
         {
             "src": "./logo.png",
             "sizes": "512x512",
-            "type": "image/png",
+            "type": "image/png", 
             "purpose": "any maskable"
         }
     ],
