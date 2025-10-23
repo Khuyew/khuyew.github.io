@@ -61,9 +61,6 @@ class KHAIAssistant {
         // Элементы управления моделями
         this.modelSelectBtn = document.getElementById('modelSelectBtn');
         this.themeMinimapToggle = document.getElementById('themeMinimapToggle');
-        this.footerHelpBtn = document.getElementById('footerHelpBtn');
-        this.footerClearChatBtn = document.getElementById('footerClearChatBtn');
-        this.footerDownloadBtn = document.getElementById('footerDownloadBtn');
         this.modelModalOverlay = document.getElementById('modelModalOverlay');
         this.modelModalClose = document.getElementById('modelModalClose');
         this.modelModalCancel = document.getElementById('modelModalCancel');
@@ -78,6 +75,7 @@ class KHAIAssistant {
         
         // Footer
         this.footerStatus = document.getElementById('footerStatus');
+        this.connectionStatusText = document.getElementById('connectionStatusText');
     }
 
     initializeState() {
@@ -125,35 +123,43 @@ class KHAIAssistant {
         this.modelConfig = {
             'gpt-5-nano': { 
                 name: 'GPT-5 Nano', 
-                description: 'Быстрая и эффективная модель для повседневных задач' 
+                description: 'Быстрая и эффективная модель для повседневных задач',
+                available: true
             },
             'o3-mini': { 
                 name: 'O3 Mini', 
-                description: 'Продвинутая модель с улучшенными возможностями рассуждения' 
+                description: 'Продвинутая модель с улучшенными возможностями рассуждения',
+                available: true
             },
             'claude-sonnet': { 
                 name: 'Claude Sonnet', 
-                description: 'Мощная модель от Anthropic для сложных задач и анализа' 
+                description: 'Мощная модель от Anthropic для сложных задач и анализа',
+                available: false
             },
             'deepseek-chat': { 
                 name: 'DeepSeek Chat', 
-                description: 'Универсальная модель для общения и решения задач' 
+                description: 'Универсальная модель для общения и решения задач',
+                available: true
             },
             'deepseek-reasoner': { 
                 name: 'DeepSeek Reasoner', 
-                description: 'Специализированная модель для сложных логических рассуждений' 
+                description: 'Специализированная модель для сложных логических рассуждений',
+                available: true
             },
             'gemini-2.0-flash': { 
                 name: 'Gemini 2.0 Flash', 
-                description: 'Новейшая быстрая модель от Google с улучшенными возможностями' 
+                description: 'Новейшая быстрая модель от Google с улучшенными возможностями',
+                available: true
             },
             'gemini-1.5-flash': { 
                 name: 'Gemini 1.5 Flash', 
-                description: 'Быстрая и эффективная модель от Google для различных задач' 
+                description: 'Быстрая и эффективная модель от Google для различных задач',
+                available: true
             },
             'grok-beta': { 
                 name: 'xAI Grok', 
-                description: 'Модель от xAI с уникальным характером и остроумными ответами' 
+                description: 'Модель от xAI с уникальным характером и остроумными ответами',
+                available: true
             }
         };
 
@@ -208,8 +214,10 @@ class KHAIAssistant {
             this.setupScrollTracking();
             this.setupResponsiveMinimap();
             this.updateModelInfo();
+            this.updateModelList();
             this.updateDocumentTitle();
             this.updateConnectionStatus();
+            this.checkPWAInstallation();
             
             console.log('KHAI Assistant успешно загружен');
             this.showNotification('KHAI Assistant загружен и готов к работе!', 'success');
@@ -221,6 +229,12 @@ class KHAIAssistant {
 
     updateDocumentTitle() {
         document.title = 'KHAI — Первый белорусский чат с ИИ';
+        
+        // Обновляем заголовок в сайдбаре
+        const sidebarTitle = document.querySelector('.sidebar-header h3');
+        if (sidebarTitle) {
+            sidebarTitle.innerHTML = 'KHAI <span class="beta-badge">BETA</span>';
+        }
     }
 
     bindEvents() {
@@ -264,16 +278,12 @@ class KHAIAssistant {
             // Обработчики для дополнительных элементов
             [this.modelSelectBtn, 'click', () => this.openModelModal()],
             [this.themeMinimapToggle, 'click', () => this.toggleTheme()],
-            [this.footerHelpBtn, 'click', () => this.showHelp()],
-            [this.footerClearChatBtn, 'click', () => this.clearChat()],
-            [this.footerDownloadBtn, 'click', () => this.downloadHistory()],
             [this.modelModalClose, 'click', () => this.closeModelModal()],
             [this.modelModalCancel, 'click', () => this.closeModelModal()],
             [this.modelModalConfirm, 'click', () => this.confirmModelSelection()],
             [this.modelModalOverlay, 'click', (e) => {
                 if (e.target === this.modelModalOverlay) this.closeModelModal();
             }],
-            [this.modelList, 'click', (e) => this.handleModelItemClick(e)],
             [this.sidebarSearch, 'input', () => this.filterChatHistory()],
             [this.importChatBtn, 'click', () => this.importChatHistory()],
             [document, 'keydown', (e) => this.handleGlobalKeydown(e)],
@@ -309,8 +319,14 @@ class KHAIAssistant {
             }
         }
         
-        if (this.footerStatus) {
-            this.footerStatus.textContent = online ? 'Готов к работе' : 'Офлайн режим';
+        if (this.connectionStatusText) {
+            if (online) {
+                this.connectionStatusText.textContent = 'Подключено';
+                this.connectionStatusText.previousElementSibling.style.color = 'var(--success-text)';
+            } else {
+                this.connectionStatusText.textContent = 'Офлайн';
+                this.connectionStatusText.previousElementSibling.style.color = 'var(--error-text)';
+            }
         }
     }
 
@@ -478,6 +494,8 @@ class KHAIAssistant {
         try {
             if (this.isVoiceMode) {
                 await this.generateVoice(message);
+            } else if (this.isImageMode) {
+                await this.generateImage(message);
             } else {
                 await this.processUserMessage(message);
             }
@@ -537,11 +555,7 @@ class KHAIAssistant {
         this.renderAttachedFiles();
         this.handleInputChange();
         
-        if (this.isImageMode) {
-            await this.generateImage(message);
-        } else {
-            await this.getAIResponse(message, filesToProcess);
-        }
+        await this.getAIResponse(message, filesToProcess);
     }
 
     async getAIResponse(userMessage, files) {
@@ -756,11 +770,14 @@ ${fileContent}
         messageContent.appendChild(modelIndicator);
         
         this.attachMessageHandlers(messageElement);
-        this.addDownloadButtons(messageElement, fullContent);
+        this.addCodeDownloadButtons(messageElement, fullContent);
         this.scrollToBottom();
     }
 
-    addDownloadButtons(messageElement, content) {
+    addCodeDownloadButtons(messageElement, content) {
+        const codeBlocks = this.extractCodeFromMessage(content);
+        if (codeBlocks.length === 0) return;
+
         let messageActions = messageElement.querySelector('.message-actions');
         if (!messageActions) {
             messageActions = document.createElement('div');
@@ -768,48 +785,34 @@ ${fileContent}
             messageElement.appendChild(messageActions);
         }
 
-        const hasCode = content.includes('```') || 
-                       /(файл|код|скачать|сохранить|download|file)/i.test(content);
-        
-        if (hasCode) {
-            const fileTypes = [
-                { name: 'Текст', ext: 'txt', icon: 'ti-file-text' },
-                { name: 'Python', ext: 'py', icon: 'ti-brand-python' },
-                { name: 'JavaScript', ext: 'js', icon: 'ti-brand-javascript' },
-                { name: 'HTML', ext: 'html', icon: 'ti-brand-html5' },
-                { name: 'CSS', ext: 'css', icon: 'ti-brand-css3' }
-            ];
-
-            fileTypes.forEach(fileType => {
-                const downloadBtn = document.createElement('button');
-                downloadBtn.className = 'action-btn-small download-file-btn';
-                downloadBtn.innerHTML = `<i class="ti ${fileType.icon}"></i> ${fileType.name}`;
-                downloadBtn.onclick = () => this.downloadFile(content, fileType.ext);
-                messageActions.appendChild(downloadBtn);
-            });
-        }
+        const downloadCodeBtn = document.createElement('button');
+        downloadCodeBtn.className = 'action-btn-small download-file-btn';
+        downloadCodeBtn.innerHTML = '<i class="ti ti-code"></i> Скачать код';
+        downloadCodeBtn.onclick = () => this.downloadCodeBlocks(codeBlocks);
+        messageActions.appendChild(downloadCodeBtn);
     }
 
-    downloadFile(content, fileExtension) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content;
-        const plainText = tempDiv.textContent || tempDiv.innerText || '';
-
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const fileName = `khai_assistant_${timestamp}.${fileExtension}`;
-
-        if (typeof puter?.fs?.write === 'function') {
-            puter.fs.write(fileName, plainText)
-                .then(() => {
-                    this.showNotification(`Файл "${fileName}" успешно сохранен!`, 'success');
-                })
-                .catch(error => {
-                    console.error('Error saving file with puter:', error);
-                    this.downloadViaBrowser(plainText, fileName);
-                });
-        } else {
-            this.downloadViaBrowser(plainText, fileName);
+    extractCodeFromMessage(content) {
+        const codeBlocks = [];
+        const codeRegex = /```(?:\w+)?\n([\s\S]*?)```/g;
+        let match;
+        
+        while ((match = codeRegex.exec(content)) !== null) {
+            codeBlocks.push(match[1].trim());
         }
+        
+        return codeBlocks;
+    }
+
+    downloadCodeBlocks(codeBlocks) {
+        if (codeBlocks.length === 0) return;
+        
+        const combinedCode = codeBlocks.join('\n\n// ' + '='.repeat(50) + '\n\n');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = `khai_code_${timestamp}.txt`;
+
+        this.downloadViaBrowser(combinedCode, fileName);
+        this.showNotification('Код скачан', 'success');
     }
 
     downloadViaBrowser(content, fileName) {
@@ -866,6 +869,12 @@ ${fileContent}
     }
 
     async generateImage(prompt) {
+        if (!this.modelConfig['claude-sonnet'].available) {
+            this.showNotification('Генерация изображений временно недоступна', 'warning');
+            this.setMode('normal');
+            return;
+        }
+
         try {
             if (typeof puter?.ai?.imagine !== 'function') {
                 throw new Error('Функция генерации изображений недоступна');
@@ -1030,12 +1039,88 @@ ${fileContent}
 
     attachMessageHandlers(messageElement) {
         this.attachCopyButtons(messageElement);
+        
         if (messageElement.classList.contains('message-ai')) {
             this.attachSpeakButton(messageElement);
+            this.attachMessageActionButtons(messageElement);
+            
             const messageContent = messageElement.querySelector('.message-content');
             if (messageContent) {
                 const content = messageContent.textContent || '';
-                this.addDownloadButtons(messageElement, content);
+                this.addCodeDownloadButtons(messageElement, content);
+            }
+        }
+    }
+
+    attachMessageActionButtons(messageElement) {
+        const messageContent = messageElement.querySelector('.message-content');
+        const plainText = this.extractPlainText(messageContent.innerHTML);
+        
+        let actionsContainer = messageElement.querySelector('.message-actions');
+        if (!actionsContainer) {
+            actionsContainer = document.createElement('div');
+            actionsContainer.className = 'message-actions';
+            messageElement.appendChild(actionsContainer);
+        }
+
+        // Очищаем существующие кнопки действий (кроме озвучки)
+        const existingButtons = actionsContainer.querySelectorAll('.action-btn-small:not(.speak-btn)');
+        existingButtons.forEach(btn => btn.remove());
+
+        // Кнопка перегенерации
+        const regenerateBtn = document.createElement('button');
+        regenerateBtn.className = 'action-btn-small';
+        regenerateBtn.innerHTML = '<i class="ti ti-refresh"></i> Перегенерировать';
+        regenerateBtn.onclick = () => this.regenerateMessage(messageElement);
+        actionsContainer.appendChild(regenerateBtn);
+
+        // Кнопка скачивания сообщения
+        const downloadBtn = document.createElement('button');
+        downloadBtn.className = 'action-btn-small';
+        downloadBtn.innerHTML = '<i class="ti ti-download"></i> Скачать';
+        downloadBtn.onclick = () => this.downloadMessage(plainText);
+        actionsContainer.appendChild(downloadBtn);
+
+        // Кнопка поделиться
+        if (navigator.share) {
+            const shareBtn = document.createElement('button');
+            shareBtn.className = 'action-btn-small';
+            shareBtn.innerHTML = '<i class="ti ti-share"></i> Поделиться';
+            shareBtn.onclick = () => this.shareMessage(plainText);
+            actionsContainer.appendChild(shareBtn);
+        }
+    }
+
+    regenerateMessage(messageElement) {
+        const previousMessages = Array.from(this.messagesContainer.querySelectorAll('.message-user'))
+            .map(msg => this.extractPlainText(msg.querySelector('.message-content').innerHTML))
+            .filter(msg => msg.trim().length > 0);
+        
+        if (previousMessages.length > 0) {
+            const lastUserMessage = previousMessages[previousMessages.length - 1];
+            messageElement.remove();
+            this.userInput.value = lastUserMessage;
+            this.sendMessage();
+        }
+    }
+
+    downloadMessage(content) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = `khai_message_${timestamp}.txt`;
+        this.downloadViaBrowser(content, fileName);
+    }
+
+    async shareMessage(content) {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Сообщение от KHAI Assistant',
+                    text: content
+                });
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    this.showNotification('Ошибка при отправке', 'error');
+                }
             }
         }
     }
@@ -1089,7 +1174,7 @@ ${fileContent}
         
         const speakButton = document.createElement('button');
         speakButton.className = 'action-btn-small speak-btn';
-        speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+        speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
         speakButton.setAttribute('data-text', plainText);
         
         this.addEventListener(speakButton, 'click', (e) => {
@@ -1111,7 +1196,8 @@ ${fileContent}
         if (this.isSpeaking) {
             this.stopSpeech();
             button.classList.remove('speaking');
-            button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+            button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
+            this.showNotification('Озвучивание остановлено', 'info');
         } else {
             this.speakText(text, button);
         }
@@ -1149,14 +1235,14 @@ ${fileContent}
             this.currentUtterance.onend = () => {
                 this.isSpeaking = false;
                 button.classList.remove('speaking');
-                button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
             };
 
             this.currentUtterance.onerror = (error) => {
                 console.error('Speech synthesis error:', error);
                 this.isSpeaking = false;
                 button.classList.remove('speaking');
-                button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить ответ';
+                button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
                 this.showNotification('Ошибка при озвучивании текста', 'error');
             };
 
@@ -1867,6 +1953,39 @@ ${fileContent}
     }
 
     // Управление моделями
+    updateModelList() {
+        if (!this.modelList) return;
+        
+        this.modelList.innerHTML = '';
+        
+        Object.entries(this.modelConfig).forEach(([modelId, config]) => {
+            const modelItem = document.createElement('div');
+            modelItem.className = `model-item ${modelId === this.currentModel ? 'selected' : ''} ${!config.available ? 'disabled' : ''}`;
+            modelItem.dataset.model = modelId;
+            
+            if (!config.available) {
+                modelItem.style.opacity = '0.6';
+                modelItem.style.pointerEvents = 'none';
+            }
+            
+            modelItem.innerHTML = `
+                <div class="model-item-header">
+                    <span class="model-name">${config.name}</span>
+                    <span class="model-status ${config.available ? 'available' : 'coming-soon'}">
+                        ${config.available ? 'Доступно' : 'В разработке'}
+                    </span>
+                </div>
+                <div class="model-description">${config.description}</div>
+            `;
+            
+            if (config.available) {
+                this.addEventListener(modelItem, 'click', () => this.handleModelItemClick({ target: modelItem }));
+            }
+            
+            this.modelList.appendChild(modelItem);
+        });
+    }
+
     openModelModal() {
         this.modelModalOverlay.classList.add('active');
         const currentModelItem = this.modelList.querySelector(`[data-model="${this.currentModel}"]`);
@@ -1881,7 +2000,7 @@ ${fileContent}
 
     handleModelItemClick(e) {
         const modelItem = e.target.closest('.model-item');
-        if (modelItem) {
+        if (modelItem && !modelItem.classList.contains('disabled')) {
             this.modelList.querySelectorAll('.model-item').forEach(item => {
                 item.classList.remove('selected');
             });
@@ -2029,17 +2148,40 @@ ${fileContent}
             }
         });
         
-        if (mode === 'normal') {
-            this.normalModeBtn.classList.add('active');
-            this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
-        } else if (mode === 'voice') {
-            this.generateVoiceBtn.classList.add('active');
-            this.isVoiceMode = true;
-            this.userInput.placeholder = 'Введите текст для генерации голоса...';
-        } else if (mode === 'image') {
-            this.generateImageBtn.classList.add('active');
-            this.isImageMode = true;
-            this.userInput.placeholder = 'Опишите изображение для генерации...';
+        // Обновляем индикатор режима
+        const modeIndicator = document.querySelector('.mode-indicator');
+        if (modeIndicator) {
+            let modeText = '';
+            let modeIcon = '';
+            
+            if (mode === 'normal') {
+                modeText = 'Обычный режим';
+                modeIcon = 'ti-message';
+                this.normalModeBtn.classList.add('active');
+                this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+            } else if (mode === 'voice') {
+                modeText = 'Режим генерации голоса';
+                modeIcon = 'ti-microphone';
+                this.generateVoiceBtn.classList.add('active');
+                this.isVoiceMode = true;
+                this.userInput.placeholder = 'Введите текст для генерации голоса...';
+            } else if (mode === 'image') {
+                modeText = 'Режим генерации изображений';
+                modeIcon = 'ti-photo';
+                this.generateImageBtn.classList.add('active');
+                this.isImageMode = true;
+                this.userInput.placeholder = 'Опишите изображение для генерации...';
+            }
+            
+            modeIndicator.innerHTML = `<i class="ti ${modeIcon}"></i> ${modeText}`;
+            
+            // Добавляем классы для цветового акцента
+            this.inputSection.classList.remove('voice-mode-active', 'image-mode-active');
+            if (mode === 'voice') {
+                this.inputSection.classList.add('voice-mode-active');
+            } else if (mode === 'image') {
+                this.inputSection.classList.add('image-mode-active');
+            }
         }
         
         const activeBtn = document.querySelector('.mode-btn.active');
@@ -2155,6 +2297,82 @@ ${fileContent}
                 console.error('Error starting voice recognition:', error);
                 this.showNotification('Ошибка запуска голосового ввода', 'error');
             }
+        }
+    }
+
+    // PWA функционал
+    checkPWAInstallation() {
+        // Проверяем, установлено ли приложение
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                           window.navigator.standalone ||
+                           document.referrer.includes('android-app://');
+        
+        if (!isStandalone && !localStorage.getItem('pwa-notification-dismissed')) {
+            this.showPWAInstallNotification();
+        }
+    }
+
+    showPWAInstallNotification() {
+        const existingNotification = document.querySelector('.pwa-notification');
+        if (existingNotification) return;
+
+        const notification = document.createElement('div');
+        notification.className = 'pwa-notification';
+        notification.innerHTML = `
+            <div class="pwa-notification-content">
+                <strong>Установите KHAI Assistant</strong>
+                <p>Для лучшего опыта установите приложение на ваше устройство</p>
+            </div>
+            <div class="pwa-notification-actions">
+                <button class="pwa-notification-btn" id="pwaDismissBtn">Позже</button>
+                <button class="pwa-notification-btn primary" id="pwaInstallBtn">Установить</button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Обработчики событий
+        document.getElementById('pwaDismissBtn').addEventListener('click', () => {
+            localStorage.setItem('pwa-notification-dismissed', 'true');
+            notification.remove();
+        });
+
+        document.getElementById('pwaInstallBtn').addEventListener('click', () => {
+            this.installPWA();
+            notification.remove();
+        });
+
+        // Автоматическое скрытие через 10 секунд
+        this.setTimeout(() => {
+            if (notification.parentNode) {
+                localStorage.setItem('pwa-notification-dismissed', 'true');
+                notification.remove();
+            }
+        }, 10000);
+    }
+
+    async installPWA() {
+        if ('BeforeInstallPromptEvent' in window) {
+            const installPrompt = new Promise(resolve => {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    resolve(e);
+                });
+            });
+
+            try {
+                const promptEvent = await installPrompt;
+                promptEvent.prompt();
+                const { outcome } = await promptEvent.userChoice;
+                
+                if (outcome === 'accepted') {
+                    this.showNotification('Приложение установлено!', 'success');
+                }
+            } catch (error) {
+                this.showNotification('Ошибка установки приложения', 'error');
+            }
+        } else {
+            this.showNotification('Установка не поддерживается в вашем браузере', 'warning');
         }
     }
 
@@ -2471,7 +2689,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Ошибка при инициализации приложения:', error);
         const errorNotification = document.createElement('div');
         errorNotification.className = 'notification error';
-        errorNotification.textContent = 'Критическая ошибка при загрузке приложения';
+        errorNotification.innerHTML = `
+            <div class="notification-content">
+                <i class="ti ti-alert-circle"></i>
+                <span>Критическая ошибка при загрузке приложения</span>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="ti ti-x"></i>
+            </button>
+        `;
         errorNotification.style.position = 'fixed';
         errorNotification.style.top = '50%';
         errorNotification.style.left = '50%';
