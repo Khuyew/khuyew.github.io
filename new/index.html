@@ -74,13 +74,16 @@
     <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-content">
-            <img src="./icon.png" alt="KHAI Assistant" width="64" height="64" loading="eager">
-            <div class="preloader-text">Загрузка KHAI Assistant...</div>
+            <img src="./icon.png" alt="KHAI Assistant" class="preloader-logo">
+            <div class="preloader-text">
+                <h2>KHAI Assistant</h2>
+                <p>Загрузка...</p>
+            </div>
             <div class="preloader-spinner"></div>
         </div>
     </div>
 
-    <div class="app-container">
+    <div class="app-container" id="appContainer" style="display: none;">
         <!-- Header -->
         <header class="app-header">
             <div class="header-content">
@@ -117,7 +120,24 @@
 
         <!-- Main Chat Area -->
         <main class="chat-main">
-            <div class="messages-container" id="messagesContainer" aria-live="polite"></div>
+            <div class="messages-container" id="messagesContainer" aria-live="polite">
+                <!-- Skeleton messages for initial loading -->
+                <div class="message-skeleton">
+                    <div class="skeleton-avatar"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line long"></div>
+                    </div>
+                </div>
+                <div class="message-skeleton user">
+                    <div class="skeleton-content">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                    <div class="skeleton-avatar"></div>
+                </div>
+            </div>
 
             <!-- Minimap & Navigation -->
             <div class="chat-minimap-container">
@@ -186,7 +206,7 @@
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateImageBtn" disabled title="Генерация изображений в разработке">
+                <button class="action-btn mode-btn" id="generateImageBtn" disabled title="В разработке">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
                 </button>
@@ -208,6 +228,9 @@
                 </div>
                 <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
                     <i class="ti ti-trash"></i>
+                </button>
+                <button class="footer-btn" id="refreshBtn" title="Обновить">
+                    <i class="ti ti-refresh"></i>
                 </button>
             </div>
         </footer>
@@ -277,21 +300,21 @@
                     </div>
                     <div class="about-item">
                         <strong>GitHub</strong>
-                        <span><a href="https://khai.by/github" target="_blank" style="color: var(--accent-primary);">khai.by/github</a></span>
+                        <a href="https://khai.by/github" target="_blank" class="about-link">khai.by/github</a>
                     </div>
                     <div class="about-item">
                         <strong>Сотрудничество</strong>
-                        <span><a href="mailto:khuyew@proton.me" style="color: var(--accent-primary);">khuyew@proton.me</a></span>
+                        <a href="mailto:khuyew@proton.me" class="about-link">khuyew@proton.me</a>
                     </div>
                 </div>
-                <div class="sidebar-buttons-group">
+                <div class="sidebar-action-buttons">
                     <button class="sidebar-btn" id="importChatBtn">
                         <i class="ti ti-upload"></i> Импорт чата
                     </button>
-                    <button class="sidebar-btn" id="docsBtn">
+                    <button class="sidebar-btn" id="docsBtn" onclick="window.open('https://khai.by/docs', '_blank')">
                         <i class="ti ti-book"></i> Документация
                     </button>
-                    <button class="sidebar-btn" id="supportBtn">
+                    <button class="sidebar-btn" id="supportBtn" onclick="window.open('https://khai.by/support', '_blank')">
                         <i class="ti ti-lifebuoy"></i> Поддержка
                     </button>
                 </div>
@@ -350,5 +373,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="./script.js"></script>
+
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker зарегистрирован: ', registration);
+                    })
+                    .catch(error => {
+                        console.log('Ошибка регистрации ServiceWorker: ', error);
+                    });
+            });
+        }
+        
+        // Set current year in sidebar
+        document.getElementById('appVersionDate').textContent = new Date().getFullYear();
+        
+        // Hide preloader and show app
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const preloader = document.getElementById('preloader');
+                const appContainer = document.getElementById('appContainer');
+                
+                if (preloader) {
+                    preloader.style.opacity = '0';
+                    setTimeout(() => {
+                        preloader.style.display = 'none';
+                        if (appContainer) {
+                            appContainer.style.display = 'flex';
+                        }
+                    }, 500);
+                } else if (appContainer) {
+                    appContainer.style.display = 'flex';
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
