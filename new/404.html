@@ -4,106 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Страница не найдена - KHAI Assistant</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f23;
-            color: #ffffff;
-            height: 100vh;
+        .error-page {
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            line-height: 1.6;
+            background: var(--bg-primary);
+            padding: 2rem;
         }
         
-        .error-container {
+        .error-content {
             text-align: center;
-            padding: 40px;
             max-width: 500px;
+            animation: fadeInUp 0.8s ease;
         }
         
-        .error-code {
-            font-size: 120px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
+        .error-logo {
+            margin-bottom: 2rem;
+        }
+        
+        .error-logo img {
+            width: 120px;
+            height: 120px;
+            border-radius: 30px;
+            object-fit: cover;
         }
         
         .error-title {
-            font-size: 24px;
-            margin-bottom: 16px;
-            color: #ffffff;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
         }
         
-        .error-message {
-            color: #a0a0c0;
-            margin-bottom: 30px;
-            font-size: 16px;
+        .error-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
         }
         
-        .home-button {
+        .error-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .error-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            background: var(--accent-primary);
             color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
             text-decoration: none;
             font-weight: 500;
-            transition: transform 0.3s ease;
+            transition: var(--transition);
+            cursor: pointer;
         }
         
-        .home-button:hover {
-            transform: translateY(-2px);
+        .error-btn:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-1px);
         }
         
-        .logo {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 20px;
-            border-radius: 12px;
-            overflow: hidden;
+        .error-btn.secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
         
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+        .error-btn.secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-primary);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         @media (max-width: 768px) {
-            .error-code {
-                font-size: 80px;
+            .error-title {
+                font-size: 2.5rem;
             }
             
-            .error-title {
-                font-size: 20px;
+            .error-subtitle {
+                font-size: 1.25rem;
+            }
+            
+            .error-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .error-btn {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
-    <div class="error-container">
-        <div class="logo">
-            <img src="./logo.png" alt="KHAI Assistant" onerror="this.style.display='none'">
+    <div class="error-page">
+        <div class="error-content">
+            <div class="error-logo">
+                <img src="./logo.png" alt="KHAI Assistant" loading="eager">
+            </div>
+            
+            <h1 class="error-title">404</h1>
+            <h2 class="error-subtitle">Страница не найдена</h2>
+            
+            <p class="error-description">
+                Запрашиваемая страница не существует или была перемещена. 
+                Возможно, вы перешли по устаревшей ссылке или ввели неправильный адрес.
+            </p>
+            
+            <div class="error-actions">
+                <a href="./" class="error-btn">
+                    <i class="ti ti-arrow-left"></i>
+                    Вернуться в приложение
+                </a>
+                <a href="https://github.com/khuyew/khuyew.github.io" target="_blank" rel="noopener" class="error-btn secondary">
+                    <i class="ti ti-brand-github"></i>
+                    GitHub проекта
+                </a>
+            </div>
         </div>
-        <div class="error-code">404</div>
-        <h1 class="error-title">Страница не найдена</h1>
-        <p class="error-message">Запрашиваемая страница не существует или была перемещена.</p>
-        <a href="/" class="home-button">
-            <i class="ti ti-home"></i>
-            Вернуться в KHAI Assistant
-        </a>
     </div>
+
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </body>
 </html>
