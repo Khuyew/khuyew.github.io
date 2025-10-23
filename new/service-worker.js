@@ -98,8 +98,6 @@ self.addEventListener('fetch', (event) => {
                         if (event.request.mode === 'navigate') {
                             return caches.match('/index.html');
                         }
-                        // For other requests, show 404 page
-                        return caches.match('/404.html');
                     });
             })
     );
