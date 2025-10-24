@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поддержка | KHAI Assistant</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <style>
+        /* Same styles as docs.html, adding specific support styles */
+        .faq-section {
+            margin: 60px 0;
+        }
+        
+        .faq-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 20px 24px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+        
+        .faq-question:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .faq-answer {
+            padding: 0 24px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            color: var(--text-secondary);
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 0 24px 20px;
+            max-height: 500px;
+        }
+        
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <!-- Same header as docs.html -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <img src="./logo.png" alt="KHAI">
+                    <span class="logo-text">KHAI <span class="beta-badge">BETA</span></span>
+                </a>
+                
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Главная</a>
+                    <a href="docs.html" class="nav-link">Документация</a>
+                    <a href="support.html" class="nav-link active">Поддержка</a>
+                    <a href="cooperation.html" class="nav-link">Сотрудничество</a>
+                </nav>
+                
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="ti ti-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Центр поддержки</h1>
+            <p>Мы здесь, чтобы помочь вам получить максимальную отдачу от KHAI Assistant</p>
+        </div>
+    </section>
+
+    <!-- Support Content -->
+    <section class="docs-content">
+        <div class="container">
+            <!-- Support Options -->
+            <div class="support-grid">
+                <div class="support-card">
+                    <div class="support-icon">
+                        <i class="ti ti-help"></i>
+                    </div>
+                    <h3>Часто задаваемые вопросы</h3>
+                    <p>Ответы на самые популярные вопросы о работе с KHAI Assistant</p>
+                    <a href="#faq" class="btn btn-primary">Перейти к FAQ</a>
+                </div>
+                
+                <div class="support-card">
+                    <div class="support-icon">
+                        <i class="ti ti-message"></i>
+                    </div>
+                    <h3>Сообщество</h3>
+                    <p>Присоединяйтесь к нашему сообществу для обмена опытом и получения помощи</p>
+                    <a href="https://t.me/khai" class="btn btn-secondary" target="_blank">
+                        <i class="ti ti-brand-telegram"></i>
+                        Telegram
+                    </a>
+                </div>
+                
+                <div class="support-card">
+                    <div class="support-icon">
+                        <i class="ti ti-bug"></i>
+                    </div>
+                    <h3>Сообщить о проблеме</h3>
+                    <p>Нашли ошибку? Сообщите нам, и мы постараемся быстро её исправить</p>
+                    <a href="https://github.com/khai/issues" class="btn btn-secondary" target="_blank">
+                        <i class="ti ti-brand-github"></i>
+                        GitHub Issues
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="contact-form">
+                <h2 style="text-align: center; margin-bottom: 32px;">Свяжитесь с нами</h2>
+                <form id="supportForm">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Ваше имя</label>
+                        <input type="text" id="name" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" id="email" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="subject">Тема</label>
+                        <input type="text" id="subject" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="message">Сообщение</label>
+                        <textarea id="message" class="form-textarea" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="ti ti-send"></i>
+                        Отправить сообщение
+                    </button>
+                </form>
+            </div>
+
+            <!-- FAQ Section -->
+            <section id="faq" class="faq-section">
+                <h2 style="text-align: center; margin-bottom: 40px;">Часто задаваемые вопросы</h2>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Как начать использовать KHAI Assistant?
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Просто откройте приложение в браузере и начните диалог. Для получения лучшего опыта рекомендуем установить приложение как PWA.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Какие модели ИИ доступны?
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>KHAI Assistant поддерживает GPT-5 Nano, O3 Mini, DeepSeek Chat, Gemini 2.0 Flash и Grok Beta. Вы можете переключаться между ними в настройках.</p>
+                    </div>
+                </div>
+                
+                <!-- Add more FAQ items as needed -->
+            </section>
+        </div>
+    </section>
+
+    <!-- Same footer as docs.html -->
+    <footer class="footer">
+        <!-- Footer content same as docs.html -->
+    </footer>
+
+    <script>
+        // FAQ functionality
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                item.classList.toggle('active');
+            });
+        });
+        
+        // Form submission
+        document.getElementById('supportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Сообщение отправлено! Мы свяжемся с вами в ближайшее время.');
+            this.reset();
+        });
+        
+        // Theme toggle (same as docs.html)
+    </script>
+</body>
+</html>
