@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHAI — Документация | Первый белорусский ИИ-помощник</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --bg-tertiary: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --text-tertiary: #8888aa;
+            --accent-primary: #0099ff;
+            --accent-secondary: #0066ff;
+            --border-color: rgba(255, 255, 255, 0.15);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: rgba(0, 0, 0, 0.03);
+            --bg-tertiary: rgba(0, 0, 0, 0.08);
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #888888;
+            --border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .beta-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Documentation Content */
+        .docs-content {
+            padding: 80px 0;
+        }
+
+        .docs-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+        }
+
+        .docs-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .docs-nav {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .docs-nav-section {
+            margin-bottom: 24px;
+        }
+
+        .docs-nav-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .docs-nav-section h3 {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .docs-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .docs-nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .docs-nav-link:hover, .docs-nav-link.active {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .docs-main {
+            min-height: 1000px;
+        }
+
+        .docs-section {
+            margin-bottom: 60px;
+            scroll-margin-top: 100px;
+        }
+
+        .docs-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .docs-section h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .docs-section h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 32px 0 16px;
+            color: var(--text-primary);
+        }
+
+        .docs-section p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        .docs-section ul, .docs-section ol {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+
+        .docs-section li {
+            margin-bottom: 8px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-primary-alpha);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            color: var(--accent-primary);
+            font-size: 24px;
+        }
+
+        .feature-card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .code-block {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 40px 0;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-bottom {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .docs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .docs-sidebar {
+                position: static;
+                margin-bottom: 40px;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero p {
+                font-size: 18px;
+            }
+            
+            .nav {
+                display: none;
+            }
+        }
+
+        /* Support & Cooperation Pages */
+        .page-header {
+            padding: 60px 0;
+            text-align: center;
+            background: var(--bg-secondary);
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .support-grid, .cooperation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin: 60px 0;
+        }
+
+        .support-card, .cooperation-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .support-card:hover, .cooperation-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
+        }
+
+        .support-icon, .cooperation-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--accent-primary-alpha);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--accent-primary);
+            font-size: 28px;
+        }
+
+        .support-card h3, .cooperation-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .support-card p, .cooperation-card p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .contact-form {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            margin: 60px 0;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-primary-alpha);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <img src="./logo.png" alt="KHAI">
+                    <span class="logo-text">KHAI <span class="beta-badge">BETA</span></span>
+                </a>
+                
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Главная</a>
+                    <a href="docs.html" class="nav-link active">Документация</a>
+                    <a href="support.html" class="nav-link">Поддержка</a>
+                    <a href="cooperation.html" class="nav-link">Сотрудничество</a>
+                </nav>
+                
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="ti ti-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Документация KHAI Assistant</h1>
+            <p>Полное руководство по использованию первого белорусского ИИ-помощника</p>
+            <div class="hero-buttons">
+                <a href="#getting-started" class="btn btn-primary">
+                    <i class="ti ti-rocket"></i>
+                    Начало работы
+                </a>
+                <a href="#features" class="btn btn-secondary">
+                    <i class="ti ti-star"></i>
+                    Возможности
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Content -->
+    <section class="docs-content">
+        <div class="container">
+            <div class="docs-grid">
+                <!-- Sidebar -->
+                <aside class="docs-sidebar">
+                    <div class="docs-nav">
+                        <div class="docs-nav-section">
+                            <h3>Основы</h3>
+                            <div class="docs-nav-links">
+                                <a href="#getting-started" class="docs-nav-link active">
+                                    <i class="ti ti-rocket"></i>
+                                    Начало работы
+                                </a>
+                                <a href="#interface" class="docs-nav-link">
+                                    <i class="ti ti-layout"></i>
+                                    Интерфейс
+                                </a>
+                                <a href="#models" class="docs-nav-link">
+                                    <i class="ti ti-brain"></i>
+                                    Модели ИИ
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="docs-nav-section">
+                            <h3>Функции</h3>
+                            <div class="docs-nav-links">
+                                <a href="#chat-features" class="docs-nav-link">
+                                    <i class="ti ti-message"></i>
+                                    Чат с ИИ
+                                </a>
+                                <a href="#file-analysis" class="docs-nav-link">
+                                    <i class="ti ti-file-text"></i>
+                                    Анализ файлов
+                                </a>
+                                <a href="#image-processing" class="docs-nav-link">
+                                    <i class="ti ti-photo"></i>
+                                    Работа с изображениями
+                                </a>
+                                <a href="#voice-features" class="docs-nav-link">
+                                    <i class="ti ti-microphone"></i>
+                                    Голосовые функции
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="docs-nav-section">
+                            <h3>Расширенные</h3>
+                            <div class="docs-nav-links">
+                                <a href="#chat-management" class="docs-nav-link">
+                                    <i class="ti ti-messages"></i>
+                                    Управление чатами
+                                </a>
+                                <a href="#keyboard-shortcuts" class="docs-nav-link">
+                                    <i class="ti ti-keyboard"></i>
+                                    Горячие клавиши
+                                </a>
+                                <a href="#pwa" class="docs-nav-link">
+                                    <i class="ti ti-device-mobile"></i>
+                                    PWA установка
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="docs-main">
+                    <!-- Getting Started -->
+                    <section id="getting-started" class="docs-section">
+                        <h2>🚀 Начало работы</h2>
+                        <p>KHAI Assistant — это мощный ИИ-помощник с множеством функций для работы с текстом, изображениями и голосом.</p>
+                        
+                        <h3>Быстрый старт</h3>
+                        <p>Чтобы начать использовать KHAI Assistant:</p>
+                        <ol>
+                            <li>Откройте приложение в браузере</li>
+                            <li>Начните диалог, введя сообщение в поле ввода</li>
+                            <li>Используйте кнопки для прикрепления файлов или изображений</li>
+                            <li>Выберите подходящую модель ИИ для ваших задач</li>
+                        </ol>
+                    </section>
+
+                    <!-- Interface -->
+                    <section id="interface" class="docs-section">
+                        <h2>🎨 Интерфейс приложения</h2>
+                        <p>KHAI Assistant имеет интуитивно понятный интерфейс, разделенный на несколько основных областей:</p>
+                        
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="ti ti-message"></i>
+                                </div>
+                                <h4>Область чата</h4>
+                                <p>Основное пространство для отображения диалога с ИИ</p>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="ti ti-edit"></i>
+                                </div>
+                                <h4>Поле ввода</h4>
+                                <p>Ввод сообщений, прикрепление файлов и управление режимами</p>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="ti ti-layout-sidebar"></i>
+                                </div>
+                                <h4>Боковая панель</h4>
+                                <p>Управление чатами, настройки и информация о приложении</p>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="ti ti-map"></i>
+                                </div>
+                                <h4>Мини-карта</h4>
+                                <p>Быстрая навигация по длинным диалогам</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- AI Models -->
+                    <section id="models" class="docs-section">
+                        <h2>🤖 Модели искусственного интеллекта</h2>
+                        <p>KHAI Assistant поддерживает несколько современных моделей ИИ:</p>
+                        
+                        <h3>Доступные модели</h3>
+                        <ul>
+                            <li><strong>GPT-5 Nano</strong> — Быстрая и эффективная модель для повседневных задач</li>
+                            <li><strong>O3 Mini</strong> — Продвинутая модель с улучшенными возможностями рассуждения</li>
+                            <li><strong>DeepSeek Chat</strong> — Универсальная модель для общения и решения задач</li>
+                            <li><strong>Gemini 2.0 Flash</strong> — Новейшая быстрая модель от Google</li>
+                            <li><strong>Grok Beta</strong> — Модель от xAI с уникальным характером</li>
+                        </ul>
+                        
+                        <h3>Выбор модели</h3>
+                        <p>Для смены модели:</p>
+                        <ol>
+                            <li>Нажмите на кнопку с иконкой мозга в заголовке</li>
+                            <li>Выберите нужную модель из списка</li>
+                            <li>Подтвердите выбор</li>
+                        </ol>
+                    </section>
+
+                    <!-- Chat Features -->
+                    <section id="chat-features" class="docs-section">
+                        <h2>💬 Чат с искусственным интеллектом</h2>
+                        <p>Основная функция KHAI Assistant — интеллектуальный диалог с ИИ.</p>
+                        
+                        <h3>Отправка сообщений</h3>
+                        <p>Вы можете отправлять сообщения несколькими способами:</p>
+                        <ul>
+                            <li>Наберите текст и нажмите Enter</li>
+                            <li>Используйте кнопку отправки</li>
+                            <li>Воспользуйтесь голосовым вводом</li>
+                        </ul>
+                        
+                        <h3>Форматирование текста</h3>
+                        <p>ИИ понимает и генерирует текст с форматированием:</p>
+                        <div class="code-block">
+                            <code>**Жирный текст**<br>
+*Курсив*<br>
+`код`<br>
+```python<br>
+print("Блок кода")<br>
+```</code>
+                        </div>
+                    </section>
+
+                    <!-- File Analysis -->
+                    <section id="file-analysis" class="docs-section">
+                        <h2>📁 Анализ файлов</h2>
+                        <p>KHAI Assistant может анализировать содержимое различных файлов.</p>
+                        
+                        <h3>Поддерживаемые форматы</h3>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="ti ti-file-text"></i>
+                                </div>
+                                <h4>Текстовые файлы</h4>
+                                <p>TXT, MD, HTML, CSS, JSON</p>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="ti ti-code"></i>
+                                </div>
+                                <h4>Файлы кода</h4>
+                                <p>Python, Java, C++, C#, PHP, Ruby, Go</p>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="ti ti-table"></i>
+                                </div>
+                                <h4>Данные</h4>
+                                <p>XML, CSV, YAML, YML</p>
+                            </div>
+                        </div>
+                        
+                        <h3>Как использовать</h3>
+                        <ol>
+                            <li>Нажмите кнопку "+" в поле ввода</li>
+                            <li>Выберите файл для загрузки</li>
+                            <li>Добавьте текстовый запрос (опционально)</li>
+                            <li>Отправьте сообщение</li>
+                        </ol>
+                    </section>
+
+                    <!-- Continue with other sections... -->
+
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>KHAI Assistant</h4>
+                    <p>Первый белорусский ИИ-помощник с расширенными возможностями для работы с текстом, изображениями и голосом.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Навигация</h4>
+                    <div class="footer-links">
+                        <a href="index.html" class="footer-link">Главная</a>
+                        <a href="docs.html" class="footer-link">Документация</a>
+                        <a href="support.html" class="footer-link">Поддержка</a>
+                        <a href="cooperation.html" class="footer-link">Сотрудничество</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Ресурсы</h4>
+                    <div class="footer-links">
+                        <a href="https://github.com/khai" class="footer-link">GitHub</a>
+                        <a href="https://t.me/khai" class="footer-link">Telegram</a>
+                        <a href="privacy.html" class="footer-link">Политика конфиденциальности</a>
+                        <a href="terms.html" class="footer-link">Условия использования</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:khuyew@proton.me" class="footer-link">khuyew@proton.me</a>
+                        <a href="https://khai.by" class="footer-link">khai.by</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 KHAI Беларусь. Все права защищены!</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        updateThemeIcon(currentTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+        
+        function updateThemeIcon(theme) {
+            const icon = themeToggle.querySelector('i');
+            icon.className = theme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Update active nav link on scroll
+        const sections = document.querySelectorAll('.docs-section');
+        const navLinks = document.querySelectorAll('.docs-nav-link');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop && pageYOffset < sectionTop + sectionHeight) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
