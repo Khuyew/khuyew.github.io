@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0f0f23">
     
-    <!-- SEO Meta Tags -->
     <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
     <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
     <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь">
     <meta name="author" content="KHAI Team">
     <meta name="robots" content="index, follow, max-image-preview:large">
-    <meta name="googlebot" content="index, follow">
     
-    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="KHAI Assistant">
     <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
@@ -22,56 +19,25 @@
     <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
     <meta name="twitter:image" content="./logo.png">
-    <meta name="twitter:site" content="@khai_assistant">
-    
-    <!-- Schema.org -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "KHAI Assistant",
-        "url": "./",
-        "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
-        "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "Any",
-        "permissions": "microphone",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        },
-        "author": {
-            "@type": "Organization",
-            "name": "KHAI",
-            "url": "./"
-        }
-    }
-    </script>
 
-    <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <link rel="apple-touch-icon" href="./logo.png">
     
-    <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
     <link rel="preload" href="./styles.css" as="style">
     <link rel="preload" href="./script.js" as="script">
     
-    <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="./styles.css">
     
-    <!-- Puter AI SDK -->
     <script src="https://js.puter.com/v2/"></script>
 </head>
 <body>
-    <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-content">
             <img src="./logo.png" alt="KHAI" class="preloader-logo">
@@ -80,7 +46,6 @@
         </div>
     </div>
 
-    <!-- 404 Page (hidden by default) -->
     <div class="page-404" id="page404" style="display: none;">
         <div class="error-container">
             <img src="./logo.png" alt="KHAI" class="error-logo">
@@ -90,9 +55,7 @@
         </div>
     </div>
 
-    <!-- Main App Container -->
     <div class="app-container" id="appContainer">
-        <!-- Header -->
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-container">
@@ -116,9 +79,6 @@
                 </div>
                 
                 <div class="header-controls">
-                    <button class="control-btn" id="themeToggle" aria-label="Переключить тему">
-                        <i class="ti ti-moon"></i>
-                    </button>
                     <button class="control-btn menu-toggle" id="menuToggle" aria-label="Открыть меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
@@ -126,10 +86,8 @@
             </div>
         </header>
 
-        <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Skeleton loading messages -->
                 <div class="message-skeleton">
                     <div class="skeleton-avatar"></div>
                     <div class="skeleton-content">
@@ -147,8 +105,7 @@
                 </div>
             </div>
 
-            <!-- Minimap & Navigation -->
-            <div class="chat-minimap-container">
+            <div class="chat-minimap-container" id="minimapContainer">
                 <div class="minimap-header">
                     <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
                         <i class="ti ti-moon"></i>
@@ -169,7 +126,6 @@
             </div>
         </main>
 
-        <!-- Input Section -->
         <div class="input-section" id="inputSection">
             <div class="mode-indicator">
                 <i class="ti ti-message"></i> Обычный режим
@@ -221,7 +177,6 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <footer class="app-footer">
             <div class="footer-content">
                 <div class="current-chat-info">
@@ -249,13 +204,12 @@
         </footer>
     </div>
 
-    <!-- Sidebar Menu -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
-                    <img src="./logo.png" alt="KHAI" loading="lazy">
+                    <img src="./icon.png" alt="KHAI" loading="lazy">
                 </div>
                 <h3>KHAI <span class="beta-badge">BETA</span></h3>
             </div>
@@ -330,7 +284,6 @@
                     </a>
                 </div>
                 
-                <!-- LiveInternet Counter -->
                 <div style="margin-bottom: 20px; display: flex; justify-content: center;">
                     <!--LiveInternet counter--><a href="https://www.liveinternet.ru/click"
                     target="_blank"><img id="licntB611" width="88" height="31" style="border:0" 
@@ -349,14 +302,13 @@
                 </a>
                 
                 <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
-                    © 2024 KHAI Assistant<br>
-                    Все права защищены
+                    © 2025 KHAI, Беларусь.<br>
+                    Все права защищены!
                 </p>
             </div>
         </div>
     </div>
 
-    <!-- Edit Chat Modal -->
     <div class="modal-overlay" id="editChatModal">
         <div class="modal">
             <div class="modal-header">
@@ -380,7 +332,6 @@
         </div>
     </div>
 
-    <!-- Model Selection Modal -->
     <div class="modal-overlay" id="modelModalOverlay">
         <div class="modal">
             <div class="modal-header">
@@ -399,12 +350,10 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="./script.js"></script>
 
-    <!-- PWA Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
