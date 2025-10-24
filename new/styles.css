@@ -400,26 +400,56 @@ body {
     color: var(--text-tertiary);
 }
 
+/* Кнопки очистки поиска */
 .search-clear {
     position: absolute;
     right: 8px;
-    background: none;
-    border: none;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
     color: var(--text-tertiary);
     cursor: pointer;
-    padding: 4px;
-    border-radius: var(--radius-sm);
+    padding: 6px;
+    border-radius: var(--radius-md);
     transition: var(--transition);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
 }
 
 .search-clear:hover {
     background: var(--bg-hover);
     color: var(--text-primary);
+    border-color: var(--accent-primary);
+}
+
+/* Специфичные стили для поиска в сайдбаре */
+.sidebar-search-container .search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+}
+
+.sidebar-search-container .search-clear:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
 }
 
 /* Header Controls */
@@ -1509,30 +1539,6 @@ body {
 
 .sidebar-search-container .search-wrapper {
     position: relative;
-}
-
-.sidebar-search-container .search-clear {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    padding: 4px;
-    border-radius: var(--radius-sm);
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-}
-
-.sidebar-search-container .search-clear:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
 }
 
 /* Chat List */
