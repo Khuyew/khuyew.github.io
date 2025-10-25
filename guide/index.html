@@ -89,12 +89,6 @@
             background: var(--bg-tertiary);
         }
 
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
         .model-select-btn {
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
@@ -209,80 +203,6 @@
             color: var(--text-primary);
             border: 1px solid var(--border-color);
             margin-right: auto;
-        }
-
-        /* Minimap and navigation */
-        .chat-minimap-container {
-            position: absolute;
-            right: 10px;
-            top: 60px;
-            bottom: 160px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 10;
-            width: 36px;
-            align-items: center;
-            height: calc(100vh - 220px);
-        }
-
-        .minimap-header {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 0;
-            order: 1;
-        }
-
-        .theme-minimap-btn {
-            width: 36px;
-            height: 36px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 14px;
-        }
-
-        .chat-minimap {
-            width: 100%;
-            height: 100%;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            order: 2;
-            flex: 1;
-        }
-
-        .minimap-navigation {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            order: 3;
-            margin-bottom: 0;
-        }
-
-        .nav-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 14px;
-            backdrop-filter: blur(10px);
         }
 
         /* Input area */
@@ -730,103 +650,66 @@
         .tutorial-card {
             background: var(--bg-primary);
             border-radius: var(--radius-xl);
-            padding: 24px;
-            max-width: 420px;
+            padding: 30px 24px 24px;
+            max-width: 400px;
             width: 100%;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border-color);
             position: relative;
             z-index: 10002;
-            max-height: 90vh;
-            overflow-y: auto;
+            text-align: center;
         }
 
         .tutorial-highlight {
             position: absolute;
             border: 3px solid var(--accent-primary);
             border-radius: var(--radius-md);
-            box-shadow: 
-                0 0 0 9999px rgba(0, 153, 255, 0.15),
-                0 0 30px rgba(0, 153, 255, 0.8),
-                inset 0 0 20px rgba(0, 153, 255, 0.3);
+            box-shadow: 0 0 0 0 rgba(0, 153, 255, 0);
             z-index: 10001;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
             animation: pulse 2s infinite;
         }
 
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 153, 255, 0); }
+            50% { box-shadow: 0 0 0 10px rgba(0, 153, 255, 0.3); }
+        }
+
         .tutorial-content {
-            margin-bottom: 24px;
+            margin-bottom: 30px;
+        }
+
+        .tutorial-icon {
+            font-size: 48px;
+            color: var(--accent-primary);
+            margin-bottom: 20px;
+            display: block;
         }
 
         .tutorial-content h3 {
-            font-size: 22px;
-            margin-bottom: 16px;
+            font-size: 24px;
+            margin-bottom: 12px;
             color: var(--text-primary);
-            text-align: center;
-            background: linear-gradient(135deg, var(--accent-primary), #667eea);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .tutorial-content p {
             color: var(--text-secondary);
-            line-height: 1.6;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .tutorial-feature-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin: 16px 0;
-        }
-
-        .tutorial-feature {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            transition: var(--transition);
-        }
-
-        .tutorial-feature:hover {
-            transform: translateX(5px);
-            background: var(--accent-primary-alpha);
-        }
-
-        .tutorial-feature i {
-            color: var(--accent-primary);
+            line-height: 1.5;
             font-size: 16px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .tutorial-feature span {
-            color: var(--text-primary);
-            font-size: 14px;
         }
 
         .tutorial-progress {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             margin-bottom: 20px;
-            padding: 0 10px;
-        }
-
-        .tutorial-steps {
-            display: flex;
             gap: 8px;
         }
 
         .tutorial-step {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: var(--border-color);
             transition: var(--transition);
@@ -835,7 +718,6 @@
         .tutorial-step.active {
             background: var(--accent-primary);
             transform: scale(1.2);
-            box-shadow: 0 0 10px var(--accent-primary);
         }
 
         .tutorial-actions {
@@ -855,30 +737,17 @@
             background: var(--bg-tertiary);
             color: var(--text-secondary);
             flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
         .tutorial-btn.primary {
             background: var(--accent-primary);
             color: white;
             border-color: var(--accent-primary);
-            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.3);
         }
 
         .tutorial-btn.primary:hover {
             background: var(--accent-secondary);
-            border-color: var(--accent-secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 153, 255, 0.4);
-        }
-
-        .tutorial-btn.skip {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
+            transform: translateY(-1px);
         }
 
         .tutorial-btn:hover {
@@ -907,18 +776,6 @@
         .tutorial-close:hover {
             background: var(--accent-primary-alpha);
             color: var(--accent-primary);
-            border-color: var(--accent-primary);
-        }
-
-        .beta-badge {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 600;
-            margin-left: 6px;
-            vertical-align: super;
         }
 
         /* Transition Screen */
@@ -951,7 +808,6 @@
             flex-direction: column;
             align-items: center;
             gap: 24px;
-            max-width: 300px;
         }
 
         .transition-logo {
@@ -961,11 +817,7 @@
             align-items: center;
             justify-content: center;
             color: var(--accent-primary);
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .transition-logo i {
-            font-size: 40px;
+            animation: float 2s ease-in-out infinite;
         }
 
         .transition-spinner {
@@ -980,23 +832,6 @@
         .transition-text {
             color: var(--text-secondary);
             font-size: 16px;
-            margin-top: 10px;
-        }
-
-        .transition-progress {
-            width: 100%;
-            height: 4px;
-            background: var(--border-color);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .transition-progress-bar {
-            height: 100%;
-            background: var(--accent-primary);
-            border-radius: 2px;
-            width: 0%;
-            transition: width 0.3s ease;
         }
 
         @keyframes fadeIn {
@@ -1014,17 +849,11 @@
             100% { transform: rotate(360deg); }
         }
 
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 9999px rgba(0, 153, 255, 0.15), 0 0 30px rgba(0, 153, 255, 0.8), inset 0 0 20px rgba(0, 153, 255, 0.3); }
-            50% { box-shadow: 0 0 0 9999px rgba(0, 153, 255, 0.2), 0 0 40px rgba(0, 153, 255, 1), inset 0 0 25px rgba(0, 153, 255, 0.4); }
-        }
-
-        /* Responsive styles */
+        /* Responsive */
         @media (max-width: 768px) {
             .tutorial-card {
-                padding: 20px;
+                padding: 24px 20px 20px;
                 max-width: 90%;
-                margin: 0 auto;
             }
             
             .tutorial-content h3 {
@@ -1034,27 +863,11 @@
             .chat-minimap-container {
                 display: none;
             }
-            
-            .app-header {
-                padding: 6px 10px;
-                padding-top: calc(6px + env(safe-area-inset-top, 0px));
-                height: 44px;
-            }
-            
-            .input-section {
-                padding: 10px;
-                padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-            }
-            
-            .sidebar-menu {
-                max-width: 100%;
-            }
         }
 
         @media (max-width: 480px) {
             .tutorial-card {
-                padding: 16px;
-                max-width: 95%;
+                padding: 20px 16px 16px;
             }
             
             .tutorial-content h3 {
@@ -1066,33 +879,8 @@
                 font-size: 13px;
             }
             
-            .tutorial-feature {
-                padding: 6px 10px;
-            }
-            
-            .tutorial-feature span {
-                font-size: 13px;
-            }
-            
-            .message {
-                max-width: 95%;
-                padding: 12px 14px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .tutorial-actions {
-                flex-direction: column;
-            }
-            
-            .action-buttons {
-                gap: 2px;
-            }
-            
-            .action-btn {
-                padding: 4px 8px;
-                font-size: 9px;
-                height: 28px;
+            .tutorial-icon {
+                font-size: 40px;
             }
         }
     </style>
@@ -1104,12 +892,10 @@
         <header class="app-header">
             <div class="logo-container">
                 <div class="logo" id="logoBtn">
-                    <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: #0099ff;">
-                        <i class="ti ti-robot" style="font-size: 20px;"></i>
-                    </div>
+                    <i class="ti ti-robot" style="font-size: 20px; color: #0099ff;"></i>
                 </div>
                 
-                <button class="model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
+                <button class="model-select-btn" id="modelSelectBtn">
                     <i class="ti ti-brain"></i>
                 </button>
             </div>
@@ -1117,15 +903,15 @@
             <div class="header-search-container">
                 <div class="search-wrapper">
                     <i class="ti ti-search"></i>
-                    <input type="text" id="headerSearch" placeholder="Поиск по чату..." aria-label="Поиск по истории чата">
+                    <input type="text" id="headerSearch" placeholder="Поиск по чату...">
                 </div>
             </div>
             
             <div class="header-controls">
-                <button class="control-btn" id="themeToggle" aria-label="Переключить тему">
+                <button class="control-btn" id="themeToggle">
                     <i class="ti ti-moon"></i>
                 </button>
-                <button class="control-btn menu-toggle" id="menuToggle" aria-label="Открыть меню">
+                <button class="control-btn menu-toggle" id="menuToggle">
                     <i class="ti ti-menu-2"></i>
                 </button>
             </div>
@@ -1133,62 +919,33 @@
 
         <!-- Main Chat Area -->
         <main class="chat-main">
-            <div class="messages-container" id="messagesContainer" aria-live="polite">
+            <div class="messages-container" id="messagesContainer">
                 <div class="message message-ai">
                     <div class="message-content">
-                        <p>👋 Добро пожаловать в KHAI — Первый белорусский чат с ИИ!</p>
-                        <p>Я ваш бесплатный ИИ-помощник. Начните общение, отправив сообщение!</p>
+                        <p>👋 Добро пожаловать в KHAI!</p>
                     </div>
-                </div>
-            </div>
-
-            <!-- Minimap & Navigation -->
-            <div class="chat-minimap-container">
-                <div class="minimap-header">
-                    <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
-                        <i class="ti ti-moon"></i>
-                    </button>
-                </div>
-                <div class="chat-minimap" id="chatMinimap"></div>
-                <div class="minimap-navigation">
-                    <button class="nav-btn" id="scrollToLastAI" title="К последнему ответу ИИ">
-                        <i class="ti ti-arrow-up"></i>
-                    </button>
-                    <button class="nav-btn" id="scrollToBottom" title="К низу чата">
-                        <i class="ti ti-arrow-down"></i>
-                    </button>
                 </div>
             </div>
         </main>
 
         <!-- Input Section -->
         <div class="input-section" id="inputSection">
-            <div class="mode-indicator">
-                <i class="ti ti-message"></i> Обычный режим
-            </div>
-            
             <div class="input-wrapper">
-                <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
+                <button class="attach-btn" id="attachFileBtn">
                     <i class="ti ti-plus"></i>
                 </button>
                 
                 <textarea 
                     id="userInput" 
-                    placeholder="Задайте вопрос или опишите изображение..." 
-                    autocomplete="off" 
+                    placeholder="Задайте вопрос..." 
                     rows="1"
-                    maxlength="4000"
-                    aria-label="Поле ввода сообщения"
                 ></textarea>
                 
                 <div class="input-controls">
-                    <button class="input-btn" id="clearInputBtn" title="Очистить ввод" style="display: none;">
-                        <i class="ti ti-x"></i>
-                    </button>
-                    <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
+                    <button class="input-btn" id="voiceInputBtn">
                         <i class="ti ti-microphone"></i>
                     </button>
-                    <button class="send-btn" id="sendBtn" title="Отправить сообщение">
+                    <button class="send-btn" id="sendBtn">
                         <i class="ti ti-send"></i>
                     </button>
                 </div>
@@ -1203,7 +960,7 @@
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateImageBtn" title="В разработке">
+                <button class="action-btn mode-btn" id="generateImageBtn">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
                 </button>
@@ -1217,19 +974,11 @@
                 <span id="currentChatName">Основной чат</span>
             </div>
             
-            <div class="connection-status">
-                <i class="ti ti-circle" style="color: #00ff00;"></i>
-                <span id="connectionStatusText">Подключено</span>
-            </div>
-            
             <div class="footer-controls">
-                <button class="footer-btn" id="helpBtn" title="Помощь">
+                <button class="footer-btn" id="helpBtn">
                     <i class="ti ti-help"></i>
                 </button>
-                <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
-                    <i class="ti ti-download"></i>
-                </button>
-                <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
+                <button class="footer-btn" id="clearChatBtn">
                     <i class="ti ti-trash"></i>
                 </button>
             </div>
@@ -1242,11 +991,9 @@
         <div class="sidebar-header">
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
-                    <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #0099ff;">
-                        <i class="ti ti-robot" style="font-size: 24px;"></i>
-                    </div>
+                    <i class="ti ti-robot" style="font-size: 24px; color: #0099ff;"></i>
                 </div>
-                <h3>KHAI <span class="beta-badge">BETA</span></h3>
+                <h3>KHAI</h3>
             </div>
             <button class="sidebar-close" id="sidebarClose">
                 <i class="ti ti-x"></i>
@@ -1260,15 +1007,6 @@
                     <div class="chat-item active">
                         <div class="chat-item-content">
                             <div class="chat-item-title">Основной чат</div>
-                            <div class="chat-item-preview">Добро пожаловать в KHAI...</div>
-                        </div>
-                        <div class="chat-item-actions">
-                            <button class="chat-item-action download-chat" title="Скачать чат">
-                                <i class="ti ti-download"></i>
-                            </button>
-                            <button class="chat-item-action edit" title="Редактировать название чата">
-                                <i class="ti ti-pencil"></i>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -1276,38 +1014,6 @@
                     <button class="sidebar-btn primary" id="newChatBtn">
                         <i class="ti ti-plus"></i> Новый чат
                     </button>
-                    <button class="sidebar-btn" id="importChatBtn">
-                        <i class="ti ti-upload"></i> Импорт чата
-                    </button>
-                    <button class="sidebar-btn" id="deleteAllChatsBtn">
-                        <i class="ti ti-trash"></i> Удалить все
-                    </button>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h4><i class="ti ti-brain"></i> Модель ИИ</h4>
-                <div class="current-model-info">
-                    <span id="currentModelInfo">GPT-5 Nano</span>
-                    <span class="connection-status" id="connectionStatus">✅ Онлайн</span>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h4><i class="ti ti-info-circle"></i> О приложении</h4>
-                <div class="about-content">
-                    <div class="about-item">
-                        <strong>KHAI Assistant</strong>
-                        <span>Первый белорусский ИИ-помощник</span>
-                    </div>
-                    <div class="about-item">
-                        <strong>Версия</strong>
-                        <span>2.1.0</span>
-                    </div>
-                    <div class="about-item">
-                        <strong>Обновлено</strong>
-                        <span id="appVersionDate">2024</span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1321,50 +1027,19 @@
                 <i class="ti ti-x"></i>
             </button>
             <div class="tutorial-content" id="tutorialContent">
-                <h3>Добро пожаловать в KHAI Assistant!</h3>
-                <p>Познакомьтесь с первым белорусским ИИ-помощником. Этот гайд покажет вам все возможности приложения.</p>
-                
-                <div class="tutorial-feature-list">
-                    <div class="tutorial-feature">
-                        <i class="ti ti-brain"></i>
-                        <span>Умные ответы на любые вопросы</span>
-                    </div>
-                    <div class="tutorial-feature">
-                        <i class="ti ti-photo"></i>
-                        <span>Анализ изображений и файлов</span>
-                    </div>
-                    <div class="tutorial-feature">
-                        <i class="ti ti-microphone"></i>
-                        <span>Голосовой ввод и озвучка</span>
-                    </div>
-                    <div class="tutorial-feature">
-                        <i class="ti ti-messages"></i>
-                        <span>Множество чатов для разных тем</span>
-                    </div>
-                </div>
+                <i class="ti ti-robot tutorial-icon"></i>
+                <h3>Добро пожаловать!</h3>
+                <p>Познакомьтесь с KHAI Assistant</p>
             </div>
             <div class="tutorial-progress">
-                <div class="tutorial-steps" id="tutorialSteps">
-                    <div class="tutorial-step active"></div>
-                    <div class="tutorial-step"></div>
-                    <div class="tutorial-step"></div>
-                    <div class="tutorial-step"></div>
-                    <div class="tutorial-step"></div>
-                </div>
-                <span id="tutorialStepCounter" style="color: var(--text-tertiary); font-size: 12px;">1/5</span>
+                <div class="tutorial-step active"></div>
+                <div class="tutorial-step"></div>
+                <div class="tutorial-step"></div>
+                <div class="tutorial-step"></div>
             </div>
             <div class="tutorial-actions">
-                <button class="tutorial-btn skip" id="tutorialSkip">
-                    <i class="ti ti-player-skip-forward"></i> Пропустить
-                </button>
-                <div style="display: flex; gap: 8px;">
-                    <button class="tutorial-btn" id="tutorialPrev" style="display: none;">
-                        <i class="ti ti-arrow-left"></i> Назад
-                    </button>
-                    <button class="tutorial-btn primary" id="tutorialNext">
-                        Далее <i class="ti ti-arrow-right"></i>
-                    </button>
-                </div>
+                <button class="tutorial-btn" id="tutorialSkip">Пропустить</button>
+                <button class="tutorial-btn primary" id="tutorialNext">Далее</button>
             </div>
         </div>
     </div>
@@ -1377,9 +1052,6 @@
             </div>
             <div class="transition-spinner"></div>
             <p class="transition-text">Переходим в KHAI Assistant...</p>
-            <div class="transition-progress">
-                <div class="transition-progress-bar" id="transitionProgress"></div>
-            </div>
         </div>
     </div>
 
@@ -1387,7 +1059,7 @@
         class KHAITutorial {
             constructor() {
                 this.currentStep = 0;
-                this.totalSteps = 5;
+                this.totalSteps = 4;
                 this.isActive = false;
                 
                 this.initializeElements();
@@ -1400,16 +1072,13 @@
                 this.tutorialOverlay = document.getElementById('tutorialOverlay');
                 this.tutorialHighlight = document.getElementById('tutorialHighlight');
                 this.tutorialContent = document.getElementById('tutorialContent');
-                this.tutorialSteps = document.getElementById('tutorialSteps');
-                this.tutorialStepCounter = document.getElementById('tutorialStepCounter');
+                this.tutorialSteps = document.querySelectorAll('.tutorial-step');
                 this.tutorialNext = document.getElementById('tutorialNext');
-                this.tutorialPrev = document.getElementById('tutorialPrev');
                 this.tutorialSkip = document.getElementById('tutorialSkip');
                 this.tutorialClose = document.getElementById('tutorialClose');
                 
                 // Transition screen
                 this.transitionScreen = document.getElementById('transitionScreen');
-                this.transitionProgress = document.getElementById('transitionProgress');
                 
                 // App elements
                 this.menuToggle = document.getElementById('menuToggle');
@@ -1417,23 +1086,12 @@
                 this.sidebarOverlay = document.getElementById('sidebarOverlay');
                 this.newChatBtn = document.getElementById('newChatBtn');
                 this.userInput = document.getElementById('userInput');
-                this.sendBtn = document.getElementById('sendBtn');
-                this.chatList = document.getElementById('chatList');
-                this.actionButtons = document.querySelector('.action-buttons');
             }
             
             bindEvents() {
                 this.tutorialNext.addEventListener('click', () => this.nextStep());
-                this.tutorialPrev.addEventListener('click', () => this.prevStep());
                 this.tutorialSkip.addEventListener('click', () => this.skipTutorial());
                 this.tutorialClose.addEventListener('click', () => this.skipTutorial());
-                
-                // Close tutorial when clicking outside the card
-                this.tutorialOverlay.addEventListener('click', (e) => {
-                    if (e.target === this.tutorialOverlay) {
-                        this.skipTutorial();
-                    }
-                });
             }
             
             startTutorial() {
@@ -1447,23 +1105,7 @@
                 this.currentStep = stepIndex;
                 this.updateProgress();
                 
-                // Reset all steps
-                const steps = this.tutorialSteps.querySelectorAll('.tutorial-step');
-                steps.forEach((step, index) => {
-                    step.classList.toggle('active', index === stepIndex);
-                });
-                
-                // Show/hide prev button
-                this.tutorialPrev.style.display = stepIndex > 0 ? 'flex' : 'none';
-                
-                // Update next button text for last step
-                if (stepIndex === this.totalSteps - 1) {
-                    this.tutorialNext.innerHTML = 'Завершить <i class="ti ti-check"></i>';
-                } else {
-                    this.tutorialNext.innerHTML = 'Далее <i class="ti ti-arrow-right"></i>';
-                }
-                
-                // Update content and highlight based on step
+                // Update content based on step
                 this.updateStepContent(stepIndex);
             }
             
@@ -1474,82 +1116,45 @@
                     this.sidebarOverlay.classList.remove('active');
                 }
                 
-                switch(stepIndex) {
-                    case 0:
-                        this.tutorialContent.innerHTML = `
-                            <h3>Добро пожаловать в KHAI Assistant!</h3>
-                            <p>Познакомьтесь с первым белорусским ИИ-помощником. Этот гайд покажет вам все возможности приложения.</p>
-                            
-                            <div class="tutorial-feature-list">
-                                <div class="tutorial-feature">
-                                    <i class="ti ti-brain"></i>
-                                    <span>Умные ответы на любые вопросы</span>
-                                </div>
-                                <div class="tutorial-feature">
-                                    <i class="ti ti-photo"></i>
-                                    <span>Анализ изображений и файлов</span>
-                                </div>
-                                <div class="tutorial-feature">
-                                    <i class="ti ti-microphone"></i>
-                                    <span>Голосовой ввод и озвучка</span>
-                                </div>
-                                <div class="tutorial-feature">
-                                    <i class="ti ti-messages"></i>
-                                    <span>Множество чатов для разных тем</span>
-                                </div>
-                            </div>
-                        `;
-                        this.highlightElement(null);
-                        break;
-                    case 1:
-                        this.tutorialContent.innerHTML = `
-                            <h3>Меню чатов</h3>
-                            <p>Здесь вы можете управлять своими чатами: создавать новые, переключаться между ними, импортировать или удалять.</p>
-                            <p>Нажмите на кнопку меню, чтобы открыть панель управления чатами.</p>
-                        `;
-                        this.highlightElement(this.menuToggle);
-                        break;
-                    case 2:
-                        this.tutorialContent.innerHTML = `
-                            <h3>Создание нового чата</h3>
-                            <p>Создавайте отдельные чаты для разных тем или проектов.</p>
-                            <p>Например, можно создать отдельный чат для работы, учебы или личных вопросов.</p>
-                        `;
-                        // Open sidebar if not already open
-                        this.sidebarMenu.classList.add('active');
-                        this.sidebarOverlay.classList.add('active');
-                        this.highlightElement(this.newChatBtn);
-                        break;
-                    case 3:
-                        this.tutorialContent.innerHTML = `
-                            <h3>Ввод сообщений</h3>
-                            <p>Введите ваш вопрос или запрос в это поле. Вы можете использовать голосовой ввод или прикреплять файлы.</p>
-                            <p>Нажмите кнопку отправки или клавишу Enter, чтобы отправить сообщение.</p>
-                        `;
-                        this.highlightElement(this.userInput);
-                        break;
-                    case 4:
-                        this.tutorialContent.innerHTML = `
-                            <h3>Настройка режимов</h3>
-                            <p>Используйте кнопки внизу для переключения между режимами:</p>
-                            
-                            <div class="tutorial-feature-list">
-                                <div class="tutorial-feature">
-                                    <i class="ti ti-message"></i>
-                                    <span>Обычный - стандартный текстовый чат</span>
-                                </div>
-                                <div class="tutorial-feature">
-                                    <i class="ti ti-microphone"></i>
-                                    <span>Голос - голосовой ввод и вывод</span>
-                                </div>
-                                <div class="tutorial-feature">
-                                    <i class="ti ti-photo"></i>
-                                    <span>Изображения - работа с изображениями</span>
-                                </div>
-                            </div>
-                        `;
-                        this.highlightElement(this.actionButtons);
-                        break;
+                const contents = [
+                    {
+                        icon: 'ti-robot',
+                        title: 'Добро пожаловать!',
+                        text: 'Познакомьтесь с KHAI Assistant'
+                    },
+                    {
+                        icon: 'ti-menu-2',
+                        title: 'Меню чатов',
+                        text: 'Откройте меню для управления чатами'
+                    },
+                    {
+                        icon: 'ti-plus',
+                        title: 'Создание чатов',
+                        text: 'Создавайте отдельные чаты для разных тем'
+                    },
+                    {
+                        icon: 'ti-message',
+                        title: 'Готово!',
+                        text: 'Начните общение с ИИ-помощником'
+                    }
+                ];
+                
+                const content = contents[stepIndex];
+                this.tutorialContent.innerHTML = `
+                    <i class="ti ${content.icon} tutorial-icon"></i>
+                    <h3>${content.title}</h3>
+                    <p>${content.text}</p>
+                `;
+                
+                // Highlight elements
+                const elements = [null, this.menuToggle, this.newChatBtn, this.userInput];
+                this.highlightElement(elements[stepIndex]);
+                
+                // Update button text for last step
+                if (stepIndex === this.totalSteps - 1) {
+                    this.tutorialNext.textContent = 'Начать';
+                } else {
+                    this.tutorialNext.textContent = 'Далее';
                 }
             }
             
@@ -1565,10 +1170,18 @@
                 this.tutorialHighlight.style.height = `${rect.height + 20}px`;
                 this.tutorialHighlight.style.left = `${rect.left - 10}px`;
                 this.tutorialHighlight.style.top = `${rect.top - 10}px`;
+                
+                // Open sidebar for step 2
+                if (element === this.newChatBtn) {
+                    this.sidebarMenu.classList.add('active');
+                    this.sidebarOverlay.classList.add('active');
+                }
             }
             
             updateProgress() {
-                this.tutorialStepCounter.textContent = `${this.currentStep + 1}/${this.totalSteps}`;
+                this.tutorialSteps.forEach((step, index) => {
+                    step.classList.toggle('active', index === this.currentStep);
+                });
             }
             
             nextStep() {
@@ -1576,12 +1189,6 @@
                     this.showStep(this.currentStep + 1);
                 } else {
                     this.completeTutorial();
-                }
-            }
-            
-            prevStep() {
-                if (this.currentStep > 0) {
-                    this.showStep(this.currentStep - 1);
                 }
             }
             
@@ -1598,35 +1205,18 @@
                 // Show transition screen
                 this.transitionScreen.classList.add('active');
                 
-                // Animate progress bar
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 2;
-                    this.transitionProgress.style.width = `${progress}%`;
-                    
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        // Redirect to KHAI
-                        window.location.href = 'https://khai.by/chat';
-                    }
-                }, 50);
-            }
-            
-            addMessage(sender, content) {
-                const messagesContainer = document.getElementById('messagesContainer');
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message message-${sender}`;
-                messageDiv.innerHTML = `<div class="message-content"><p>${content}</p></div>`;
-                messagesContainer.appendChild(messageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                // Redirect to KHAI after a delay
+                setTimeout(() => {
+                    window.location.href = 'https://khai.by/chat';
+                }, 2000);
             }
         }
 
         // Initialize the tutorial when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            const tutorial = new KHAITutorial();
+            new KHAITutorial();
             
-            // Bind other UI interactions
+            // Bind UI interactions
             document.getElementById('menuToggle').addEventListener('click', () => {
                 document.getElementById('sidebarMenu').classList.add('active');
                 document.getElementById('sidebarOverlay').classList.add('active');
@@ -1640,97 +1230,6 @@
             document.getElementById('sidebarOverlay').addEventListener('click', () => {
                 document.getElementById('sidebarMenu').classList.remove('active');
                 document.getElementById('sidebarOverlay').classList.remove('active');
-            });
-            
-            // New chat functionality
-            document.getElementById('newChatBtn').addEventListener('click', () => {
-                const chatList = document.getElementById('chatList');
-                const chatCount = chatList.children.length + 1;
-                
-                const newChat = document.createElement('div');
-                newChat.className = 'chat-item';
-                newChat.innerHTML = `
-                    <div class="chat-item-content">
-                        <div class="chat-item-title">Новый чат ${chatCount}</div>
-                        <div class="chat-item-preview">Новый чат...</div>
-                    </div>
-                    <div class="chat-item-actions">
-                        <button class="chat-item-action download-chat" title="Скачать чат">
-                            <i class="ti ti-download"></i>
-                        </button>
-                        <button class="chat-item-action edit" title="Редактировать название чата">
-                            <i class="ti ti-pencil"></i>
-                        </button>
-                    </div>
-                `;
-                
-                // Remove active class from all chats
-                document.querySelectorAll('.chat-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                
-                // Add new chat and make it active
-                chatList.appendChild(newChat);
-                newChat.classList.add('active');
-                
-                // Update current chat name
-                document.getElementById('currentChatName').textContent = `Новый чат ${chatCount}`;
-                
-                // Add welcome message
-                const messagesContainer = document.getElementById('messagesContainer');
-                messagesContainer.innerHTML = '';
-                
-                const welcomeMessage = document.createElement('div');
-                welcomeMessage.className = 'message message-ai';
-                welcomeMessage.innerHTML = `
-                    <div class="message-content">
-                        <p>👋 Привет! Это новый чат. Чем могу помочь?</p>
-                    </div>
-                `;
-                messagesContainer.appendChild(welcomeMessage);
-                
-                // Close sidebar
-                document.getElementById('sidebarMenu').classList.remove('active');
-                document.getElementById('sidebarOverlay').classList.remove('active');
-                
-                // If tutorial is active, show a message
-                if (tutorial.isActive) {
-                    tutorial.addMessage('ai', 'Отлично! Вы создали новый чат. Теперь вы можете переключаться между чатами через меню.');
-                }
-            });
-            
-            // Send message functionality
-            document.getElementById('sendBtn').addEventListener('click', () => {
-                const userInput = document.getElementById('userInput');
-                const message = userInput.value.trim();
-                
-                if (message) {
-                    // Add user message
-                    tutorial.addMessage('user', message);
-                    
-                    // Clear input
-                    userInput.value = '';
-                    
-                    // Simulate AI response after a short delay
-                    setTimeout(() => {
-                        const responses = [
-                            "Отличный вопрос! Я могу помочь вам с этим. Что именно вас интересует?",
-                            "Интересный запрос! Давайте разберем его подробнее.",
-                            "Спасибо за ваш вопрос! Вот что я могу рассказать по этой теме...",
-                            "Я понимаю ваш интерес к этой теме. Вот что я знаю об этом:"
-                        ];
-                        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                        tutorial.addMessage('ai', randomResponse);
-                    }, 1000);
-                }
-            });
-            
-            // Also send on Enter key (but allow Shift+Enter for new line)
-            document.getElementById('userInput').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    document.getElementById('sendBtn').click();
-                }
             });
         });
     </script>
