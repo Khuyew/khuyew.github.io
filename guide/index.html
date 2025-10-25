@@ -701,15 +701,17 @@
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             border: 1px solid rgba(255, 255, 255, 0.15);
             position: relative;
+            z-index: 10002;
         }
 
         .tutorial-highlight {
             position: absolute;
-            border: 2px solid #0099ff;
+            border: 3px solid #0099ff;
             border-radius: 8px;
-            box-shadow: 0 0 0 9999px rgba(0, 153, 255, 0.1), 0 0 20px rgba(0, 153, 255, 0.5);
+            box-shadow: 0 0 0 9999px rgba(0, 153, 255, 0.1), 0 0 30px rgba(0, 153, 255, 0.7);
             z-index: 10001;
             transition: all 0.5s ease;
+            pointer-events: none;
         }
 
         .tutorial-content {
@@ -810,9 +812,71 @@
             vertical-align: super;
         }
 
+        /* Transition Screen */
+        .transition-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f0f23;
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .transition-screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .transition-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .transition-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .transition-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.15);
+            border-top: 4px solid #0099ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .transition-text {
+            color: #a0a0c0;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -1074,6 +1138,19 @@
         </div>
     </div>
 
+    <!-- Transition Screen -->
+    <div class="transition-screen" id="transitionScreen">
+        <div class="transition-content">
+            <div class="transition-logo">
+                <div style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; color: #0099ff;">
+                    <i class="ti ti-robot" style="font-size: 40px;"></i>
+                </div>
+            </div>
+            <div class="transition-spinner"></div>
+            <p class="transition-text">Переход на KHAI Assistant...</p>
+        </div>
+    </div>
+
     <script>
         class KHAITutorial {
             constructor() {
@@ -1098,9 +1175,13 @@
                 this.tutorialSkip = document.getElementById('tutorialSkip');
                 this.tutorialClose = document.getElementById('tutorialClose');
                 
+                // Transition screen
+                this.transitionScreen = document.getElementById('transitionScreen');
+                
                 // App elements
                 this.menuToggle = document.getElementById('menuToggle');
                 this.sidebarMenu = document.getElementById('sidebarMenu');
+                this.sidebarOverlay = document.getElementById('sidebarOverlay');
                 this.newChatBtn = document.getElementById('newChatBtn');
                 this.userInput = document.getElementById('userInput');
                 this.sendBtn = document.getElementById('sendBtn');
@@ -1153,6 +1234,12 @@
             }
             
             updateStepContent(stepIndex) {
+                // Close sidebar if it's open from previous steps
+                if (stepIndex !== 2) {
+                    this.sidebarMenu.classList.remove('active');
+                    this.sidebarOverlay.classList.remove('active');
+                }
+                
                 switch(stepIndex) {
                     case 0:
                         this.tutorialContent.innerHTML = `
@@ -1178,7 +1265,7 @@
                         `;
                         // Open sidebar if not already open
                         this.sidebarMenu.classList.add('active');
-                        document.getElementById('sidebarOverlay').classList.add('active');
+                        this.sidebarOverlay.classList.add('active');
                         this.highlightElement(this.newChatBtn);
                         break;
                     case 3:
@@ -1244,12 +1331,15 @@
                 this.isActive = false;
                 this.tutorialOverlay.classList.remove('active');
                 this.sidebarMenu.classList.remove('active');
-                document.getElementById('sidebarOverlay').classList.remove('active');
+                this.sidebarOverlay.classList.remove('active');
                 
-                // Show completion message
+                // Show transition screen
+                this.transitionScreen.classList.add('active');
+                
+                // Redirect to KHAI after a delay
                 setTimeout(() => {
-                    this.addMessage('ai', '🎉 Отлично! Теперь вы знаете основные возможности KHAI Assistant. Если у вас возникнут вопросы, нажмите кнопку "Помощь" в правом нижнем углу.');
-                }, 500);
+                    window.location.href = 'https://khai.by/chat';
+                }, 2000);
             }
             
             addMessage(sender, content) {
