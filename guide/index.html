@@ -80,7 +80,7 @@
             position: absolute;
             border: 2px solid var(--accent-primary);
             border-radius: var(--radius-md);
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 153, 255, 0.5);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
             z-index: 1001;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
@@ -467,9 +467,18 @@
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 153, 255, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 153, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 153, 255, 0); }
+            0% { 
+                box-shadow: 0 0 0 0 rgba(0, 153, 255, 0.7),
+                           0 0 0 9999px rgba(0, 0, 0, 0.7);
+            }
+            70% { 
+                box-shadow: 0 0 0 10px rgba(0, 153, 255, 0),
+                           0 0 0 9999px rgba(0, 0, 0, 0.7);
+            }
+            100% { 
+                box-shadow: 0 0 0 0 rgba(0, 153, 255, 0),
+                           0 0 0 9999px rgba(0, 0, 0, 0.7);
+            }
         }
 
         .guide-highlight.pulse {
@@ -487,6 +496,7 @@
             
             .guide-tooltip {
                 max-width: 280px;
+                margin: 0 10px;
             }
         }
     </style>
@@ -501,7 +511,8 @@
             <!-- Header -->
             <div class="app-header">
                 <div class="app-logo">
-                    <img src="./logo.png" alt="KHAI">
+                    <!-- Замените на ваш логотип -->
+                    <div style="width:36px;height:36px;background:var(--accent-primary);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold">K</div>
                     <div>KHAI Assistant <span class="beta-badge">BETA</span></div>
                 </div>
                 <div class="header-controls">
@@ -686,17 +697,18 @@
                 
                 const targetElement = document.querySelector(step.element);
                 if (targetElement) {
-                    this.highlightElement(targetElement, step.position);
+                    this.highlightElementFunc(targetElement, step.position);
                     this.showTooltip(targetElement, step);
                 } else {
                     // If element not found, proceed to next step
+                    console.warn('Element not found:', step.element);
                     this.nextStep();
                 }
                 
                 this.updateProgress();
             }
             
-            highlightElement(element, position = 'bottom') {
+            highlightElementFunc(element, position = 'bottom') {
                 const rect = element.getBoundingClientRect();
                 
                 this.highlightElement.style.width = `${rect.width + 10}px`;
@@ -733,28 +745,37 @@
                 // Remove all position classes
                 this.tooltipElement.classList.remove('top', 'bottom', 'left', 'right');
                 
+                let tooltipX, tooltipY;
+                
                 switch (position) {
                     case 'top':
                         this.tooltipElement.classList.add('top');
-                        this.tooltipElement.style.left = `${rect.left + rect.width/2 - tooltipRect.width/2}px`;
-                        this.tooltipElement.style.top = `${rect.top - tooltipRect.height - spacing}px`;
+                        tooltipX = rect.left + rect.width/2 - tooltipRect.width/2;
+                        tooltipY = rect.top - tooltipRect.height - spacing;
                         break;
                     case 'bottom':
                         this.tooltipElement.classList.add('bottom');
-                        this.tooltipElement.style.left = `${rect.left + rect.width/2 - tooltipRect.width/2}px`;
-                        this.tooltipElement.style.top = `${rect.bottom + spacing}px`;
+                        tooltipX = rect.left + rect.width/2 - tooltipRect.width/2;
+                        tooltipY = rect.bottom + spacing;
                         break;
                     case 'left':
                         this.tooltipElement.classList.add('left');
-                        this.tooltipElement.style.left = `${rect.left - tooltipRect.width - spacing}px`;
-                        this.tooltipElement.style.top = `${rect.top + rect.height/2 - tooltipRect.height/2}px`;
+                        tooltipX = rect.left - tooltipRect.width - spacing;
+                        tooltipY = rect.top + rect.height/2 - tooltipRect.height/2;
                         break;
                     case 'right':
                         this.tooltipElement.classList.add('right');
-                        this.tooltipElement.style.left = `${rect.right + spacing}px`;
-                        this.tooltipElement.style.top = `${rect.top + rect.height/2 - tooltipRect.height/2}px`;
+                        tooltipX = rect.right + spacing;
+                        tooltipY = rect.top + rect.height/2 - tooltipRect.height/2;
                         break;
+                    default:
+                        this.tooltipElement.classList.add('bottom');
+                        tooltipX = rect.left + rect.width/2 - tooltipRect.width/2;
+                        tooltipY = rect.bottom + spacing;
                 }
+                
+                this.tooltipElement.style.left = `${tooltipX}px`;
+                this.tooltipElement.style.top = `${tooltipY}px`;
                 
                 // Ensure tooltip stays within viewport
                 this.adjustTooltipPosition();
@@ -888,6 +909,19 @@
                 e.preventDefault();
                 sendMessage();
             }
+            
+            // Auto-resize textarea
+            if (e.key === 'Enter' && e.shiftKey) {
+                setTimeout(() => {
+                    userInput.style.height = 'auto';
+                    userInput.style.height = userInput.scrollHeight + 'px';
+                }, 0);
+            }
+        });
+        
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            userInput.style.height = userInput.scrollHeight + 'px';
         });
         
         function sendMessage() {
@@ -897,6 +931,7 @@
             // Add user message
             addMessage('user', message);
             userInput.value = '';
+            userInput.style.height = 'auto';
             
             // Simulate AI response
             setTimeout(() => {
@@ -922,6 +957,18 @@
             if (window.khaiGuide && window.khaiGuide.isActive) {
                 window.khaiGuide.showStep(window.khaiGuide.currentStep);
             }
+        });
+        
+        // Add click handlers for demo purposes
+        document.querySelectorAll('.chat-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        document.getElementById('newChatBtn').addEventListener('click', () => {
+            alert('Создан новый чат!');
         });
     </script>
 </body>
