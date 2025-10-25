@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KHAI Assistant - Интерактивный гайд</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <title>Гайд по KHAI Assistant</title>
     <style>
         * {
             margin: 0;
@@ -12,278 +11,556 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: rgba(255, 255, 255, 0.03);
-            --bg-tertiary: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0c0;
-            --text-tertiary: #8888aa;
-            --accent-primary: #0099ff;
-            --accent-secondary: #0066ff;
-            --accent-primary-alpha: rgba(0, 153, 255, 0.2);
-            --border-color: rgba(255, 255, 255, 0.15);
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 16px;
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --guide-highlight: rgba(0, 153, 255, 0.3);
-        }
-
-        [data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: rgba(0, 0, 0, 0.03);
-            --bg-tertiary: rgba(0, 0, 0, 0.08);
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-tertiary: #888888;
-            --border-color: rgba(0, 0, 0, 0.15);
-            --guide-highlight: rgba(0, 153, 255, 0.2);
-        }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
+            background: #0f0f23;
+            color: #ffffff;
+            line-height: 1.5;
             overflow: hidden;
             height: 100vh;
-            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
         }
 
         .app-container {
+            flex: 1;
             display: flex;
             flex-direction: column;
             height: 100vh;
             position: relative;
         }
 
-        /* Guide Overlay */
-        .guide-overlay {
+        /* Header */
+        .app-header {
+            padding: 8px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.03);
+            flex-shrink: 0;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .model-select-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .header-search-container {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            height: 36px;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 10px;
+            color: #8888aa;
+            z-index: 1;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            height: 36px;
+            padding: 6px 32px 6px 28px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            font-size: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
+            padding: 6px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            width: 36px;
+        }
+
+        /* Chat area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: 100%;
+            position: relative;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .message-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #ffffff;
+            margin-left: auto;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        .message-ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            color: #e8e8ff;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            margin-right: auto;
+        }
+
+        /* Minimap and navigation */
+        .chat-minimap-container {
+            position: absolute;
+            right: 10px;
+            top: 60px;
+            bottom: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+            width: 36px;
+            align-items: center;
+            height: calc(100vh - 220px);
+        }
+
+        .minimap-header {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0;
+            order: 1;
+        }
+
+        .theme-minimap-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .chat-minimap {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            order: 2;
+            flex: 1;
+        }
+
+        .minimap-navigation {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            order: 3;
+            margin-bottom: 0;
+        }
+
+        .nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+
+        /* Input area */
+        .input-section {
+            padding: 8px 15px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .mode-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #8888aa;
+            margin-bottom: 8px;
+            padding: 0 4px;
+            opacity: 0.8;
+            justify-content: center;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            align-items: center;
+        }
+
+        .attach-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            flex-shrink: 0;
+            align-self: center;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 12px 110px 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            background: #0f0f23;
+            color: #ffffff;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            transition: all 0.3s ease;
+            min-height: 48px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: inherit;
+        }
+
+        .input-controls {
+            position: absolute;
+            right: 12px;
+            bottom: 10px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .input-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+
+        .send-btn {
+            background: #0099ff;
+            border: 1px solid #0099ff;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .mode-btn.active {
+            background: rgba(0, 153, 255, 0.2);
+            color: #0099ff;
+            border-color: #0099ff;
+            flex: 1;
+        }
+
+        .mode-btn:not(.active) {
+            width: 40px;
+            padding: 6px;
+            justify-content: center;
+        }
+
+        .mode-btn:not(.active) .btn-text {
+            display: none;
+        }
+
+        .mode-btn.active .btn-text {
+            display: inline;
+        }
+
+        /* Footer */
+        .app-footer {
+            padding: 8px 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.03);
+            flex-shrink: 0;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .current-chat-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #a0a0c0;
+            font-size: 12px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #8888aa;
+        }
+
+        .footer-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        /* Sidebar Menu */
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 320px;
+            height: 100vh;
+            background: #0f0f23;
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-menu.active {
+            right: 0;
+        }
+
+        .sidebar-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            display: none;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
             backdrop-filter: blur(2px);
         }
 
-        .guide-overlay.active {
-            display: block;
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
-        .guide-highlight {
-            position: absolute;
-            border: 2px solid var(--accent-primary);
-            border-radius: var(--radius-md);
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
-            z-index: 1001;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: none;
+        .sidebar-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
         }
 
-        .guide-tooltip {
-            position: absolute;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            max-width: 320px;
-            box-shadow: var(--shadow-md);
-            z-index: 1002;
-            animation: tooltipAppear 0.3s ease-out;
+        .sidebar-header-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .guide-tooltip::before {
-            content: '';
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            transform: rotate(45deg);
+        .sidebar-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.08);
         }
 
-        .guide-tooltip.top::before {
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%) rotate(45deg);
-            border-top: none;
-            border-left: none;
-        }
-
-        .guide-tooltip.bottom::before {
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%) rotate(45deg);
-            border-bottom: none;
-            border-right: none;
-        }
-
-        .guide-tooltip.left::before {
-            right: -6px;
-            top: 50%;
-            transform: translateY(-50%) rotate(45deg);
-            border-left: none;
-            border-bottom: none;
-        }
-
-        .guide-tooltip.right::before {
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%) rotate(45deg);
-            border-right: none;
-            border-top: none;
-        }
-
-        .tooltip-title {
-            font-size: 1.1rem;
+        .sidebar-header h3 {
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--accent-primary);
+            color: #ffffff;
         }
 
-        .tooltip-description {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            line-height: 1.5;
-        }
-
-        .tooltip-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .tooltip-progress {
-            font-size: 0.8rem;
-            color: var(--text-tertiary);
-        }
-
-        .tooltip-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .tooltip-btn {
-            padding: 6px 12px;
-            border-radius: var(--radius-md);
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-        }
-
-        .tooltip-btn:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .tooltip-btn.primary {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
-
-        .tooltip-btn.primary:hover {
-            background: var(--accent-secondary);
-            border-color: var(--accent-secondary);
-        }
-
-        /* Main App Styles */
-        .main-app {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            padding: 10px;
-            gap: 10px;
-        }
-
-        .app-header {
-            padding: 10px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            background: var(--bg-secondary);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .app-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .app-logo img {
+        .sidebar-close {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
             width: 36px;
             height: 36px;
-            border-radius: var(--radius-md);
-        }
-
-        .header-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .control-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: var(--transition);
+            transition: all 0.3s ease;
+            font-size: 16px;
         }
 
-        .control-btn:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .control-btn.guide-btn {
-            background: var(--accent-primary-alpha);
-            color: var(--accent-primary);
-            border-color: var(--accent-primary);
-        }
-
-        .app-content {
+        .sidebar-content {
             flex: 1;
-            display: flex;
-            gap: 10px;
-        }
-
-        .sidebar {
-            width: 240px;
+            overflow-y: auto;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 20px;
         }
 
-        .sidebar-section {
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            background: var(--bg-secondary);
-            padding: 15px;
-        }
-
-        .sidebar-title {
-            font-size: 0.9rem;
+        .sidebar-section h4 {
+            font-size: 14px;
             font-weight: 600;
+            color: #ffffff;
             margin-bottom: 12px;
-            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -293,682 +570,808 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-        }
-
-        .chat-item {
-            padding: 8px 12px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .chat-item:hover {
-            background: var(--bg-tertiary);
-        }
-
-        .chat-item.active {
-            background: var(--accent-primary-alpha);
-            color: var(--accent-primary);
-        }
-
-        .new-chat-btn {
-            width: 100%;
-            padding: 10px;
-            border-radius: var(--radius-md);
-            background: var(--accent-primary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-
-        .new-chat-btn:hover {
-            background: var(--accent-secondary);
-        }
-
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            background: var(--bg-secondary);
-            overflow: hidden;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
+            margin-bottom: 16px;
+            max-height: 300px;
             overflow-y: auto;
         }
 
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: var(--radius-xl);
-            margin-bottom: 16px;
+        .chat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .chat-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .chat-item.active {
+            background: rgba(0, 153, 255, 0.2);
+            border-color: #0099ff;
+        }
+
+        .chat-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-item-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .chat-item-preview {
+            font-size: 11px;
+            color: #8888aa;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+
+        .chat-item-action {
+            background: none;
+            border: none;
+            color: #8888aa;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .chat-management-buttons {
+            display: flex;
+            gap: 8px;
+            flex-direction: column;
+        }
+
+        .sidebar-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            color: #a0a0c0;
+            text-decoration: none;
+        }
+
+        .sidebar-btn.primary {
+            background: rgba(0, 153, 255, 0.2);
+            color: #0099ff;
+            border-color: #0099ff;
+        }
+
+        /* Tutorial Overlay */
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tutorial-card {
+            background: #0f0f23;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+        }
+
+        .tutorial-highlight {
+            position: absolute;
+            border: 2px solid #0099ff;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(0, 153, 255, 0.1), 0 0 20px rgba(0, 153, 255, 0.5);
+            z-index: 10001;
+            transition: all 0.5s ease;
+        }
+
+        .tutorial-content {
+            margin-bottom: 24px;
+        }
+
+        .tutorial-content h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .tutorial-content p {
+            color: #a0a0c0;
             line-height: 1.5;
         }
 
-        .message-user {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            margin-left: auto;
-        }
-
-        .message-ai {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .chat-input-area {
-            padding: 15px;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-primary);
-        }
-
-        .input-wrapper {
+        .tutorial-progress {
             display: flex;
-            align-items: flex-end;
-            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
-        .input-actions {
+        .tutorial-steps {
             display: flex;
             gap: 6px;
         }
 
-        .action-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
+        .tutorial-step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-step.active {
+            background: #0099ff;
+            transform: scale(1.2);
+        }
+
+        .tutorial-actions {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
+            justify-content: space-between;
+            gap: 12px;
         }
 
-        .action-btn:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        #userInput {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xl);
-            background: var(--bg-primary);
-            color: var(--text-primary);
+        .tutorial-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
             font-size: 14px;
-            resize: none;
-            outline: none;
-            min-height: 40px;
-            max-height: 120px;
-            font-family: inherit;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            color: #a0a0c0;
         }
 
-        #userInput:focus {
-            border-color: var(--accent-primary);
-        }
-
-        .send-btn {
-            background: var(--accent-primary);
-            border: 1px solid var(--accent-primary);
+        .tutorial-btn.primary {
+            background: #0099ff;
             color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
+            border-color: #0099ff;
+        }
+
+        .tutorial-btn.skip {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #a0a0c0;
+        }
+
+        .tutorial-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: #a0a0c0;
             cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: var(--transition);
-        }
-
-        .send-btn:hover {
-            background: var(--accent-secondary);
-            border-color: var(--accent-secondary);
+            width: 32px;
+            height: 32px;
         }
 
         .beta-badge {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 2px 8px;
+            padding: 2px 6px;
             border-radius: 10px;
-            font-size: 0.7rem;
+            font-size: 10px;
             font-weight: 600;
             margin-left: 6px;
+            vertical-align: super;
         }
 
-        @keyframes tooltipAppear {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes pulse {
-            0% { 
-                box-shadow: 0 0 0 0 rgba(0, 153, 255, 0.7),
-                           0 0 0 9999px rgba(0, 0, 0, 0.7);
-            }
-            70% { 
-                box-shadow: 0 0 0 10px rgba(0, 153, 255, 0),
-                           0 0 0 9999px rgba(0, 0, 0, 0.7);
-            }
-            100% { 
-                box-shadow: 0 0 0 0 rgba(0, 153, 255, 0),
-                           0 0 0 9999px rgba(0, 0, 0, 0.7);
-            }
-        }
-
-        .guide-highlight.pulse {
-            animation: pulse 2s infinite;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
-            .app-content {
-                flex-direction: column;
+            .tutorial-card {
+                padding: 20px;
+                margin: 20px;
             }
             
-            .sidebar {
-                width: 100%;
-            }
-            
-            .guide-tooltip {
-                max-width: 280px;
-                margin: 0 10px;
+            .tutorial-content h3 {
+                font-size: 18px;
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Guide Overlay -->
-        <div class="guide-overlay" id="guideOverlay"></div>
-        
-        <!-- Main App -->
-        <div class="main-app">
-            <!-- Header -->
-            <div class="app-header">
-                <div class="app-logo">
-                    <!-- Замените на ваш логотип -->
-                    <div style="width:36px;height:36px;background:var(--accent-primary);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold">K</div>
-                    <div>KHAI Assistant <span class="beta-badge">BETA</span></div>
-                </div>
-                <div class="header-controls">
-                    <button class="control-btn" id="themeBtn">
-                        <i class="ti ti-moon"></i>
-                    </button>
-                    <button class="control-btn guide-btn" id="startGuideBtn">
-                        <i class="ti ti-help"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Content -->
-            <div class="app-content">
-                <!-- Sidebar -->
-                <div class="sidebar">
-                    <div class="sidebar-section">
-                        <button class="new-chat-btn" id="newChatBtn">
-                            <i class="ti ti-plus"></i> Новый чат
-                        </button>
-                    </div>
-                    
-                    <div class="sidebar-section">
-                        <div class="sidebar-title">
-                            <i class="ti ti-messages"></i> Мои чаты
-                        </div>
-                        <div class="chat-list">
-                            <div class="chat-item active">
-                                <i class="ti ti-message-circle"></i> Основной чат
-                            </div>
-                            <div class="chat-item">
-                                <i class="ti ti-message-circle"></i> Работа
-                            </div>
-                            <div class="chat-item">
-                                <i class="ti ti-message-circle"></i> Обучение
-                            </div>
-                            <div class="chat-item">
-                                <i class="ti ti-message-circle"></i> Проекты
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="sidebar-section">
-                        <div class="sidebar-title">
-                            <i class="ti ti-settings"></i> Настройки
-                        </div>
-                        <div class="chat-list">
-                            <div class="chat-item">
-                                <i class="ti ti-brain"></i> Модели ИИ
-                            </div>
-                            <div class="chat-item">
-                                <i class="ti ti-download"></i> Экспорт чатов
-                            </div>
-                            <div class="chat-item">
-                                <i class="ti ti-help"></i> Справка
-                            </div>
-                        </div>
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="logo" id="logoBtn">
+                    <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: #0099ff;">
+                        <i class="ti ti-robot" style="font-size: 20px;"></i>
                     </div>
                 </div>
                 
-                <!-- Chat Area -->
-                <div class="chat-area">
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="message message-ai">
-                            👋 Привет! Я KHAI Assistant — ваш ИИ-помощник. Чем могу помочь?
-                        </div>
-                        <div class="message message-user">
-                            Расскажи о своих возможностях
-                        </div>
-                        <div class="message message-ai">
-                            Я могу помочь с анализом текста, генерацией контента, решением задач, работой с кодом и многое другое! Просто спросите :)
-                        </div>
+                <button class="model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
+                    <i class="ti ti-brain"></i>
+                </button>
+            </div>
+            
+            <div class="header-search-container">
+                <div class="search-wrapper">
+                    <i class="ti ti-search"></i>
+                    <input type="text" id="headerSearch" placeholder="Поиск по чату..." aria-label="Поиск по истории чата">
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <button class="control-btn" id="themeToggle" aria-label="Переключить тему">
+                    <i class="ti ti-moon"></i>
+                </button>
+                <button class="control-btn menu-toggle" id="menuToggle" aria-label="Открыть меню">
+                    <i class="ti ti-menu-2"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <div class="messages-container" id="messagesContainer" aria-live="polite">
+                <div class="message message-ai">
+                    <div class="message-content">
+                        <p>👋 Добро пожаловать в KHAI — Первый белорусский чат с ИИ!</p>
+                        <p>Я ваш бесплатный ИИ-помощник. Начните общение, отправив сообщение!</p>
                     </div>
-                    
-                    <div class="chat-input-area">
-                        <div class="input-wrapper">
-                            <div class="input-actions">
-                                <button class="action-btn" id="attachFileBtn">
-                                    <i class="ti ti-paperclip"></i>
-                                </button>
-                                <button class="action-btn" id="voiceInputBtn">
-                                    <i class="ti ti-microphone"></i>
-                                </button>
-                            </div>
-                            
-                            <textarea 
-                                id="userInput" 
-                                placeholder="Введите сообщение..." 
-                                rows="1"
-                            ></textarea>
-                            
-                            <button class="send-btn" id="sendMessageBtn">
-                                <i class="ti ti-send"></i>
+                </div>
+            </div>
+
+            <!-- Minimap & Navigation -->
+            <div class="chat-minimap-container">
+                <div class="minimap-header">
+                    <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
+                        <i class="ti ti-moon"></i>
+                    </button>
+                </div>
+                <div class="chat-minimap" id="chatMinimap"></div>
+                <div class="minimap-navigation">
+                    <button class="nav-btn" id="scrollToLastAI" title="К последнему ответу ИИ">
+                        <i class="ti ti-arrow-up"></i>
+                    </button>
+                    <button class="nav-btn" id="scrollToBottom" title="К низу чата">
+                        <i class="ti ti-arrow-down"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Input Section -->
+        <div class="input-section" id="inputSection">
+            <div class="mode-indicator">
+                <i class="ti ti-message"></i> Обычный режим
+            </div>
+            
+            <div class="input-wrapper">
+                <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
+                    <i class="ti ti-plus"></i>
+                </button>
+                
+                <textarea 
+                    id="userInput" 
+                    placeholder="Задайте вопрос или опишите изображение..." 
+                    autocomplete="off" 
+                    rows="1"
+                    maxlength="4000"
+                    aria-label="Поле ввода сообщения"
+                ></textarea>
+                
+                <div class="input-controls">
+                    <button class="input-btn" id="clearInputBtn" title="Очистить ввод" style="display: none;">
+                        <i class="ti ti-x"></i>
+                    </button>
+                    <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
+                        <i class="ti ti-microphone"></i>
+                    </button>
+                    <button class="send-btn" id="sendBtn" title="Отправить сообщение">
+                        <i class="ti ti-send"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn mode-btn active" id="normalModeBtn">
+                    <i class="ti ti-message"></i>
+                    <span class="btn-text">Обычный</span>
+                </button>
+                <button class="action-btn mode-btn" id="generateVoiceBtn">
+                    <i class="ti ti-microphone"></i>
+                    <span class="btn-text">Голос</span>
+                </button>
+                <button class="action-btn mode-btn" id="generateImageBtn" title="В разработке">
+                    <i class="ti ti-photo"></i>
+                    <span class="btn-text">Изображения</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="current-chat-info">
+                <i class="ti ti-message"></i>
+                <span id="currentChatName">Основной чат</span>
+            </div>
+            
+            <div class="connection-status">
+                <i class="ti ti-circle" style="color: #00ff00;"></i>
+                <span id="connectionStatusText">Подключено</span>
+            </div>
+            
+            <div class="footer-controls">
+                <button class="footer-btn" id="helpBtn" title="Помощь">
+                    <i class="ti ti-help"></i>
+                </button>
+                <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
+                    <i class="ti ti-download"></i>
+                </button>
+                <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div class="sidebar-header">
+            <div class="sidebar-header-content">
+                <div class="sidebar-logo">
+                    <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #0099ff;">
+                        <i class="ti ti-robot" style="font-size: 24px;"></i>
+                    </div>
+                </div>
+                <h3>KHAI <span class="beta-badge">BETA</span></h3>
+            </div>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <h4><i class="ti ti-messages"></i> Мои чаты</h4>
+                <div class="chat-list" id="chatList">
+                    <div class="chat-item active">
+                        <div class="chat-item-content">
+                            <div class="chat-item-title">Основной чат</div>
+                            <div class="chat-item-preview">Добро пожаловать в KHAI...</div>
+                        </div>
+                        <div class="chat-item-actions">
+                            <button class="chat-item-action download-chat" title="Скачать чат">
+                                <i class="ti ti-download"></i>
+                            </button>
+                            <button class="chat-item-action edit" title="Редактировать название чата">
+                                <i class="ti ti-pencil"></i>
                             </button>
                         </div>
+                    </div>
+                </div>
+                <div class="chat-management-buttons">
+                    <button class="sidebar-btn primary" id="newChatBtn">
+                        <i class="ti ti-plus"></i> Новый чат
+                    </button>
+                    <button class="sidebar-btn" id="importChatBtn">
+                        <i class="ti ti-upload"></i> Импорт чата
+                    </button>
+                    <button class="sidebar-btn" id="deleteAllChatsBtn">
+                        <i class="ti ti-trash"></i> Удалить все
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h4><i class="ti ti-brain"></i> Модель ИИ</h4>
+                <div class="current-model-info">
+                    <span id="currentModelInfo">GPT-5 Nano</span>
+                    <span class="connection-status" id="connectionStatus">✅ Онлайн</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h4><i class="ti ti-info-circle"></i> О приложении</h4>
+                <div class="about-content">
+                    <div class="about-item">
+                        <strong>KHAI Assistant</strong>
+                        <span>Первый белорусский ИИ-помощник</span>
+                    </div>
+                    <div class="about-item">
+                        <strong>Версия</strong>
+                        <span>2.1.0</span>
+                    </div>
+                    <div class="about-item">
+                        <strong>Обновлено</strong>
+                        <span id="appVersionDate">2024</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Tutorial Overlay -->
+    <div class="tutorial-overlay" id="tutorialOverlay">
+        <div class="tutorial-highlight" id="tutorialHighlight"></div>
+        <div class="tutorial-card">
+            <button class="tutorial-close" id="tutorialClose">
+                <i class="ti ti-x"></i>
+            </button>
+            <div class="tutorial-content" id="tutorialContent">
+                <h3>Добро пожаловать в KHAI Assistant!</h3>
+                <p>Давайте познакомимся с основными функциями приложения. Этот гайд покажет вам, как использовать все возможности KHAI.</p>
+            </div>
+            <div class="tutorial-progress">
+                <div class="tutorial-steps" id="tutorialSteps">
+                    <div class="tutorial-step active"></div>
+                    <div class="tutorial-step"></div>
+                    <div class="tutorial-step"></div>
+                    <div class="tutorial-step"></div>
+                    <div class="tutorial-step"></div>
+                </div>
+                <span id="tutorialStepCounter">1/5</span>
+            </div>
+            <div class="tutorial-actions">
+                <button class="tutorial-btn skip" id="tutorialSkip">Пропустить</button>
+                <div>
+                    <button class="tutorial-btn" id="tutorialPrev" style="display: none;">Назад</button>
+                    <button class="tutorial-btn primary" id="tutorialNext">Далее</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        class DiscordStyleGuide {
+        class KHAITutorial {
             constructor() {
                 this.currentStep = 0;
-                this.totalSteps = 6;
+                this.totalSteps = 5;
                 this.isActive = false;
-                this.guideOverlay = document.getElementById('guideOverlay');
-                this.highlightElement = null;
-                this.tooltipElement = null;
-                this.init();
-            }
-            
-            init() {
-                this.createHighlightElement();
-                this.createTooltipElement();
+                
+                this.initializeElements();
                 this.bindEvents();
-                
-                // Check if guide was completed
-                const guideCompleted = localStorage.getItem('khai-guide-completed');
-                if (!guideCompleted) {
-                    // Auto-start guide on first visit
-                    setTimeout(() => this.startGuide(), 1000);
-                }
+                this.startTutorial();
             }
             
-            createHighlightElement() {
-                this.highlightElement = document.createElement('div');
-                this.highlightElement.className = 'guide-highlight';
-                document.body.appendChild(this.highlightElement);
-            }
-            
-            createTooltipElement() {
-                this.tooltipElement = document.createElement('div');
-                this.tooltipElement.className = 'guide-tooltip';
-                this.tooltipElement.innerHTML = `
-                    <div class="tooltip-title"></div>
-                    <div class="tooltip-description"></div>
-                    <div class="tooltip-actions">
-                        <div class="tooltip-progress"></div>
-                        <div class="tooltip-buttons">
-                            <button class="tooltip-btn" id="tooltipBackBtn">Назад</button>
-                            <button class="tooltip-btn primary" id="tooltipNextBtn">Далее</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(this.tooltipElement);
+            initializeElements() {
+                // Tutorial elements
+                this.tutorialOverlay = document.getElementById('tutorialOverlay');
+                this.tutorialHighlight = document.getElementById('tutorialHighlight');
+                this.tutorialContent = document.getElementById('tutorialContent');
+                this.tutorialSteps = document.getElementById('tutorialSteps');
+                this.tutorialStepCounter = document.getElementById('tutorialStepCounter');
+                this.tutorialNext = document.getElementById('tutorialNext');
+                this.tutorialPrev = document.getElementById('tutorialPrev');
+                this.tutorialSkip = document.getElementById('tutorialSkip');
+                this.tutorialClose = document.getElementById('tutorialClose');
                 
-                // Bind tooltip buttons
-                document.getElementById('tooltipBackBtn').addEventListener('click', () => this.previousStep());
-                document.getElementById('tooltipNextBtn').addEventListener('click', () => this.nextStep());
+                // App elements
+                this.menuToggle = document.getElementById('menuToggle');
+                this.sidebarMenu = document.getElementById('sidebarMenu');
+                this.newChatBtn = document.getElementById('newChatBtn');
+                this.userInput = document.getElementById('userInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.chatList = document.getElementById('chatList');
             }
             
             bindEvents() {
-                document.getElementById('startGuideBtn').addEventListener('click', () => this.startGuide());
+                this.tutorialNext.addEventListener('click', () => this.nextStep());
+                this.tutorialPrev.addEventListener('click', () => this.prevStep());
+                this.tutorialSkip.addEventListener('click', () => this.skipTutorial());
+                this.tutorialClose.addEventListener('click', () => this.skipTutorial());
+                
+                // Close tutorial when clicking outside the card
+                this.tutorialOverlay.addEventListener('click', (e) => {
+                    if (e.target === this.tutorialOverlay) {
+                        this.skipTutorial();
+                    }
+                });
             }
             
-            startGuide() {
+            startTutorial() {
                 this.isActive = true;
                 this.currentStep = 0;
-                this.guideOverlay.classList.add('active');
+                this.tutorialOverlay.classList.add('active');
                 this.showStep(0);
-            }
-            
-            endGuide() {
-                this.isActive = false;
-                this.guideOverlay.classList.remove('active');
-                this.hideHighlight();
-                this.hideTooltip();
-                localStorage.setItem('khai-guide-completed', 'true');
             }
             
             showStep(stepIndex) {
                 this.currentStep = stepIndex;
-                const steps = this.getGuideSteps();
-                const step = steps[stepIndex];
+                this.updateProgress();
                 
-                if (!step) {
-                    this.endGuide();
+                // Reset all steps
+                const steps = this.tutorialSteps.querySelectorAll('.tutorial-step');
+                steps.forEach((step, index) => {
+                    step.classList.toggle('active', index === stepIndex);
+                });
+                
+                // Show/hide prev button
+                this.tutorialPrev.style.display = stepIndex > 0 ? 'inline-block' : 'none';
+                
+                // Update next button text for last step
+                if (stepIndex === this.totalSteps - 1) {
+                    this.tutorialNext.textContent = 'Завершить';
+                } else {
+                    this.tutorialNext.textContent = 'Далее';
+                }
+                
+                // Update content and highlight based on step
+                this.updateStepContent(stepIndex);
+            }
+            
+            updateStepContent(stepIndex) {
+                switch(stepIndex) {
+                    case 0:
+                        this.tutorialContent.innerHTML = `
+                            <h3>Добро пожаловать в KHAI Assistant!</h3>
+                            <p>Это первый белорусский ИИ-помощник. Давайте познакомимся с основными функциями приложения.</p>
+                            <p>Этот гайд покажет вам, как использовать все возможности KHAI.</p>
+                        `;
+                        this.highlightElement(null);
+                        break;
+                    case 1:
+                        this.tutorialContent.innerHTML = `
+                            <h3>Меню чатов</h3>
+                            <p>Здесь вы можете управлять своими чатами: создавать новые, переключаться между ними, импортировать или удалять.</p>
+                            <p>Нажмите на кнопку меню, чтобы открыть панель управления чатами.</p>
+                        `;
+                        this.highlightElement(this.menuToggle);
+                        break;
+                    case 2:
+                        this.tutorialContent.innerHTML = `
+                            <h3>Создание нового чата</h3>
+                            <p>Создавайте отдельные чаты для разных тем или проектов.</p>
+                            <p>Например, можно создать отдельный чат для работы, учебы или личных вопросов.</p>
+                        `;
+                        // Open sidebar if not already open
+                        this.sidebarMenu.classList.add('active');
+                        document.getElementById('sidebarOverlay').classList.add('active');
+                        this.highlightElement(this.newChatBtn);
+                        break;
+                    case 3:
+                        this.tutorialContent.innerHTML = `
+                            <h3>Ввод сообщений</h3>
+                            <p>Введите ваш вопрос или запрос в это поле. Вы можете использовать голосовой ввод или прикреплять файлы.</p>
+                            <p>Нажмите кнопку отправки или клавишу Enter, чтобы отправить сообщение.</p>
+                        `;
+                        this.highlightElement(this.userInput);
+                        break;
+                    case 4:
+                        this.tutorialContent.innerHTML = `
+                            <h3>Настройка режимов</h3>
+                            <p>Используйте кнопки внизу для переключения между режимами:</p>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>Обычный</strong> - стандартный текстовый чат</li>
+                                <li><strong>Голос</strong> - голосовой ввод и вывод</li>
+                                <li><strong>Изображения</strong> - работа с изображениями</li>
+                            </ul>
+                        `;
+                        this.highlightElement(document.querySelector('.action-buttons'));
+                        break;
+                }
+            }
+            
+            highlightElement(element) {
+                if (!element) {
+                    this.tutorialHighlight.style.display = 'none';
                     return;
                 }
                 
-                const targetElement = document.querySelector(step.element);
-                if (targetElement) {
-                    this.highlightElementFunc(targetElement, step.position);
-                    this.showTooltip(targetElement, step);
-                } else {
-                    // If element not found, proceed to next step
-                    console.warn('Element not found:', step.element);
-                    this.nextStep();
-                }
-                
-                this.updateProgress();
-            }
-            
-            highlightElementFunc(element, position = 'bottom') {
                 const rect = element.getBoundingClientRect();
-                
-                this.highlightElement.style.width = `${rect.width + 10}px`;
-                this.highlightElement.style.height = `${rect.height + 10}px`;
-                this.highlightElement.style.left = `${rect.left - 5}px`;
-                this.highlightElement.style.top = `${rect.top - 5}px`;
-                this.highlightElement.classList.add('pulse');
-                
-                // Store position for tooltip placement
-                this.currentPosition = position;
+                this.tutorialHighlight.style.display = 'block';
+                this.tutorialHighlight.style.width = `${rect.width + 20}px`;
+                this.tutorialHighlight.style.height = `${rect.height + 20}px`;
+                this.tutorialHighlight.style.left = `${rect.left - 10}px`;
+                this.tutorialHighlight.style.top = `${rect.top - 10}px`;
             }
             
-            hideHighlight() {
-                this.highlightElement.classList.remove('pulse');
-                this.highlightElement.style.width = '0';
-                this.highlightElement.style.height = '0';
-            }
-            
-            showTooltip(element, step) {
-                const rect = element.getBoundingClientRect();
-                this.tooltipElement.querySelector('.tooltip-title').textContent = step.title;
-                this.tooltipElement.querySelector('.tooltip-description').textContent = step.description;
-                
-                // Position tooltip based on element position
-                this.positionTooltip(rect, step.position);
-                
-                this.tooltipElement.style.display = 'block';
-            }
-            
-            positionTooltip(rect, position) {
-                const tooltipRect = this.tooltipElement.getBoundingClientRect();
-                const spacing = 20;
-                
-                // Remove all position classes
-                this.tooltipElement.classList.remove('top', 'bottom', 'left', 'right');
-                
-                let tooltipX, tooltipY;
-                
-                switch (position) {
-                    case 'top':
-                        this.tooltipElement.classList.add('top');
-                        tooltipX = rect.left + rect.width/2 - tooltipRect.width/2;
-                        tooltipY = rect.top - tooltipRect.height - spacing;
-                        break;
-                    case 'bottom':
-                        this.tooltipElement.classList.add('bottom');
-                        tooltipX = rect.left + rect.width/2 - tooltipRect.width/2;
-                        tooltipY = rect.bottom + spacing;
-                        break;
-                    case 'left':
-                        this.tooltipElement.classList.add('left');
-                        tooltipX = rect.left - tooltipRect.width - spacing;
-                        tooltipY = rect.top + rect.height/2 - tooltipRect.height/2;
-                        break;
-                    case 'right':
-                        this.tooltipElement.classList.add('right');
-                        tooltipX = rect.right + spacing;
-                        tooltipY = rect.top + rect.height/2 - tooltipRect.height/2;
-                        break;
-                    default:
-                        this.tooltipElement.classList.add('bottom');
-                        tooltipX = rect.left + rect.width/2 - tooltipRect.width/2;
-                        tooltipY = rect.bottom + spacing;
-                }
-                
-                this.tooltipElement.style.left = `${tooltipX}px`;
-                this.tooltipElement.style.top = `${tooltipY}px`;
-                
-                // Ensure tooltip stays within viewport
-                this.adjustTooltipPosition();
-            }
-            
-            adjustTooltipPosition() {
-                const tooltipRect = this.tooltipElement.getBoundingClientRect();
-                const viewport = {
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                };
-                
-                if (tooltipRect.right > viewport.width - 10) {
-                    this.tooltipElement.style.left = `${viewport.width - tooltipRect.width - 10}px`;
-                }
-                if (tooltipRect.left < 10) {
-                    this.tooltipElement.style.left = '10px';
-                }
-                if (tooltipRect.bottom > viewport.height - 10) {
-                    this.tooltipElement.style.top = `${viewport.height - tooltipRect.height - 10}px`;
-                }
-                if (tooltipRect.top < 10) {
-                    this.tooltipElement.style.top = '10px';
-                }
-            }
-            
-            hideTooltip() {
-                this.tooltipElement.style.display = 'none';
+            updateProgress() {
+                this.tutorialStepCounter.textContent = `${this.currentStep + 1}/${this.totalSteps}`;
             }
             
             nextStep() {
                 if (this.currentStep < this.totalSteps - 1) {
                     this.showStep(this.currentStep + 1);
                 } else {
-                    this.endGuide();
+                    this.completeTutorial();
                 }
             }
             
-            previousStep() {
+            prevStep() {
                 if (this.currentStep > 0) {
                     this.showStep(this.currentStep - 1);
                 }
             }
             
-            updateProgress() {
-                const progressElement = this.tooltipElement.querySelector('.tooltip-progress');
-                progressElement.textContent = `${this.currentStep + 1}/${this.totalSteps}`;
-                
-                // Update next button text for last step
-                const nextBtn = document.getElementById('tooltipNextBtn');
-                if (this.currentStep === this.totalSteps - 1) {
-                    nextBtn.textContent = 'Завершить';
-                } else {
-                    nextBtn.textContent = 'Далее';
-                }
-                
-                // Update back button state
-                const backBtn = document.getElementById('tooltipBackBtn');
-                backBtn.disabled = this.currentStep === 0;
+            skipTutorial() {
+                this.completeTutorial();
             }
             
-            getGuideSteps() {
-                return [
-                    {
-                        element: '#newChatBtn',
-                        title: 'Создание нового чата',
-                        description: 'Нажмите эту кнопку, чтобы начать новый разговор с ИИ. Каждый чат сохраняет свою историю.',
-                        position: 'bottom'
-                    },
-                    {
-                        element: '.chat-list .chat-item:first-child',
-                        title: 'Переключение между чатами',
-                        description: 'Здесь отображаются все ваши чаты. Нажмите на любой, чтобы переключиться между ними.',
-                        position: 'right'
-                    },
-                    {
-                        element: '#attachFileBtn',
-                        title: 'Прикрепление файлов',
-                        description: 'Загружайте изображения, документы и файлы кода для анализа ИИ. Поддерживаются все популярные форматы.',
-                        position: 'top'
-                    },
-                    {
-                        element: '#voiceInputBtn',
-                        title: 'Голосовой ввод',
-                        description: 'Нажмите и говорите - ИИ преобразует вашу речь в текст. Поддерживает русский язык.',
-                        position: 'top'
-                    },
-                    {
-                        element: '#userInput',
-                        title: 'Поле ввода сообщения',
-                        description: 'Вводите вопросы и запросы здесь. Используйте Shift+Enter для переноса строки.',
-                        position: 'top'
-                    },
-                    {
-                        element: '#sendMessageBtn',
-                        title: 'Отправка сообщения',
-                        description: 'Нажмите эту кнопку или Enter, чтобы отправить сообщение ИИ. Наслаждайтесь общением!',
-                        position: 'top'
-                    }
-                ];
-            }
-        }
-        
-        // Theme management
-        const themeBtn = document.getElementById('themeBtn');
-        let currentTheme = localStorage.getItem('khai-theme') || 'dark';
-        
-        document.body.setAttribute('data-theme', currentTheme);
-        updateThemeIcon();
-        
-        themeBtn.addEventListener('click', () => {
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', currentTheme);
-            localStorage.setItem('khai-theme', currentTheme);
-            updateThemeIcon();
-        });
-        
-        function updateThemeIcon() {
-            const icon = currentTheme === 'dark' ? 'ti-sun' : 'ti-moon';
-            themeBtn.innerHTML = `<i class="ti ${icon}"></i>`;
-        }
-        
-        // Chat functionality
-        const userInput = document.getElementById('userInput');
-        const sendMessageBtn = document.getElementById('sendMessageBtn');
-        const chatMessages = document.getElementById('chatMessages');
-        
-        sendMessageBtn.addEventListener('click', sendMessage);
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-            
-            // Auto-resize textarea
-            if (e.key === 'Enter' && e.shiftKey) {
+            completeTutorial() {
+                this.isActive = false;
+                this.tutorialOverlay.classList.remove('active');
+                this.sidebarMenu.classList.remove('active');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+                
+                // Show completion message
                 setTimeout(() => {
-                    userInput.style.height = 'auto';
-                    userInput.style.height = userInput.scrollHeight + 'px';
-                }, 0);
+                    this.addMessage('ai', '🎉 Отлично! Теперь вы знаете основные возможности KHAI Assistant. Если у вас возникнут вопросы, нажмите кнопку "Помощь" в правом нижнем углу.');
+                }, 500);
             }
-        });
-        
-        userInput.addEventListener('input', () => {
-            userInput.style.height = 'auto';
-            userInput.style.height = userInput.scrollHeight + 'px';
-        });
-        
-        function sendMessage() {
-            const message = userInput.value.trim();
-            if (!message) return;
             
-            // Add user message
-            addMessage('user', message);
-            userInput.value = '';
-            userInput.style.height = 'auto';
-            
-            // Simulate AI response
-            setTimeout(() => {
-                addMessage('ai', 'Это демонстрационный ответ ИИ. В реальном приложении здесь будет ответ от выбранной модели искусственного интеллекта.');
-            }, 1000);
+            addMessage(sender, content) {
+                const messagesContainer = document.getElementById('messagesContainer');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message message-${sender}`;
+                messageDiv.innerHTML = `<div class="message-content"><p>${content}</p></div>`;
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
         }
-        
-        function addMessage(role, text) {
-            const messageElement = document.createElement('div');
-            messageElement.className = `message message-${role}`;
-            messageElement.textContent = text;
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Initialize guide when DOM is loaded
+
+        // Initialize the tutorial when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            window.khaiGuide = new DiscordStyleGuide();
-        });
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.khaiGuide && window.khaiGuide.isActive) {
-                window.khaiGuide.showStep(window.khaiGuide.currentStep);
-            }
-        });
-        
-        // Add click handlers for demo purposes
-        document.querySelectorAll('.chat-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
+            const tutorial = new KHAITutorial();
+            
+            // Bind other UI interactions
+            document.getElementById('menuToggle').addEventListener('click', () => {
+                document.getElementById('sidebarMenu').classList.add('active');
+                document.getElementById('sidebarOverlay').classList.add('active');
             });
-        });
-        
-        document.getElementById('newChatBtn').addEventListener('click', () => {
-            alert('Создан новый чат!');
+            
+            document.getElementById('sidebarClose').addEventListener('click', () => {
+                document.getElementById('sidebarMenu').classList.remove('active');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+            });
+            
+            document.getElementById('sidebarOverlay').addEventListener('click', () => {
+                document.getElementById('sidebarMenu').classList.remove('active');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+            });
+            
+            // New chat functionality
+            document.getElementById('newChatBtn').addEventListener('click', () => {
+                const chatList = document.getElementById('chatList');
+                const chatCount = chatList.children.length + 1;
+                
+                const newChat = document.createElement('div');
+                newChat.className = 'chat-item';
+                newChat.innerHTML = `
+                    <div class="chat-item-content">
+                        <div class="chat-item-title">Новый чат ${chatCount}</div>
+                        <div class="chat-item-preview">Новый чат...</div>
+                    </div>
+                    <div class="chat-item-actions">
+                        <button class="chat-item-action download-chat" title="Скачать чат">
+                            <i class="ti ti-download"></i>
+                        </button>
+                        <button class="chat-item-action edit" title="Редактировать название чата">
+                            <i class="ti ti-pencil"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Remove active class from all chats
+                document.querySelectorAll('.chat-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Add new chat and make it active
+                chatList.appendChild(newChat);
+                newChat.classList.add('active');
+                
+                // Update current chat name
+                document.getElementById('currentChatName').textContent = `Новый чат ${chatCount}`;
+                
+                // Add welcome message
+                const messagesContainer = document.getElementById('messagesContainer');
+                messagesContainer.innerHTML = '';
+                
+                const welcomeMessage = document.createElement('div');
+                welcomeMessage.className = 'message message-ai';
+                welcomeMessage.innerHTML = `
+                    <div class="message-content">
+                        <p>👋 Привет! Это новый чат. Чем могу помочь?</p>
+                    </div>
+                `;
+                messagesContainer.appendChild(welcomeMessage);
+                
+                // Close sidebar
+                document.getElementById('sidebarMenu').classList.remove('active');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+                
+                // If tutorial is active, show a message
+                if (tutorial.isActive) {
+                    tutorial.addMessage('ai', 'Отлично! Вы создали новый чат. Теперь вы можете переключаться между чатами через меню.');
+                }
+            });
+            
+            // Send message functionality
+            document.getElementById('sendBtn').addEventListener('click', () => {
+                const userInput = document.getElementById('userInput');
+                const message = userInput.value.trim();
+                
+                if (message) {
+                    // Add user message
+                    tutorial.addMessage('user', message);
+                    
+                    // Clear input
+                    userInput.value = '';
+                    
+                    // Simulate AI response after a short delay
+                    setTimeout(() => {
+                        const responses = [
+                            "Отличный вопрос! Я могу помочь вам с этим. Что именно вас интересует?",
+                            "Интересный запрос! Давайте разберем его подробнее.",
+                            "Спасибо за ваш вопрос! Вот что я могу рассказать по этой теме...",
+                            "Я понимаю ваш интерес к этой теме. Вот что я знаю об этом:"
+                        ];
+                        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                        tutorial.addMessage('ai', randomResponse);
+                    }, 1000);
+                }
+            });
+            
+            // Also send on Enter key (but allow Shift+Enter for new line)
+            document.getElementById('userInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.getElementById('sendBtn').click();
+                }
+            });
         });
     </script>
 </body>
