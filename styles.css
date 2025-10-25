@@ -542,7 +542,7 @@ body {
 .chat-minimap-container {
     position: absolute;
     right: 10px;
-    top: 60px;
+    top: 5px;
     bottom: 160px;
     display: flex;
     flex-direction: column;
@@ -550,7 +550,7 @@ body {
     z-index: 10;
     width: 36px;
     align-items: center;
-    height: calc(100vh - 220px);
+    height: calc(100vh - 250px);
 }
 
 /* Заголовок мини-карты */
