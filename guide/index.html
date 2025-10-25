@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHAI Assistant - Гайд</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --bg-tertiary: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --text-tertiary: #8888aa;
+            --accent-primary: #0099ff;
+            --accent-secondary: #0066ff;
+            --accent-primary-alpha: rgba(0, 153, 255, 0.2);
+            --border-color: rgba(255, 255, 255, 0.15);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: rgba(0, 0, 0, 0.03);
+            --bg-tertiary: rgba(0, 0, 0, 0.08);
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #888888;
+            --border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow: hidden;
+            height: 100vh;
+            transition: var(--transition);
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Guide Styles */
+        .guide-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .guide-container.hidden {
+            transform: translateY(-100%);
+        }
+
+        .guide-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .guide-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .guide-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+        }
+
+        .guide-logo-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .skip-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .skip-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .guide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .guide-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s ease-in-out;
+        }
+
+        .guide-slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .guide-slide.previous {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+
+        .slide-icon {
+            font-size: 4rem;
+            color: var(--accent-primary);
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .slide-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            max-width: 500px;
+        }
+
+        .slide-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .slide-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+            max-width: 700px;
+        }
+
+        .feature-tag {
+            background: var(--accent-primary-alpha);
+            color: var(--accent-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid var(--accent-primary);
+        }
+
+        .slide-visual {
+            max-width: 300px;
+            margin-bottom: 30px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .slide-visual img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .guide-footer {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .guide-progress {
+            display: flex;
+            gap: 8px;
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border-color);
+            transition: var(--transition);
+        }
+
+        .progress-dot.active {
+            background: var(--accent-primary);
+            transform: scale(1.2);
+        }
+
+        .guide-navigation {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-btn.primary {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .nav-btn.primary:hover {
+            background: var(--accent-secondary);
+            border-color: var(--accent-secondary);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:disabled:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        /* Main App Styles (Simplified for demo) */
+        .main-app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .main-app.active {
+            opacity: 1;
+        }
+
+        .app-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-logo img {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+        }
+
+        .app-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .app-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-primary), #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .app-btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .app-btn.primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .app-btn.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .beta-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .slide-title {
+                font-size: 1.5rem;
+            }
+            
+            .slide-description {
+                font-size: 1rem;
+            }
+            
+            .slide-features {
+                gap: 10px;
+            }
+            
+            .feature-tag {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+            
+            .guide-navigation {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Guide Section -->
+        <div class="guide-container" id="guideContainer">
+            <div class="guide-header">
+                <div class="guide-logo">
+                    <img src="./logo.png" alt="KHAI">
+                    <div class="guide-logo-text">KHAI Assistant</div>
+                </div>
+                <button class="skip-btn" id="skipBtn">Пропустить</button>
+            </div>
+            
+            <div class="guide-content">
+                <!-- Slide 1: Welcome -->
+                <div class="guide-slide active" id="slide1">
+                    <div class="slide-icon">
+                        <i class="ti ti-rocket"></i>
+                    </div>
+                    <h2 class="slide-title">Добро пожаловать в KHAI Assistant!</h2>
+                    <p class="slide-description">
+                        Первый белорусский ИИ-помощник с расширенными возможностями. 
+                        Познакомьтесь с основными функциями за пару минут.
+                    </p>
+                    <div class="slide-features">
+                        <span class="feature-tag">Умный диалог</span>
+                        <span class="feature-tag">Анализ файлов</span>
+                        <span class="feature-tag">Голосовое взаимодействие</span>
+                    </div>
+                </div>
+                
+                <!-- Slide 2: Chat Features -->
+                <div class="guide-slide" id="slide2">
+                    <div class="slide-icon">
+                        <i class="ti ti-messages"></i>
+                    </div>
+                    <h2 class="slide-title">Умный чат с ИИ</h2>
+                    <p class="slide-description">
+                        Общайтесь с продвинутыми моделями искусственного интеллекта, 
+                        которые понимают контекст и поддерживают естественную беседу на русском языке.
+                    </p>
+                    <div class="slide-features">
+                        <span class="feature-tag">Поддержка контекста</span>
+                        <span class="feature-tag">Мультиязычность</span>
+                        <span class="feature-tag">Стриминг ответов</span>
+                        <span class="feature-tag">История диалогов</span>
+                    </div>
+                </div>
+                
+                <!-- Slide 3: File Analysis -->
+                <div class="guide-slide" id="slide3">
+                    <div class="slide-icon">
+                        <i class="ti ti-file-analytics"></i>
+                    </div>
+                    <h2 class="slide-title">Анализ файлов и изображений</h2>
+                    <p class="slide-description">
+                        Загружайте изображения, документы и код для анализа. 
+                        ИИ извлечет текст, проанализирует содержимое и даст развернутый ответ.
+                    </p>
+                    <div class="slide-features">
+                        <span class="feature-tag">Изображения (JPG, PNG, WebP)</span>
+                        <span class="feature-tag">Текстовые файлы</span>
+                        <span class="feature-tag">Код на 10+ языках</span>
+                        <span class="feature-tag">Документы (PDF, DOCX)</span>
+                    </div>
+                </div>
+                
+                <!-- Slide 4: Voice Features -->
+                <div class="guide-slide" id="slide4">
+                    <div class="slide-icon">
+                        <i class="ti ti-microphone"></i>
+                    </div>
+                    <h2 class="slide-title">Голосовое взаимодействие</h2>
+                    <p class="slide-description">
+                        Используйте голосовой ввод для удобства и генерацию речи 
+                        для прослушивания ответов ИИ. Полностью на русском языке.
+                    </p>
+                    <div class="slide-features">
+                        <span class="feature-tag">Голосовой ввод</span>
+                        <span class="feature-tag">Генерация речи</span>
+                        <span class="feature-tag">Озвучивание ответов</span>
+                        <span class="feature-tag">Естественное звучание</span>
+                    </div>
+                </div>
+                
+                <!-- Slide 5: Getting Started -->
+                <div class="guide-slide" id="slide5">
+                    <div class="slide-icon">
+                        <i class="ti ti-star"></i>
+                    </div>
+                    <h2 class="slide-title">Всё готово к работе!</h2>
+                    <p class="slide-description">
+                        Начните общение с ИИ прямо сейчас. Вы всегда можете вернуться 
+                        к этому гайду через меню приложения.
+                    </p>
+                    <div class="slide-features">
+                        <span class="feature-tag">Бесплатно</span>
+                        <span class="feature-tag">Без ограничений</span>
+                        <span class="feature-tag">Конфиденциально</span>
+                        <span class="feature-tag">Разработано в Беларуси</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="guide-footer">
+                <div class="guide-progress" id="progressDots">
+                    <div class="progress-dot active" data-slide="0"></div>
+                    <div class="progress-dot" data-slide="1"></div>
+                    <div class="progress-dot" data-slide="2"></div>
+                    <div class="progress-dot" data-slide="3"></div>
+                    <div class="progress-dot" data-slide="4"></div>
+                </div>
+                
+                <div class="guide-navigation">
+                    <button class="nav-btn" id="prevBtn" disabled>
+                        <i class="ti ti-arrow-left"></i> Назад
+                    </button>
+                    <button class="nav-btn primary" id="nextBtn">
+                        Далее <i class="ti ti-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main App Section -->
+        <div class="main-app" id="mainApp">
+            <div class="app-header">
+                <div class="app-logo">
+                    <img src="./logo.png" alt="KHAI">
+                    <div>KHAI Assistant <span class="beta-badge">BETA</span></div>
+                </div>
+                <button class="skip-btn" id="showGuideBtn">
+                    <i class="ti ti-help"></i> Показать гайд
+                </button>
+            </div>
+            
+            <div class="app-content">
+                <h1 class="app-title">KHAI Assistant</h1>
+                <p class="app-subtitle">
+                    Ваш интеллектуальный помощник для решения повседневных задач, 
+                    анализа информации и творческой работы
+                </p>
+                
+                <div class="app-actions">
+                    <button class="app-btn primary" id="startChatBtn">
+                        <i class="ti ti-message"></i> Начать чат
+                    </button>
+                    <button class="app-btn secondary" id="openGuideBtn">
+                        <i class="ti ti-help"></i> Открыть гайд
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class KHAGuide {
+            constructor() {
+                this.currentSlide = 0;
+                this.totalSlides = 5;
+                this.guideContainer = document.getElementById('guideContainer');
+                this.mainApp = document.getElementById('mainApp');
+                this.progressDots = document.getElementById('progressDots');
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.updateNavigation();
+                
+                // Check if user has seen the guide before
+                const hasSeenGuide = localStorage.getItem('khai-guide-seen');
+                if (hasSeenGuide) {
+                    this.hideGuide();
+                }
+            }
+            
+            bindEvents() {
+                // Navigation buttons
+                document.getElementById('nextBtn').addEventListener('click', () => this.nextSlide());
+                document.getElementById('prevBtn').addEventListener('click', () => this.prevSlide());
+                
+                // Skip button
+                document.getElementById('skipBtn').addEventListener('click', () => this.completeGuide());
+                
+                // Progress dots
+                this.progressDots.querySelectorAll('.progress-dot').forEach((dot, index) => {
+                    dot.addEventListener('click', () => this.goToSlide(index));
+                });
+                
+                // Main app buttons
+                document.getElementById('showGuideBtn').addEventListener('click', () => this.showGuide());
+                document.getElementById('openGuideBtn').addEventListener('click', () => this.showGuide());
+                document.getElementById('startChatBtn').addEventListener('click', () => {
+                    alert('Переход к основному чату...');
+                    // В реальном приложении здесь будет переход к чату
+                });
+            }
+            
+            nextSlide() {
+                if (this.currentSlide < this.totalSlides - 1) {
+                    this.goToSlide(this.currentSlide + 1);
+                } else {
+                    this.completeGuide();
+                }
+            }
+            
+            prevSlide() {
+                if (this.currentSlide > 0) {
+                    this.goToSlide(this.currentSlide - 1);
+                }
+            }
+            
+            goToSlide(slideIndex) {
+                // Hide current slide
+                const currentSlide = document.getElementById(`slide${this.currentSlide + 1}`);
+                currentSlide.classList.remove('active');
+                currentSlide.classList.add('previous');
+                
+                // Show new slide
+                this.currentSlide = slideIndex;
+                const newSlide = document.getElementById(`slide${this.currentSlide + 1}`);
+                newSlide.classList.remove('previous');
+                newSlide.classList.add('active');
+                
+                this.updateNavigation();
+                this.updateProgress();
+            }
+            
+            updateNavigation() {
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                
+                // Update previous button
+                prevBtn.disabled = this.currentSlide === 0;
+                
+                // Update next button
+                if (this.currentSlide === this.totalSlides - 1) {
+                    nextBtn.innerHTML = 'Начать <i class="ti ti-arrow-right"></i>';
+                } else {
+                    nextBtn.innerHTML = 'Далее <i class="ti ti-arrow-right"></i>';
+                }
+            }
+            
+            updateProgress() {
+                const dots = this.progressDots.querySelectorAll('.progress-dot');
+                dots.forEach((dot, index) => {
+                    if (index === this.currentSlide) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            completeGuide() {
+                localStorage.setItem('khai-guide-seen', 'true');
+                this.hideGuide();
+            }
+            
+            hideGuide() {
+                this.guideContainer.classList.add('hidden');
+                this.mainApp.classList.add('active');
+                
+                // Remove guide from DOM after animation
+                setTimeout(() => {
+                    this.guideContainer.style.display = 'none';
+                }, 500);
+            }
+            
+            showGuide() {
+                this.guideContainer.style.display = 'flex';
+                this.mainApp.classList.remove('active');
+                
+                setTimeout(() => {
+                    this.guideContainer.classList.remove('hidden');
+                }, 10);
+            }
+        }
+        
+        // Initialize guide when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.khaiGuide = new KHAGuide();
+        });
+        
+        // Theme management (optional)
+        const currentTheme = localStorage.getItem('khai-assistant-theme') || 'dark';
+        document.body.setAttribute('data-theme', currentTheme);
+    </script>
+</body>
+</html>
