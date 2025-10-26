@@ -2,1234 +2,424 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Гайд по KHAI Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHAI Assistant - Интерактивный гайд</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: rgba(255, 255, 255, 0.03);
-            --bg-tertiary: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0c0;
-            --text-tertiary: #8888aa;
-            --border-color: rgba(255, 255, 255, 0.15);
-            --accent-primary: #0099ff;
-            --accent-secondary: #0066ff;
-            --accent-primary-alpha: rgba(0, 153, 255, 0.2);
-            --user-message-bg-start: #667eea;
-            --user-message-bg-end: #764ba2;
-            --ai-message-bg: rgba(255, 255, 255, 0.08);
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 16px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.5;
-            overflow: hidden;
-            height: 100vh;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-        }
-
-        .app-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            height: 100dvh;
-            position: relative;
-        }
-
-        /* Header */
-        .app-header {
-            padding: 8px 15px;
-            padding-top: calc(8px + env(safe-area-inset-top, 0px));
-            border-bottom: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            backdrop-filter: blur(10px);
-            flex-shrink: 0;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            overflow: hidden;
-            background: var(--bg-tertiary);
-        }
-
-        .model-select-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 16px;
-        }
-
-        .header-search-container {
-            flex: 1;
-            margin: 0 15px;
-        }
-
-        .search-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            height: 36px;
-        }
-
-        .search-wrapper i {
-            position: absolute;
-            left: 10px;
-            color: var(--text-tertiary);
-            z-index: 1;
-        }
-
-        .search-wrapper input {
-            width: 100%;
-            height: 36px;
-            padding: 6px 32px 6px 28px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            font-size: 12px;
-            outline: none;
-            transition: var(--transition);
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .control-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 6px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-size: 13px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 36px;
-            width: 36px;
-        }
-
-        /* Chat area */
-        .chat-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            width: 100%;
-            position: relative;
-        }
-
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            scroll-behavior: smooth;
-            padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 16px 20px;
-            border-radius: var(--radius-xl);
-            line-height: 1.6;
-            animation: fadeIn 0.3s ease;
-            position: relative;
-            font-size: 14px;
-            word-wrap: break-word;
-        }
-
-        .message-user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
-            color: white;
-            margin-left: auto;
-        }
-
-        .message-ai {
-            align-self: flex-start;
-            background: var(--ai-message-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            margin-right: auto;
-        }
-
-        /* Input area */
-        .input-section {
-            padding: 8px 15px 12px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            flex-shrink: 0;
-            transition: var(--transition);
-            padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-        }
-
-        .mode-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: var(--text-tertiary);
-            margin-bottom: 8px;
-            padding: 0 4px;
-            opacity: 0.8;
-            justify-content: center;
-        }
-
-        .input-wrapper {
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-            align-items: center;
-        }
-
-        .attach-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 16px;
-            flex-shrink: 0;
-            align-self: center;
-        }
-
-        #userInput {
-            flex: 1;
-            padding: 12px 110px 12px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xl);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 14px;
-            line-height: 1.5;
-            resize: none;
-            outline: none;
-            transition: var(--transition);
-            min-height: 48px;
-            max-height: 120px;
-            overflow-y: auto;
-            font-family: inherit;
-        }
-
-        .input-controls {
-            position: absolute;
-            right: 12px;
-            bottom: 10px;
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .input-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            width: 30px;
-            height: 30px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 13px;
-        }
-
-        .send-btn {
-            background: var(--accent-primary);
-            border: 1px solid var(--accent-primary);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 13px;
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            margin-top: 12px;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 6px 12px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-size: 11px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            height: 32px;
-            flex-shrink: 0;
-        }
-
-        .mode-btn.active {
-            background: var(--accent-primary-alpha);
-            color: var(--accent-primary);
-            border-color: var(--accent-primary);
-            flex: 1;
-        }
-
-        .mode-btn:not(.active) {
-            width: 40px;
-            padding: 6px;
-            justify-content: center;
-        }
-
-        .mode-btn:not(.active) .btn-text {
-            display: none;
-        }
-
-        .mode-btn.active .btn-text {
-            display: inline;
-        }
-
-        /* Footer */
-        .app-footer {
-            padding: 8px 15px;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            backdrop-filter: blur(10px);
-            flex-shrink: 0;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .current-chat-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: var(--text-tertiary);
-        }
-
-        .footer-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .footer-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 14px;
-        }
-
-        /* Sidebar Menu */
-        .sidebar-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 100%;
-            max-width: 320px;
-            height: 100vh;
-            height: 100dvh;
-            background: var(--bg-primary);
-            border-left: 1px solid var(--border-color);
-            z-index: 1000;
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .sidebar-menu.active {
-            right: 0;
-        }
-
-        .sidebar-overlay {
+        /* Стили гайда */
+        .guide-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-            backdrop-filter: blur(2px);
-        }
-
-        .sidebar-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .sidebar-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
-
-        .sidebar-header-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .sidebar-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-tertiary);
-        }
-
-        .sidebar-header h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .sidebar-close {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 16px;
-        }
-
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .sidebar-section h4 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .chat-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 16px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .chat-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid transparent;
-            position: relative;
-        }
-
-        .chat-item:hover {
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .chat-item.active {
-            background: var(--accent-primary-alpha);
-            border-color: var(--accent-primary);
-        }
-
-        .chat-item-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .chat-item-title {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 2px;
-        }
-
-        .chat-item-preview {
-            font-size: 11px;
-            color: var(--text-tertiary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .chat-item-actions {
-            display: flex;
-            gap: 4px;
-            opacity: 1;
-            transition: var(--transition);
-        }
-
-        .chat-item-action {
-            background: none;
-            border: none;
-            color: var(--text-tertiary);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 6px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-        }
-
-        .chat-management-buttons {
-            display: flex;
-            gap: 8px;
-            flex-direction: column;
-        }
-
-        .sidebar-btn {
-            flex: 1;
-            padding: 10px 16px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-size: 13px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            text-decoration: none;
-        }
-
-        .sidebar-btn.primary {
-            background: var(--accent-primary-alpha);
-            color: var(--accent-primary);
-            border-color: var(--accent-primary);
-        }
-
-        /* Tutorial Overlay */
-        .tutorial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 10000;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        .guide-container {
+            background: #1e1e2e;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        
+        .guide-header {
             padding: 20px;
-            padding-top: calc(20px + env(safe-area-inset-top));
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
-        }
-
-        .tutorial-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .tutorial-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-xl);
-            padding: 30px 24px 24px;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border-color);
-            position: relative;
-            z-index: 10002;
-            text-align: center;
-        }
-
-        .tutorial-highlight {
-            position: absolute;
-            border: 3px solid var(--accent-primary);
-            border-radius: var(--radius-md);
-            box-shadow: 0 0 0 0 rgba(0, 153, 255, 0);
-            z-index: 10001;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 153, 255, 0); }
-            50% { box-shadow: 0 0 0 10px rgba(0, 153, 255, 0.3); }
-        }
-
-        .tutorial-content {
-            margin-bottom: 30px;
-        }
-
-        .tutorial-icon {
-            font-size: 48px;
-            color: var(--accent-primary);
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .tutorial-content h3 {
-            font-size: 24px;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }
-
-        .tutorial-content p {
-            color: var(--text-secondary);
-            line-height: 1.5;
-            font-size: 16px;
-        }
-
-        .tutorial-progress {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            gap: 8px;
+            justify-content: space-between;
         }
-
-        .tutorial-step {
+        
+        .guide-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .guide-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .guide-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .guide-content {
+            padding: 20px;
+        }
+        
+        .guide-step {
+            margin-bottom: 20px;
+        }
+        
+        .guide-step-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .guide-step-description {
+            font-size: 14px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .guide-highlight {
+            position: absolute;
+            border: 2px solid #0099ff;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            z-index: 10001;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .guide-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .guide-progress {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .guide-progress-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--border-color);
-            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.2);
+            transition: background 0.3s ease;
         }
-
-        .tutorial-step.active {
-            background: var(--accent-primary);
-            transform: scale(1.2);
+        
+        .guide-progress-dot.active {
+            background: #0099ff;
         }
-
-        .tutorial-actions {
+        
+        .guide-buttons {
             display: flex;
-            justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
         }
-
-        .tutorial-btn {
-            padding: 12px 24px;
-            border-radius: var(--radius-md);
+        
+        .guide-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        
+        .guide-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .guide-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .guide-btn-primary {
+            background: #0099ff;
+            color: white;
+        }
+        
+        .guide-btn-primary:hover {
+            background: #0081e6;
+        }
+        
+        .guide-btn-skip {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            border: none;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 500;
-            transition: var(--transition);
-            border: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            flex: 1;
         }
-
-        .tutorial-btn.primary {
-            background: var(--accent-primary);
+        
+        .guide-btn-skip:hover {
             color: white;
-            border-color: var(--accent-primary);
+            text-decoration: underline;
         }
-
-        .tutorial-btn.primary:hover {
-            background: var(--accent-secondary);
-            transform: translateY(-1px);
-        }
-
-        .tutorial-btn:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .tutorial-close {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 6px;
-            border-radius: var(--radius-md);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-        }
-
-        .tutorial-close:hover {
-            background: var(--accent-primary-alpha);
-            color: var(--accent-primary);
-        }
-
-        /* Transition Screen */
-        .transition-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-primary);
-            z-index: 20000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.5s ease;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .transition-screen.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .transition-content {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .transition-logo {
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-primary);
-            animation: float 2s ease-in-out infinite;
-        }
-
-        .transition-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--border-color);
-            border-top: 4px solid var(--accent-primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .transition-text {
-            color: var(--text-secondary);
-            font-size: 16px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .tutorial-card {
-                padding: 24px 20px 20px;
-                max-width: 90%;
-            }
-            
-            .tutorial-content h3 {
-                font-size: 20px;
-            }
-            
-            .chat-minimap-container {
-                display: none;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .tutorial-card {
-                padding: 20px 16px 16px;
-            }
-            
-            .tutorial-content h3 {
-                font-size: 18px;
-            }
-            
-            .tutorial-btn {
-                padding: 10px 16px;
-                font-size: 13px;
-            }
-            
-            .tutorial-icon {
-                font-size: 40px;
-            }
+        
+        .guide-element-highlight {
+            box-shadow: 0 0 0 3px #0099ff !important;
+            z-index: 10002 !important;
+            position: relative;
         }
     </style>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="app-header">
-            <div class="logo-container">
-                <div class="logo" id="logoBtn">
-                    <i class="ti ti-robot" style="font-size: 20px; color: #0099ff;"></i>
-                </div>
-                
-                <button class="model-select-btn" id="modelSelectBtn">
-                    <i class="ti ti-brain"></i>
-                </button>
+    <!-- Контейнер для гайда -->
+    <div id="guideOverlay" class="guide-overlay" style="display: none;">
+        <div class="guide-container">
+            <div class="guide-header">
+                <div class="guide-title">Добро пожаловать в KHAI Assistant!</div>
+                <button class="guide-close" id="guideCloseBtn">✕</button>
             </div>
-            
-            <div class="header-search-container">
-                <div class="search-wrapper">
-                    <i class="ti ti-search"></i>
-                    <input type="text" id="headerSearch" placeholder="Поиск по чату...">
+            <div class="guide-content">
+                <div class="guide-step" id="guideStepContent">
+                    <!-- Содержимое шагов будет заполняться динамически -->
                 </div>
             </div>
-            
-            <div class="header-controls">
-                <button class="control-btn" id="themeToggle">
-                    <i class="ti ti-moon"></i>
-                </button>
-                <button class="control-btn menu-toggle" id="menuToggle">
-                    <i class="ti ti-menu-2"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Chat Area -->
-        <main class="chat-main">
-            <div class="messages-container" id="messagesContainer">
-                <div class="message message-ai">
-                    <div class="message-content">
-                        <p>👋 Добро пожаловать в KHAI!</p>
-                    </div>
+            <div class="guide-footer">
+                <div class="guide-progress" id="guideProgress">
+                    <!-- Прогресс будет заполнен динамически -->
                 </div>
-            </div>
-        </main>
-
-        <!-- Input Section -->
-        <div class="input-section" id="inputSection">
-            <div class="input-wrapper">
-                <button class="attach-btn" id="attachFileBtn">
-                    <i class="ti ti-plus"></i>
-                </button>
-                
-                <textarea 
-                    id="userInput" 
-                    placeholder="Задайте вопрос..." 
-                    rows="1"
-                ></textarea>
-                
-                <div class="input-controls">
-                    <button class="input-btn" id="voiceInputBtn">
-                        <i class="ti ti-microphone"></i>
-                    </button>
-                    <button class="send-btn" id="sendBtn">
-                        <i class="ti ti-send"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <button class="action-btn mode-btn active" id="normalModeBtn">
-                    <i class="ti ti-message"></i>
-                    <span class="btn-text">Обычный</span>
-                </button>
-                <button class="action-btn mode-btn" id="generateVoiceBtn">
-                    <i class="ti ti-microphone"></i>
-                    <span class="btn-text">Голос</span>
-                </button>
-                <button class="action-btn mode-btn" id="generateImageBtn">
-                    <i class="ti ti-photo"></i>
-                    <span class="btn-text">Изображения</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="app-footer">
-            <div class="current-chat-info">
-                <i class="ti ti-message"></i>
-                <span id="currentChatName">Основной чат</span>
-            </div>
-            
-            <div class="footer-controls">
-                <button class="footer-btn" id="helpBtn">
-                    <i class="ti ti-help"></i>
-                </button>
-                <button class="footer-btn" id="clearChatBtn">
-                    <i class="ti ti-trash"></i>
-                </button>
-            </div>
-        </footer>
-    </div>
-
-    <!-- Sidebar Menu -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <div class="sidebar-menu" id="sidebarMenu">
-        <div class="sidebar-header">
-            <div class="sidebar-header-content">
-                <div class="sidebar-logo">
-                    <i class="ti ti-robot" style="font-size: 24px; color: #0099ff;"></i>
-                </div>
-                <h3>KHAI</h3>
-            </div>
-            <button class="sidebar-close" id="sidebarClose">
-                <i class="ti ti-x"></i>
-            </button>
-        </div>
-        
-        <div class="sidebar-content">
-            <div class="sidebar-section">
-                <h4><i class="ti ti-messages"></i> Мои чаты</h4>
-                <div class="chat-list" id="chatList">
-                    <div class="chat-item active">
-                        <div class="chat-item-content">
-                            <div class="chat-item-title">Основной чат</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="chat-management-buttons">
-                    <button class="sidebar-btn primary" id="newChatBtn">
-                        <i class="ti ti-plus"></i> Новый чат
-                    </button>
+                <div class="guide-buttons">
+                    <button class="guide-btn guide-btn-secondary" id="guidePrevBtn" style="display: none;">Назад</button>
+                    <button class="guide-btn guide-btn-primary" id="guideNextBtn">Далее</button>
+                    <button class="guide-btn-skip" id="guideSkipBtn">Пропустить</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Tutorial Overlay -->
-    <div class="tutorial-overlay" id="tutorialOverlay">
-        <div class="tutorial-highlight" id="tutorialHighlight"></div>
-        <div class="tutorial-card">
-            <button class="tutorial-close" id="tutorialClose">
-                <i class="ti ti-x"></i>
-            </button>
-            <div class="tutorial-content" id="tutorialContent">
-                <i class="ti ti-robot tutorial-icon"></i>
-                <h3>Добро пожаловать!</h3>
-                <p>Познакомьтесь с KHAI Assistant</p>
-            </div>
-            <div class="tutorial-progress">
-                <div class="tutorial-step active"></div>
-                <div class="tutorial-step"></div>
-                <div class="tutorial-step"></div>
-                <div class="tutorial-step"></div>
-            </div>
-            <div class="tutorial-actions">
-                <button class="tutorial-btn" id="tutorialSkip">Пропустить</button>
-                <button class="tutorial-btn primary" id="tutorialNext">Далее</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Transition Screen -->
-    <div class="transition-screen" id="transitionScreen">
-        <div class="transition-content">
-            <div class="transition-logo">
-                <i class="ti ti-robot"></i>
-            </div>
-            <div class="transition-spinner"></div>
-            <p class="transition-text">Переходим в KHAI Assistant...</p>
-        </div>
-    </div>
+    
+    <!-- Подсветка элементов -->
+    <div id="guideHighlight" class="guide-highlight" style="display: none;"></div>
 
     <script>
-        class KHAITutorial {
-            constructor() {
-                this.currentStep = 0;
-                this.totalSteps = 4;
-                this.isActive = false;
-                
-                this.initializeElements();
-                this.bindEvents();
-                this.startTutorial();
+        // Определяем шаги гайда
+        const guideSteps = [
+            {
+                title: "Добро пожаловать в KHAI Assistant!",
+                description: "Это первый белорусский ИИ-помощник. Давайте познакомимся с основными функциями приложения.",
+                element: null
+            },
+            {
+                title: "Ввод сообщений",
+                description: "Здесь вы можете вводить свои вопросы и запросы к ИИ. Просто начните печатать и нажмите кнопку отправки.",
+                element: "#userInput"
+            },
+            {
+                title: "Отправка сообщений",
+                description: "Эта кнопка отправляет ваше сообщение ИИ. Также вы можете использовать клавишу Enter для быстрой отправки.",
+                element: "#sendBtn"
+            },
+            {
+                title: "Прикрепление файлов",
+                description: "Нажмите эту кнопку, чтобы прикрепить изображения или текстовые файлы для анализа ИИ.",
+                element: "#attachFileBtn"
+            },
+            {
+                title: "Режимы работы",
+                description: "Здесь вы можете переключаться между обычным режимом, генерацией голоса и изображений (в разработке).",
+                element: ".action-buttons"
+            },
+            {
+                title: "История чатов",
+                description: "Откройте меню, чтобы просмотреть историю ваших чатов, создать новый или импортировать существующий.",
+                element: "#menuToggle"
+            },
+            {
+                title: "Выбор модели ИИ",
+                description: "Нажмите эту кнопку, чтобы выбрать другую модель ИИ для общения.",
+                element: "#modelSelectBtn"
+            },
+            {
+                title: "Поиск по чату",
+                description: "Используйте поиск, чтобы быстро найти нужные сообщения в длинных беседах.",
+                element: "#headerSearch"
+            },
+            {
+                title: "Навигация",
+                description: "Эти кнопки помогут быстро перейти к последнему ответу ИИ или в конец чата.",
+                element: ".minimap-navigation"
+            },
+            {
+                title: "Готово к использованию!",
+                description: "Теперь вы знакомы с основными функциями KHAI Assistant. Начните общение с ИИ прямо сейчас!",
+                element: null
             }
+        ];
+
+        // Переменные состояния гайда
+        let currentStep = 0;
+        let guideActive = false;
+
+        // Функция инициализации гайда
+        function initGuide() {
+            // Проверяем, нужно ли показывать гайд
+            const hasSeenGuide = localStorage.getItem('khai_guide_seen');
             
-            initializeElements() {
-                // Tutorial elements
-                this.tutorialOverlay = document.getElementById('tutorialOverlay');
-                this.tutorialHighlight = document.getElementById('tutorialHighlight');
-                this.tutorialContent = document.getElementById('tutorialContent');
-                this.tutorialSteps = document.querySelectorAll('.tutorial-step');
-                this.tutorialNext = document.getElementById('tutorialNext');
-                this.tutorialSkip = document.getElementById('tutorialSkip');
-                this.tutorialClose = document.getElementById('tutorialClose');
-                
-                // Transition screen
-                this.transitionScreen = document.getElementById('transitionScreen');
-                
-                // App elements
-                this.menuToggle = document.getElementById('menuToggle');
-                this.sidebarMenu = document.getElementById('sidebarMenu');
-                this.sidebarOverlay = document.getElementById('sidebarOverlay');
-                this.newChatBtn = document.getElementById('newChatBtn');
-                this.userInput = document.getElementById('userInput');
-            }
-            
-            bindEvents() {
-                this.tutorialNext.addEventListener('click', () => this.nextStep());
-                this.tutorialSkip.addEventListener('click', () => this.skipTutorial());
-                this.tutorialClose.addEventListener('click', () => this.skipTutorial());
-            }
-            
-            startTutorial() {
-                this.isActive = true;
-                this.currentStep = 0;
-                this.tutorialOverlay.classList.add('active');
-                this.showStep(0);
-            }
-            
-            showStep(stepIndex) {
-                this.currentStep = stepIndex;
-                this.updateProgress();
-                
-                // Update content based on step
-                this.updateStepContent(stepIndex);
-            }
-            
-            updateStepContent(stepIndex) {
-                // Close sidebar if it's open from previous steps
-                if (stepIndex !== 2) {
-                    this.sidebarMenu.classList.remove('active');
-                    this.sidebarOverlay.classList.remove('active');
-                }
-                
-                const contents = [
-                    {
-                        icon: 'ti-robot',
-                        title: 'Добро пожаловать!',
-                        text: 'Познакомьтесь с KHAI Assistant'
-                    },
-                    {
-                        icon: 'ti-menu-2',
-                        title: 'Меню чатов',
-                        text: 'Откройте меню для управления чатами'
-                    },
-                    {
-                        icon: 'ti-plus',
-                        title: 'Создание чатов',
-                        text: 'Создавайте отдельные чаты для разных тем'
-                    },
-                    {
-                        icon: 'ti-message',
-                        title: 'Готово!',
-                        text: 'Начните общение с ИИ-помощником'
-                    }
-                ];
-                
-                const content = contents[stepIndex];
-                this.tutorialContent.innerHTML = `
-                    <i class="ti ${content.icon} tutorial-icon"></i>
-                    <h3>${content.title}</h3>
-                    <p>${content.text}</p>
-                `;
-                
-                // Highlight elements
-                const elements = [null, this.menuToggle, this.newChatBtn, this.userInput];
-                this.highlightElement(elements[stepIndex]);
-                
-                // Update button text for last step
-                if (stepIndex === this.totalSteps - 1) {
-                    this.tutorialNext.textContent = 'Начать';
-                } else {
-                    this.tutorialNext.textContent = 'Далее';
-                }
-            }
-            
-            highlightElement(element) {
-                if (!element) {
-                    this.tutorialHighlight.style.display = 'none';
-                    return;
-                }
-                
-                const rect = element.getBoundingClientRect();
-                this.tutorialHighlight.style.display = 'block';
-                this.tutorialHighlight.style.width = `${rect.width + 20}px`;
-                this.tutorialHighlight.style.height = `${rect.height + 20}px`;
-                this.tutorialHighlight.style.left = `${rect.left - 10}px`;
-                this.tutorialHighlight.style.top = `${rect.top - 10}px`;
-                
-                // Open sidebar for step 2
-                if (element === this.newChatBtn) {
-                    this.sidebarMenu.classList.add('active');
-                    this.sidebarOverlay.classList.add('active');
-                }
-            }
-            
-            updateProgress() {
-                this.tutorialSteps.forEach((step, index) => {
-                    step.classList.toggle('active', index === this.currentStep);
-                });
-            }
-            
-            nextStep() {
-                if (this.currentStep < this.totalSteps - 1) {
-                    this.showStep(this.currentStep + 1);
-                } else {
-                    this.completeTutorial();
-                }
-            }
-            
-            skipTutorial() {
-                this.completeTutorial();
-            }
-            
-            completeTutorial() {
-                this.isActive = false;
-                this.tutorialOverlay.classList.remove('active');
-                this.sidebarMenu.classList.remove('active');
-                this.sidebarOverlay.classList.remove('active');
-                
-                // Show transition screen
-                this.transitionScreen.classList.add('active');
-                
-                // Redirect to KHAI after a delay
-                setTimeout(() => {
-                    window.location.href = 'https://khai.by/chat';
-                }, 2000);
+            // Если гайд еще не показывался или пользователь находится на странице /guide
+            if (!hasSeenGuide || window.location.pathname.includes('/guide')) {
+                startGuide();
             }
         }
 
-        // Initialize the tutorial when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            new KHAITutorial();
+        // Функция запуска гайда
+        function startGuide() {
+            guideActive = true;
+            currentStep = 0;
             
-            // Bind UI interactions
-            document.getElementById('menuToggle').addEventListener('click', () => {
-                document.getElementById('sidebarMenu').classList.add('active');
-                document.getElementById('sidebarOverlay').classList.add('active');
+            // Показываем оверлей гайда
+            document.getElementById('guideOverlay').style.display = 'flex';
+            
+            // Обновляем отображение текущего шага
+            updateGuideStep();
+        }
+
+        // Функция обновления текущего шага гайда
+        function updateGuideStep() {
+            const step = guideSteps[currentStep];
+            const stepContent = document.getElementById('guideStepContent');
+            const progressContainer = document.getElementById('guideProgress');
+            const prevBtn = document.getElementById('guidePrevBtn');
+            const nextBtn = document.getElementById('guideNextBtn');
+            const highlight = document.getElementById('guideHighlight');
+            
+            // Обновляем содержимое шага
+            stepContent.innerHTML = `
+                <div class="guide-step-title">${step.title}</div>
+                <div class="guide-step-description">${step.description}</div>
+            `;
+            
+            // Обновляем прогресс
+            progressContainer.innerHTML = '';
+            guideSteps.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `guide-progress-dot ${index === currentStep ? 'active' : ''}`;
+                progressContainer.appendChild(dot);
             });
             
-            document.getElementById('sidebarClose').addEventListener('click', () => {
-                document.getElementById('sidebarMenu').classList.remove('active');
-                document.getElementById('sidebarOverlay').classList.remove('active');
+            // Обновляем кнопки навигации
+            prevBtn.style.display = currentStep > 0 ? 'block' : 'none';
+            nextBtn.textContent = currentStep === guideSteps.length - 1 ? 'Завершить' : 'Далее';
+            
+            // Обрабатываем подсветку элемента
+            if (step.element) {
+                const targetElement = document.querySelector(step.element);
+                if (targetElement) {
+                    // Показываем подсветку
+                    const rect = targetElement.getBoundingClientRect();
+                    highlight.style.display = 'block';
+                    highlight.style.width = `${rect.width + 10}px`;
+                    highlight.style.height = `${rect.height + 10}px`;
+                    highlight.style.left = `${rect.left - 5}px`;
+                    highlight.style.top = `${rect.top - 5}px`;
+                    
+                    // Добавляем класс подсветки к элементу
+                    targetElement.classList.add('guide-element-highlight');
+                    
+                    // Прокручиваем к элементу, если он не виден
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    highlight.style.display = 'none';
+                }
+            } else {
+                highlight.style.display = 'none';
+            }
+            
+            // Убираем подсветку с предыдущего элемента
+            document.querySelectorAll('.guide-element-highlight').forEach(el => {
+                if (step.element && el !== document.querySelector(step.element)) {
+                    el.classList.remove('guide-element-highlight');
+                }
+            });
+        }
+
+        // Функция перехода к следующему шагу
+        function nextStep() {
+            // Убираем подсветку с текущего элемента
+            if (guideSteps[currentStep].element) {
+                const currentElement = document.querySelector(guideSteps[currentStep].element);
+                if (currentElement) {
+                    currentElement.classList.remove('guide-element-highlight');
+                }
+            }
+            
+            if (currentStep < guideSteps.length - 1) {
+                currentStep++;
+                updateGuideStep();
+            } else {
+                finishGuide();
+            }
+        }
+
+        // Функция перехода к предыдущему шагу
+        function prevStep() {
+            // Убираем подсветку с текущего элемента
+            if (guideSteps[currentStep].element) {
+                const currentElement = document.querySelector(guideSteps[currentStep].element);
+                if (currentElement) {
+                    currentElement.classList.remove('guide-element-highlight');
+                }
+            }
+            
+            if (currentStep > 0) {
+                currentStep--;
+                updateGuideStep();
+            }
+        }
+
+        // Функция завершения гайда
+        function finishGuide() {
+            guideActive = false;
+            
+            // Скрываем оверлей гайда
+            document.getElementById('guideOverlay').style.display = 'none';
+            document.getElementById('guideHighlight').style.display = 'none';
+            
+            // Убираем подсветку со всех элементов
+            document.querySelectorAll('.guide-element-highlight').forEach(el => {
+                el.classList.remove('guide-element-highlight');
             });
             
-            document.getElementById('sidebarOverlay').addEventListener('click', () => {
-                document.getElementById('sidebarMenu').classList.remove('active');
-                document.getElementById('sidebarOverlay').classList.remove('active');
+            // Сохраняем информацию о том, что гайд был показан
+            localStorage.setItem('khai_guide_seen', 'true');
+            
+            // Если мы на странице /guide, перенаправляем на главную
+            if (window.location.pathname.includes('/guide')) {
+                window.history.replaceState(null, null, window.location.pathname.replace('/guide', '/'));
+            }
+        }
+
+        // Функция пропуска гайда
+        function skipGuide() {
+            finishGuide();
+        }
+
+        // Инициализация гайда после загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализируем гайд
+            initGuide();
+            
+            // Назначаем обработчики событий
+            document.getElementById('guideNextBtn').addEventListener('click', nextStep);
+            document.getElementById('guidePrevBtn').addEventListener('click', prevStep);
+            document.getElementById('guideSkipBtn').addEventListener('click', skipGuide);
+            document.getElementById('guideCloseBtn').addEventListener('click', skipGuide);
+            
+            // Обработка нажатия клавиши Esc для закрытия гайда
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && guideActive) {
+                    skipGuide();
+                }
+            });
+            
+            // Обработка клика по оверлею для закрытия гайда
+            document.getElementById('guideOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    skipGuide();
+                }
             });
         });
     </script>
