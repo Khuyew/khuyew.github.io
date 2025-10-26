@@ -423,7 +423,7 @@
             <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <a href="./start" class="action-btn primary-btn" id="startBtn">
+                    <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
                         Стартуем!
                     </a>
@@ -467,7 +467,7 @@
             
             // Auto redirect after 10 seconds
             const redirectTimer = setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = 'guide.html';
             }, 10000);
 
             // Manual redirect when clicking the start button
@@ -476,7 +476,7 @@
                 startBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     clearTimeout(redirectTimer);
-                    window.location.href = 'index.html';
+                    window.location.href = 'guide.html';
                 });
             }
 
