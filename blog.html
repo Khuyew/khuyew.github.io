@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Блог KHAI - Новости и обновления</title>
     <style>
-        /* Стили остаются такими же как в предыдущем коде */
         * {
             margin: 0;
             padding: 0;
@@ -397,11 +396,11 @@
     </div>
 
     <script>
-        // Простая конфигурация - для GitHub репозитория
+        // Конфигурация
         const CONFIG = {
-            STORAGE_KEY: 'khai_blog_posts_v2',
-            SESSION_KEY: 'khai_admin_session_v2',
-            ADMIN_PASSWORD: 'khai2025' // Простой пароль для тестирования
+            STORAGE_KEY: 'khai_blog_posts',
+            SESSION_KEY: 'khai_admin_session',
+            ADMIN_PASSWORD: 'khai2025'
         };
 
         // Элементы DOM
@@ -459,9 +458,12 @@
             loadPosts() {
                 try {
                     const posts = localStorage.getItem(CONFIG.STORAGE_KEY);
-                    return posts ? JSON.parse(posts) : [];
+                    if (posts) {
+                        return JSON.parse(posts);
+                    }
+                    return [];
                 } catch (e) {
-                    console.error('Error loading posts:', e);
+                    console.error('Ошибка загрузки постов:', e);
                     return [];
                 }
             },
@@ -471,7 +473,7 @@
                     localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(posts));
                     return true;
                 } catch (e) {
-                    console.error('Error saving posts:', e);
+                    console.error('Ошибка сохранения постов:', e);
                     return false;
                 }
             },
@@ -486,15 +488,6 @@
                 } else {
                     sessionStorage.removeItem(CONFIG.SESSION_KEY);
                 }
-            },
-
-            escapeHtml(unsafe) {
-                return unsafe
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#039;");
             }
         };
 
@@ -505,8 +498,8 @@
             createPost(title, content, isDraft = false) {
                 return {
                     id: utils.generateId(),
-                    title: utils.escapeHtml(title.trim()),
-                    content: utils.escapeHtml(content.trim()),
+                    title: title.trim(),
+                    content: content.trim(),
                     date: new Date().toISOString(),
                     isDraft: isDraft,
                     published: !isDraft
@@ -520,8 +513,8 @@
                 if (postIndex !== -1) {
                     posts[postIndex] = {
                         ...posts[postIndex],
-                        title: utils.escapeHtml(title.trim()),
-                        content: utils.escapeHtml(content.trim()),
+                        title: title.trim(),
+                        content: content.trim(),
                         isDraft: isDraft,
                         published: !isDraft,
                         date: new Date().toISOString()
@@ -536,7 +529,7 @@
                     const posts = utils.loadPosts();
                     const filteredPosts = posts.filter(post => post.id !== id);
                     if (utils.savePosts(filteredPosts)) {
-                        this.renderPosts();
+                        this.renderAdminPosts();
                         this.renderPublicPosts();
                         utils.showNotification('Запись удалена', 'success');
                     }
@@ -588,7 +581,7 @@
                                 <div class="post-date">${utils.formatDate(post.date)}</div>
                             </div>
                         </div>
-                        <div class="post-content">${post.content}</div>
+                        <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
                     </div>
                 `).join('');
             },
@@ -619,7 +612,7 @@
                                 ${!post.published ? '<span style="color: #ff4444; font-size: 0.8em;">Не опубликовано</span>' : ''}
                             </div>
                         </div>
-                        <div class="post-content">${post.content}</div>
+                        <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
                         <div class="post-actions">
                             <button class="btn" onclick="postManager.editPost('${post.id}')">
                                 <i class="ti ti-edit"></i> Редактировать
@@ -632,7 +625,7 @@
                 `).join('');
             },
 
-            async savePost(isDraft = false) {
+            savePost(isDraft = false) {
                 const title = elements.postTitle.value.trim();
                 const content = elements.postContent.value.trim();
 
@@ -644,17 +637,23 @@
                 let posts = utils.loadPosts();
 
                 if (this.currentEditingId) {
+                    // Редактирование существующего поста
                     const success = this.updatePost(this.currentEditingId, title, content, isDraft);
                     if (success) {
                         utils.showNotification(isDraft ? 'Черновик сохранен' : 'Запись обновлена', 'success');
                         this.clearEditor();
+                    } else {
+                        utils.showNotification('Ошибка при обновлении записи', 'error');
                     }
                 } else {
+                    // Создание нового поста
                     const newPost = this.createPost(title, content, isDraft);
                     posts.unshift(newPost);
                     if (utils.savePosts(posts)) {
                         utils.showNotification(isDraft ? 'Черновик сохранен' : 'Запись опубликована', 'success');
                         this.clearEditor();
+                    } else {
+                        utils.showNotification('Ошибка при сохранении записи', 'error');
                     }
                 }
 
@@ -669,6 +668,7 @@
             elements.adminBtn.addEventListener('click', () => {
                 elements.publicView.classList.add('hidden');
                 elements.loginForm.classList.remove('hidden');
+                elements.adminPassword.focus();
             });
 
             elements.backToBlogBtn.addEventListener('click', () => {
@@ -682,11 +682,10 @@
                 postManager.clearEditor();
             });
 
-            // Авторизация - ПРОСТАЯ ПРОВЕРКА
-            elements.loginBtn.addEventListener('click', async () => {
+            // Авторизация
+            elements.loginBtn.addEventListener('click', () => {
                 const password = elements.adminPassword.value;
                 
-                // Простая проверка пароля
                 if (password === CONFIG.ADMIN_PASSWORD) {
                     utils.setAuthenticated(true);
                     elements.loginForm.classList.add('hidden');
@@ -695,7 +694,7 @@
                     postManager.renderAdminPosts();
                     utils.showNotification('Добро пожаловать в панель управления!', 'success');
                 } else {
-                    utils.showNotification('Неверный пароль. Попробуйте: ' + CONFIG.ADMIN_PASSWORD, 'error');
+                    utils.showNotification('Неверный пароль', 'error');
                 }
             });
 
@@ -731,6 +730,14 @@
             elements.publishBtn.addEventListener('click', () => postManager.savePost(false));
             elements.draftBtn.addEventListener('click', () => postManager.savePost(true));
             elements.clearBtn.addEventListener('click', () => postManager.clearEditor());
+
+            // Горячие клавиши
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    elements.draftBtn.click();
+                }
+            });
         };
 
         // Инициализация
