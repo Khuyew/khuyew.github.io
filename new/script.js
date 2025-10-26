@@ -5,6 +5,23 @@ class KHAIAssistant {
         this.initializeElements();
         this.initializeState();
         this.setupMarked();
+        this.checkFirstVisit();
+    }
+
+    checkFirstVisit() {
+        const hasSeenWelcome = localStorage.getItem('khai-seen-welcome');
+        const hasCompletedGuide = localStorage.getItem('khai-completed-guide');
+        
+        if (!hasSeenWelcome) {
+            window.location.href = 'welcome.html';
+            return;
+        }
+        
+        if (!hasCompletedGuide) {
+            window.location.href = 'guide.html';
+            return;
+        }
+        
         this.init();
     }
 
@@ -84,6 +101,10 @@ class KHAIAssistant {
             this.appContainer = document.getElementById('appContainer');
             this.errorBackBtn = document.getElementById('errorBackBtn');
             this.sidebarSearchClear = document.getElementById('sidebarSearchClear');
+
+            // Guide elements
+            this.showGuideBtn = document.getElementById('showGuide');
+            this.installPWABtn = document.getElementById('installPWA');
 
             // Validate critical elements
             this.validateRequiredElements();
@@ -256,9 +277,6 @@ class KHAIAssistant {
 
     init() {
         try {
-            // Check first visit logic
-            this.checkFirstVisit();
-            
             this.bindEvents();
             this.setupAutoResize();
             this.setupVoiceRecognition();
@@ -289,25 +307,6 @@ class KHAIAssistant {
         } catch (error) {
             this.handleCriticalError('Ошибка инициализации приложения', error);
         }
-    }
-
-    checkFirstVisit() {
-        const hasVisited = localStorage.getItem('khai-user-visited');
-        const hasCompletedGuide = localStorage.getItem('khai-user-completed-guide');
-        
-        // If user hasn't visited welcome page, redirect there
-        if (!hasVisited) {
-            window.location.href = 'welcome.html';
-            return;
-        }
-        
-        // If user visited welcome but didn't complete guide, redirect to guide
-        if (hasVisited && !hasCompletedGuide && !window.location.pathname.includes('guide.html')) {
-            window.location.href = 'guide.html';
-            return;
-        }
-        
-        // User completed both steps - continue with main app
     }
 
     setupCleanup() {
@@ -372,6 +371,8 @@ class KHAIAssistant {
             [this.importChatBtn, 'click', () => this.importChatHistory()],
             [this.downloadChatBtn, 'click', () => this.downloadCurrentChat()],
             [this.errorBackBtn, 'click', () => this.hide404Page()],
+            [this.showGuideBtn, 'click', () => this.showGuide()],
+            [this.installPWABtn, 'click', () => this.installPWA()],
             [document, 'keydown', (e) => this.handleGlobalKeydown(e)],
             [window, 'online', () => this.handleOnlineStatus()],
             [window, 'offline', () => this.handleOfflineStatus()],
@@ -386,6 +387,11 @@ class KHAIAssistant {
                 this.addEventListener(element, event, handler);
             }
         });
+    }
+
+    showGuide() {
+        localStorage.removeItem('khai-completed-guide');
+        window.location.href = 'guide.html';
     }
 
     // PWA Installation Handlers
@@ -3024,8 +3030,12 @@ document.addEventListener('DOMContentLoaded', () => {
             speechSynthesis.getVoices();
         }
 
-        // Initialize app
-        window.khaiAssistant = new KHAIAssistant();
+        // Initialize app only if we're on the main page
+        if (window.location.pathname.endsWith('index.html') || 
+            window.location.pathname === '/' || 
+            window.location.pathname.endsWith('/')) {
+            window.khaiAssistant = new KHAIAssistant();
+        }
 
     } catch (error) {
         console.error('Failed to initialize application:', error);
