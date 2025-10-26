@@ -8,7 +8,7 @@
             m[i].l=1*new Date();
             for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
             k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=104843405', 'ym');
     
         ym(104843405, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
     </script>
@@ -21,6 +21,7 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
+
         gtag('config', 'G-QQKXYHS18Q');
     </script>
     
@@ -351,6 +352,9 @@
                     <a href="mailto:khuyew@proton.me" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
                         Сотрудничество
                     </a>
+                    <a href="./guide.html" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="ti ti-help"></i> Гайд
+                    </a>
                 </div>
                 
                 <!-- LiveInternet Counter -->
@@ -427,28 +431,7 @@
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    
-    <!-- User Redirection Script -->
-    <script>
-        // Проверка первого посещения и редирект на welcome.html
-        (function() {
-            const isFirstVisit = !localStorage.getItem('khai-user-visited');
-            
-            if (isFirstVisit) {
-                // Сохраняем флаг посещения
-                localStorage.setItem('khai-user-visited', 'true');
-                
-                // Перенаправляем на welcome.html
-                window.location.href = 'welcome.html';
-                return; // Останавливаем выполнение текущей страницы
-            }
-            
-            // Если пользователь уже посещал, загружаем основное приложение
-            const script = document.createElement('script');
-            script.src = './script.js';
-            document.head.appendChild(script);
-        })();
-    </script>
+    <script src="./script.js"></script>
 
     <!-- PWA Service Worker -->
     <script>
@@ -463,6 +446,26 @@
                     });
             });
         }
+
+        // First visit logic
+        (function() {
+            const hasVisited = localStorage.getItem('khai-user-visited');
+            const hasCompletedGuide = localStorage.getItem('khai-user-completed-guide');
+            
+            // If user hasn't visited welcome page, redirect there
+            if (!hasVisited) {
+                window.location.href = 'welcome.html';
+                return;
+            }
+            
+            // If user visited welcome but didn't complete guide, redirect to guide
+            if (hasVisited && !hasCompletedGuide && !window.location.pathname.includes('guide.html')) {
+                window.location.href = 'guide.html';
+                return;
+            }
+            
+            // User completed both steps - continue with main app
+        })();
     </script>
 </body>
 </html>
