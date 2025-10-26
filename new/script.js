@@ -1,4 +1,4 @@
-// KHAI Assistant - Production Ready v2.1.0 with Web Search
+// KHAI Assistant - Production Ready v2.1.0 with Guide
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -50,7 +50,6 @@ class KHAIAssistant {
 
             // Modes
             this.normalModeBtn = document.getElementById('normalModeBtn');
-            this.webSearchBtn = document.getElementById('webSearchBtn');
 
             // Modals
             this.editChatModal = document.getElementById('editChatModal');
@@ -123,13 +122,6 @@ class KHAIAssistant {
         this.activeStreamingMessage = null;
         this.autoScrollEnabled = true;
         
-        // Web Search state
-        this.enableSearch = true;
-        this.searchProvider = 'perplexity';
-        this.searchCache = new Map();
-        this.searchDebounce = new Map();
-        this.isSearchMode = false;
-        
         // Generation states
         this.isGenerating = false;
         this.generationAborted = false;
@@ -147,6 +139,10 @@ class KHAIAssistant {
         this.activeTimeouts = new Set();
         this.activeEventListeners = new Map();
 
+        // Guide state
+        this.guideCompleted = false;
+        this.guideWindow = null;
+
         // Configuration
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
@@ -161,44 +157,37 @@ class KHAIAssistant {
                 name: 'GPT-5 Nano', 
                 description: 'Быстрая и эффективная модель для повседневных задач',
                 available: true,
-                context: 128000,
-                supportsSearch: true
+                context: 128000
             },
             'o3-mini': { 
                 name: 'O3 Mini', 
                 description: 'Продвинутая модель с улучшенными возможностями рассуждения',
                 available: true,
-                context: 128000,
-                supportsSearch: true
+                context: 128000
             },
             'deepseek-chat': { 
                 name: 'DeepSeek Chat', 
                 description: 'Универсальная модель для общения и решения задач',
                 available: true,
-                context: 128000,
-                supportsSearch: true
+                context: 128000
             },
-            'sonar-deep-research': { 
-                name: 'Sonar Deep Research', 
-                description: 'Продвинутая модель с глубоким поиском и анализом из интернета',
-                available: true,
-                context: 128000,
-                supportsSearch: true,
-                isSearchModel: true
+            'deepseek-reasoner': { 
+                name: 'DeepSeek Reasoner', 
+                description: 'Специализированная модель для сложных логических рассуждений',
+                available: false,
+                context: 128000
             },
             'gemini-2.0-flash': { 
                 name: 'Gemini 2.0 Flash', 
                 description: 'Новейшая быстрая модель от Google с улучшенными возможностями',
                 available: true,
-                context: 128000,
-                supportsSearch: true
+                context: 128000
             },
             'grok-beta': { 
                 name: 'xAI Grok', 
                 description: 'Модель от xAI с уникальным характером и остроумными ответами',
                 available: true,
-                context: 128000,
-                supportsSearch: true
+                context: 128000
             }
         };
 
@@ -289,6 +278,12 @@ class KHAIAssistant {
             this.setup404Handling();
             this.setCurrentYear();
             
+            // Load guide state
+            this.guideCompleted = this.isGuideCompleted();
+            
+            // Check and show guide on startup
+            this.checkGuideOnStartup();
+            
             // Скрываем прелоадер после загрузки
             this.hidePreloader();
             
@@ -327,7 +322,6 @@ class KHAIAssistant {
             [this.helpBtn, 'click', () => this.showHelp()],
             [this.generateImageBtn, 'click', () => this.toggleImageMode()],
             [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
-            [this.webSearchBtn, 'click', () => this.toggleSearchMode()],
             [this.themeToggle, 'click', () => this.toggleTheme()],
             [this.logo, 'click', () => this.refreshPage()],
             [this.attachFileBtn, 'click', () => this.fileInput.click()],
@@ -370,6 +364,8 @@ class KHAIAssistant {
             [window, 'online', () => this.handleOnlineStatus()],
             [window, 'offline', () => this.handleOfflineStatus()],
             [window, 'resize', () => this.debounce('resize', () => this.handleResize(), 250)],
+            // Guide events
+            [window, 'message', (e) => this.handleGuideMessage(e)],
             // PWA events
             [window, 'beforeinstallprompt', (e) => this.handleBeforeInstallPrompt(e)],
             [window, 'appinstalled', () => this.handleAppInstalled()]
@@ -382,166 +378,86 @@ class KHAIAssistant {
         });
     }
 
-    // Web Search Methods
-    async performWebSearch(query, useCache = true) {
-        if (useCache && this.searchCache.has(query)) {
-            this.debug('Используем кэшированные результаты поиска');
-            return this.searchCache.get(query);
-        }
-
-        try {
-            this.debug('Выполняем поиск по запросу:', query);
-            
-            let searchResults;
-            
-            if (this.searchProvider === 'perplexity' && typeof puter?.ai?.search !== 'undefined') {
-                searchResults = await puter.ai.search(query, {
-                    maxResults: 5,
-                    includeImages: true,
-                    includeLinks: true
-                });
-            } else if (typeof puter?.ai?.sonar !== 'undefined') {
-                searchResults = await puter.ai.sonar(query, {
-                    deepResearch: true,
-                    includeSources: true,
-                    maxTokens: 4000
-                });
-            } else {
-                searchResults = await puter.ai.chat(query, {
-                    model: 'gpt-4',
-                    webSearch: true
-                });
-            }
-            
-            this.searchCache.set(query, searchResults);
-            
-            if (this.searchCache.size > 50) {
-                const firstKey = this.searchCache.keys().next().value;
-                this.searchCache.delete(firstKey);
-            }
-            
-            return searchResults;
-        } catch (error) {
-            console.error('Ошибка поиска:', error);
-            this.debug('Поиск недоступен, используем стандартный режим');
-            return null;
+    // Guide Methods
+    checkGuideOnStartup() {
+        if (!this.guideCompleted) {
+            // Show guide after a short delay to let the app load
+            this.setTimeout(() => {
+                this.showGuide();
+            }, 2000);
         }
     }
 
-    shouldUseSearch(message) {
-        const searchKeywords = [
-            'новости', 'актуальн', 'свежи', 'недавн', 'последн', 'тренд',
-            'события', 'погода', 'курс', 'биткоин', 'крипто', 'цена',
-            'как сделать', 'инструкция', 'руководство', 'совет',
-            'отзыв', 'рейтинг', 'лучший', 'сравнение',
-            'что такое', 'кто такой', 'определение', 'значение',
-            'статистика', 'данные', 'исследование', 'анализ',
-            'где купить', 'цена', 'стоимость', 'заказ',
-            'расписание', 'время', 'дата', 'когда',
-            'рецепт', 'как приготовить', 'диета'
-        ];
-        
-        const lowPriorityKeywords = [
-            'привет', 'пока', 'спасибо', 'помощь', 'настройки',
-            'расскажи о себе', 'твои возможности', 'кто ты'
-        ];
-        
-        const messageLower = message.toLowerCase();
-        
-        if (lowPriorityKeywords.some(keyword => messageLower.includes(keyword))) {
+    showGuide() {
+        if (this.guideWindow && !this.guideWindow.closed) {
+            this.guideWindow.focus();
+            return;
+        }
+
+        const width = 600;
+        const height = 700;
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+
+        this.guideWindow = window.open(
+            './guide.html',
+            'khai_guide',
+            `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no`
+        );
+
+        if (!this.guideWindow) {
+            this.showNotification('Разрешите всплывающие окна для показа гайда', 'warning');
+            return;
+        }
+
+        this.guideWindow.focus();
+    }
+
+    handleGuideMessage(event) {
+        if (event.data && event.data.type === 'GUIDE_COMPLETED') {
+            this.guideCompleted = true;
+            this.markGuideCompleted();
+            
+            if (event.data.skipped) {
+                this.showNotification('Гайд пропущен. Вы всегда можете открыть его через меню помощи.', 'info');
+            } else {
+                this.showNotification('Гайд завершен! Приятного использования KHAI Assistant!', 'success');
+            }
+            
+            if (this.guideWindow) {
+                this.setTimeout(() => {
+                    if (this.guideWindow && !this.guideWindow.closed) {
+                        this.guideWindow.close();
+                    }
+                }, 1000);
+            }
+        }
+    }
+
+    isGuideCompleted() {
+        try {
+            return localStorage.getItem('khai-guide-completed') === 'true';
+        } catch (e) {
             return false;
         }
-        
-        return searchKeywords.some(keyword => messageLower.includes(keyword)) ||
-               /^(кто|что|где|когда|почему|как|сколько|зачем)\s+.+\?$/.test(messageLower) ||
-               /\?(?:\s|$)/.test(message) && message.length > 10;
     }
 
-    formatSearchResults(results, originalQuery) {
-        let formatted = '\n\n---\n**🔍 РЕЗУЛЬТАТЫ ПОИСКА:**\n\n';
-        
-        if (results.text) {
-            formatted += `**Основная информация:**\n${results.text}\n\n`;
-        }
-        
-        if (results.sources && results.sources.length > 0) {
-            formatted += '**📚 Источники:**\n';
-            results.sources.slice(0, 3).forEach((source, index) => {
-                if (source.title && source.url) {
-                    formatted += `${index + 1}. [${source.title}](${source.url})\n`;
-                }
-            });
-            formatted += '\n';
-        }
-        
-        if (results.images && results.images.length > 0) {
-            formatted += '**🖼️ Изображения по теме:**\n';
-            results.images.slice(0, 2).forEach((image, index) => {
-                if (image.url) {
-                    formatted += `![Изображение ${index + 1}](${image.url})\n`;
-                }
-            });
-            formatted += '\n';
-        }
-        
-        formatted += `*Поисковый запрос: "${originalQuery}"*\n---\n\n`;
-        
-        return formatted;
-    }
-
-    toggleSearchMode() {
-        this.isSearchMode = !this.isSearchMode;
-        
-        if (this.isSearchMode) {
-            this.webSearchBtn.classList.add('active');
-            this.showNotification('🔍 Режим веб-поиска активирован', 'success');
-            this.userInput.placeholder = 'Введите запрос для поиска в интернете...';
-        } else {
-            this.webSearchBtn.classList.remove('active');
-            this.showNotification('Режим веб-поиска отключен', 'info');
-            this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
-        }
-    }
-
-    async searchAndRespond(userMessage) {
-        this.showNotification('🔍 Ищу информацию в интернете...', 'info');
-        
+    markGuideCompleted() {
         try {
-            const searchResults = await this.performWebSearch(userMessage, false);
-            
-            if (searchResults) {
-                let searchMessage = `## 🔍 Результаты поиска по запросу: "${userMessage}"\n\n`;
-                
-                if (searchResults.text) {
-                    searchMessage += `**Основная информация:**\n${searchResults.text}\n\n`;
-                }
-                
-                if (searchResults.sources && searchResults.sources.length > 0) {
-                    searchMessage += '### 📚 Источники:\n';
-                    searchResults.sources.forEach((source, index) => {
-                        if (source.title && source.url) {
-                            searchMessage += `${index + 1}. [${source.title}](${source.url})\n`;
-                        }
-                    });
-                }
-                
-                if (searchResults.images && searchResults.images.length > 0) {
-                    searchMessage += '\n### 🖼️ Изображения:\n';
-                    searchResults.images.slice(0, 3).forEach((image, index) => {
-                        if (image.url) {
-                            searchMessage += `![Изображение ${index + 1}](${image.url})\n\n`;
-                        }
-                    });
-                }
-                
-                this.addMessage('ai', searchMessage);
-                this.addToConversationHistory('assistant', searchMessage);
-            } else {
-                this.showNotification('Не удалось получить результаты поиска', 'warning');
-            }
-        } catch (error) {
-            this.handleError('Ошибка при выполнении поиска', error);
+            localStorage.setItem('khai-guide-completed', 'true');
+        } catch (e) {
+            console.warn('Could not save guide completion status');
         }
+    }
+
+    restartGuide() {
+        try {
+            localStorage.removeItem('khai-guide-completed');
+            this.guideCompleted = false;
+        } catch (e) {
+            console.warn('Could not clear guide completion status');
+        }
+        this.showGuide();
     }
 
     // PWA Installation Handlers
@@ -580,6 +496,7 @@ class KHAIAssistant {
 
     // 404 Page methods
     setup404Handling() {
+        // Перехват навигации для SPA
         window.addEventListener('hashchange', () => {
             this.handleRouteChange();
         });
@@ -779,6 +696,7 @@ class KHAIAssistant {
             };
         }
 
+        // Check for dangerous content
         const dangerousPatterns = [
             /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
             /javascript:/gi,
@@ -815,11 +733,7 @@ class KHAIAssistant {
         this.updateSendButton(true);
 
         try {
-            if (this.isSearchMode) {
-                await this.searchAndRespond(message);
-                this.isSearchMode = false;
-                this.webSearchBtn.classList.remove('active');
-            } else if (this.isVoiceMode) {
+            if (this.isVoiceMode) {
                 await this.generateVoice(message);
             } else if (this.isImageMode) {
                 await this.generateImage(message);
@@ -867,8 +781,6 @@ class KHAIAssistant {
                 this.userInput.placeholder = 'Введите текст для генерации голоса...';
             } else if (this.isImageMode) {
                 this.userInput.placeholder = 'Опишите изображение для генерации...';
-            } else if (this.isSearchMode) {
-                this.userInput.placeholder = 'Введите запрос для поиска в интернете...';
             } else {
                 this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
             }
@@ -922,51 +834,24 @@ class KHAIAssistant {
         await this.getAIResponse(message, filesToProcess);
     }
 
-    async getAIResponse(userMessage, files, useSearch = null) {
+    async getAIResponse(userMessage, files) {
         this.removeTypingIndicator();
         this.activeTypingIndicator = this.showTypingIndicator();
         
-        const shouldSearch = useSearch !== null ? useSearch : 
-                            this.modelConfig[this.currentModel]?.supportsSearch && 
-                            this.shouldUseSearch(userMessage);
-        
         try {
-            const prompt = await this.buildPrompt(userMessage, files, shouldSearch);
-            const response = await this.callAIService(prompt, shouldSearch);
+            const prompt = await this.buildPrompt(userMessage, files);
+            const response = await this.callAIService(prompt);
             
             this.removeTypingIndicator();
-            await this.processAIResponse(response, shouldSearch);
+            await this.processAIResponse(response);
             
         } catch (error) {
             this.removeTypingIndicator();
-            
-            if (shouldSearch && error.message.includes('search')) {
-                this.debug('Поиск не удался, пробуем без него');
-                await this.getAIResponse(userMessage, files, false);
-            } else {
-                this.handleError('Ошибка при получении ответа от ИИ', error);
-            }
+            this.handleError('Ошибка при получении ответа от ИИ', error);
         }
     }
 
-    async buildPrompt(userMessage, files, useSearch = true) {
-        let searchContext = '';
-        
-        const requiresSearch = this.shouldUseSearch(userMessage);
-        
-        if (useSearch && requiresSearch && this.enableSearch) {
-            try {
-                const searchResults = await this.performWebSearch(userMessage);
-                
-                if (searchResults) {
-                    searchContext = this.formatSearchResults(searchResults, userMessage);
-                    this.debug('Добавлен поисковый контекст');
-                }
-            } catch (error) {
-                console.warn('Поиск не удался, продолжаем без него:', error);
-            }
-        }
-        
+    async buildPrompt(userMessage, files) {
         if (files.length > 0) {
             const file = files[0];
             
@@ -981,13 +866,13 @@ class KHAIAssistant {
                     return `Пользователь отправил изображение "${file.name}" с сопроводительным сообщением: "${userMessage}"
 
 Извлеченный текст с изображения: "${extractedText}"
-${searchContext}
+
 Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
                 } else {
                     return `Пользователь отправил изображение "${file.name}".
 
 Извлеченный текст с изображения: "${extractedText}"
-${searchContext}
+
 Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
                 }
             } else if (file.fileType === 'text' || file.fileType === 'code') {
@@ -1000,7 +885,7 @@ ${searchContext}
 """
 ${fileContent}
 """
-${searchContext}
+
 Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержимое прикрепленного файла. Проанализируй содержимое и дай развернутый ответ на основе предоставленной информации. Отвечай на русском языке.`;
                 } else {
                     return `Пользователь отправил файл "${file.name}".
@@ -1009,55 +894,40 @@ ${searchContext}
 """
 ${fileContent}
 """
-${searchContext}
+
 Проанализируй содержимое этого файла. Суммируй основную информацию, выдели ключевые моменты, предложи выводы или рекомендации на основе представленного содержимого. Отвечай подробно на русском языке.`;
                 }
             }
         } else {
-            return this.buildContextPrompt(userMessage, searchContext);
+            return this.buildContextPrompt(userMessage);
         }
     }
 
-    async callAIService(prompt, useSearch = false) {
+    async callAIService(prompt) {
         if (typeof puter?.ai?.chat !== 'function') {
             throw new Error('Функция чата недоступна');
         }
         
         const modelOptions = {
             'gpt-5-nano': { model: 'gpt-5-nano' },
-            'sonar-deep-research': { model: 'sonar-deep-research' },
             'o3-mini': { model: 'o3-mini' },
             'deepseek-chat': { model: 'deepseek-chat' },
+            'deepseek-reasoner': { model: 'deepseek-reasoner' },
             'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
             'grok-beta': { model: 'grok-beta' }
         };
         
         const options = {
             ...modelOptions[this.currentModel],
-            systemPrompt: this.getSystemPrompt(useSearch),
+            systemPrompt: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.",
             stream: true
         };
-        
-        if (useSearch && this.modelConfig[this.currentModel]?.supportsSearch) {
-            options.webSearch = true;
-            options.searchDepth = 'deep';
-        }
         
         return await puter.ai.chat(prompt, options);
     }
 
-    getSystemPrompt(useSearch = false) {
-        const basePrompt = "Ты полезный AI-ассистент KHAI. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.";
-        
-        if (useSearch) {
-            return basePrompt + "\n\nИспользуй предоставленные результаты поиска для формирования точного и актуального ответа. Указывай источники информации когда это уместно. Если информация противоречива - укажи на это и представь разные точки зрения.";
-        }
-        
-        return basePrompt;
-    }
-
-    async processAIResponse(response, usedSearch = false) {
-        this.activeStreamingMessage = this.createStreamingMessage(usedSearch);
+    async processAIResponse(response) {
+        this.activeStreamingMessage = this.createStreamingMessage();
         this.currentStreamController = response;
         
         let fullResponse = '';
@@ -1073,7 +943,7 @@ ${searchContext}
             }
             
             if (!this.generationAborted) {
-                this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse, usedSearch);
+                this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
                 this.addToConversationHistory('assistant', fullResponse);
                 this.saveCurrentSession();
                 this.updateMinimap();
@@ -1099,18 +969,13 @@ ${searchContext}
         return new Promise(resolve => this.setTimeout(resolve, ms));
     }
 
-    createStreamingMessage(usedSearch = false) {
+    createStreamingMessage() {
         const messageElement = document.createElement('div');
         messageElement.className = 'message message-ai streaming-message';
         messageElement.id = 'streaming-' + Date.now();
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content streaming-content';
-        
-        let statusText = 'ИИ думает...';
-        if (usedSearch) {
-            statusText = '🔍 ИИ ищет информацию и формирует ответ...';
-        }
         
         messageContent.innerHTML = `
             <div class="typing-indicator-inline">
@@ -1119,7 +984,7 @@ ${searchContext}
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                 </div>
-                <span>${statusText}</span>
+                <span>ИИ думает...</span>
             </div>
             <div class="streaming-text"></div>
         `;
@@ -1157,7 +1022,7 @@ ${searchContext}
         }
     }
 
-    finalizeStreamingMessage(messageId, fullContent, usedSearch = false) {
+    finalizeStreamingMessage(messageId, fullContent) {
         const messageElement = document.getElementById(messageId);
         if (!messageElement) return;
         
@@ -1175,11 +1040,7 @@ ${searchContext}
         
         const modelIndicator = document.createElement('div');
         modelIndicator.className = 'model-indicator';
-        let modelText = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
-        if (usedSearch) {
-            modelText += ' • 🔍 Использован веб-поиск';
-        }
-        modelIndicator.textContent = modelText;
+        modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
         messageContent.appendChild(modelIndicator);
         
         this.attachMessageHandlers(messageElement);
@@ -1242,11 +1103,11 @@ ${searchContext}
         this.showNotification(`Файл "${fileName}" скачан`, 'success');
     }
 
-    buildContextPrompt(currentMessage, searchContext = '') {
+    buildContextPrompt(currentMessage) {
         const recentHistory = this.conversationHistory.slice(-6);
         
         if (recentHistory.length === 0) {
-            return searchContext + currentMessage;
+            return currentMessage;
         }
 
         let context = "Контекст предыдущего разговора:\n";
@@ -1257,7 +1118,7 @@ ${searchContext}
             context += `${role}: ${content}\n`;
         });
 
-        context += `\nТекущий вопрос пользователя: ${currentMessage}\n\n${searchContext}Ответь, учитывая контекст выше:`;
+        context += `\nТекущий вопрос пользователя: ${currentMessage}\n\nОтветь, учитывая контекст выше:`;
 
         return context;
     }
@@ -1467,38 +1328,13 @@ ${searchContext}
                 this.addCodeDownloadButtons(messageElement, content);
             }
         }
-        
-        if (messageElement.classList.contains('message-user')) {
-            this.attachSearchButton(messageElement);
-        }
-    }
-
-    attachSearchButton(messageElement) {
-        const messageContent = messageElement.querySelector('.message-content');
-        const plainText = this.extractPlainText(messageContent.innerHTML);
-        
-        if (plainText.trim().length < 5) return;
-        
-        let actionsContainer = messageElement.querySelector('.message-actions');
-        if (!actionsContainer) {
-            actionsContainer = document.createElement('div');
-            actionsContainer.className = 'message-actions';
-            messageElement.appendChild(actionsContainer);
-        }
-        
-        const searchBtn = document.createElement('button');
-        searchBtn.className = 'action-btn-small';
-        searchBtn.innerHTML = '<i class="ti ti-search"></i> Найти в интернете';
-        searchBtn.onclick = () => {
-            this.searchAndRespond(plainText);
-        };
-        actionsContainer.appendChild(searchBtn);
     }
 
     attachMessageActionButtons(messageElement) {
         const messageContent = messageElement.querySelector('.message-content');
         const plainText = this.extractPlainText(messageContent.innerHTML);
         
+        // Проверяем, является ли сообщение приветственным
         const isWelcomeMessage = plainText.includes('Добро пожаловать в KHAI') || 
                                 plainText.includes('Основные возможности:');
         
@@ -1509,9 +1345,11 @@ ${searchContext}
             messageElement.appendChild(actionsContainer);
         }
 
+        // Clear existing action buttons (except speak)
         const existingButtons = actionsContainer.querySelectorAll('.action-btn-small:not(.speak-btn)');
         existingButtons.forEach(btn => btn.remove());
 
+        // Regenerate button - не показываем для приветственного сообщения
         if (!isWelcomeMessage) {
             const regenerateBtn = document.createElement('button');
             regenerateBtn.className = 'action-btn-small';
@@ -1520,12 +1358,23 @@ ${searchContext}
             actionsContainer.appendChild(regenerateBtn);
         }
 
+        // Download button
         const downloadBtn = document.createElement('button');
         downloadBtn.className = 'action-btn-small';
         downloadBtn.innerHTML = '<i class="ti ti-download"></i> Скачать';
         downloadBtn.onclick = () => this.downloadMessage(plainText);
         actionsContainer.appendChild(downloadBtn);
 
+        // Guide restart button for help message
+        if (plainText.includes('Помощь по KHAI Assistant')) {
+            const restartGuideBtn = document.createElement('button');
+            restartGuideBtn.className = 'action-btn-small';
+            restartGuideBtn.innerHTML = '<i class="ti ti-tournament"></i> Показать гайд';
+            restartGuideBtn.onclick = () => this.restartGuide();
+            actionsContainer.appendChild(restartGuideBtn);
+        }
+
+        // Share button
         if (navigator.share) {
             const shareBtn = document.createElement('button');
             shareBtn.className = 'action-btn-small';
@@ -2124,6 +1973,7 @@ ${searchContext}
     loadSession(session) {
         if (!this.messagesContainer) return;
         
+        // Remove skeleton loaders
         const skeletons = this.messagesContainer.querySelectorAll('.message-skeleton');
         skeletons.forEach(skeleton => skeleton.remove());
         
@@ -2690,7 +2540,6 @@ ${searchContext}
     setMode(mode) {
         this.isImageMode = false;
         this.isVoiceMode = false;
-        this.isSearchMode = false;
         
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -2722,23 +2571,15 @@ ${searchContext}
                 this.generateImageBtn.classList.add('active');
                 this.isImageMode = true;
                 this.userInput.placeholder = 'Опишите изображение для генерации...';
-            } else if (mode === 'search') {
-                modeText = 'Режим веб-поиска';
-                modeIcon = 'ti-search';
-                this.webSearchBtn.classList.add('active');
-                this.isSearchMode = true;
-                this.userInput.placeholder = 'Введите запрос для поиска в интернете...';
             }
             
             modeIndicator.innerHTML = `<i class="ti ${modeIcon}"></i> ${modeText}`;
             
-            this.inputSection.classList.remove('voice-mode-active', 'image-mode-active', 'search-mode-active');
+            this.inputSection.classList.remove('voice-mode-active', 'image-mode-active');
             if (mode === 'voice') {
                 this.inputSection.classList.add('voice-mode-active');
             } else if (mode === 'image') {
                 this.inputSection.classList.add('image-mode-active');
-            } else if (mode === 'search') {
-                this.inputSection.classList.add('search-mode-active');
             }
         }
         
@@ -2757,8 +2598,7 @@ ${searchContext}
         const names = {
             'normal': 'Обычный',
             'voice': 'Генерация голоса',
-            'image': 'Генерация изображений',
-            'search': 'Веб-поиск'
+            'image': 'Генерация изображений'
         };
         return names[mode] || 'Неизвестный';
     }
@@ -2908,6 +2748,7 @@ ${searchContext}
         
         this.isPWAInstalled = isStandalone;
         
+        // Показываем уведомление только если не в standalone режиме и не было отклонения
         if (!isStandalone && !localStorage.getItem('pwa-notification-dismissed')) {
             this.setTimeout(() => {
                 this.showPWAInstallNotification();
@@ -2916,6 +2757,7 @@ ${searchContext}
     }
 
     showPWAInstallNotification() {
+        // Проверяем, не было ли уже показано уведомление
         if (document.querySelector('.pwa-notification') || localStorage.getItem('pwa-notification-dismissed')) {
             return;
         }
@@ -2953,6 +2795,7 @@ ${searchContext}
             });
         }
 
+        // Автоматическое скрытие через 10 секунд
         this.setTimeout(() => {
             if (notification.parentNode) {
                 localStorage.setItem('pwa-notification-dismissed', 'true');
@@ -2962,6 +2805,7 @@ ${searchContext}
     }
 
     async installPWA() {
+        // Для iOS показываем инструкции
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         
         if (isIOS) {
@@ -2972,6 +2816,7 @@ ${searchContext}
             return;
         }
         
+        // Для других платформ используем стандартную установку
         if (this.deferredPrompt) {
             try {
                 this.deferredPrompt.prompt();
@@ -3089,7 +2934,6 @@ ${searchContext}
 
 ## 🎯 Основные возможности:
 • **Умные ответы на вопросы** - используя различные модели ИИ
-• **🔍 Веб-поиск** - актуальная информация из интернета с источниками
 • **Анализ изображений** - извлечение текста и решение задач по фото
 • **Анализ файлов** - чтение и анализ содержимого файлов (текст, код, XML, CSV, YAML и др.)
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
@@ -3104,6 +2948,8 @@ ${searchContext}
 
 **Текущая модель: ${currentModelName}** - ${currentModelDesc}
 
+${!this.guideCompleted ? '🎮 **Для знакомства с интерфейсом откроется интерактивный гайд...**' : ''}
+
 **Начните общение, отправив сообщение, изображение или файл!**`;
 
         this.addMessage('ai', welcomeMessage);
@@ -3117,12 +2963,6 @@ ${searchContext}
 
 ## 🤖 Текущая модель: ${currentModelName}
 Вы можете переключать модели в верхнем правом углу.
-
-## 🔍 Веб-поиск:
-• **Автоматический поиск** - ИИ сам определяет когда нужна актуальная информация
-• **Ручной поиск** - нажмите кнопку "Поиск" для принудительного поиска
-• **Поиск по сообщениям** - нажмите "Найти в интернете" под любым сообщением
-• **Результаты включают** - текст, изображения, ссылки на источники
 
 ## 💬 Система чатов:
 • **Создание нового чата** - нажмите "Новый чат" в меню
@@ -3155,7 +2995,7 @@ ${searchContext}
 2. **Напишите вопрос** (опционально) - что вы хотите узнать о содержимом
 3. **Нажмите Отправить** - ИИ проанализирует файл и ответит
 
-**Попробуйте отправить запрос с поиском, например "последние новости о ИИ" или "курс биткоина"!**`;
+**Попробуйте отправить изображение или файл с вопросом!**`;
 
         this.addMessage('ai', helpMessage);
         this.addToConversationHistory('assistant', helpMessage);
