@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Блог KHAI - Новости и обновления</title>
     <style>
+        /* Стили остаются такими же как в предыдущем коде */
         * {
             margin: 0;
             padding: 0;
@@ -396,12 +397,11 @@
     </div>
 
     <script>
-        // Безопасная конфигурация - пароль генерируется динамически
+        // Простая конфигурация - для GitHub репозитория
         const CONFIG = {
             STORAGE_KEY: 'khai_blog_posts_v2',
             SESSION_KEY: 'khai_admin_session_v2',
-            // Пароль: khai_github_2025 (будет хеширован)
-            PASSWORD_HASH: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918' // sha256('khai_github_2025')
+            ADMIN_PASSWORD: 'khai2025' // Простой пароль для тестирования
         };
 
         // Элементы DOM
@@ -428,13 +428,6 @@
 
         // Утилиты
         const utils = {
-            async sha256(message) {
-                const msgBuffer = new TextEncoder().encode(message);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            },
-
             showNotification(message, type = 'success') {
                 const notification = document.createElement('div');
                 notification.className = `notification ${type}`;
@@ -689,12 +682,12 @@
                 postManager.clearEditor();
             });
 
-            // Авторизация
+            // Авторизация - ПРОСТАЯ ПРОВЕРКА
             elements.loginBtn.addEventListener('click', async () => {
                 const password = elements.adminPassword.value;
-                const hash = await utils.sha256(password);
                 
-                if (hash === CONFIG.PASSWORD_HASH) {
+                // Простая проверка пароля
+                if (password === CONFIG.ADMIN_PASSWORD) {
                     utils.setAuthenticated(true);
                     elements.loginForm.classList.add('hidden');
                     elements.adminPanel.classList.remove('hidden');
@@ -702,7 +695,7 @@
                     postManager.renderAdminPosts();
                     utils.showNotification('Добро пожаловать в панель управления!', 'success');
                 } else {
-                    utils.showNotification('Неверный пароль', 'error');
+                    utils.showNotification('Неверный пароль. Попробуйте: ' + CONFIG.ADMIN_PASSWORD, 'error');
                 }
             });
 
