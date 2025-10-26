@@ -61,6 +61,14 @@
     <link rel="stylesheet" href="./styles.css">
     
     <style>
+        /* Reset body styles to ensure scrolling */
+        body {
+            overflow-x: hidden;
+            overflow-y: auto;
+            min-height: 100vh;
+            height: auto;
+        }
+
         /* Blog-specific styles that extend the main styles.css */
         .blog-container {
             max-width: 900px;
@@ -68,6 +76,7 @@
             padding: 20px;
             padding-top: calc(20px + env(safe-area-inset-top));
             padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            min-height: 100vh;
         }
 
         .blog-header {
@@ -399,6 +408,17 @@
         .post-card:nth-child(3) { animation-delay: 0.3s; }
         .post-card:nth-child(4) { animation-delay: 0.4s; }
         .post-card:nth-child(5) { animation-delay: 0.5s; }
+
+        /* Ensure scrolling works */
+        html, body {
+            overflow: visible !important;
+            height: auto !important;
+        }
+
+        .app-container {
+            overflow: visible !important;
+            height: auto !important;
+        }
     </style>
 </head>
 <body>
@@ -506,7 +526,7 @@
                         <meta itemprop="dateModified" content="${post.date}">
                         
                         ${post.cover ? `
-                            <img src="${post.cover}" alt="${this.escapeHtml(post.title)}" class="post-cover" itemprop="image">
+                            <img src="${post.cover}" alt="${this.escapeHtml(post.title)}" class="post-cover" itemprop="image" loading="lazy">
                         ` : `
                             <div class="post-cover" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center;">
                                 <i class="ti ti-news" style="font-size: 48px; color: white; opacity: 0.8;"></i>
@@ -716,10 +736,13 @@
                 const postId = window.location.hash.replace('#post-', '');
                 setTimeout(() => {
                     blog.togglePost(postId);
-                    document.querySelector(`#content-${postId}`)?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                    const element = document.getElementById(`content-${postId}`);
+                    if (element) {
+                        element.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
                 }, 500);
             }
         });
