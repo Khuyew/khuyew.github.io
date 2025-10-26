@@ -1,5 +1,3 @@
-[file name]: script.js
-[file content begin]
 // KHAI Assistant - Production Ready v2.1.0
 class KHAIAssistant {
     constructor() {
@@ -3065,4 +3063,3 @@ window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
     event.preventDefault();
 });
-[file content end]
