@@ -54,40 +54,95 @@
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
-    <link rel="preload" href="./styles.css" as="style">
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="stylesheet" href="./styles.css">
     
     <style>
-        /* Reset body styles to ensure scrolling */
-        body {
-            overflow-x: hidden;
-            overflow-y: auto;
-            min-height: 100vh;
-            height: auto;
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        /* Blog-specific styles that extend the main styles.css */
-        .blog-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            padding-top: calc(20px + env(safe-area-inset-top));
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+        :root {
+            /* Dark theme colors - KHAI Brand Colors */
+            --bg-primary: #0a0a14;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --bg-tertiary: rgba(255, 255, 255, 0.08);
+            --bg-hover: rgba(255, 255, 255, 0.12);
+            
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --text-tertiary: #8888aa;
+            
+            --border-color: rgba(255, 255, 255, 0.15);
+            
+            --accent-primary: #00d4ff;
+            --accent-secondary: #0099ff;
+            --accent-primary-alpha: rgba(0, 212, 255, 0.2);
+            
+            --gradient-primary: linear-gradient(135deg, #00d4ff, #0099ff);
+            --gradient-secondary: linear-gradient(135deg, #667eea, #764ba2);
+            
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Light theme variables */
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: rgba(0, 0, 0, 0.03);
+            --bg-tertiary: rgba(0, 0, 0, 0.08);
+            --bg-hover: rgba(0, 0, 0, 0.12);
+            
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #888888;
+            
+            --border-color: rgba(0, 0, 0, 0.15);
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
             min-height: 100vh;
+        }
+
+        /* Blog-specific styles */
+        .blog-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            min-height: 100vh;
+            position: relative;
         }
 
         .blog-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
             border-bottom: 1px solid var(--border-color);
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
         }
 
         .blog-title-section {
@@ -95,31 +150,46 @@
             min-width: 300px;
         }
 
+        .blog-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .blog-logo-img {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            object-fit: contain;
+        }
+
         .blog-title {
-            font-size: 2.2em;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
         .blog-description {
             color: var(--text-secondary);
-            font-size: 1.1em;
+            font-size: 1.2em;
             line-height: 1.5;
             max-width: 600px;
         }
 
         .blog-controls {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
 
         .blog-btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             background: var(--bg-tertiary);
@@ -131,11 +201,13 @@
             align-items: center;
             gap: 8px;
             font-size: 14px;
+            font-weight: 500;
         }
 
         .blog-btn:hover {
             background: var(--bg-hover);
             border-color: var(--accent-primary);
+            transform: translateY(-2px);
         }
 
         .blog-btn.primary {
@@ -147,22 +219,36 @@
         .blog-btn.primary:hover {
             background: var(--accent-primary);
             color: white;
+            transform: translateY(-2px);
         }
 
         .posts-grid {
             display: grid;
-            gap: 25px;
-            margin-bottom: 40px;
+            gap: 30px;
+            margin-bottom: 50px;
         }
 
         .post-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-xl);
             padding: 0;
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .post-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
 
         .post-card:hover {
@@ -171,34 +257,39 @@
             box-shadow: var(--shadow-lg);
         }
 
+        .post-card:hover::before {
+            transform: scaleX(1);
+        }
+
         .post-cover {
             width: 100%;
-            height: 200px;
+            height: 250px;
             object-fit: cover;
             display: block;
         }
 
         .post-content-wrapper {
-            padding: 25px;
+            padding: 30px;
         }
 
         .post-header {
             cursor: pointer;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .post-title {
-            font-size: 1.5em;
-            margin-bottom: 10px;
+            font-size: 1.6em;
+            margin-bottom: 15px;
             color: var(--text-primary);
             line-height: 1.3;
+            font-weight: 700;
         }
 
         .post-meta {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 20px;
+            margin-bottom: 20px;
             font-size: 0.9em;
             color: var(--text-secondary);
             flex-wrap: wrap;
@@ -207,26 +298,29 @@
         .post-date {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
         }
 
         .post-tag {
             background: var(--accent-primary-alpha);
             color: var(--accent-primary);
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 0.8em;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .post-excerpt {
             color: var(--text-secondary);
             line-height: 1.6;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            font-size: 1.1em;
         }
 
         .post-content {
@@ -236,12 +330,13 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.5s ease;
+            font-size: 1.05em;
         }
 
         .post-content.expanded {
             max-height: 5000px;
-            margin-top: 20px;
-            padding-top: 20px;
+            margin-top: 25px;
+            padding-top: 25px;
             border-top: 1px solid var(--border-color);
         }
 
@@ -250,17 +345,18 @@
             border: none;
             color: var(--accent-primary);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 0;
+            padding: 10px 0;
             transition: var(--transition);
             font-weight: 600;
         }
 
         .expand-btn:hover {
             color: var(--text-primary);
+            transform: translateX(5px);
         }
 
         .expand-icon {
@@ -273,42 +369,52 @@
 
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             color: var(--text-secondary);
         }
 
         .empty-state i {
-            font-size: 64px;
-            margin-bottom: 20px;
+            font-size: 80px;
+            margin-bottom: 25px;
             opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: var(--text-primary);
         }
 
         .loading {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             color: var(--text-secondary);
         }
 
         .loading i {
-            font-size: 32px;
-            margin-bottom: 15px;
+            font-size: 40px;
+            margin-bottom: 20px;
             animation: spin 1.5s linear infinite;
         }
 
+        .loading p {
+            font-size: 1.1em;
+        }
+
         .blog-footer {
-            margin-top: 50px;
-            padding-top: 30px;
+            margin-top: 60px;
+            padding-top: 40px;
             border-top: 1px solid var(--border-color);
             text-align: center;
             color: var(--text-secondary);
-            font-size: 0.9em;
+            font-size: 0.95em;
         }
 
         .blog-footer-links {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-bottom: 15px;
+            gap: 25px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -316,6 +422,7 @@
             color: var(--text-secondary);
             text-decoration: none;
             transition: var(--transition);
+            font-weight: 500;
         }
 
         .blog-footer-link:hover {
@@ -324,18 +431,19 @@
 
         /* Breadcrumb */
         .breadcrumb {
-            margin-bottom: 20px;
-            font-size: 0.9em;
+            margin-bottom: 30px;
+            font-size: 0.95em;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .breadcrumb a {
             color: var(--accent-primary);
             text-decoration: none;
             transition: var(--transition);
+            font-weight: 500;
         }
 
         .breadcrumb a:hover {
@@ -346,11 +454,42 @@
             opacity: 0.5;
         }
 
+        /* KHAI Brand Elements */
+        .khai-badge {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 10px;
+        }
+
+        .khai-watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .khai-watermark img {
+            width: 200px;
+            height: 200px;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
+            .blog-container {
+                padding: 20px 15px;
+            }
+            
             .blog-header {
                 flex-direction: column;
                 align-items: flex-start;
+                margin-bottom: 30px;
             }
             
             .blog-controls {
@@ -359,7 +498,7 @@
             }
             
             .blog-title {
-                font-size: 1.8em;
+                font-size: 2em;
             }
             
             .post-content-wrapper {
@@ -367,7 +506,11 @@
             }
             
             .post-title {
-                font-size: 1.3em;
+                font-size: 1.4em;
+            }
+            
+            .post-cover {
+                height: 200px;
             }
         }
 
@@ -383,7 +526,16 @@
             .post-meta {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 8px;
+                gap: 10px;
+            }
+            
+            .blog-footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .khai-watermark {
+                display: none;
             }
         }
 
@@ -391,7 +543,7 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -399,8 +551,13 @@
             }
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .post-card {
-            animation: fadeInUp 0.5s ease forwards;
+            animation: fadeInUp 0.6s ease forwards;
         }
 
         .post-card:nth-child(1) { animation-delay: 0.1s; }
@@ -409,19 +566,50 @@
         .post-card:nth-child(4) { animation-delay: 0.4s; }
         .post-card:nth-child(5) { animation-delay: 0.5s; }
 
-        /* Ensure scrolling works */
-        html, body {
-            overflow: visible !important;
-            height: auto !important;
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        .app-container {
-            overflow: visible !important;
-            height: auto !important;
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        /* Focus styles for accessibility */
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        /* Print styles */
+        @media print {
+            .blog-controls,
+            .khai-watermark {
+                display: none;
+            }
+            
+            .post-card {
+                break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- KHAI Watermark -->
+    <div class="khai-watermark">
+        <img src="./logo.png" alt="KHAI" loading="lazy">
+    </div>
+
     <div class="blog-container">
         <!-- Breadcrumb for SEO -->
         <nav class="breadcrumb" aria-label="Хлебные крошки">
@@ -432,8 +620,12 @@
 
         <div class="blog-header">
             <div class="blog-title-section">
+                <div class="blog-logo">
+                    <img src="./logo.png" alt="KHAI" class="blog-logo-img" loading="eager">
+                    <span class="khai-badge">BETA</span>
+                </div>
                 <h1 class="blog-title">KHAI Блог</h1>
-                <p class="blog-description">Новости, обновления и анонсы первого белорусского ИИ-помощника</p>
+                <p class="blog-description">Новости, обновления и анонсы первого белорусского ИИ-помощника. Будьте в курсе последних разработок и улучшений.</p>
             </div>
             <div class="blog-controls">
                 <a href="index.html" class="blog-btn">
@@ -461,6 +653,7 @@
                 <a href="https://khai.by/docs" target="_blank" class="blog-footer-link">Документация</a>
                 <a href="https://khai.by/support" target="_blank" class="blog-footer-link">Поддержка</a>
                 <a href="mailto:khuyew@proton.me" class="blog-footer-link">Сотрудничество</a>
+                <a href="https://khai.by/github" target="_blank" class="blog-footer-link">GitHub</a>
             </div>
             <p>© 2025 KHAI, Беларусь. Все права защищены!</p>
         </footer>
@@ -528,8 +721,8 @@
                         ${post.cover ? `
                             <img src="${post.cover}" alt="${this.escapeHtml(post.title)}" class="post-cover" itemprop="image" loading="lazy">
                         ` : `
-                            <div class="post-cover" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center;">
-                                <i class="ti ti-news" style="font-size: 48px; color: white; opacity: 0.8;"></i>
+                            <div class="post-cover" style="background: var(--gradient-primary); display: flex; align-items: center; justify-content: center;">
+                                <i class="ti ti-news" style="font-size: 64px; color: white; opacity: 0.9;"></i>
                             </div>
                         `}
                         
@@ -563,8 +756,9 @@
                                 <i class="ti ti-chevron-down expand-icon ${this.expandedPosts.has(post.id) ? 'expanded' : ''}"></i>
                             </button>
                             
-                            <div class="post-meta" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                            <div class="post-meta" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
                                 <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                                    <i class="ti ti-user" style="margin-right: 8px;"></i>
                                     <span itemprop="name">KHAI Team</span>
                                 </span>
                             </div>
@@ -595,9 +789,11 @@
                     .replace(/\n/g, '<br>')
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/`(.*?)`/g, '<code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: var(--radius-sm); font-family: monospace;">$1</code>')
                     .replace(/- (.*?)(?=\n|$)/g, '<li>$1</li>')
-                    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+                    .replace(/(<li>.*<\/li>)/s, '<ul style="margin: 15px 0; padding-left: 20px;">$1</ul>')
+                    .replace(/(\d+)\. (.*?)(?=\n|$)/g, '<li>$2</li>')
+                    .replace(/(<li>.*<\/li>){2,}/s, '<ol style="margin: 15px 0; padding-left: 20px;">$&</ol>');
             }
 
             updateStructuredData() {
@@ -738,24 +934,13 @@
                     blog.togglePost(postId);
                     const element = document.getElementById(`content-${postId}`);
                     if (element) {
-                        element.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
+                        const yOffset = -80; // Offset for fixed headers
+                        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                        window.scrollTo({top: y, behavior: 'smooth'});
                     }
-                }, 500);
+                }, 800);
             }
         });
-
-        // Add CSS animation for spinner
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
