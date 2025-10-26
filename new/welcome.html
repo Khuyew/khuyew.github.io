@@ -423,14 +423,14 @@
             <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
+                    <a href="guide.html" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
                         Стартуем!
                     </a>
-                    <a href="./docs" class="action-btn secondary-btn">
+                    <button class="action-btn secondary-btn" onclick="showGuide()">
                         <i class="ti ti-book"></i>
-                        Документация
-                    </a>
+                        Обучение
+                    </button>
                     <a href="https://t.me/khuyew" target="_blank" class="action-btn secondary-btn">
                         <i class="ti ti-brand-telegram"></i>
                         Сотрудничество
@@ -467,7 +467,7 @@
             
             // Auto redirect after 10 seconds
             const redirectTimer = setTimeout(() => {
-                window.location.href = 'guide.html';
+                window.location.href = 'index.html';
             }, 10000);
 
             // Manual redirect when clicking the start button
@@ -478,6 +478,11 @@
                     clearTimeout(redirectTimer);
                     window.location.href = 'guide.html';
                 });
+            }
+
+            function showGuide() {
+                clearTimeout(redirectTimer);
+                window.location.href = 'guide.html';
             }
 
             // Simple auto-restart for demo effect
