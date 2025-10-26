@@ -3,7 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KHAI Блог - Новости и обновления</title>
+    <title>KHAI Блог - Новости и обновления | Первый белорусский ИИ-помощник</title>
+    <meta name="description" content="KHAI - первый белорусский ИИ-помощник. Новости, обновления и анонсы. Бесплатный AI-чат, генерация изображений, поддержка файлов.">
+    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, новости KHAI, обновления KHAI">
+    <meta name="author" content="KHAI Team">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="KHAI Блог - Новости и обновления">
+    <meta property="og:description" content="Первый белорусский ИИ-помощник KHAI. Новости, обновления и анонсы.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="./blog.html">
+    <meta property="og:image" content="./logo.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="KHAI Блог - Новости и обновления">
+    <meta name="twitter:description" content="Первый белорусский ИИ-помощник KHAI. Новости, обновления и анонсы.">
+    
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "KHAI Блог",
+        "description": "Новости и обновления первого белорусского ИИ-помощника",
+        "url": "./blog.html",
+        "publisher": {
+            "@type": "Organization",
+            "name": "KHAI",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "./logo.png"
+            }
+        },
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "./blog.html"
+        }
+    }
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -102,17 +141,26 @@
             border-radius: var(--radius-lg);
             padding: 25px;
             transition: var(--transition);
+            position: relative;
         }
 
         .post-card:hover {
             border-color: var(--accent-primary);
-            transform: translateY(-2px);
+        }
+
+        .post-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
         }
 
         .post-title {
             font-size: 1.4em;
             margin-bottom: 10px;
             color: var(--text-primary);
+            flex: 1;
         }
 
         .post-date {
@@ -121,10 +169,55 @@
             margin-bottom: 15px;
         }
 
+        .post-excerpt {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
         .post-content {
             color: var(--text-secondary);
             line-height: 1.6;
             white-space: pre-wrap;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .post-content.expanded {
+            max-height: 2000px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .expand-btn {
+            background: none;
+            border: none;
+            color: var(--accent-primary);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 0;
+            transition: var(--transition);
+        }
+
+        .expand-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(180deg);
         }
 
         .empty-state {
@@ -139,20 +232,67 @@
             color: var(--text-secondary);
         }
 
+        .post-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: var(--text-tertiary);
+        }
+
+        .post-tag {
+            background: var(--accent-primary-alpha);
+            color: var(--accent-primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* SEO улучшения */
+        .breadcrumb {
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .blog-title {
+            margin-bottom: 10px;
+        }
+
+        .blog-description {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 1.1em;
         }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </head>
 <body>
     <div class="container">
+        <!-- Хлебные крошки для SEO -->
+        <nav class="breadcrumb" aria-label="Хлебные крошки">
+            <a href="index.html">Главная</a> / <span>Блог</span>
+        </nav>
+
         <div class="header">
-            <a href="index.html" class="logo">
-                <img src="./logo.png" alt="KHAI" width="40" height="40">
-                <span>KHAI Блог - Новости и обновления</span>
-            </a>
+            <div>
+                <h1 class="blog-title">KHAI Блог</h1>
+                <p class="blog-description">Новости, обновления и анонсы первого белорусского ИИ-помощника</p>
+            </div>
             <button class="btn" id="themeToggle">
                 <i class="ti ti-moon"></i>
                 <span>Тема</span>
@@ -177,6 +317,7 @@
                 this.posts = [];
                 this.cacheKey = 'khai_blog_cache';
                 this.cacheDuration = 10 * 60 * 1000; // 10 минут кеш
+                this.expandedPosts = new Set();
             }
 
             async loadPosts() {
@@ -185,6 +326,7 @@
                 if (cached) {
                     this.posts = cached;
                     this.renderPosts();
+                    this.updateStructuredData();
                     return;
                 }
 
@@ -196,6 +338,7 @@
                     this.posts = data.posts || [];
                     this.cachePosts(this.posts);
                     this.renderPosts();
+                    this.updateStructuredData();
                 } catch (error) {
                     console.error('Ошибка загрузки новостей:', error);
                     this.showEmptyState('Не удалось загрузить новости');
@@ -219,12 +362,90 @@
                 }
 
                 grid.innerHTML = publishedPosts.map(post => `
-                    <div class="post-card">
-                        <h2 class="post-title">${this.escapeHtml(post.title)}</h2>
-                        <div class="post-date">${this.formatDate(post.date)}</div>
-                        <div class="post-content">${this.escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
-                    </div>
+                    <article class="post-card" itemscope itemtype="https://schema.org/BlogPosting">
+                        <link itemprop="url" href="./blog.html#post-${post.id}">
+                        <meta itemprop="datePublished" content="${post.date}">
+                        <meta itemprop="dateModified" content="${post.date}">
+                        
+                        <div class="post-header" onclick="blog.togglePost('${post.id}')">
+                            <div style="flex: 1;">
+                                <h2 class="post-title" itemprop="headline">${this.escapeHtml(post.title)}</h2>
+                                <div class="post-date" itemprop="datePublished">
+                                    ${this.formatDate(post.date)}
+                                </div>
+                                ${post.excerpt ? `
+                                    <div class="post-excerpt" itemprop="description">
+                                        ${this.escapeHtml(post.excerpt)}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <button class="expand-btn" aria-expanded="false" aria-controls="content-${post.id}">
+                                <span>${this.expandedPosts.has(post.id) ? 'Свернуть' : 'Читать далее'}</span>
+                                <i class="ti ti-chevron-down expand-icon ${this.expandedPosts.has(post.id) ? 'expanded' : ''}"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="post-content ${this.expandedPosts.has(post.id) ? 'expanded' : ''}" 
+                             id="content-${post.id}" 
+                             itemprop="articleBody">
+                            ${this.escapeHtml(post.content).replace(/\n/g, '<br>')}
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                                <span itemprop="name">KHAI Team</span>
+                            </span>
+                            ${post.tag ? `<span class="post-tag">${post.tag}</span>` : ''}
+                        </div>
+                    </article>
                 `).join('');
+            }
+
+            togglePost(postId) {
+                if (this.expandedPosts.has(postId)) {
+                    this.expandedPosts.delete(postId);
+                } else {
+                    this.expandedPosts.add(postId);
+                }
+                this.renderPosts();
+            }
+
+            updateStructuredData() {
+                // Динамическое обновление structured data для SEO
+                const blogPosts = this.posts.filter(post => post.published);
+                
+                const structuredData = {
+                    "@context": "https://schema.org",
+                    "@type": "ItemList",
+                    "itemListElement": blogPosts.map((post, index) => ({
+                        "@type": "ListItem",
+                        "position": index + 1,
+                        "item": {
+                            "@type": "BlogPosting",
+                            "headline": post.title,
+                            "description": post.excerpt || post.content.substring(0, 200) + '...',
+                            "datePublished": post.date,
+                            "dateModified": post.date,
+                            "author": {
+                                "@type": "Organization",
+                                "name": "KHAI Team"
+                            },
+                            "url": `./blog.html#post-${post.id}`
+                        }
+                    }))
+                };
+
+                // Удаляем старый structured data
+                const oldScript = document.querySelector('script[type="application/ld+json"]:not([data-original])');
+                if (oldScript) {
+                    oldScript.remove();
+                }
+
+                // Добавляем новый
+                const script = document.createElement('script');
+                script.type = 'application/ld+json';
+                script.textContent = JSON.stringify(structuredData);
+                document.head.appendChild(script);
             }
 
             showEmptyState(message) {
@@ -281,9 +502,12 @@
             }
         }
 
+        // Глобальная переменная для доступа из HTML
+        let blog;
+
         // Инициализация
         document.addEventListener('DOMContentLoaded', async () => {
-            const blog = new BlogReader();
+            blog = new BlogReader();
             await blog.loadPosts();
 
             // Переключение темы
@@ -307,6 +531,17 @@
             setInterval(() => {
                 blog.loadPosts();
             }, 10 * 60 * 1000);
+
+            // Обработка якорных ссылок
+            if (window.location.hash) {
+                const postId = window.location.hash.replace('#post-', '');
+                setTimeout(() => {
+                    blog.togglePost(postId);
+                    document.querySelector(`#content-${postId}`)?.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }, 500);
+            }
         });
     </script>
 </body>
