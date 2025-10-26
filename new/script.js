@@ -1,4 +1,6 @@
-// KHAI Assistant - Production Ready v2.1.0 with Guide
+[file name]: script.js
+[file content begin]
+// KHAI Assistant - Production Ready v2.1.0
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -139,10 +141,6 @@ class KHAIAssistant {
         this.activeTimeouts = new Set();
         this.activeEventListeners = new Map();
 
-        // Guide state
-        this.guideCompleted = false;
-        this.guideWindow = null;
-
         // Configuration
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
@@ -260,6 +258,9 @@ class KHAIAssistant {
 
     init() {
         try {
+            // Check first visit logic
+            this.checkFirstVisit();
+            
             this.bindEvents();
             this.setupAutoResize();
             this.setupVoiceRecognition();
@@ -278,12 +279,6 @@ class KHAIAssistant {
             this.setup404Handling();
             this.setCurrentYear();
             
-            // Load guide state
-            this.guideCompleted = this.isGuideCompleted();
-            
-            // Check and show guide on startup
-            this.checkGuideOnStartup();
-            
             // Скрываем прелоадер после загрузки
             this.hidePreloader();
             
@@ -296,6 +291,25 @@ class KHAIAssistant {
         } catch (error) {
             this.handleCriticalError('Ошибка инициализации приложения', error);
         }
+    }
+
+    checkFirstVisit() {
+        const hasVisited = localStorage.getItem('khai-user-visited');
+        const hasCompletedGuide = localStorage.getItem('khai-user-completed-guide');
+        
+        // If user hasn't visited welcome page, redirect there
+        if (!hasVisited) {
+            window.location.href = 'welcome.html';
+            return;
+        }
+        
+        // If user visited welcome but didn't complete guide, redirect to guide
+        if (hasVisited && !hasCompletedGuide && !window.location.pathname.includes('guide.html')) {
+            window.location.href = 'guide.html';
+            return;
+        }
+        
+        // User completed both steps - continue with main app
     }
 
     setupCleanup() {
@@ -364,8 +378,6 @@ class KHAIAssistant {
             [window, 'online', () => this.handleOnlineStatus()],
             [window, 'offline', () => this.handleOfflineStatus()],
             [window, 'resize', () => this.debounce('resize', () => this.handleResize(), 250)],
-            // Guide events
-            [window, 'message', (e) => this.handleGuideMessage(e)],
             // PWA events
             [window, 'beforeinstallprompt', (e) => this.handleBeforeInstallPrompt(e)],
             [window, 'appinstalled', () => this.handleAppInstalled()]
@@ -376,88 +388,6 @@ class KHAIAssistant {
                 this.addEventListener(element, event, handler);
             }
         });
-    }
-
-    // Guide Methods
-    checkGuideOnStartup() {
-        if (!this.guideCompleted) {
-            // Show guide after a short delay to let the app load
-            this.setTimeout(() => {
-                this.showGuide();
-            }, 2000);
-        }
-    }
-
-    showGuide() {
-        if (this.guideWindow && !this.guideWindow.closed) {
-            this.guideWindow.focus();
-            return;
-        }
-
-        const width = 600;
-        const height = 700;
-        const left = (screen.width - width) / 2;
-        const top = (screen.height - height) / 2;
-
-        this.guideWindow = window.open(
-            './guide.html',
-            'khai_guide',
-            `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no`
-        );
-
-        if (!this.guideWindow) {
-            this.showNotification('Разрешите всплывающие окна для показа гайда', 'warning');
-            return;
-        }
-
-        this.guideWindow.focus();
-    }
-
-    handleGuideMessage(event) {
-        if (event.data && event.data.type === 'GUIDE_COMPLETED') {
-            this.guideCompleted = true;
-            this.markGuideCompleted();
-            
-            if (event.data.skipped) {
-                this.showNotification('Гайд пропущен. Вы всегда можете открыть его через меню помощи.', 'info');
-            } else {
-                this.showNotification('Гайд завершен! Приятного использования KHAI Assistant!', 'success');
-            }
-            
-            if (this.guideWindow) {
-                this.setTimeout(() => {
-                    if (this.guideWindow && !this.guideWindow.closed) {
-                        this.guideWindow.close();
-                    }
-                }, 1000);
-            }
-        }
-    }
-
-    isGuideCompleted() {
-        try {
-            return localStorage.getItem('khai-guide-completed') === 'true';
-        } catch (e) {
-            return false;
-        }
-    }
-
-    markGuideCompleted() {
-        try {
-            localStorage.setItem('khai-guide-completed', 'true');
-        } catch (e) {
-            console.warn('Could not save guide completion status');
-        }
-    }
-
-    restartGuide() {
-        try {
-            localStorage.removeItem('khai-guide-completed');
-            this.guideCompleted = false;
-        } catch (e) {
-            console.warn('Could not clear guide completion status');
-        }
-        this.showGuide();
     }
 
     // PWA Installation Handlers
@@ -1364,15 +1294,6 @@ ${fileContent}
         downloadBtn.innerHTML = '<i class="ti ti-download"></i> Скачать';
         downloadBtn.onclick = () => this.downloadMessage(plainText);
         actionsContainer.appendChild(downloadBtn);
-
-        // Guide restart button for help message
-        if (plainText.includes('Помощь по KHAI Assistant')) {
-            const restartGuideBtn = document.createElement('button');
-            restartGuideBtn.className = 'action-btn-small';
-            restartGuideBtn.innerHTML = '<i class="ti ti-tournament"></i> Показать гайд';
-            restartGuideBtn.onclick = () => this.restartGuide();
-            actionsContainer.appendChild(restartGuideBtn);
-        }
 
         // Share button
         if (navigator.share) {
@@ -2948,8 +2869,6 @@ ${fileContent}
 
 **Текущая модель: ${currentModelName}** - ${currentModelDesc}
 
-${!this.guideCompleted ? '🎮 **Для знакомства с интерфейсом откроется интерактивный гайд...**' : ''}
-
 **Начните общение, отправив сообщение, изображение или файл!**`;
 
         this.addMessage('ai', welcomeMessage);
@@ -3146,3 +3065,4 @@ window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
     event.preventDefault();
 });
+[file content end]
