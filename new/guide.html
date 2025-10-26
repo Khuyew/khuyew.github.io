@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHAI Assistant - Интерактивный гайд</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Guide Specific Styles */
+        .guide-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .guide-container {
+            background: var(--bg-primary);
+            border: 2px solid var(--accent-primary);
+            border-radius: var(--radius-xl);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            animation: guideSlideIn 0.3s ease-out;
+        }
+
+        @keyframes guideSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .guide-content {
+            padding: 24px;
+        }
+
+        .guide-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .guide-header h2 {
+            color: var(--text-primary);
+            font-size: 1.5em;
+            margin-bottom: 8px;
+        }
+
+        .guide-header p {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        .guide-steps {
+            margin-bottom: 24px;
+            min-height: 120px;
+        }
+
+        .guide-step {
+            display: none;
+            animation: guideFadeIn 0.3s ease;
+        }
+
+        @keyframes guideFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .guide-step.active {
+            display: block;
+        }
+
+        .guide-step h3 {
+            color: var(--text-primary);
+            font-size: 1.2em;
+            margin-bottom: 8px;
+        }
+
+        .guide-step p {
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .guide-progress {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 14.28%;
+        }
+
+        .progress-text {
+            color: var(--text-tertiary);
+            font-size: 0.9em;
+            min-width: 40px;
+        }
+
+        .guide-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .guide-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .guide-btn:hover:not(:disabled) {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .guide-btn.primary {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .guide-btn.primary:hover:not(:disabled) {
+            background: var(--accent-secondary);
+            border-color: var(--accent-secondary);
+        }
+
+        .guide-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .guide-btn.secondary {
+            background: transparent;
+            border-color: var(--border-color);
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .guide-container {
+                margin: 20px;
+                max-width: none;
+            }
+            
+            .guide-content {
+                padding: 20px;
+            }
+            
+            .guide-actions {
+                flex-wrap: wrap;
+            }
+            
+            .guide-btn {
+                flex: 1;
+                min-width: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="guide-overlay" id="guideOverlay">
+        <div class="guide-container">
+            <div class="guide-content">
+                <div class="guide-header">
+                    <h2>👋 Добро пожаловать в KHAI Assistant!</h2>
+                    <p>Пройдите краткий гайд по основным функциям</p>
+                </div>
+                
+                <div class="guide-steps">
+                    <div class="guide-step" data-step="1">
+                        <h3>💬 Основной чат</h3>
+                        <p>Здесь происходит общение с ИИ. Вы можете задавать вопросы, получать ответы и просматривать историю диалога.</p>
+                    </div>
+                    
+                    <div class="guide-step" data-step="2">
+                        <h3>🛠️ Панель управления</h3>
+                        <p>Используйте эти кнопки для управления чатом: помощь, скачивание истории и очистка диалога.</p>
+                    </div>
+                    
+                    <div class="guide-step" data-step="3">
+                        <h3>📝 Ввод сообщений</h3>
+                        <p>Пишите сообщения здесь. Enter - отправить, Shift+Enter - новая строка. Также доступен голосовой ввод.</p>
+                    </div>
+                    
+                    <div class="guide-step" data-step="4">
+                        <h3>🎛️ Режимы работы</h3>
+                        <p>Переключайтесь между обычным режимом, генерацией голоса и изображений для разных задач.</p>
+                    </div>
+                    
+                    <div class="guide-step" data-step="5">
+                        <h3>🧠 Управление моделями</h3>
+                        <p>Выбирайте разные модели ИИ для различных задач - от быстрых ответов до сложных рассуждений.</p>
+                    </div>
+                    
+                    <div class="guide-step" data-step="6">
+                        <h3>📊 Навигация</h3>
+                        <p>Используйте мини-карту для быстрой навигации по длинным диалогам и переключения темы.</p>
+                    </div>
+                    
+                    <div class="guide-step" data-step="7">
+                        <h3>⚙️ Меню и управление</h3>
+                        <p>Откройте меню для управления чатами, настройками, импорта/экспорта и просмотра информации.</p>
+                    </div>
+                </div>
+                
+                <div class="guide-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="guideProgressFill"></div>
+                    </div>
+                    <span class="progress-text" id="guideProgressText">1/7</span>
+                </div>
+                
+                <div class="guide-actions">
+                    <button class="guide-btn secondary" id="guideSkipBtn">Пропустить</button>
+                    <button class="guide-btn" id="guidePrevBtn" disabled>Назад</button>
+                    <button class="guide-btn primary" id="guideNextBtn">Далее</button>
+                    <button class="guide-btn primary" id="guideCompleteBtn" style="display: none;">Завершить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class KHAIGuide {
+            constructor() {
+                this.currentStep = 1;
+                this.totalSteps = 7;
+                this.isActive = false;
+                
+                this.steps = [
+                    {
+                        element: '#messagesContainer',
+                        title: '💬 Основной чат',
+                        description: 'Здесь происходит общение с ИИ. Вы можете задавать вопросы, получать ответы и просматривать историю диалога.',
+                    },
+                    {
+                        element: '.footer-controls',
+                        title: '🛠️ Панель управления',
+                        description: 'Используйте эти кнопки для управления чатом: помощь, скачивание истории и очистка диалога.',
+                    },
+                    {
+                        element: '#userInput',
+                        title: '📝 Ввод сообщений',
+                        description: 'Пишите сообщения здесь. Enter - отправить, Shift+Enter - новая строка. Также доступен голосовой ввод.',
+                    },
+                    {
+                        element: '.action-buttons',
+                        title: '🎛️ Режимы работы',
+                        description: 'Переключайтесь между обычным режимом, генерацией голоса и изображений для разных задач.',
+                    },
+                    {
+                        element: '#modelSelectBtn',
+                        title: '🧠 Управление моделями',
+                        description: 'Выбирайте разные модели ИИ для различных задач - от быстрых ответов до сложных рассуждений.',
+                    },
+                    {
+                        element: '.chat-minimap-container',
+                        title: '📊 Навигация',
+                        description: 'Используйте мини-карту для быстрой навигации по длинным диалогам и переключения темы.',
+                    },
+                    {
+                        element: '#menuToggle',
+                        title: '⚙️ Меню и управление',
+                        description: 'Откройте меню для управления чатами, настройками, импорта/экспорта и просмотра информации.',
+                    }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.showStep(1);
+            }
+            
+            bindEvents() {
+                document.getElementById('guideSkipBtn').addEventListener('click', () => this.skipGuide());
+                document.getElementById('guidePrevBtn').addEventListener('click', () => this.previousStep());
+                document.getElementById('guideNextBtn').addEventListener('click', () => this.nextStep());
+                document.getElementById('guideCompleteBtn').addEventListener('click', () => this.completeGuide());
+                
+                // Close guide on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.isActive) {
+                        this.skipGuide();
+                    }
+                });
+            }
+            
+            showStep(stepNumber) {
+                this.currentStep = stepNumber;
+                this.isActive = true;
+                
+                // Update progress
+                const progress = (stepNumber / this.totalSteps) * 100;
+                document.getElementById('guideProgressFill').style.width = `${progress}%`;
+                document.getElementById('guideProgressText').textContent = `${stepNumber}/${this.totalSteps}`;
+                
+                // Update steps visibility
+                document.querySelectorAll('.guide-step').forEach(step => {
+                    step.classList.remove('active');
+                });
+                document.querySelector(`.guide-step[data-step="${stepNumber}"]`).classList.add('active');
+                
+                // Update buttons
+                document.getElementById('guidePrevBtn').disabled = stepNumber === 1;
+                document.getElementById('guideNextBtn').style.display = stepNumber === this.totalSteps ? 'none' : 'block';
+                document.getElementById('guideCompleteBtn').style.display = stepNumber === this.totalSteps ? 'block' : 'none';
+            }
+            
+            nextStep() {
+                if (this.currentStep < this.totalSteps) {
+                    this.showStep(this.currentStep + 1);
+                }
+            }
+            
+            previousStep() {
+                if (this.currentStep > 1) {
+                    this.showStep(this.currentStep - 1);
+                }
+            }
+            
+            skipGuide() {
+                this.completeGuide(true);
+            }
+            
+            completeGuide(skipped = false) {
+                this.isActive = false;
+                
+                // Send message to parent window
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'GUIDE_COMPLETED',
+                        skipped: skipped
+                    }, '*');
+                }
+                
+                // Close the window
+                window.close();
+            }
+        }
+
+        // Initialize guide when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.khaiGuide = new KHAIGuide();
+        });
+    </script>
+</body>
+</html>
