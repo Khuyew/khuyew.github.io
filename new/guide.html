@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KHAI — Гайд по использованию</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <style>
@@ -16,73 +16,39 @@
             --bg-primary: #0f0f23;
             --bg-secondary: rgba(255, 255, 255, 0.03);
             --bg-tertiary: rgba(255, 255, 255, 0.08);
-            --bg-hover: rgba(255, 255, 255, 0.12);
             --text-primary: #ffffff;
             --text-secondary: #a0a0c0;
-            --text-tertiary: #8888aa;
             --accent-primary: #0099ff;
             --accent-secondary: #0066ff;
-            --accent-primary-alpha: rgba(0, 153, 255, 0.2);
             --border-color: rgba(255, 255, 255, 0.15);
-            --radius-sm: 6px;
             --radius-md: 8px;
             --radius-lg: 12px;
-            --radius-xl: 16px;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        [data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: rgba(0, 0, 0, 0.03);
-            --bg-tertiary: rgba(0, 0, 0, 0.08);
-            --bg-hover: rgba(0, 0, 0, 0.12);
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-tertiary: #888888;
-            --border-color: rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            overflow: hidden;
             height: 100vh;
-            height: 100dvh;
+            overflow: hidden;
         }
 
         .guide-container {
             height: 100vh;
-            height: 100dvh;
             display: flex;
             flex-direction: column;
-            position: relative;
-            overflow: hidden;
         }
 
         /* Header */
         .guide-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: var(--bg-primary);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
             padding: 12px 20px;
-            height: 50px;
-        }
-
-        .header-content {
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-primary);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
+            height: 50px;
         }
 
         .logo {
@@ -103,43 +69,31 @@
             background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 70%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .skip-btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             color: var(--text-secondary);
-            text-decoration: none;
+            cursor: pointer;
             font-size: 0.85rem;
             transition: var(--transition);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .skip-btn:hover {
-            background: var(--bg-hover);
+            background: var(--bg-secondary);
             color: var(--text-primary);
         }
 
-        /* Progress Bar */
+        /* Progress */
         .progress-container {
-            position: fixed;
-            top: 50px;
-            left: 0;
-            right: 0;
-            z-index: 99;
+            padding: 8px 20px;
             background: var(--bg-primary);
-            padding: 0 20px;
         }
 
         .progress-bar {
-            max-width: 1200px;
-            margin: 0 auto;
             height: 2px;
             background: var(--bg-tertiary);
             border-radius: 1px;
@@ -153,14 +107,13 @@
             width: 0%;
         }
 
-        /* Main Content */
+        /* Content */
         .guide-content {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 100px 20px 80px;
-            position: relative;
+            padding: 20px;
             overflow: hidden;
         }
 
@@ -168,20 +121,12 @@
             display: none;
             max-width: 500px;
             width: 100%;
-            animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            text-align: center;
         }
 
         .slide.active {
             display: block;
-        }
-
-        .slide-content {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xl);
-            padding: 30px;
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(10px);
+            animation: slideIn 0.4s ease;
         }
 
         .slide-icon {
@@ -194,23 +139,18 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            box-shadow: var(--shadow-md);
         }
 
         .slide-title {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
             margin-bottom: 12px;
-            line-height: 1.3;
-            text-align: center;
         }
 
         .slide-description {
-            font-size: 0.95rem;
             color: var(--text-secondary);
             line-height: 1.5;
             margin-bottom: 24px;
-            text-align: center;
         }
 
         .slide-features {
@@ -228,20 +168,14 @@
             background: var(--bg-tertiary);
             border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        .feature-item:hover {
-            background: var(--bg-hover);
-            transform: translateX(4px);
+            text-align: left;
         }
 
         .feature-icon {
             width: 20px;
             height: 20px;
             background: var(--accent-primary);
-            border-radius: var(--radius-sm);
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -250,7 +184,7 @@
         }
 
         .demo-chat {
-            background: var(--bg-primary);
+            background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             padding: 16px;
@@ -264,52 +198,45 @@
             border-radius: var(--radius-md);
             font-size: 0.85rem;
             line-height: 1.4;
-            max-width: 85%;
-            animation: messageAppear 0.5s ease;
         }
 
         .demo-user {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             margin-left: auto;
+            max-width: 80%;
             color: white;
         }
 
         .demo-ai {
             background: var(--bg-tertiary);
             margin-right: auto;
+            max-width: 80%;
             border: 1px solid var(--border-color);
         }
 
         /* Navigation */
         .guide-navigation {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-primary);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border-color);
             padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-primary);
         }
 
         .nav-content {
-            max-width: 1200px;
-            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .nav-btn {
             padding: 10px 20px;
             border-radius: var(--radius-md);
-            font-size: 0.9rem;
             font-weight: 600;
-            text-decoration: none;
+            cursor: pointer;
             transition: var(--transition);
             border: 1px solid transparent;
-            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -320,7 +247,6 @@
         .nav-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none !important;
         }
 
         .prev-btn {
@@ -330,7 +256,7 @@
         }
 
         .prev-btn:hover:not(:disabled) {
-            background: var(--bg-hover);
+            background: var(--bg-secondary);
         }
 
         .next-btn {
@@ -341,27 +267,21 @@
 
         .next-btn:hover:not(:disabled) {
             background: var(--accent-secondary);
-            border-color: var(--accent-secondary);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
         }
 
         .start-btn {
-            background: linear-gradient(135deg, #00d664, #00b894);
+            background: #00b894;
             color: white;
-            border-color: #00d664;
+            border-color: #00b894;
         }
 
         .start-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px -6px rgba(0, 214, 100, 0.3);
+            background: #00a085;
         }
 
         .step-indicators {
             display: flex;
             gap: 6px;
-            flex: 1;
-            justify-content: center;
         }
 
         .step-dot {
@@ -378,22 +298,10 @@
             transform: scale(1.2);
         }
 
-        /* Animations */
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(20px) scale(0.98);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        @keyframes messageAppear {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -401,303 +309,219 @@
             }
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .guide-header {
-                padding: 10px 15px;
-            }
-            
-            .slide-content {
-                padding: 24px;
-                margin: 0 10px;
+            .guide-content {
+                padding: 15px;
             }
             
             .slide-title {
-                font-size: 1.3rem;
-            }
-            
-            .slide-description {
-                font-size: 0.9rem;
+                font-size: 1.2rem;
             }
             
             .nav-btn {
                 padding: 8px 16px;
-                font-size: 0.85rem;
                 min-width: 80px;
-            }
-            
-            .guide-content {
-                padding: 90px 15px 80px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .slide-title {
-                font-size: 1.2rem;
-            }
-            
-            .slide-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-            
-            .nav-content {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .step-indicators {
-                order: -1;
-            }
-            
-            .guide-content {
-                padding: 80px 10px 120px;
-            }
-            
-            .demo-message {
-                font-size: 0.8rem;
-                padding: 8px 12px;
-            }
-        }
-
-        /* Dark/Light theme support */
-        @media (prefers-color-scheme: light) {
-            :root {
-                --bg-primary: #ffffff;
-                --bg-secondary: rgba(0, 0, 0, 0.03);
-                --bg-tertiary: rgba(0, 0, 0, 0.08);
-                --bg-hover: rgba(0, 0, 0, 0.12);
-                --text-primary: #1a1a1a;
-                --text-secondary: #666666;
-                --text-tertiary: #888888;
-                --border-color: rgba(0, 0, 0, 0.15);
             }
         }
     </style>
 </head>
 <body>
     <div class="guide-container">
-        <!-- Header -->
         <div class="guide-header">
-            <div class="header-content">
-                <div class="logo">
-                    <img src="https://raw.githubusercontent.com/Khuyew/khuyew.github.io/refs/heads/main/new/icon.png" alt="KHAI">
-                    <span class="logo-text">KHAI</span>
-                </div>
-                <button class="skip-btn" id="skipBtn">
-                    <i class="ti ti-arrow-forward"></i>
-                    Пропустить
-                </button>
+            <div class="logo">
+                <img src="https://raw.githubusercontent.com/Khuyew/khuyew.github.io/refs/heads/main/new/icon.png" alt="KHAI">
+                <span class="logo-text">KHAI</span>
             </div>
+            <button class="skip-btn" id="skipBtn">
+                Пропустить
+            </button>
         </div>
 
-        <!-- Progress Bar -->
         <div class="progress-container">
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="guide-content">
-            <!-- Slide 1: Welcome -->
+            <!-- Slide 1 -->
             <div class="slide active" id="slide1">
-                <div class="slide-content">
-                    <div class="slide-icon">
-                        <i class="ti ti-rocket"></i>
+                <div class="slide-icon">
+                    <i class="ti ti-rocket"></i>
+                </div>
+                <h1 class="slide-title">Добро пожаловать в KHAI!</h1>
+                <p class="slide-description">
+                    Первый белорусский ИИ-помощник с передовыми технологиями для решения любых задач.
+                </p>
+                <div class="slide-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-brain"></i>
+                        </div>
+                        <span>Умные ответы на любые вопросы</span>
                     </div>
-                    <h1 class="slide-title">Добро пожаловать в KHAI!</h1>
-                    <p class="slide-description">
-                        Первый белорусский ИИ-помощник с передовыми технологиями. 
-                        Давайте познакомимся с основными возможностями.
-                    </p>
-                    <div class="slide-features">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-brain"></i>
-                            </div>
-                            <span>Умные ответы на любые вопросы</span>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-photo"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-photo"></i>
-                            </div>
-                            <span>Анализ изображений и файлов</span>
+                        <span>Анализ изображений и файлов</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-microphone"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-microphone"></i>
-                            </div>
-                            <span>Голосовой ввод и озвучка</span>
-                        </div>
+                        <span>Голосовой ввод и озвучка</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Slide 2: Chat Interface -->
+            <!-- Slide 2 -->
             <div class="slide" id="slide2">
-                <div class="slide-content">
-                    <div class="slide-icon">
-                        <i class="ti ti-message"></i>
+                <div class="slide-icon">
+                    <i class="ti ti-message"></i>
+                </div>
+                <h1 class="slide-title">Умный чат</h1>
+                <p class="slide-description">
+                    Общайтесь с ИИ как с живым собеседником. Задавайте вопросы и получайте развернутые ответы.
+                </p>
+                <div class="demo-chat">
+                    <div class="demo-message demo-ai">
+                        👋 Привет! Я KHAI. Могу помочь с кодом, текстами, анализом данных и многим другим.
                     </div>
-                    <h1 class="slide-title">Умный чат</h1>
-                    <p class="slide-description">
-                        Общайтесь с ИИ как с живым собеседником. Задавайте вопросы, получайте развернутые ответы 
-                        и продолжайте диалог в контексте.
-                    </p>
-                    <div class="demo-chat">
-                        <div class="demo-message demo-ai">
-                            👋 Привет! Я KHAI. Могу помочь с кодом, текстами, анализом данных и многим другим.
-                        </div>
-                        <div class="demo-message demo-user">
-                            Напиши код для сортировки массива на Python
-                        </div>
-                        <div class="demo-message demo-ai">
-                            Конечно! Вот несколько способов сортировки массива в Python...
-                        </div>
+                    <div class="demo-message demo-user">
+                        Напиши код для сортировки массива на Python
+                    </div>
+                    <div class="demo-message demo-ai">
+                        Конечно! Вот несколько способов сортировки массива в Python...
                     </div>
                 </div>
             </div>
 
-            <!-- Slide 3: File Analysis -->
+            <!-- Slide 3 -->
             <div class="slide" id="slide3">
-                <div class="slide-content">
-                    <div class="slide-icon">
-                        <i class="ti ti-file-upload"></i>
+                <div class="slide-icon">
+                    <i class="ti ti-file-upload"></i>
+                </div>
+                <h1 class="slide-title">Работа с файлами</h1>
+                <p class="slide-description">
+                    Загружайте изображения, документы и файлы с кодом для анализа.
+                </p>
+                <div class="slide-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-photo"></i>
+                        </div>
+                        <span>Изображения: JPEG, PNG, WebP</span>
                     </div>
-                    <h1 class="slide-title">Работа с файлами</h1>
-                    <p class="slide-description">
-                        Загружайте изображения, документы и файлы с кодом. ИИ проанализирует содержимое 
-                        и поможет с решением задач.
-                    </p>
-                    <div class="slide-features">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-photo"></i>
-                            </div>
-                            <span>Изображения: JPEG, PNG, WebP</span>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-file-text"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-file-text"></i>
-                            </div>
-                            <span>Документы: TXT, PDF, Word</span>
+                        <span>Документы: TXT, PDF, Word</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-code"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-code"></i>
-                            </div>
-                            <span>Код: Python, JavaScript, Java и другие</span>
-                        </div>
+                        <span>Код: Python, JavaScript, Java и другие</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Slide 4: Voice Features -->
+            <!-- Slide 4 -->
             <div class="slide" id="slide4">
-                <div class="slide-content">
-                    <div class="slide-icon">
-                        <i class="ti ti-microphone"></i>
+                <div class="slide-icon">
+                    <i class="ti ti-microphone"></i>
+                </div>
+                <h1 class="slide-title">Голосовые возможности</h1>
+                <p class="slide-description">
+                    Используйте голос для общения с ИИ и слушайте ответы.
+                </p>
+                <div class="slide-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-microphone"></i>
+                        </div>
+                        <span>Голосовой ввод</span>
                     </div>
-                    <h1 class="slide-title">Голосовые возможности</h1>
-                    <p class="slide-description">
-                        Используйте голос для общения с ИИ и слушайте ответы. Идеально для мобильных устройств 
-                        и ситуаций, когда печатать неудобно.
-                    </p>
-                    <div class="slide-features">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-microphone"></i>
-                            </div>
-                            <span>Голосовой ввод - говорите вместо печати</span>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-speakerphone"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-speakerphone"></i>
-                            </div>
-                            <span>Озвучка ответов - слушайте вместо чтения</span>
+                        <span>Озвучка ответов</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-headphones"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-headphones"></i>
-                            </div>
-                            <span>Генерация голоса - создание аудио из текста</span>
-                        </div>
+                        <span>Генерация голоса</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Slide 5: Multiple Chats -->
+            <!-- Slide 5 -->
             <div class="slide" id="slide5">
-                <div class="slide-content">
-                    <div class="slide-icon">
-                        <i class="ti ti-messages"></i>
+                <div class="slide-icon">
+                    <i class="ti ti-messages"></i>
+                </div>
+                <h1 class="slide-title">Несколько чатов</h1>
+                <p class="slide-description">
+                    Создавайте отдельные чаты для разных тем и проектов.
+                </p>
+                <div class="slide-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-plus"></i>
+                        </div>
+                        <span>Неограниченное количество чатов</span>
                     </div>
-                    <h1 class="slide-title">Несколько чатов</h1>
-                    <p class="slide-description">
-                        Создавайте отдельные чаты для разных тем и проектов. Переключайтесь между ними 
-                        и сохраняйте контекст каждой беседы.
-                    </p>
-                    <div class="slide-features">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-plus"></i>
-                            </div>
-                            <span>Создавайте неограниченное количество чатов</span>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-edit"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-edit"></i>
-                            </div>
-                            <span>Редактируйте названия чатов</span>
+                        <span>Редактирование названий</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-download"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-download"></i>
-                            </div>
-                            <span>Экспортируйте и импортируйте беседы</span>
-                        </div>
+                        <span>Экспорт и импорт бесед</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Slide 6: Ready to Start -->
+            <!-- Slide 6 -->
             <div class="slide" id="slide6">
-                <div class="slide-content">
-                    <div class="slide-icon">
-                        <i class="ti ti-flag"></i>
+                <div class="slide-icon">
+                    <i class="ti ti-flag"></i>
+                </div>
+                <h1 class="slide-title">Всё готово!</h1>
+                <p class="slide-description">
+                    Начните использовать KHAI для решения ваших задач.
+                </p>
+                <div class="slide-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-help"></i>
+                        </div>
+                        <span>Повторно пройти гайд можно через меню</span>
                     </div>
-                    <h1 class="slide-title">Всё готово!</h1>
-                    <p class="slide-description">
-                        Вы познакомились с основными возможностями KHAI. Теперь можете начать использовать 
-                        все функции ИИ-помощника для решения ваших задач.
-                    </p>
-                    <div class="slide-features">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-help"></i>
-                            </div>
-                            <span>В любое время можете повторно пройти гайд через меню</span>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-book"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-book"></i>
-                            </div>
-                            <span>Подробная документация доступна онлайн</span>
+                        <span>Документация доступна онлайн</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ti ti-lifebuoy"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-lifebuoy"></i>
-                            </div>
-                            <span>Техническая поддержка всегда на связи</span>
-                        </div>
+                        <span>Техническая поддержка всегда на связи</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Navigation -->
         <div class="guide-navigation">
             <div class="nav-content">
                 <button class="nav-btn prev-btn" id="prevBtn" disabled>
@@ -706,7 +530,7 @@
                 </button>
                 
                 <div class="step-indicators" id="stepIndicators">
-                    <!-- Step dots will be generated by JavaScript -->
+                    <!-- dots -->
                 </div>
                 
                 <button class="nav-btn next-btn" id="nextBtn">
@@ -747,7 +571,6 @@
                 document.getElementById('nextBtn').addEventListener('click', () => this.nextSlide());
                 document.getElementById('skipBtn').addEventListener('click', () => this.skipGuide());
                 
-                // Keyboard navigation
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'ArrowLeft') this.previousSlide();
                     if (e.key === 'ArrowRight') this.nextSlide();
@@ -760,14 +583,9 @@
             goToSlide(slideNumber) {
                 if (slideNumber < 1 || slideNumber > this.totalSlides) return;
 
-                // Hide current slide
-                const currentSlide = document.getElementById(`slide${this.currentSlide}`);
-                currentSlide.classList.remove('active');
-
-                // Show new slide
+                document.getElementById(`slide${this.currentSlide}`).classList.remove('active');
                 this.currentSlide = slideNumber;
-                const newSlide = document.getElementById(`slide${this.currentSlide}`);
-                newSlide.classList.add('active');
+                document.getElementById(`slide${this.currentSlide}`).classList.add('active');
 
                 this.updateProgress();
                 this.updateStepIndicators();
@@ -819,21 +637,17 @@
             }
 
             skipGuide() {
-                if (confirm('Пропустить обучение и перейти к приложению?')) {
+                if (confirm('Пропустить обучение?')) {
                     this.completeGuide();
                 }
             }
 
             completeGuide() {
-                // Set flag that user completed the guide
                 localStorage.setItem('khai-user-completed-guide', 'true');
-                
-                // Redirect to main app
                 window.location.href = 'index.html';
             }
         }
 
-        // Initialize guide when page loads
         document.addEventListener('DOMContentLoaded', () => {
             new GuideManager();
         });
