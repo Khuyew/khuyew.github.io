@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="ru" itemscope itemtype="https://schema.org/WebApplication">
 <head>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+    
+        ym(104843405, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/104843405" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QQKXYHS18Q"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-QQKXYHS18Q');
+    </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0f0f23">
@@ -214,10 +237,6 @@
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="webSearchBtn" title="Веб-поиск">
-                    <i class="ti ti-search"></i>
-                    <span class="btn-text">Поиск</span>
-                </button>
                 <button class="action-btn mode-btn" id="generateImageBtn" disabled title="В разработке">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
@@ -346,6 +365,8 @@
                     (s.colorDepth?s.colorDepth:s.pixelDepth))+";u"+escape(d.URL)+
                     ";h"+escape(d.title.substring(0,150))+";"+Math.random()})
                     (document,screen)</script><!--/LiveInternet-->
+
+                    <!-- Yandex.Metrika informer --> <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">     <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"          style="width:88px; height:31px; border:0;"          alt="Яндекс.Метрика"          title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"         class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/> </a> <!-- /Yandex.Metrika informer -->  <!-- Yandex.Metrika counter --> <script type="text/javascript">     (function(m,e,t,r,i,k,a){         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};         m[i].l=1*new Date();         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)     })(window, document,'script','https://mc.webvisor.org/metrika/tag_ww.js', 'ym');      ym(104843405, 'init', {webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true}); </script>  <!-- /Yandex.Metrika counter -->   
                 </div>
                 
                 <a href="https://khai.by/github" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: var(--radius-md); transition: var(--transition); margin-bottom: 20px;">
@@ -406,7 +427,28 @@
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script src="./script.js"></script>
+    
+    <!-- User Redirection Script -->
+    <script>
+        // Проверка первого посещения и редирект на welcome.html
+        (function() {
+            const isFirstVisit = !localStorage.getItem('khai-user-visited');
+            
+            if (isFirstVisit) {
+                // Сохраняем флаг посещения
+                localStorage.setItem('khai-user-visited', 'true');
+                
+                // Перенаправляем на welcome.html
+                window.location.href = 'welcome.html';
+                return; // Останавливаем выполнение текущей страницы
+            }
+            
+            // Если пользователь уже посещал, загружаем основное приложение
+            const script = document.createElement('script');
+            script.src = './script.js';
+            document.head.appendChild(script);
+        })();
+    </script>
 
     <!-- PWA Service Worker -->
     <script>
