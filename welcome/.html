@@ -423,7 +423,7 @@
             <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <a href="./start" class="action-btn primary-btn">
+                    <a href="./start" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
                         Начать бесплатно
                     </a>
@@ -460,16 +460,37 @@
     </div>
 
     <script>
-        // Simple auto-restart for demo effect
-        setTimeout(() => {
-            const typingIndicator = document.querySelector('.typing-indicator');
-            if (typingIndicator) {
-                typingIndicator.style.animation = 'none';
-                setTimeout(() => {
-                    typingIndicator.style.animation = 'fadeIn 0.5s ease forwards';
-                }, 100);
+        // User redirection functionality
+        (function() {
+            // Set flag that user has seen welcome page
+            localStorage.setItem('khai-user-visited', 'true');
+            
+            // Auto redirect after 10 seconds
+            const redirectTimer = setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 10000);
+
+            // Manual redirect when clicking the start button
+            const startBtn = document.getElementById('startBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    clearTimeout(redirectTimer);
+                    window.location.href = 'index.html';
+                });
             }
-        }, 8000);
+
+            // Simple auto-restart for demo effect
+            setTimeout(() => {
+                const typingIndicator = document.querySelector('.typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.style.animation = 'none';
+                    setTimeout(() => {
+                        typingIndicator.style.animation = 'fadeIn 0.5s ease forwards';
+                    }, 100);
+                }
+            }, 8000);
+        })();
     </script>
 </body>
 </html>
