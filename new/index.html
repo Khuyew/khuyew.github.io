@@ -21,7 +21,6 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-QQKXYHS18Q');
     </script>
     
@@ -32,7 +31,7 @@
     <!-- SEO Meta Tags -->
     <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
     <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
-    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь">
+    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь, AI Беларусь">
     <meta name="author" content="KHAI Team">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="googlebot" content="index, follow">
@@ -42,15 +41,15 @@
     <meta property="og:site_name" content="KHAI Assistant">
     <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
-    <meta property="og:image" content="./logo.png">
-    <meta property="og:url" content="./">
+    <meta property="og:image" content="./assets/og-image.webp">
+    <meta property="og:url" content="https://khai.by">
     <meta property="og:locale" content="ru_RU">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
-    <meta name="twitter:image" content="./logo.png">
+    <meta name="twitter:image" content="./assets/og-image.webp">
     <meta name="twitter:site" content="@khai_assistant">
     
     <!-- Schema.org -->
@@ -59,7 +58,7 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "KHAI Assistant",
-        "url": "./",
+        "url": "https://khai.by",
         "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
@@ -72,15 +71,15 @@
         "author": {
             "@type": "Organization",
             "name": "KHAI",
-            "url": "./"
+            "url": "https://khai.by"
         }
     }
     </script>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
-    <link rel="apple-touch-icon" href="./logo.png">
+    <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
+    <link rel="apple-touch-icon" href="./assets/logo.svg">
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
@@ -98,7 +97,15 @@
     <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-content">
-            <img src="./logo.png" alt="KHAI" class="preloader-logo">
+            <svg class="preloader-logo" width="80" height="80" viewBox="0 0 100 100">
+                <defs>
+                    <style>
+                        .logo-path { fill: #0099ff; }
+                        [data-theme="light"] .logo-path { fill: #0066ff; }
+                    </style>
+                </defs>
+                <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
+            </svg>
             <div class="preloader-spinner"></div>
             <p class="preloader-text">Загрузка KHAI Assistant...</p>
         </div>
@@ -107,7 +114,15 @@
     <!-- 404 Page (hidden by default) -->
     <div class="page-404" id="page404" style="display: none;">
         <div class="error-container">
-            <img src="./logo.png" alt="KHAI" class="error-logo">
+            <svg class="error-logo" width="120" height="120" viewBox="0 0 100 100">
+                <defs>
+                    <style>
+                        .logo-path { fill: #0099ff; }
+                        [data-theme="light"] .logo-path { fill: #0066ff; }
+                    </style>
+                </defs>
+                <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
+            </svg>
             <h1>404 - Страница не найдена</h1>
             <p>Запрошенная страница не существует или была перемещена.</p>
             <button class="error-btn" id="errorBackBtn">Вернуться в приложение</button>
@@ -121,7 +136,15 @@
             <div class="header-content">
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
-                        <img src="./logo.png" alt="KHAI Assistant" width="36" height="36" loading="eager">
+                        <svg width="36" height="36" viewBox="0 0 100 100">
+                            <defs>
+                                <style>
+                                    .logo-path { fill: #0099ff; transition: fill 0.3s ease; }
+                                    [data-theme="light"] .logo-path { fill: #0066ff; }
+                                </style>
+                            </defs>
+                            <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
+                        </svg>
                     </div>
                 </div>
                 
@@ -279,7 +302,15 @@
         <div class="sidebar-header">
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
-                    <img src="./icon.png" alt="KHAI" loading="lazy">
+                    <svg width="40" height="40" viewBox="0 0 100 100">
+                        <defs>
+                            <style>
+                                .logo-path { fill: #0099ff; transition: fill 0.3s ease; }
+                                [data-theme="light"] .logo-path { fill: #0066ff; }
+                            </style>
+                        </defs>
+                        <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
+                    </svg>
                 </div>
                 <h3>KHAI <span class="beta-badge">BETA</span></h3>
             </div>
@@ -341,46 +372,83 @@
                 </div>
             </div>
 
-            <div class="sidebar-links" style="margin-top: auto; padding: 20px 0; text-align: center;">
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                    <a href="https://khai.by/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
+            <!-- Enhanced Footer Links -->
+            <div class="sidebar-links" style="margin-top: auto; padding: 20px 0;">
+                <div class="footer-links-grid">
+                    <a href="https://github.com/khai-assistant" target="_blank" class="footer-link">
+                        <i class="ti ti-brand-github"></i>
+                        GitHub
+                    </a>
+                    <a href="https://khai.by/docs" target="_blank" class="footer-link">
+                        <i class="ti ti-book"></i>
                         Документация
                     </a>
-                    <a href="https://khai.by/support" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
+                    <a href="https://khai.by/api" target="_blank" class="footer-link">
+                        <i class="ti ti-api"></i>
+                        API
+                    </a>
+                    <a href="https://status.khai.by" target="_blank" class="footer-link">
+                        <i class="ti ti-heart"></i>
+                        Статус
+                    </a>
+                    <a href="https://khai.by/support" target="_blank" class="footer-link">
+                        <i class="ti ti-headset"></i>
                         Поддержка
                     </a>
-                    <a href="mailto:khuyew@proton.me" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
+                    <a href="mailto:khuyew@proton.me" class="footer-link">
+                        <i class="ti ti-mail"></i>
                         Сотрудничество
                     </a>
-                    <a href="./guide.html" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                        <i class="ti ti-help"></i> Гайд
+                </div>
+                
+                <div class="pwa-install-section" style="margin: 15px 0;">
+                    <button class="sidebar-btn primary" id="installPWA" style="width: 100%;">
+                        <i class="ti ti-download"></i>
+                        Установить приложение
+                    </button>
+                </div>
+
+                <div class="guide-section" style="margin: 15px 0;">
+                    <button class="sidebar-btn" id="showGuide" style="width: 100%;">
+                        <i class="ti ti-presentation"></i>
+                        Показать обучение
+                    </button>
+                </div>
+
+                <!-- LiveInternet Counter -->
+                <div style="margin: 20px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                    <!--LiveInternet counter-->
+                    <a href="https://www.liveinternet.ru/click" target="_blank">
+                        <img id="licntB611" width="88" height="31" style="border:0" 
+                        title="LiveInternet: показано число просмотров и посетителей за 24 часа"
+                        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAIBTAA7"
+                        alt=""/>
+                    </a>
+                    <script>
+                        (function(d,s){d.getElementById("licntB611").src=
+                        "https://counter.yadro.ru/hit?t52.6;r"+escape(d.referrer)+
+                        ((typeof(s)=="undefined")?"":";s"+s.width+"*"+s.height+"*"+
+                        (s.colorDepth?s.colorDepth:s.pixelDepth))+";u"+escape(d.URL)+
+                        ";h"+escape(d.title.substring(0,150))+";"+Math.random()})
+                        (document,screen)
+                    </script>
+
+                    <!-- Yandex.Metrika informer -->
+                    <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">
+                        <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews" 
+                             style="width:88px; height:31px; border:0;"
+                             alt="Яндекс.Метрика"
+                             title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
+                             class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/>
                     </a>
                 </div>
                 
-                <!-- LiveInternet Counter -->
-                <div style="margin-bottom: 20px; display: flex; justify-content: center;">
-                    <!--LiveInternet counter--><a href="https://www.liveinternet.ru/click"
-                    target="_blank"><img id="licntB611" width="88" height="31" style="border:0" 
-                    title="LiveInternet: показано число просмотров и посетителей за 24 часа"
-                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAIBTAA7"
-                    alt=""/></a><script>(function(d,s){d.getElementById("licntB611").src=
-                    "https://counter.yadro.ru/hit?t52.6;r"+escape(d.referrer)+
-                    ((typeof(s)=="undefined")?"":";s"+s.width+"*"+s.height+"*"+
-                    (s.colorDepth?s.colorDepth:s.pixelDepth))+";u"+escape(d.URL)+
-                    ";h"+escape(d.title.substring(0,150))+";"+Math.random()})
-                    (document,screen)</script><!--/LiveInternet-->
-
-                    <!-- Yandex.Metrika informer --> <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">     <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"          style="width:88px; height:31px; border:0;"          alt="Яндекс.Метрика"          title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"         class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/> </a> <!-- /Yandex.Metrika informer -->  <!-- Yandex.Metrika counter --> <script type="text/javascript">     (function(m,e,t,r,i,k,a){         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};         m[i].l=1*new Date();         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)     })(window, document,'script','https://mc.webvisor.org/metrika/tag_ww.js', 'ym');      ym(104843405, 'init', {webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true}); </script>  <!-- /Yandex.Metrika counter -->   
+                <div class="copyright" style="text-align: center; margin-top: 20px;">
+                    <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
+                        © 2024 KHAI, Беларусь.<br>
+                        Все права защищены!
+                    </p>
                 </div>
-                
-                <a href="https://khai.by/github" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: var(--radius-md); transition: var(--transition); margin-bottom: 20px;">
-                    <i class="ti ti-brand-github" style="font-size: 20px; color: var(--text-secondary);"></i>
-                </a>
-                
-                <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
-                    © 2025 KHAI, Беларусь.<br>
-                    Все права защищены!
-                </p>
             </div>
         </div>
     </div>
@@ -446,26 +514,6 @@
                     });
             });
         }
-
-        // First visit logic
-        (function() {
-            const hasVisited = localStorage.getItem('khai-user-visited');
-            const hasCompletedGuide = localStorage.getItem('khai-user-completed-guide');
-            
-            // If user hasn't visited welcome page, redirect there
-            if (!hasVisited) {
-                window.location.href = 'welcome.html';
-                return;
-            }
-            
-            // If user visited welcome but didn't complete guide, redirect to guide
-            if (hasVisited && !hasCompletedGuide && !window.location.pathname.includes('guide.html')) {
-                window.location.href = 'guide.html';
-                return;
-            }
-            
-            // User completed both steps - continue with main app
-        })();
     </script>
 </body>
 </html>
