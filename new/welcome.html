@@ -1,3 +1,5 @@
+[file name]: welcome.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,34 +7,487 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>KHAI — Первый белорусский чат с ИИ</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="stylesheet" href="./styles.css">
-    <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1E1E1E;
+            --bg-tertiary: #2D2D2D;
+            --text-primary: rgba(255, 255, 255, 0.87);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --accent-primary: #BB86FC;
+            --accent-primary-variant: #3700B3;
+            --accent-secondary: #03DAC6;
+            --user-message-bg-start: #BB86FC;
+            --user-message-bg-end: #3700B3;
+            --ai-message-bg: #2D2D2D;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-lg: 0 20px 40px -10px rgba(187, 134, 252, 0.3);
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        .app-container {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Background */
+        .floating-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(187, 134, 252, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(3, 218, 198, 0.1) 0%, transparent 50%);
+            overflow: hidden;
+        }
+
+        .floating-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.1;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 10%;
+            background: var(--accent-primary);
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 250px;
+            height: 250px;
+            bottom: 20%;
+            right: 15%;
+            background: var(--accent-secondary);
+            animation-delay: -3s;
+        }
+
+        .blob-3 {
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            background: var(--accent-primary-variant);
+            animation-delay: -6s;
+        }
+
+        /* Main Content */
+        .main-content {
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logo-section {
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease 0.3s forwards;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            animation: pulse 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 30px;
+            z-index: -1;
+            opacity: 0.3;
+            filter: blur(15px);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 25px;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary) 30%, var(--accent-secondary) 70%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 500px;
+            line-height: 1.4;
+        }
+
+        /* Demo Chat */
+        .demo-chat {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin: 40px 0;
+            backdrop-filter: blur(20px);
+            max-width: 500px;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease 0.8s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-chat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+        }
+
+        .chat-message {
+            text-align: left;
+            font-size: 1rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideRightFade 0.6s ease forwards;
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+        }
+
+        .chat-message:nth-child(1) { 
+            animation-delay: 1.3s; 
+            border-left: 3px solid var(--accent-primary);
+        }
+        .chat-message:nth-child(2) { 
+            text-align: right;
+            transform: translateX(20px);
+            animation-name: slideLeftFade;
+            animation-delay: 2.1s;
+            background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
+            margin-left: auto;
+            max-width: 80%;
+        }
+        .chat-message:nth-child(3) { 
+            animation-delay: 2.9s; 
+            border-left: 3px solid var(--accent-secondary);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease 3.7s forwards;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* Action Buttons */
+        .action-section {
+            opacity: 0;
+            animation: fadeIn 0.8s ease 4.5s forwards;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 16px 32px;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-variant));
+            color: #000000;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px -12px rgba(187, 134, 252, 0.4);
+        }
+
+        .secondary-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .secondary-btn:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
+        }
+
+        .feature-tags {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .feature-tag {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .feature-tag:hover {
+            background: var(--accent-primary);
+            color: #000000;
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        @keyframes slideUpFade {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideRightFade {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideLeftFade {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .demo-chat {
+                padding: 25px;
+                margin: 30px 0;
+            }
+            
+            .action-btn {
+                padding: 14px 28px;
+                font-size: 0.95rem;
+            }
+            
+            .feature-tags {
+                gap: 10px;
+            }
+            
+            .feature-tag {
+                font-size: 0.8rem;
+                padding: 7px 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 20px;
+            }
+            
+            .demo-chat {
+                padding: 20px;
+                margin: 25px 0;
+            }
+            
+            .chat-message {
+                font-size: 0.9rem;
+                padding: 12px 16px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+            
+            .feature-tags {
+                gap: 8px;
+            }
+            
+            .feature-tag {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+        }
+    </style>
 </head>
-<body data-theme="dark">
-    <div class="welcome-container">
+<body>
+    <div class="app-container">
         <!-- Animated Background -->
         <div class="floating-background">
-            <div class="floating-dot dot-1"></div>
-            <div class="floating-dot dot-2"></div>
+            <div class="floating-blob blob-1"></div>
+            <div class="floating-blob blob-2"></div>
+            <div class="floating-blob blob-3"></div>
         </div>
 
         <!-- Main Content -->
         <div class="main-content">
             <!-- Logo and Title -->
             <div class="logo-section">
-                <div class="welcome-logo">
-                    <svg width="80" height="80" viewBox="0 0 100 100">
-                        <defs>
-                            <style>
-                                .logo-path { fill: #0099ff; transition: fill 0.3s ease; }
-                                [data-theme="light"] .logo-path { fill: #0066ff; }
-                            </style>
-                        </defs>
-                        <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
-                    </svg>
+                <div class="logo">
+                    <img src="./logo.png" alt="KHAI">
                 </div>
-                <h1 class="welcome-title">KHAI</h1>
-                <p class="welcome-subtitle">Первый белорусский ИИ-помощник</p>
+                <h1 class="title">KHAI</h1>
+                <p class="subtitle">Первый белорусский ИИ-помощник нового поколения</p>
             </div>
 
             <!-- Demo Chat -->
@@ -44,13 +499,13 @@
                     Что ты умеешь?
                 </div>
                 <div class="chat-message">
-                    Всё! Код, анализ изображений, тексты, голос, файлы... 
+                    Всё! Код, анализ изображений, тексты, голос, файлы, видео... 
                 </div>
-                <div class="welcome-typing-indicator">
-                    <div class="welcome-typing-dots">
-                        <div class="welcome-typing-dot"></div>
-                        <div class="welcome-typing-dot"></div>
-                        <div class="welcome-typing-dot"></div>
+                <div class="typing-indicator">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
                     </div>
                     <span>Готов к работе</span>
                 </div>
@@ -59,17 +514,17 @@
             <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <a href="#" class="action-btn primary-btn" id="startBtn">
+                    <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
                         Стартуем!
                     </a>
-                    <a href="https://github.com/khai-assistant" target="_blank" class="action-btn secondary-btn">
-                        <i class="ti ti-brand-github"></i>
-                        GitHub
-                    </a>
-                    <a href="https://khai.by/docs" target="_blank" class="action-btn secondary-btn">
+                    <a href="./docs" class="action-btn secondary-btn">
                         <i class="ti ti-book"></i>
                         Документация
+                    </a>
+                    <a href="https://t.me/khuyew" target="_blank" class="action-btn secondary-btn">
+                        <i class="ti ti-brand-telegram"></i>
+                        Сотрудничество
                     </a>
                 </div>
                 
@@ -91,41 +546,10 @@
                         Голосовой ввод
                     </div>
                     <div class="feature-tag">
-                        <i class="ti ti-file-text"></i>
-                        Анализ файлов
-                    </div>
-                    <div class="feature-tag">
-                        <i class="ti ti-messages"></i>
-                        Мульти-чаты
+                        <i class="ti ti-video"></i>
+                        Генерация видео
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="welcome-footer">
-            <div class="welcome-footer-links">
-                <a href="https://github.com/khai-assistant" target="_blank" class="welcome-footer-link">
-                    GitHub
-                </a>
-                <a href="https://khai.by/docs" target="_blank" class="welcome-footer-link">
-                    Документация
-                </a>
-                <a href="https://khai.by/api" target="_blank" class="welcome-footer-link">
-                    API
-                </a>
-                <a href="https://status.khai.by" target="_blank" class="welcome-footer-link">
-                    Статус
-                </a>
-                <a href="https://khai.by/support" target="_blank" class="welcome-footer-link">
-                    Поддержка
-                </a>
-                <a href="mailto:khuyew@proton.me" class="welcome-footer-link">
-                    Сотрудничество
-                </a>
-            </div>
-            <div class="welcome-copyright">
-                © 2024 KHAI, Беларусь. Все права защищены!
             </div>
         </div>
     </div>
@@ -134,7 +558,7 @@
         // User redirection functionality
         (function() {
             // Set flag that user has seen welcome page
-            localStorage.setItem('khai-seen-welcome', 'true');
+            localStorage.setItem('khai-user-visited', 'true');
             
             // Auto redirect after 10 seconds
             const redirectTimer = setTimeout(() => {
@@ -153,7 +577,7 @@
 
             // Simple auto-restart for demo effect
             setTimeout(() => {
-                const typingIndicator = document.querySelector('.welcome-typing-indicator');
+                const typingIndicator = document.querySelector('.typing-indicator');
                 if (typingIndicator) {
                     typingIndicator.style.animation = 'none';
                     setTimeout(() => {
@@ -161,21 +585,8 @@
                     }, 100);
                 }
             }, 8000);
-
-            // Add theme toggle functionality
-            let currentTheme = 'dark';
-            function toggleTheme() {
-                currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                document.body.setAttribute('data-theme', currentTheme);
-            }
-
-            // Add theme toggle on logo click
-            const logo = document.querySelector('.welcome-logo');
-            if (logo) {
-                logo.style.cursor = 'pointer';
-                logo.addEventListener('click', toggleTheme);
-            }
         })();
     </script>
 </body>
 </html>
+[file content end]
