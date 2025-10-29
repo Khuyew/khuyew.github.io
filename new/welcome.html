@@ -1,5 +1,3 @@
-[file name]: welcome.html
-[file content begin]
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -18,17 +16,17 @@
             --bg-primary: #121212;
             --bg-secondary: #1E1E1E;
             --bg-tertiary: #2D2D2D;
-            --text-primary: rgba(255, 255, 255, 0.87);
-            --text-secondary: rgba(255, 255, 255, 0.6);
-            --accent-primary: #BB86FC;
-            --accent-primary-variant: #3700B3;
-            --accent-secondary: #03DAC6;
-            --user-message-bg-start: #BB86FC;
-            --user-message-bg-end: #3700B3;
-            --ai-message-bg: #2D2D2D;
+            --text-primary: rgba(255, 255, 255, 0.95);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --accent-primary: #0099FF;
+            --accent-secondary: #0066FF;
+            --user-message-bg-start: #0099FF;
+            --user-message-bg-end: #0066FF;
+            --ai-message-bg: #1E1E1E;
+            --border-color: rgba(255, 255, 255, 0.1);
             --radius-lg: 20px;
             --radius-md: 12px;
-            --shadow-lg: 0 20px 40px -10px rgba(187, 134, 252, 0.3);
+            --shadow-lg: 0 20px 40px -10px rgba(0, 153, 255, 0.3);
             --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
@@ -58,44 +56,33 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(187, 134, 252, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(3, 218, 198, 0.1) 0%, transparent 50%);
-            overflow: hidden;
+                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 102, 255, 0.15) 0%, transparent 50%);
         }
 
-        .floating-blob {
+        .floating-dot {
             position: absolute;
             border-radius: 50%;
-            filter: blur(40px);
+            background: var(--accent-primary);
             opacity: 0.1;
-            animation: float 8s ease-in-out infinite;
+            animation: float 6s ease-in-out infinite;
         }
 
-        .blob-1 {
-            width: 300px;
-            height: 300px;
+        .dot-1 {
+            width: 200px;
+            height: 200px;
             top: 10%;
             left: 10%;
-            background: var(--accent-primary);
             animation-delay: 0s;
         }
 
-        .blob-2 {
-            width: 250px;
-            height: 250px;
+        .dot-2 {
+            width: 150px;
+            height: 150px;
             bottom: 20%;
             right: 15%;
-            background: var(--accent-secondary);
-            animation-delay: -3s;
-        }
-
-        .blob-3 {
-            width: 200px;
-            height: 200px;
-            top: 50%;
-            left: 50%;
-            background: var(--accent-primary-variant);
-            animation-delay: -6s;
+            animation-delay: -2s;
+            background: var(--user-message-bg-end);
         }
 
         /* Main Content */
@@ -119,42 +106,33 @@
         }
 
         .logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 30px;
-            animation: pulse 3s ease-in-out infinite;
-            position: relative;
-        }
-
-        .logo::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 30px;
-            z-index: -1;
-            opacity: 0.3;
-            filter: blur(15px);
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            animation: pulse 2s ease-in-out infinite;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
         }
 
         .logo img {
-            width: 100%;
-            height: 100%;
+            width: 60%;
+            height: 60%;
             object-fit: contain;
-            border-radius: 25px;
+            filter: brightness(0) invert(1);
         }
 
         .title {
             font-size: 4rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-primary) 30%, var(--accent-secondary) 70%);
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 70%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             line-height: 1.1;
             letter-spacing: -0.02em;
         }
@@ -164,7 +142,7 @@
             color: var(--text-secondary);
             font-weight: 400;
             max-width: 500px;
-            line-height: 1.4;
+            margin: 0 auto;
         }
 
         /* Demo Chat */
@@ -179,18 +157,7 @@
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.8s forwards;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .demo-chat::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
         .chat-message {
@@ -202,28 +169,21 @@
             opacity: 0;
             transform: translateX(-20px);
             animation: slideRightFade 0.6s ease forwards;
-            padding: 15px 20px;
-            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            border-radius: 18px;
             background: var(--bg-tertiary);
         }
 
-        .chat-message:nth-child(1) { 
-            animation-delay: 1.3s; 
-            border-left: 3px solid var(--accent-primary);
-        }
+        .chat-message:nth-child(1) { animation-delay: 1.3s; }
         .chat-message:nth-child(2) { 
             text-align: right;
             transform: translateX(20px);
             animation-name: slideLeftFade;
-            animation-delay: 2.1s;
             background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
-            margin-left: auto;
-            max-width: 80%;
+            color: #000000;
+            animation-delay: 2.1s;
         }
-        .chat-message:nth-child(3) { 
-            animation-delay: 2.9s; 
-            border-left: 3px solid var(--accent-secondary);
-        }
+        .chat-message:nth-child(3) { animation-delay: 2.9s; }
 
         .typing-indicator {
             display: flex;
@@ -234,8 +194,8 @@
             opacity: 0;
             animation: fadeIn 0.5s ease 3.7s forwards;
             padding: 12px 16px;
+            border-radius: 18px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
         }
 
         .typing-dots {
@@ -262,16 +222,16 @@
 
         .action-buttons {
             display: flex;
-            gap: 15px;
+            gap: 16px;
             margin-bottom: 30px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .action-btn {
-            padding: 16px 32px;
+            padding: 18px 36px;
             border-radius: var(--radius-md);
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
             text-decoration: none;
             transition: var(--transition);
@@ -280,34 +240,17 @@
             gap: 10px;
             border: none;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .action-btn:hover::before {
-            left: 100%;
         }
 
         .primary-btn {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-variant));
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: #000000;
             box-shadow: var(--shadow-lg);
         }
 
         .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 25px 50px -12px rgba(187, 134, 252, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px -12px rgba(0, 153, 255, 0.4);
         }
 
         .secondary-btn {
@@ -317,7 +260,7 @@
 
         .secondary-btn:hover {
             background: var(--bg-secondary);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
         }
 
         .feature-tags {
@@ -328,10 +271,10 @@
         }
 
         .feature-tag {
-            padding: 8px 16px;
+            padding: 10px 16px;
             background: var(--bg-tertiary);
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
@@ -340,8 +283,7 @@
         }
 
         .feature-tag:hover {
-            background: var(--accent-primary);
-            color: #000000;
+            background: var(--bg-secondary);
             transform: translateY(-2px);
         }
 
@@ -399,18 +341,18 @@
             }
             
             .logo {
-                width: 100px;
-                height: 100px;
+                width: 80px;
+                height: 80px;
             }
             
             .demo-chat {
-                padding: 25px;
+                padding: 24px;
                 margin: 30px 0;
             }
             
             .action-btn {
-                padding: 14px 28px;
-                font-size: 0.95rem;
+                padding: 16px 28px;
+                font-size: 1rem;
             }
             
             .feature-tags {
@@ -418,8 +360,8 @@
             }
             
             .feature-tag {
-                font-size: 0.8rem;
-                padding: 7px 14px;
+                font-size: 0.85rem;
+                padding: 8px 14px;
             }
         }
 
@@ -433,9 +375,9 @@
             }
             
             .logo {
-                width: 80px;
-                height: 80px;
-                margin-bottom: 20px;
+                width: 70px;
+                height: 70px;
+                margin-bottom: 15px;
             }
             
             .demo-chat {
@@ -445,7 +387,6 @@
             
             .chat-message {
                 font-size: 0.9rem;
-                padding: 12px 16px;
             }
             
             .action-buttons {
@@ -458,15 +399,6 @@
                 max-width: 280px;
                 justify-content: center;
             }
-            
-            .feature-tags {
-                gap: 8px;
-            }
-            
-            .feature-tag {
-                font-size: 0.75rem;
-                padding: 6px 12px;
-            }
         }
     </style>
 </head>
@@ -474,9 +406,8 @@
     <div class="app-container">
         <!-- Animated Background -->
         <div class="floating-background">
-            <div class="floating-blob blob-1"></div>
-            <div class="floating-blob blob-2"></div>
-            <div class="floating-blob blob-3"></div>
+            <div class="floating-dot dot-1"></div>
+            <div class="floating-dot dot-2"></div>
         </div>
 
         <!-- Main Content -->
@@ -484,7 +415,7 @@
             <!-- Logo and Title -->
             <div class="logo-section">
                 <div class="logo">
-                    <img src="./logo.png" alt="KHAI">
+                    <img src="https://raw.githubusercontent.com/Khuyew/khuyew.github.io/refs/heads/main/new/icon.png" alt="KHAI">
                 </div>
                 <h1 class="title">KHAI</h1>
                 <p class="subtitle">Первый белорусский ИИ-помощник нового поколения</p>
@@ -514,7 +445,7 @@
             <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
+                    <a href="./start" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
                         Стартуем!
                     </a>
@@ -542,10 +473,6 @@
                         Анализ изображений
                     </div>
                     <div class="feature-tag">
-                        <i class="ti ti-microphone"></i>
-                        Голосовой ввод
-                    </div>
-                    <div class="feature-tag">
                         <i class="ti ti-video"></i>
                         Генерация видео
                     </div>
@@ -562,7 +489,7 @@
             
             // Auto redirect after 10 seconds
             const redirectTimer = setTimeout(() => {
-                window.location.href = 'guide.html';
+                window.location.href = 'index.html';
             }, 10000);
 
             // Manual redirect when clicking the start button
@@ -571,7 +498,7 @@
                 startBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     clearTimeout(redirectTimer);
-                    window.location.href = 'guide.html';
+                    window.location.href = 'index.html';
                 });
             }
 
@@ -589,4 +516,3 @@
     </script>
 </body>
 </html>
-[file content end]
