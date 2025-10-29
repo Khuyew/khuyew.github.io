@@ -1,3 +1,5 @@
+[file name]: welcome.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -21,14 +23,13 @@
             --accent-primary: #BB86FC;
             --accent-primary-variant: #3700B3;
             --accent-secondary: #03DAC6;
-            --text-on-accent: #000000;
-            --user-message-bg: linear-gradient(135deg, #BB86FC, #3700B3);
-            --ai-message-bg: #1E1E1E;
+            --accent-text: #000000;
+            --user-message-bg-start: #BB86FC;
+            --user-message-bg-end: #3700B3;
+            --ai-message-bg: #2D2D2D;
             --radius-lg: 24px;
             --radius-md: 16px;
-            --radius-sm: 12px;
-            --shadow-lg: 0 25px 50px -12px rgba(187, 134, 252, 0.25);
-            --shadow-md: 0 10px 25px -5px rgba(187, 134, 252, 0.15);
+            --shadow-lg: 0 20px 40px -10px rgba(187, 134, 252, 0.3);
             --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
@@ -60,6 +61,7 @@
             background: 
                 radial-gradient(circle at 20% 80%, rgba(187, 134, 252, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(3, 218, 198, 0.1) 0%, transparent 50%);
+            overflow: hidden;
         }
 
         .floating-blob {
@@ -67,8 +69,8 @@
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             opacity: 0.1;
-            filter: blur(40px);
             animation: float 8s ease-in-out infinite;
+            filter: blur(40px);
         }
 
         .blob-1 {
@@ -84,7 +86,8 @@
             height: 250px;
             bottom: 20%;
             right: 15%;
-            animation-delay: -4s;
+            animation-delay: -3s;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
         }
 
         .blob-3 {
@@ -92,7 +95,7 @@
             height: 200px;
             top: 50%;
             left: 70%;
-            animation-delay: -2s;
+            animation-delay: -6s;
         }
 
         /* Main Content */
@@ -109,49 +112,55 @@
         }
 
         .logo-section {
-            margin-bottom: 50px;
+            margin-bottom: 40px;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.3s forwards;
         }
 
-        .logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 30px;
-            animation: pulseGlow 3s ease-in-out infinite;
+        .logo-glow {
             position: relative;
+            display: inline-block;
         }
 
-        .logo::before {
+        .logo-glow::before {
             content: '';
             position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 30px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: var(--accent-primary);
+            border-radius: 50%;
             filter: blur(20px);
             opacity: 0.3;
             z-index: -1;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            animation: float 3s ease-in-out infinite;
         }
 
         .logo img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            border-radius: 24px;
+            border-radius: var(--radius-md);
         }
 
         .title {
             font-size: 4rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: linear-gradient(135deg, var(--accent-primary) 30%, var(--accent-secondary) 70%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             line-height: 1.1;
             letter-spacing: -0.02em;
         }
@@ -162,7 +171,6 @@
             font-weight: 400;
             max-width: 500px;
             margin: 0 auto;
-            line-height: 1.5;
         }
 
         /* Demo Chat */
@@ -187,8 +195,8 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
         }
 
         .chat-message {
@@ -212,9 +220,9 @@
             text-align: right;
             transform: translateX(20px);
             animation-name: slideLeftFade;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-variant));
-            color: var(--text-on-accent);
             animation-delay: 2.1s;
+            background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
+            color: var(--accent-text);
         }
         .chat-message:nth-child(3) { 
             animation-delay: 2.9s; 
@@ -229,8 +237,8 @@
             opacity: 0;
             animation: fadeIn 0.5s ease 3.7s forwards;
             padding: 12px 16px;
-            border-radius: var(--radius-md);
             background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
         }
 
         .typing-dots {
@@ -253,8 +261,6 @@
         .action-section {
             opacity: 0;
             animation: fadeIn 0.8s ease 4.5s forwards;
-            width: 100%;
-            max-width: 500px;
         }
 
         .action-buttons {
@@ -266,7 +272,7 @@
         }
 
         .action-btn {
-            padding: 18px 32px;
+            padding: 16px 32px;
             border-radius: var(--radius-md);
             font-size: 1rem;
             font-weight: 600;
@@ -298,24 +304,25 @@
 
         .primary-btn {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-variant));
-            color: var(--text-on-accent);
+            color: var(--accent-text);
             box-shadow: var(--shadow-lg);
         }
 
         .primary-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 30px 60px -12px rgba(187, 134, 252, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px -12px rgba(187, 134, 252, 0.4);
         }
 
         .secondary-btn {
             background: var(--bg-tertiary);
             color: var(--text-primary);
+            border: 2px solid var(--accent-primary);
         }
 
         .secondary-btn:hover {
-            background: var(--bg-secondary);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
+            background: var(--accent-primary);
+            color: var(--accent-text);
+            transform: translateY(-2px);
         }
 
         .feature-tags {
@@ -323,13 +330,14 @@
             gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
+            max-width: 600px;
         }
 
         .feature-tag {
             padding: 8px 16px;
             background: var(--bg-tertiary);
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
@@ -338,25 +346,20 @@
         }
 
         .feature-tag:hover {
-            background: var(--bg-secondary);
+            background: var(--accent-primary);
+            color: var(--accent-text);
             transform: translateY(-2px);
         }
 
         /* Animations */
         @keyframes float {
             0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-30px) scale(1.1); }
+            50% { transform: translateY(-20px) scale(1.05); }
         }
 
         @keyframes pulseGlow {
-            0%, 100% { 
-                transform: scale(1);
-                filter: drop-shadow(0 0 20px rgba(187, 134, 252, 0.3));
-            }
-            50% { 
-                transform: scale(1.05);
-                filter: drop-shadow(0 0 30px rgba(187, 134, 252, 0.5));
-            }
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.1); }
         }
 
         @keyframes slideUpFade {
@@ -402,18 +405,18 @@
             }
             
             .logo {
-                width: 100px;
-                height: 100px;
+                width: 80px;
+                height: 80px;
             }
             
             .demo-chat {
-                padding: 24px;
+                padding: 25px;
                 margin: 30px 0;
             }
             
             .action-btn {
-                padding: 16px 28px;
-                font-size: 0.95rem;
+                padding: 14px 28px;
+                font-size: 0.9rem;
             }
             
             .feature-tags {
@@ -422,7 +425,7 @@
             
             .feature-tag {
                 font-size: 0.8rem;
-                padding: 7px 14px;
+                padding: 6px 12px;
             }
         }
 
@@ -436,9 +439,9 @@
             }
             
             .logo {
-                width: 80px;
-                height: 80px;
-                margin-bottom: 20px;
+                width: 70px;
+                height: 70px;
+                margin-bottom: 15px;
             }
             
             .demo-chat {
@@ -448,7 +451,6 @@
             
             .chat-message {
                 font-size: 0.9rem;
-                padding: 14px 18px;
             }
             
             .action-buttons {
@@ -468,7 +470,7 @@
             
             .feature-tag {
                 font-size: 0.75rem;
-                padding: 6px 12px;
+                padding: 5px 10px;
             }
         }
     </style>
@@ -487,10 +489,12 @@
             <!-- Logo and Title -->
             <div class="logo-section">
                 <div class="logo">
-                    <img src="./logo.png" alt="KHAI">
+                    <div class="logo-glow">
+                        <img src="https://raw.githubusercontent.com/Khuyew/khuyew.github.io/refs/heads/main/new/icon.png" alt="KHAI">
+                    </div>
                 </div>
                 <h1 class="title">KHAI</h1>
-                <p class="subtitle">Первый белорусский ИИ-помощник с генерацией видео, изображений и голоса</p>
+                <p class="subtitle">Первый белорусский ИИ-помощник нового поколения</p>
             </div>
 
             <!-- Demo Chat -->
@@ -502,7 +506,7 @@
                     Что ты умеешь?
                 </div>
                 <div class="chat-message">
-                    Всё! Генерация видео, изображений, голоса, анализ файлов, написание кода и многое другое...
+                    Всё! Чат, генерация изображений, создание видео, голос, анализ файлов... 
                 </div>
                 <div class="typing-indicator">
                     <div class="typing-dots">
@@ -517,7 +521,7 @@
             <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <a href="./start" class="action-btn primary-btn" id="startBtn">
+                    <a href="./index.html" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
                         Стартуем!
                     </a>
@@ -537,20 +541,24 @@
                         Умный ИИ
                     </div>
                     <div class="feature-tag">
-                        <i class="ti ti-video"></i>
-                        Генерация видео
+                        <i class="ti ti-code"></i>
+                        Написание кода
                     </div>
                     <div class="feature-tag">
                         <i class="ti ti-photo"></i>
                         Генерация изображений
                     </div>
                     <div class="feature-tag">
+                        <i class="ti ti-video"></i>
+                        Создание видео
+                    </div>
+                    <div class="feature-tag">
                         <i class="ti ti-microphone"></i>
                         Голосовой ввод
                     </div>
                     <div class="feature-tag">
-                        <i class="ti ti-code"></i>
-                        Написание кода
+                        <i class="ti ti-file-text"></i>
+                        Анализ файлов
                     </div>
                 </div>
             </div>
@@ -592,3 +600,4 @@
     </script>
 </body>
 </html>
+[file content end]
