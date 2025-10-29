@@ -1,3 +1,5 @@
+[file name]: index.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="ru" itemscope itemtype="https://schema.org/WebApplication">
 <head>
@@ -21,17 +23,18 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
+
         gtag('config', 'G-QQKXYHS18Q');
     </script>
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0f0f23">
+    <meta name="theme-color" content="#121212">
     
     <!-- SEO Meta Tags -->
     <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
-    <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
-    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь, AI Беларусь">
+    <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений, видео и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
+    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, генерация видео, голосовой ИИ, ИИ Беларусь">
     <meta name="author" content="KHAI Team">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="googlebot" content="index, follow">
@@ -40,16 +43,16 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="KHAI Assistant">
     <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
-    <meta property="og:image" content="./assets/og-image.webp">
-    <meta property="og:url" content="https://khai.by">
+    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений, видео и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
+    <meta property="og:image" content="./logo.png">
+    <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
-    <meta name="twitter:image" content="./assets/og-image.webp">
+    <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений, видео и голоса">
+    <meta name="twitter:image" content="./logo.png">
     <meta name="twitter:site" content="@khai_assistant">
     
     <!-- Schema.org -->
@@ -58,8 +61,8 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "KHAI Assistant",
-        "url": "https://khai.by",
-        "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
+        "url": "./",
+        "description": "Первый белорусский ИИ-помощник с генерацией изображений, видео и голоса",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
         "permissions": "microphone",
@@ -71,15 +74,15 @@
         "author": {
             "@type": "Organization",
             "name": "KHAI",
-            "url": "https://khai.by"
+            "url": "./"
         }
     }
     </script>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
-    <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
-    <link rel="apple-touch-icon" href="./assets/logo.svg">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="apple-touch-icon" href="./logo.png">
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
@@ -97,32 +100,74 @@
     <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-content">
-            <svg class="preloader-logo" width="80" height="80" viewBox="0 0 100 100">
-                <defs>
-                    <style>
-                        .logo-path { fill: #0099ff; }
-                        [data-theme="light"] .logo-path { fill: #0066ff; }
-                    </style>
-                </defs>
-                <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
-            </svg>
+            <div class="logo-glow">
+                <img src="./logo.png" alt="KHAI" class="preloader-logo">
+            </div>
             <div class="preloader-spinner"></div>
             <p class="preloader-text">Загрузка KHAI Assistant...</p>
+        </div>
+    </div>
+
+    <!-- Onboarding Guide -->
+    <div class="onboarding-overlay" id="onboardingOverlay" style="display: none;">
+        <div class="onboarding-container">
+            <div class="onboarding-header">
+                <h2>Добро пожаловать в KHAI! 🚀</h2>
+                <p>Пройдите краткое обучение для максимальной эффективности</p>
+            </div>
+            
+            <div class="onboarding-steps">
+                <div class="onboarding-step active" data-step="1">
+                    <div class="step-icon">💬</div>
+                    <h3>Умный чат</h3>
+                    <p>Общайтесь с ИИ на естественном языке. Задавайте вопросы, просите написать код, анализировать данные</p>
+                </div>
+                
+                <div class="onboarding-step" data-step="2">
+                    <div class="step-icon">🖼️</div>
+                    <h3>Генерация изображений</h3>
+                    <p>Создавайте уникальные изображения по текстовому описанию с помощью AI</p>
+                </div>
+                
+                <div class="onboarding-step" data-step="3">
+                    <div class="step-icon">🎬</div>
+                    <h3>Генерация видео</h3>
+                    <p>Превращайте текстовые описания в короткие видео с помощью передовых моделей AI</p>
+                </div>
+                
+                <div class="onboarding-step" data-step="4">
+                    <div class="step-icon">🎵</div>
+                    <h3>Голосовой ассистент</h3>
+                    <p>Генерируйте речь из текста и слушайте ответы ИИ в аудиоформате</p>
+                </div>
+                
+                <div class="onboarding-step" data-step="5">
+                    <div class="step-icon">📁</div>
+                    <h3>Работа с файлами</h3>
+                    <p>Загружайте изображения, документы и код для анализа. ИИ поможет с обработкой</p>
+                </div>
+            </div>
+            
+            <div class="onboarding-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 20%"></div>
+                </div>
+                <span class="progress-text">Шаг 1 из 5</span>
+            </div>
+            
+            <div class="onboarding-actions">
+                <button class="onboarding-btn secondary" id="skipOnboarding">Пропустить</button>
+                <button class="onboarding-btn primary" id="nextOnboarding">Далее</button>
+            </div>
         </div>
     </div>
 
     <!-- 404 Page (hidden by default) -->
     <div class="page-404" id="page404" style="display: none;">
         <div class="error-container">
-            <svg class="error-logo" width="120" height="120" viewBox="0 0 100 100">
-                <defs>
-                    <style>
-                        .logo-path { fill: #0099ff; }
-                        [data-theme="light"] .logo-path { fill: #0066ff; }
-                    </style>
-                </defs>
-                <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
-            </svg>
+            <div class="logo-glow">
+                <img src="./logo.png" alt="KHAI" class="error-logo">
+            </div>
             <h1>404 - Страница не найдена</h1>
             <p>Запрошенная страница не существует или была перемещена.</p>
             <button class="error-btn" id="errorBackBtn">Вернуться в приложение</button>
@@ -136,15 +181,9 @@
             <div class="header-content">
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
-                        <svg width="36" height="36" viewBox="0 0 100 100">
-                            <defs>
-                                <style>
-                                    .logo-path { fill: #0099ff; transition: fill 0.3s ease; }
-                                    [data-theme="light"] .logo-path { fill: #0066ff; }
-                                </style>
-                            </defs>
-                            <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
-                        </svg>
+                        <div class="logo-glow">
+                            <img src="./logo.png" alt="KHAI Assistant" width="36" height="36" loading="eager">
+                        </div>
                     </div>
                 </div>
                 
@@ -176,22 +215,7 @@
         <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Skeleton loading messages -->
-                <div class="message-skeleton">
-                    <div class="skeleton-avatar"></div>
-                    <div class="skeleton-content">
-                        <div class="skeleton-line short"></div>
-                        <div class="skeleton-line medium"></div>
-                        <div class="skeleton-line long"></div>
-                    </div>
-                </div>
-                <div class="message-skeleton user">
-                    <div class="skeleton-content">
-                        <div class="skeleton-line short"></div>
-                        <div class="skeleton-line medium"></div>
-                    </div>
-                    <div class="skeleton-avatar"></div>
-                </div>
+                <!-- Messages will be loaded here -->
             </div>
 
             <!-- Minimap & Navigation -->
@@ -225,12 +249,12 @@
             <div class="input-wrapper">
                 <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
                     <i class="ti ti-plus"></i>
-                    <input type="file" id="fileInput" accept="image/*,.txt,.md,.html,.css,.js,.json,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.swift,.kt,.scala,.rs,.xml,.csv,.yaml,.yml" multiple style="display: none;">
+                    <input type="file" id="fileInput" accept="image/*,.txt,.md,.html,.css,.js,.json,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.swift,.kt,.scala,.rs,.xml,.csv,.yaml,.yml,.mp4,.avi,.mov,.webm" multiple style="display: none;">
                 </button>
                 
                 <textarea 
                     id="userInput" 
-                    placeholder="Задайте вопрос или опишите изображение..." 
+                    placeholder="Задайте вопрос или опишите изображение/видео..." 
                     autocomplete="off" 
                     rows="1"
                     maxlength="4000"
@@ -261,9 +285,13 @@
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateImageBtn" disabled title="В разработке">
+                <button class="action-btn mode-btn" id="generateImageBtn">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
+                </button>
+                <button class="action-btn mode-btn" id="generateVideoBtn">
+                    <i class="ti ti-video"></i>
+                    <span class="btn-text">Видео</span>
                 </button>
             </div>
         </div>
@@ -302,15 +330,9 @@
         <div class="sidebar-header">
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
-                    <svg width="40" height="40" viewBox="0 0 100 100">
-                        <defs>
-                            <style>
-                                .logo-path { fill: #0099ff; transition: fill 0.3s ease; }
-                                [data-theme="light"] .logo-path { fill: #0066ff; }
-                            </style>
-                        </defs>
-                        <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
-                    </svg>
+                    <div class="logo-glow">
+                        <img src="./icon.png" alt="KHAI" loading="lazy">
+                    </div>
                 </div>
                 <h3>KHAI <span class="beta-badge">BETA</span></h3>
             </div>
@@ -363,7 +385,7 @@
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>2.1.0</span>
+                        <span>3.0.0</span>
                     </div>
                     <div class="about-item">
                         <strong>Обновлено</strong>
@@ -372,83 +394,47 @@
                 </div>
             </div>
 
-            <!-- Enhanced Footer Links -->
-            <div class="sidebar-links" style="margin-top: auto; padding: 20px 0;">
-                <div class="footer-links-grid">
-                    <a href="https://github.com/khai-assistant" target="_blank" class="footer-link">
-                        <i class="ti ti-brand-github"></i>
-                        GitHub
-                    </a>
-                    <a href="https://khai.by/docs" target="_blank" class="footer-link">
-                        <i class="ti ti-book"></i>
+            <div class="sidebar-links" style="margin-top: auto; padding: 20px 0; text-align: center;">
+                <button class="sidebar-btn" id="showGuideBtn" style="width: 100%; margin-bottom: 15px;">
+                    <i class="ti ti-presentation"></i> Показать гайд
+                </button>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                    <a href="https://khai.by/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
                         Документация
                     </a>
-                    <a href="https://khai.by/api" target="_blank" class="footer-link">
-                        <i class="ti ti-api"></i>
-                        API
-                    </a>
-                    <a href="https://status.khai.by" target="_blank" class="footer-link">
-                        <i class="ti ti-heart"></i>
-                        Статус
-                    </a>
-                    <a href="https://khai.by/support" target="_blank" class="footer-link">
-                        <i class="ti ti-headset"></i>
+                    <a href="https://khai.by/support" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
                         Поддержка
                     </a>
-                    <a href="mailto:khuyew@proton.me" class="footer-link">
-                        <i class="ti ti-mail"></i>
+                    <a href="mailto:khuyew@proton.me" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
                         Сотрудничество
                     </a>
                 </div>
                 
-                <div class="pwa-install-section" style="margin: 15px 0;">
-                    <button class="sidebar-btn primary" id="installPWA" style="width: 100%;">
-                        <i class="ti ti-download"></i>
-                        Установить приложение
-                    </button>
-                </div>
-
-                <div class="guide-section" style="margin: 15px 0;">
-                    <button class="sidebar-btn" id="showGuide" style="width: 100%;">
-                        <i class="ti ti-presentation"></i>
-                        Показать обучение
-                    </button>
-                </div>
-
                 <!-- LiveInternet Counter -->
-                <div style="margin: 20px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                    <!--LiveInternet counter-->
-                    <a href="https://www.liveinternet.ru/click" target="_blank">
-                        <img id="licntB611" width="88" height="31" style="border:0" 
-                        title="LiveInternet: показано число просмотров и посетителей за 24 часа"
-                        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAIBTAA7"
-                        alt=""/>
-                    </a>
-                    <script>
-                        (function(d,s){d.getElementById("licntB611").src=
-                        "https://counter.yadro.ru/hit?t52.6;r"+escape(d.referrer)+
-                        ((typeof(s)=="undefined")?"":";s"+s.width+"*"+s.height+"*"+
-                        (s.colorDepth?s.colorDepth:s.pixelDepth))+";u"+escape(d.URL)+
-                        ";h"+escape(d.title.substring(0,150))+";"+Math.random()})
-                        (document,screen)
-                    </script>
+                <div style="margin-bottom: 20px; display: flex; justify-content: center;">
+                    <!--LiveInternet counter--><a href="https://www.liveinternet.ru/click"
+                    target="_blank"><img id="licntB611" width="88" height="31" style="border:0" 
+                    title="LiveInternet: показано число просмотров и посетителей за 24 часа"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAIBTAA7"
+                    alt=""/></a><script>(function(d,s){d.getElementById("licntB611").src=
+                    "https://counter.yadro.ru/hit?t52.6;r"+escape(d.referrer)+
+                    ((typeof(s)=="undefined")?"":";s"+s.width+"*"+s.height+"*"+
+                    (s.colorDepth?s.colorDepth:s.pixelDepth))+";u"+escape(d.URL)+
+                    ";h"+escape(d.title.substring(0,150))+";"+Math.random()})
+                    (document,screen)</script><!--/LiveInternet-->
 
-                    <!-- Yandex.Metrika informer -->
-                    <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">
-                        <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews" 
-                             style="width:88px; height:31px; border:0;"
-                             alt="Яндекс.Метрика"
-                             title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
-                             class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/>
-                    </a>
+                    <!-- Yandex.Metrika informer --> <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">     <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"          style="width:88px; height:31px; border:0;"          alt="Яндекс.Метрика"          title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"         class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/> </a> <!-- /Yandex.Metrika informer -->  <!-- Yandex.Metrika counter --> <script type="text/javascript">     (function(m,e,t,r,i,k,a){         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};         m[i].l=1*new Date();         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)     })(window, document,'script','https://mc.webvisor.org/metrika/tag_ww.js', 'ym');      ym(104843405, 'init', {webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true}); </script>  <!-- /Yandex.Metrika counter -->   
                 </div>
                 
-                <div class="copyright" style="text-align: center; margin-top: 20px;">
-                    <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
-                        © 2024 KHAI, Беларусь.<br>
-                        Все права защищены!
-                    </p>
-                </div>
+                <a href="https://khai.by/github" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: var(--radius-md); transition: var(--transition); margin-bottom: 20px;">
+                    <i class="ti ti-brand-github" style="font-size: 20px; color: var(--text-secondary);"></i>
+                </a>
+                
+                <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
+                    © 2025 KHAI, Беларусь.<br>
+                    Все права защищены!
+                </p>
             </div>
         </div>
     </div>
@@ -517,3 +503,4 @@
     </script>
 </body>
 </html>
+[file content end]
