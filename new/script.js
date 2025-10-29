@@ -1,4 +1,4 @@
-// KHAI Assistant - Production Ready v3.0.0
+// KHAI Assistant - Production Ready v2.1.0 with Video Generation
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -18,8 +18,8 @@ class KHAIAssistant {
             this.clearChatBtn = document.getElementById('clearChatBtn');
             this.helpBtn = document.getElementById('helpBtn');
             this.generateImageBtn = document.getElementById('generateImageBtn');
-            this.generateVideoBtn = document.getElementById('generateVideoBtn');
             this.generateVoiceBtn = document.getElementById('generateVoiceBtn');
+            this.generateVideoBtn = document.getElementById('generateVideoBtn');
             this.themeToggle = document.getElementById('themeToggle');
             this.logo = document.getElementById('logoBtn');
             this.attachFileBtn = document.getElementById('attachFileBtn');
@@ -44,7 +44,7 @@ class KHAIAssistant {
             this.chatList = document.getElementById('chatList');
             this.newChatBtn = document.getElementById('newChatBtn');
             this.deleteAllChatsBtn = document.getElementById('deleteAllChatsBtn');
-            this.showGuideBtn = document.getElementById('showGuideBtn');
+            this.guideBtn = document.getElementById('guideBtn');
 
             // Search
             this.headerSearch = document.getElementById('headerSearch');
@@ -87,10 +87,18 @@ class KHAIAssistant {
             this.errorBackBtn = document.getElementById('errorBackBtn');
             this.sidebarSearchClear = document.getElementById('sidebarSearchClear');
 
-            // Onboarding
-            this.onboardingOverlay = document.getElementById('onboardingOverlay');
-            this.skipOnboarding = document.getElementById('skipOnboarding');
-            this.nextOnboarding = document.getElementById('nextOnboarding');
+            // Video Generation
+            this.videoModalOverlay = document.getElementById('videoModalOverlay');
+            this.videoModalClose = document.getElementById('videoModalClose');
+            this.videoModalCancel = document.getElementById('videoModalCancel');
+            this.videoModalGenerate = document.getElementById('videoModalGenerate');
+            this.videoPreview = document.getElementById('videoPreview');
+            this.videoPromptInput = document.getElementById('videoPromptInput');
+            this.videoDuration = document.getElementById('videoDuration');
+            this.videoResolution = document.getElementById('videoResolution');
+
+            // Guide elements
+            this.guideOverlay = document.getElementById('guideOverlay');
 
             // Validate critical elements
             this.validateRequiredElements();
@@ -114,8 +122,8 @@ class KHAIAssistant {
         this.isProcessing = false;
         this.currentTheme = this.detectSystemTheme();
         this.isImageMode = false;
-        this.isVideoMode = false;
         this.isVoiceMode = false;
+        this.isVideoMode = false;
         this.attachedImages = [];
         this.isListening = false;
         this.recognition = null;
@@ -147,18 +155,13 @@ class KHAIAssistant {
         this.activeTimeouts = new Set();
         this.activeEventListeners = new Map();
 
-        // Onboarding state
-        this.currentOnboardingStep = 1;
-        this.onboardingCompleted = localStorage.getItem('khai-onboarding-completed') === 'true';
-
         // Configuration
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
             "Напиши код для сортировки массива на Python...",
             "Объясни теорию относительности простыми словами...",
-            "Создай изображение космического корабля будущего...",
-            "Сгенерируй видео с летающими китами в облаках...",
-            "Озвучь этот текст естественным голосом..."
+            "Какие есть способы улучшить производительность веб-сайта?",
+            "Создай описание для приложения на основе ИИ..."
         ];
 
         this.modelConfig = {
@@ -197,6 +200,12 @@ class KHAIAssistant {
                 description: 'Модель от xAI с уникальным характером и остроумными ответами',
                 available: true,
                 context: 128000
+            },
+            'sora-2-pro': { 
+                name: 'Sora 2 Pro', 
+                description: 'Передовая модель для генерации видео по текстовому описанию',
+                available: true,
+                context: 128000
             }
         };
 
@@ -206,11 +215,14 @@ class KHAIAssistant {
         this.MAX_CHAT_NAME_LENGTH = 16;
         this.CONVERSATION_HISTORY_LIMIT = 30;
         this.MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-        this.MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10MB
 
         // PWA state
         this.isPWAInstalled = false;
         this.deferredPrompt = null;
+
+        // Guide state
+        this.currentGuideStep = 1;
+        this.totalGuideSteps = 6;
     }
 
     detectSystemTheme() {
@@ -246,7 +258,7 @@ class KHAIAssistant {
             const safeHref = this.escapeHtml(href);
             const safeTitle = title ? this.escapeHtml(title) : '';
             const safeText = text ? this.escapeHtml(text) : '';
-            return `<img src="${safeHref}" alt="${safeText}" title="${safeTitle}" loading="lazy" style="max-width: 100%; border-radius: 8px;">`;
+            return `<img src="${safeHref}" alt="${safeText}" title="${safeTitle}" loading="lazy" style="max-width: 100%;">`;
         };
 
         marked.setOptions({
@@ -287,6 +299,7 @@ class KHAIAssistant {
             this.checkPWAInstallation();
             this.setup404Handling();
             this.setCurrentYear();
+            this.setupCleanScreenScroll();
             this.checkOnboarding();
             
             // Скрываем прелоадер после загрузки
@@ -304,57 +317,208 @@ class KHAIAssistant {
     }
 
     checkOnboarding() {
-        const userVisited = localStorage.getItem('khai-user-visited') === 'true';
-        const onboardingCompleted = localStorage.getItem('khai-onboarding-completed') === 'true';
+        const hasSeenWelcome = localStorage.getItem('khai-user-visited');
+        const hasCompletedGuide = localStorage.getItem('khai-completed-guide');
         
-        if (userVisited && !onboardingCompleted) {
-            this.showOnboarding();
+        if (!hasSeenWelcome) {
+            // Первый визит - показываем welcome страницу
+            window.location.href = 'welcome.html';
+            return;
         }
-    }
-
-    showOnboarding() {
-        if (this.onboardingOverlay) {
-            this.onboardingOverlay.style.display = 'flex';
-            this.updateOnboardingStep(1);
-        }
-    }
-
-    hideOnboarding() {
-        if (this.onboardingOverlay) {
-            this.onboardingOverlay.style.display = 'none';
-            localStorage.setItem('khai-onboarding-completed', 'true');
-            this.onboardingCompleted = true;
-        }
-    }
-
-    updateOnboardingStep(step) {
-        this.currentOnboardingStep = step;
         
-        // Update active step
-        document.querySelectorAll('.onboarding-step').forEach((stepEl, index) => {
-            if (index + 1 === step) {
-                stepEl.classList.add('active');
-            } else {
-                stepEl.classList.remove('active');
-            }
+        if (!hasCompletedGuide) {
+            // Показываем гайд для новых пользователей
+            this.showGuide();
+        }
+    }
+
+    showGuide() {
+        this.guideOverlay.style.display = 'flex';
+        this.showGuideStep(1);
+    }
+
+    hideGuide() {
+        this.guideOverlay.style.display = 'none';
+        localStorage.setItem('khai-completed-guide', 'true');
+    }
+
+    showGuideStep(step) {
+        this.currentGuideStep = step;
+        
+        // Hide all steps
+        document.querySelectorAll('.guide-step').forEach(el => {
+            el.classList.remove('active');
         });
         
-        // Update progress
-        const progressFill = document.querySelector('.progress-fill');
-        const progressText = document.querySelector('.progress-text');
-        if (progressFill) {
-            progressFill.style.width = `${(step / 5) * 100}%`;
-        }
-        if (progressText) {
-            progressText.textContent = `Шаг ${step} из 5`;
+        // Show current step
+        const currentStep = document.getElementById(`guideStep${step}`);
+        if (currentStep) {
+            currentStep.classList.add('active');
         }
         
-        // Update buttons
-        if (step === 5) {
-            this.nextOnboarding.textContent = 'Завершить';
-        } else {
-            this.nextOnboarding.textContent = 'Далее';
+        // Update progress dots
+        this.updateGuideProgress();
+        
+        // Position highlight and tooltip
+        this.positionGuideElements(step);
+    }
+
+    positionGuideElements(step) {
+        const highlight = document.getElementById('guideHighlight1');
+        const tooltip = document.getElementById('guideTooltip1');
+        
+        if (!highlight || !tooltip) return;
+        
+        let targetElement, highlightRect, tooltipPosition;
+        
+        switch(step) {
+            case 1:
+                // Welcome - center screen
+                highlight.style.width = '0';
+                highlight.style.height = '0';
+                highlight.style.top = '50%';
+                highlight.style.left = '50%';
+                tooltip.style.position = 'relative';
+                tooltip.style.margin = '0 auto';
+                break;
+                
+            case 2:
+                // Chat input
+                targetElement = this.userInput;
+                highlightRect = targetElement.getBoundingClientRect();
+                highlight.style.width = `${highlightRect.width + 20}px`;
+                highlight.style.height = `${highlightRect.height + 20}px`;
+                highlight.style.top = `${highlightRect.top - 10}px`;
+                highlight.style.left = `${highlightRect.left - 10}px`;
+                
+                tooltip.style.position = 'absolute';
+                tooltip.style.bottom = '200px';
+                tooltip.style.left = '50%';
+                tooltip.style.transform = 'translateX(-50%)';
+                break;
+                
+            case 3:
+                // File upload button
+                targetElement = this.attachFileBtn;
+                highlightRect = targetElement.getBoundingClientRect();
+                highlight.style.width = `${highlightRect.width + 20}px`;
+                highlight.style.height = `${highlightRect.height + 20}px`;
+                highlight.style.top = `${highlightRect.top - 10}px`;
+                highlight.style.left = `${highlightRect.left - 10}px`;
+                
+                tooltip.style.position = 'absolute';
+                tooltip.style.bottom = '200px';
+                tooltip.style.left = '50%';
+                tooltip.style.transform = 'translateX(-50%)';
+                break;
+                
+            case 4:
+                // Mode buttons
+                targetElement = this.actionButtons;
+                highlightRect = targetElement.getBoundingClientRect();
+                highlight.style.width = `${highlightRect.width + 20}px`;
+                highlight.style.height = `${highlightRect.height + 20}px`;
+                highlight.style.top = `${highlightRect.top - 10}px`;
+                highlight.style.left = `${highlightRect.left - 10}px`;
+                
+                tooltip.style.position = 'absolute';
+                tooltip.style.bottom = '150px';
+                tooltip.style.left = '50%';
+                tooltip.style.transform = 'translateX(-50%)';
+                break;
+                
+            case 5:
+                // Model selection
+                targetElement = this.modelSelectBtn;
+                highlightRect = targetElement.getBoundingClientRect();
+                highlight.style.width = `${highlightRect.width + 20}px`;
+                highlight.style.height = `${highlightRect.height + 20}px`;
+                highlight.style.top = `${highlightRect.top - 10}px`;
+                highlight.style.left = `${highlightRect.left - 10}px`;
+                
+                tooltip.style.position = 'absolute';
+                tooltip.style.top = '100px';
+                tooltip.style.right = '80px';
+                break;
+                
+            case 6:
+                // Menu toggle
+                targetElement = this.menuToggle;
+                highlightRect = targetElement.getBoundingClientRect();
+                highlight.style.width = `${highlightRect.width + 20}px`;
+                highlight.style.height = `${highlightRect.height + 20}px`;
+                highlight.style.top = `${highlightRect.top - 10}px`;
+                highlight.style.left = `${highlightRect.left - 10}px`;
+                
+                tooltip.style.position = 'absolute';
+                tooltip.style.top = '100px';
+                tooltip.style.right = '80px';
+                break;
         }
+    }
+
+    updateGuideProgress() {
+        document.querySelectorAll('.guide-progress-dot').forEach((dot, index) => {
+            if (index + 1 <= this.currentGuideStep) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    nextGuideStep() {
+        if (this.currentGuideStep < this.totalGuideSteps) {
+            this.showGuideStep(this.currentGuideStep + 1);
+        } else {
+            this.completeGuide();
+        }
+    }
+
+    prevGuideStep() {
+        if (this.currentGuideStep > 1) {
+            this.showGuideStep(this.currentGuideStep - 1);
+        }
+    }
+
+    completeGuide() {
+        this.hideGuide();
+        this.showNotification('Обучение завершено! Теперь вы знаете все возможности KHAI Assistant', 'success');
+    }
+
+    skipGuide() {
+        if (confirm('Пропустить обучение и перейти к приложению?')) {
+            this.hideGuide();
+        }
+    }
+
+    setupCleanScreenScroll() {
+        let isCleanScreen = false;
+        
+        this.addEventListener(this.messagesContainer, 'scroll', () => {
+            const scrollTop = this.messagesContainer.scrollTop;
+            const scrollHeight = this.messagesContainer.scrollHeight;
+            const clientHeight = this.messagesContainer.clientHeight;
+            
+            // Активируем clean screen при скролле вверх
+            if (scrollTop < 100 && !isCleanScreen) {
+                this.messagesContainer.classList.add('clean-screen');
+                isCleanScreen = true;
+            } else if (scrollTop > 100 && isCleanScreen) {
+                this.messagesContainer.classList.remove('clean-screen');
+                isCleanScreen = false;
+            }
+        });
+
+        // Добавляем обработчики для сообщений в clean screen режиме
+        this.addEventListener(this.messagesContainer, 'click', (e) => {
+            if (this.messagesContainer.classList.contains('clean-screen')) {
+                const message = e.target.closest('.message');
+                if (message) {
+                    message.focus();
+                }
+            }
+        });
     }
 
     setupCleanup() {
@@ -380,8 +544,8 @@ class KHAIAssistant {
             [this.clearChatBtn, 'click', () => this.clearChat()],
             [this.helpBtn, 'click', () => this.showHelp()],
             [this.generateImageBtn, 'click', () => this.toggleImageMode()],
-            [this.generateVideoBtn, 'click', () => this.toggleVideoMode()],
             [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
+            [this.generateVideoBtn, 'click', () => this.toggleVideoMode()],
             [this.themeToggle, 'click', () => this.toggleTheme()],
             [this.logo, 'click', () => this.refreshPage()],
             [this.attachFileBtn, 'click', () => this.fileInput.click()],
@@ -419,10 +583,14 @@ class KHAIAssistant {
             [this.sidebarSearchClear, 'click', () => this.clearSidebarSearch()],
             [this.importChatBtn, 'click', () => this.importChatHistory()],
             [this.downloadChatBtn, 'click', () => this.downloadCurrentChat()],
+            [this.guideBtn, 'click', () => this.showGuide()],
             [this.errorBackBtn, 'click', () => this.hide404Page()],
-            [this.showGuideBtn, 'click', () => this.showOnboarding()],
-            [this.skipOnboarding, 'click', () => this.hideOnboarding()],
-            [this.nextOnboarding, 'click', () => this.nextOnboardingStep()],
+            [this.videoModalClose, 'click', () => this.closeVideoModal()],
+            [this.videoModalCancel, 'click', () => this.closeVideoModal()],
+            [this.videoModalGenerate, 'click', () => this.generateVideo()],
+            [this.videoModalOverlay, 'click', (e) => {
+                if (e.target === this.videoModalOverlay) this.closeVideoModal();
+            }],
             [document, 'keydown', (e) => this.handleGlobalKeydown(e)],
             [window, 'online', () => this.handleOnlineStatus()],
             [window, 'offline', () => this.handleOfflineStatus()],
@@ -439,12 +607,121 @@ class KHAIAssistant {
         });
     }
 
-    nextOnboardingStep() {
-        if (this.currentOnboardingStep < 5) {
-            this.updateOnboardingStep(this.currentOnboardingStep + 1);
+    // Video Generation Methods
+    toggleVideoMode() {
+        this.isVideoMode = !this.isVideoMode;
+        if (this.isVideoMode) {
+            this.openVideoModal();
         } else {
-            this.hideOnboarding();
+            this.setMode('normal');
         }
+    }
+
+    openVideoModal() {
+        this.videoModalOverlay.classList.add('active');
+        this.videoPromptInput.focus();
+    }
+
+    closeVideoModal() {
+        this.videoModalOverlay.classList.remove('active');
+        this.isVideoMode = false;
+        this.setMode('normal');
+    }
+
+    async generateVideo() {
+        const prompt = this.videoPromptInput.value.trim();
+        if (!prompt) {
+            this.showNotification('Введите описание для генерации видео', 'error');
+            return;
+        }
+
+        const duration = parseInt(this.videoDuration.value);
+        const resolution = this.videoResolution.value;
+
+        try {
+            this.videoModalGenerate.disabled = true;
+            this.videoModalGenerate.innerHTML = '<i class="ti ti-loader"></i> Генерация...';
+
+            // Очищаем превью
+            this.videoPreview.innerHTML = `
+                <div class="video-placeholder">
+                    <i class="ti ti-loader"></i>
+                    <p>Генерация видео... Это может занять несколько минут</p>
+                </div>
+            `;
+
+            // Генерация видео через Puter.ai
+            const video = await puter.ai.txt2vid(prompt, {
+                model: "sora-2-pro",
+                seconds: duration,
+                size: resolution
+            });
+
+            // Отображаем видео
+            this.videoPreview.innerHTML = '';
+            this.videoPreview.appendChild(video);
+
+            // Добавляем обработчик для автовоспроизведения
+            video.addEventListener('loadeddata', () => {
+                video.play().catch(e => {
+                    console.log('Autoplay prevented:', e);
+                });
+            });
+
+            // Добавляем сообщение в чат
+            this.addMessage('user', `🎬 **Запрос на генерацию видео:** "${prompt}"`);
+            this.addVideoMessage(prompt, video.src, duration, resolution);
+            
+            this.addToConversationHistory('user', `Сгенерировано видео по запросу: ${prompt}`);
+            this.saveCurrentSession();
+
+            this.showNotification('Видео успешно сгенерировано!', 'success');
+            this.closeVideoModal();
+
+        } catch (error) {
+            console.error('Video generation error:', error);
+            this.showNotification('Ошибка при генерации видео', 'error');
+            this.videoPreview.innerHTML = `
+                <div class="video-placeholder">
+                    <i class="ti ti-alert-triangle"></i>
+                    <p>Ошибка генерации видео. Попробуйте еще раз.</p>
+                </div>
+            `;
+        } finally {
+            this.videoModalGenerate.disabled = false;
+            this.videoModalGenerate.innerHTML = '<i class="ti ti-player-play"></i> Сгенерировать видео';
+        }
+    }
+
+    addVideoMessage(prompt, videoUrl, duration, resolution) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message message-ai message-video';
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        messageContent.innerHTML = `
+            🎬 **Сгенерированное видео по запросу:** "${this.escapeHtml(prompt)}"
+            <div class="video-player">
+                <video controls style="width: 100%;">
+                    <source src="${videoUrl}" type="video/mp4">
+                    Ваш браузер не поддерживает видео элементы.
+                </video>
+            </div>
+            <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 8px;">
+                Длительность: ${duration} сек • Разрешение: ${resolution} • Модель: Sora 2 Pro
+            </div>
+        `;
+        
+        messageElement.appendChild(messageContent);
+        this.messagesContainer.appendChild(messageElement);
+        this.scrollToBottom();
+        
+        // Автовоспроизведение
+        const videoElement = messageContent.querySelector('video');
+        videoElement.play().catch(e => {
+            console.log('Autoplay prevented:', e);
+        });
     }
 
     // PWA Installation Handlers
@@ -634,7 +911,7 @@ class KHAIAssistant {
     setupAutoResize() {
         this.addEventListener(this.userInput, 'input', () => {
             this.userInput.style.height = 'auto';
-            this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+            this.userInput.style.height = Math.min(this.userInput.scrollHeight, 150) + 'px';
         });
     }
 
@@ -725,7 +1002,7 @@ class KHAIAssistant {
             } else if (this.isImageMode) {
                 await this.generateImage(message);
             } else if (this.isVideoMode) {
-                await this.generateVideo(message);
+                await this.generateVideoFromMessage(message);
             } else {
                 await this.processUserMessage(message);
             }
@@ -739,6 +1016,16 @@ class KHAIAssistant {
                 this.updateSendButton(false);
             }
         }
+    }
+
+    async generateVideoFromMessage(message) {
+        this.addMessage('user', `🎬 **Запрос на генерацию видео:** "${message}"`);
+        this.userInput.value = '';
+        this.userInput.style.height = 'auto';
+        
+        // Открываем модальное окно с предзаполненным промптом
+        this.videoPromptInput.value = message;
+        this.openVideoModal();
     }
 
     handleSendButtonClick() {
@@ -773,7 +1060,7 @@ class KHAIAssistant {
             } else if (this.isVideoMode) {
                 this.userInput.placeholder = 'Опишите видео для генерации...';
             } else {
-                this.userInput.placeholder = 'Задайте вопрос или опишите изображение/видео...';
+                this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
             }
         }
     }
@@ -888,10 +1175,6 @@ ${fileContent}
 
 Проанализируй содержимое этого файла. Суммируй основную информацию, выдели ключевые моменты, предложи выводы или рекомендации на основе представленного содержимого. Отвечай подробно на русском языке.`;
                 }
-            } else if (file.fileType === 'video') {
-                return `Пользователь отправил видео файл "${file.name}" с сопроводительным сообщением: "${userMessage}"
-
-Проанализируй видео и ответь на вопрос пользователя. Опиши основное содержание видео, ключевые моменты, эмоциональную составляющую. Если есть текст или речь - учти их в анализе. Отвечай подробно на русском языке.`;
             }
         } else {
             return this.buildContextPrompt(userMessage);
@@ -909,7 +1192,8 @@ ${fileContent}
             'deepseek-chat': { model: 'deepseek-chat' },
             'deepseek-reasoner': { model: 'deepseek-reasoner' },
             'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
-            'grok-beta': { model: 'grok-beta' }
+            'grok-beta': { model: 'grok-beta' },
+            'sora-2-pro': { model: 'gpt-4' } // Для чата используем GPT-4
         };
         
         const options = {
@@ -1138,6 +1422,18 @@ ${fileContent}
     }
 
     async generateImage(prompt) {
+        this.showNotification('Генерация изображений временно недоступна', 'warning');
+        this.setMode('normal');
+        return;
+
+        // Original implementation commented out for now
+        /*
+        if (!this.modelConfig['deepseek-reasoner'].available) {
+            this.showNotification('Генерация изображений временно недоступна', 'warning');
+            this.setMode('normal');
+            return;
+        }
+
         try {
             if (typeof puter?.ai?.imagine !== 'function') {
                 throw new Error('Функция генерации изображений недоступна');
@@ -1155,7 +1451,7 @@ ${fileContent}
             if (lastMessage) {
                 lastMessage.querySelector('.message-content').innerHTML = 
                     `🖼️ **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"\n\n` +
-                    `<img src="${imageResult.url}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">`;
+                    `<img src="${imageResult.url}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`;
             }
             
             this.addToConversationHistory('assistant', `Сгенерировано изображение по запросу: ${prompt}`);
@@ -1164,53 +1460,16 @@ ${fileContent}
         } catch (error) {
             this.handleError('Ошибка при генерации изображения', error);
         }
-    }
-
-    async generateVideo(prompt) {
-        try {
-            if (typeof puter?.ai?.txt2vid !== 'function') {
-                throw new Error('Функция генерации видео недоступна');
-            }
-            
-            this.addMessage('ai', `🎬 **Генерация видео по запросу:** "${prompt}"\n\n*Идет процесс создания видео... Это может занять несколько минут.*`);
-            
-            const videoResult = await puter.ai.txt2vid(prompt, {
-                model: "sora-2-pro",
-                seconds: 8,
-                size: "1280x720"
-            });
-            
-            const messages = this.messagesContainer.querySelectorAll('.message-ai');
-            const lastMessage = messages[messages.length - 1];
-            if (lastMessage) {
-                const videoElement = document.createElement('video');
-                videoElement.src = videoResult.url;
-                videoElement.controls = true;
-                videoElement.style.maxWidth = '100%';
-                videoElement.style.borderRadius = '12px';
-                videoElement.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
-                
-                // Autoplay once metadata is available
-                videoElement.addEventListener('loadeddata', () => {
-                    videoElement.play().catch(() => {
-                        // Autoplay might be blocked, that's okay
-                    });
-                });
-                
-                lastMessage.querySelector('.message-content').innerHTML = 
-                    `🎬 **Сгенерированное видео по запросу:** "${this.escapeHtml(prompt)}"\n\n`;
-                lastMessage.querySelector('.message-content').appendChild(videoElement);
-            }
-            
-            this.addToConversationHistory('assistant', `Сгенерировано видео по запросу: ${prompt}`);
-            this.saveCurrentSession();
-            
-        } catch (error) {
-            this.handleError('Ошибка при генерации видео', error);
-        }
+        */
     }
 
     async generateVoice(text) {
+        this.showNotification('Генерация голоса временно недоступна', 'warning');
+        this.setMode('normal');
+        return;
+
+        // Original implementation commented out for now
+        /*
         if (typeof puter?.ai?.txt2speech !== 'function') {
             throw new Error('Функция генерации голоса недоступна');
         }
@@ -1237,6 +1496,7 @@ ${fileContent}
         } catch (error) {
             this.handleError('Ошибка при генерации голоса', error);
         }
+        */
     }
 
     addVoiceMessage(text, audio) {
@@ -1249,7 +1509,7 @@ ${fileContent}
         messageContent.innerHTML = `
             🔊 **Сгенерированный голос для текста:** "${this.escapeHtml(text)}"
             <div class="audio-player" style="margin-top: 12px;">
-                <audio controls style="width: 100%; max-width: 300px; border-radius: 8px;">
+                <audio controls style="width: 100%; max-width: 300px;">
                     <source src="${audio.src}" type="audio/mpeg">
                     Ваш браузер не поддерживает аудио элементы.
                 </audio>
@@ -1297,9 +1557,8 @@ ${fileContent}
                     img.src = image.data;
                     img.alt = image.name;
                     img.style.maxWidth = '200px';
-                    img.style.borderRadius = '12px';
+                    img.style.borderRadius = '8px';
                     img.style.marginTop = '8px';
-                    img.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
                     
                     imageContainer.appendChild(img);
                     messageContent.appendChild(imageContainer);
@@ -1312,20 +1571,6 @@ ${fileContent}
                         <span>${this.escapeHtml(image.name)} (Текстовый файл)</span>
                     `;
                     messageContent.appendChild(fileContainer);
-                } else if (image.fileType === 'video') {
-                    const videoContainer = document.createElement('div');
-                    videoContainer.className = 'message-video';
-                    
-                    const video = document.createElement('video');
-                    video.src = image.data;
-                    video.controls = true;
-                    video.style.maxWidth = '200px';
-                    video.style.borderRadius = '12px';
-                    video.style.marginTop = '8px';
-                    video.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
-                    
-                    videoContainer.appendChild(video);
-                    messageContent.appendChild(videoContainer);
                 }
             });
         }
@@ -2094,15 +2339,6 @@ ${fileContent}
                     this.attachedImages.push(textData);
                     this.showNotification(`Файл "${file.name}" прикреплен`, 'success');
                     processedCount++;
-                } else if (fileType === 'video') {
-                    if (file.size > this.MAX_VIDEO_SIZE) {
-                        this.showNotification(`Видео "${file.name}" слишком большое (максимум 10MB)`, 'error');
-                        continue;
-                    }
-                    const videoData = await this.processVideoFile(file);
-                    this.attachedImages.push(videoData);
-                    this.showNotification(`Видео "${file.name}" прикреплено`, 'success');
-                    processedCount++;
                 } else {
                     this.showNotification(`Формат файла "${file.name}" не поддерживается`, 'error');
                 }
@@ -2119,7 +2355,6 @@ ${fileContent}
 
     getFileType(file) {
         const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-        const videoTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/webm'];
         const textTypes = [
             'text/plain', 
             'text/html', 
@@ -2151,8 +2386,6 @@ ${fileContent}
         
         if (imageTypes.includes(file.type)) {
             return 'image';
-        } else if (videoTypes.includes(file.type)) {
-            return 'video';
         } else if (textTypes.includes(file.type) || file.name.match(/\.(txt|md|html|css|js|json|py|java|cpp|c|cs|php|rb|go|swift|kt|scala|rs|xml|csv|yaml|yml)$/i)) {
             return file.name.match(/\.(py|java|cpp|c|cs|php|rb|go|swift|kt|scala|rs)$/i) ? 'code' : 'text';
         }
@@ -2173,23 +2406,6 @@ ${fileContent}
                 });
             };
             reader.onerror = () => reject(new Error(`Ошибка загрузки изображения: ${file.name}`));
-            reader.readAsDataURL(file);
-        });
-    }
-
-    processVideoFile(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                resolve({
-                    name: file.name,
-                    data: e.target.result,
-                    type: file.type,
-                    size: file.size,
-                    fileType: 'video'
-                });
-            };
-            reader.onerror = () => reject(new Error(`Ошибка загрузки видео: ${file.name}`));
             reader.readAsDataURL(file);
         });
     }
@@ -2230,10 +2446,8 @@ ${fileContent}
             fileElement.className = 'attached-file';
             
             const icon = file.fileType === 'image' ? 'ti-photo' : 
-                        file.fileType === 'video' ? 'ti-video' :
                         file.fileType === 'code' ? 'ti-code' : 'ti-file-text';
             const typeLabel = file.fileType === 'image' ? 'Изображение' : 
-                             file.fileType === 'video' ? 'Видео' :
                              file.fileType === 'code' ? 'Файл кода' : 'Текстовый файл';
             
             fileElement.innerHTML = `
@@ -2267,7 +2481,7 @@ ${fileContent}
         
         const removedFile = this.attachedImages.splice(index, 1)[0];
         this.renderAttachedFiles();
-        this.showNotification(`${removedFile.fileType === 'image' ? 'Изображение' : removedFile.fileType === 'video' ? 'Видео' : 'Файл'} "${removedFile.name}" удален`, 'info');
+        this.showNotification(`${removedFile.fileType === 'image' ? 'Изображение' : 'Файл'} "${removedFile.name}" удален`, 'info');
         this.handleInputChange();
     }
 
@@ -2598,11 +2812,6 @@ ${fileContent}
         this.setMode(this.isImageMode ? 'image' : 'normal');
     }
 
-    toggleVideoMode() {
-        this.isVideoMode = !this.isVideoMode;
-        this.setMode(this.isVideoMode ? 'video' : 'normal');
-    }
-
     toggleVoiceMode() {
         this.isVoiceMode = !this.isVoiceMode;
         this.setMode(this.isVoiceMode ? 'voice' : 'normal');
@@ -2610,8 +2819,8 @@ ${fileContent}
 
     setMode(mode) {
         this.isImageMode = false;
-        this.isVideoMode = false;
         this.isVoiceMode = false;
+        this.isVideoMode = false;
         
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -2630,7 +2839,7 @@ ${fileContent}
                 modeText = 'Обычный режим';
                 modeIcon = 'ti-message';
                 this.normalModeBtn.classList.add('active');
-                this.userInput.placeholder = 'Задайте вопрос или опишите изображение/видео...';
+                this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
             } else if (mode === 'voice') {
                 modeText = 'Режим генерации голоса';
                 modeIcon = 'ti-microphone';
@@ -2767,6 +2976,10 @@ ${fileContent}
             this.closeSidebar();
             this.closeModelModal();
             this.closeEditChatModal();
+            this.closeVideoModal();
+            if (this.guideOverlay.style.display === 'flex') {
+                this.skipGuide();
+            }
         }
     }
 
@@ -2811,6 +3024,9 @@ ${fileContent}
     handleResize() {
         this.updateMinimapViewport();
         this.setupResponsiveMinimap();
+        if (this.guideOverlay.style.display === 'flex') {
+            this.positionGuideElements(this.currentGuideStep);
+        }
     }
 
     setupResponsiveMinimap() {
@@ -3016,11 +3232,9 @@ ${fileContent}
 ## 🎯 Основные возможности:
 • **Умные ответы на вопросы** - используя различные модели ИИ
 • **Анализ изображений** - извлечение текста и решение задач по фото
-• **Анализ видео** - работа с видеофайлами и их содержимым
-• **Генерация изображений** - создание уникальных изображений по описанию
-• **Генерация видео** - создание коротких видео по текстовым промптам
+• **Анализ файлов** - чтение и анализ содержимого файлов (текст, код, XML, CSV, YAML и др.)
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
-• **Генерация голоса** - преобразование текста в естественную речь
+• **Генерация видео** - создание видео по текстовому описанию с помощью Sora 2 Pro
 • **Озвучивание ответов** - слушайте ответы ИИ в аудиоформате
 • **Контекстный диалог** - помню историю нашего разговора
 • **Подсветка синтаксиса** - красивое отображение кода
@@ -3047,7 +3261,7 @@ ${fileContent}
 
 ## 💬 Система чатов:
 • **Создание нового чата** - нажмите "Новый чат" в меню
-• **Редактирование названия** - нажмите на иконку карандаша рядом с чатом
+• **Редактирование названия** - нажмите на иконку карандаша рядом с названием
 • **Скачать чат** - нажмите на иконку загрузки для экспорта
 • **Импорт чата** - загрузите ранее сохраненный чат
 • **Удалить все чаты** - кнопка внизу меню (кроме основного)
@@ -3056,33 +3270,33 @@ ${fileContent}
 
 ## 📁 Работа с файлами:
 • **Изображения** - прикрепите для анализа текста и содержимого (JPEG, PNG, GIF, WebP)
-• **Видео** - прикрепите для анализа содержимого (MP4, AVI, MOV, WebM)
 • **Текстовые файлы** - прикрепите для анализа содержимого (.txt, .md, .html, .css, .js, .json)
 • **Файлы кода** - анализ кода на Python, Java, C++, C#, PHP, Ruby, Go, Swift, Kotlin, Scala, Rust
 • **Другие форматы** - XML, CSV, YAML, YML
 • **Максимум файлов** - можно прикрепить до 3 файлов за раз
 
+## 🎬 Генерация видео:
+• **Sora 2 Pro** - передовая модель для создания видео по тексту
+• **Длительность** - от 4 до 16 секунд
+• **Разрешение** - HD (1280x720) или Full HD (1920x1080)
+• **Использование** - выберите режим "Видео" и опишите сцену
+
 ## 🔊 Аудио функции:
-• **Генерация голоса** - создает аудио из текста с помощью ИИ
+• **Голосовой ввод** - нажмите 🎤 и говорите вместо печати
 • **Озвучить ответ** - воспроизводит ответ ИИ
 • **Остановить озвучку** - нажмите кнопку повторно для остановки
 
-## 🖼️ Генерация изображений:
-1. **Выберите режим "Изображения"**
-2. **Опишите изображение** - что вы хотите создать
-3. **Нажмите Отправить** - ИИ сгенерирует уникальное изображение
-
-## 🎬 Генерация видео:
-1. **Выберите режим "Видео"**
-2. **Опишите видео** - сценарий, действие, персонажи
-3. **Нажмите Отправить** - ИИ создаст короткое видео (может занять несколько минут)
+## 🖼️ Работа с изображениями:
+1. **Нажмите кнопку ➕** чтобы прикрепить изображение
+2. **Напишите вопрос** (опционально) - что вы хотите узнать о изображении
+3. **Нажмите Отправить** - ИИ проанализирует изображение и ответит
 
 ## 📄 Работа с файлами:
 1. **Нажмите кнопку ➕** чтобы прикрепить файл
 2. **Напишите вопрос** (опционально) - что вы хотите узнать о содержимом
 3. **Нажмите Отправить** - ИИ проанализирует файл и ответит
 
-**Попробуйте отправить изображение, видео или файл с вопросом!**`;
+**Попробуйте отправить изображение или файл с вопросом!**`;
 
         this.addMessage('ai', helpMessage);
         this.addToConversationHistory('assistant', helpMessage);
@@ -3233,3 +3447,34 @@ window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
     event.preventDefault();
 });
+
+// Guide functions for global access
+function nextGuideStep() {
+    if (window.khaiAssistant) {
+        window.khaiAssistant.nextGuideStep();
+    }
+}
+
+function prevGuideStep() {
+    if (window.khaiAssistant) {
+        window.khaiAssistant.prevGuideStep();
+    }
+}
+
+function completeGuide() {
+    if (window.khaiAssistant) {
+        window.khaiAssistant.completeGuide();
+    }
+}
+
+function skipGuide() {
+    if (window.khaiAssistant) {
+        window.khaiAssistant.skipGuide();
+    }
+}
+
+function showStep(step) {
+    if (window.khaiAssistant) {
+        window.khaiAssistant.showGuideStep(step);
+    }
+}
