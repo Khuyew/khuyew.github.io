@@ -1,3 +1,5 @@
+[file name]: welcome.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -13,20 +15,22 @@
         }
 
         :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: rgba(255, 255, 255, 0.03);
-            --bg-tertiary: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0c0;
-            --accent-primary: #0099ff;
-            --accent-secondary: #0066ff;
-            --user-message-bg-start: #667eea;
-            --user-message-bg-end: #764ba2;
-            --ai-message-bg: rgba(255, 255, 255, 0.08);
-            --border-color: rgba(255, 255, 255, 0.15);
-            --radius-lg: 16px;
-            --radius-md: 12px;
-            --shadow-lg: 0 20px 40px -10px rgba(0, 153, 255, 0.3);
+            --bg-primary: #121212;
+            --bg-secondary: #1E1E1E;
+            --bg-tertiary: #2D2D2D;
+            --text-primary: rgba(255, 255, 255, 0.87);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --accent-primary: #BB86FC;
+            --accent-primary-variant: #3700B3;
+            --accent-secondary: #03DAC6;
+            --text-on-accent: #000000;
+            --user-message-bg: linear-gradient(135deg, #BB86FC, #3700B3);
+            --ai-message-bg: #1E1E1E;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --shadow-lg: 0 25px 50px -12px rgba(187, 134, 252, 0.25);
+            --shadow-md: 0 10px 25px -5px rgba(187, 134, 252, 0.15);
             --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
@@ -56,33 +60,41 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(187, 134, 252, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(3, 218, 198, 0.1) 0%, transparent 50%);
         }
 
-        .floating-dot {
+        .floating-blob {
             position: absolute;
             border-radius: 50%;
-            background: var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             opacity: 0.1;
-            animation: float 6s ease-in-out infinite;
+            filter: blur(40px);
+            animation: float 8s ease-in-out infinite;
         }
 
-        .dot-1 {
-            width: 200px;
-            height: 200px;
+        .blob-1 {
+            width: 300px;
+            height: 300px;
             top: 10%;
             left: 10%;
             animation-delay: 0s;
         }
 
-        .dot-2 {
-            width: 150px;
-            height: 150px;
+        .blob-2 {
+            width: 250px;
+            height: 250px;
             bottom: 20%;
             right: 15%;
+            animation-delay: -4s;
+        }
+
+        .blob-3 {
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 70%;
             animation-delay: -2s;
-            background: var(--user-message-bg-end);
         }
 
         /* Main Content */
@@ -99,85 +111,128 @@
         }
 
         .logo-section {
-            margin-bottom: 40px;
+            margin-bottom: 50px;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.3s forwards;
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            animation: pulse 2s ease-in-out infinite;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            animation: pulseGlow 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 30px;
+            filter: blur(20px);
+            opacity: 0.3;
+            z-index: -1;
         }
 
         .logo img {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            border-radius: 24px;
         }
 
         .title {
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 70%);
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             line-height: 1.1;
+            letter-spacing: -0.02em;
         }
 
         .subtitle {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             color: var(--text-secondary);
             font-weight: 400;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.5;
         }
 
         /* Demo Chat */
         .demo-chat {
             background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 25px;
-            margin: 30px 0;
-            backdrop-filter: blur(10px);
-            max-width: 400px;
+            padding: 30px;
+            margin: 40px 0;
+            backdrop-filter: blur(20px);
+            max-width: 500px;
             width: 100%;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.8s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-chat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
         }
 
         .chat-message {
             text-align: left;
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--text-primary);
-            line-height: 1.4;
-            margin-bottom: 15px;
+            line-height: 1.5;
+            margin-bottom: 20px;
             opacity: 0;
             transform: translateX(-20px);
             animation: slideRightFade 0.6s ease forwards;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
         }
 
-        .chat-message:nth-child(1) { animation-delay: 1.3s; }
+        .chat-message:nth-child(1) { 
+            animation-delay: 1.3s; 
+        }
         .chat-message:nth-child(2) { 
             text-align: right;
             transform: translateX(20px);
             animation-name: slideLeftFade;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-variant));
+            color: var(--text-on-accent);
             animation-delay: 2.1s;
         }
-        .chat-message:nth-child(3) { animation-delay: 2.9s; }
+        .chat-message:nth-child(3) { 
+            animation-delay: 2.9s; 
+        }
 
         .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             opacity: 0;
             animation: fadeIn 0.5s ease 3.7s forwards;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
         }
 
         .typing-dots {
@@ -186,8 +241,8 @@
         }
 
         .typing-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             background: var(--accent-primary);
             border-radius: 50%;
             animation: typingBounce 1.4s infinite ease-in-out;
@@ -200,80 +255,110 @@
         .action-section {
             opacity: 0;
             animation: fadeIn 0.8s ease 4.5s forwards;
+            width: 100%;
+            max-width: 500px;
         }
 
         .action-buttons {
             display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 16px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .action-btn {
-            padding: 14px 28px;
+            padding: 18px 32px;
             border-radius: var(--radius-md);
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 8px;
-            border: 2px solid transparent;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
         }
 
         .primary-btn {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-variant));
+            color: var(--text-on-accent);
             box-shadow: var(--shadow-lg);
         }
 
         .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 25px 50px -12px rgba(0, 153, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 30px 60px -12px rgba(187, 134, 252, 0.4);
         }
 
         .secondary-btn {
             background: var(--bg-tertiary);
             color: var(--text-primary);
-            border-color: var(--border-color);
         }
 
         .secondary-btn:hover {
             background: var(--bg-secondary);
-            border-color: var(--accent-primary);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .feature-tags {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .feature-tag {
-            padding: 6px 12px;
+            padding: 8px 16px;
             background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .feature-tag:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
         }
 
         /* Animations */
         @keyframes float {
             0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-20px) scale(1.1); }
+            50% { transform: translateY(-30px) scale(1.1); }
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
+        @keyframes pulseGlow {
+            0%, 100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 0 20px rgba(187, 134, 252, 0.3));
+            }
+            50% { 
+                transform: scale(1.05);
+                filter: drop-shadow(0 0 30px rgba(187, 134, 252, 0.5));
+            }
         }
 
         @keyframes slideUpFade {
@@ -311,6 +396,40 @@
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .title {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .demo-chat {
+                padding: 24px;
+                margin: 30px 0;
+            }
+            
+            .action-btn {
+                padding: 16px 28px;
+                font-size: 0.95rem;
+            }
+            
+            .feature-tags {
+                gap: 10px;
+            }
+            
+            .feature-tag {
+                font-size: 0.8rem;
+                padding: 7px 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
                 font-size: 2.5rem;
             }
             
@@ -319,8 +438,9 @@
             }
             
             .logo {
-                width: 70px;
-                height: 70px;
+                width: 80px;
+                height: 80px;
+                margin-bottom: 20px;
             }
             
             .demo-chat {
@@ -328,43 +448,9 @@
                 margin: 25px 0;
             }
             
-            .action-btn {
-                padding: 12px 24px;
-                font-size: 0.9rem;
-            }
-            
-            .feature-tags {
-                gap: 8px;
-            }
-            
-            .feature-tag {
-                font-size: 0.75rem;
-                padding: 5px 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .title {
-                font-size: 2rem;
-            }
-            
-            .subtitle {
-                font-size: 1rem;
-            }
-            
-            .logo {
-                width: 60px;
-                height: 60px;
-                margin-bottom: 15px;
-            }
-            
-            .demo-chat {
-                padding: 15px;
-                margin: 20px 0;
-            }
-            
             .chat-message {
-                font-size: 0.85rem;
+                font-size: 0.9rem;
+                padding: 14px 18px;
             }
             
             .action-buttons {
@@ -377,6 +463,15 @@
                 max-width: 280px;
                 justify-content: center;
             }
+            
+            .feature-tags {
+                gap: 8px;
+            }
+            
+            .feature-tag {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
         }
     </style>
 </head>
@@ -384,8 +479,9 @@
     <div class="app-container">
         <!-- Animated Background -->
         <div class="floating-background">
-            <div class="floating-dot dot-1"></div>
-            <div class="floating-dot dot-2"></div>
+            <div class="floating-blob blob-1"></div>
+            <div class="floating-blob blob-2"></div>
+            <div class="floating-blob blob-3"></div>
         </div>
 
         <!-- Main Content -->
@@ -393,10 +489,10 @@
             <!-- Logo and Title -->
             <div class="logo-section">
                 <div class="logo">
-                    <img src="https://raw.githubusercontent.com/Khuyew/khuyew.github.io/refs/heads/main/new/icon.png" alt="KHAI">
+                    <img src="./logo.png" alt="KHAI">
                 </div>
                 <h1 class="title">KHAI</h1>
-                <p class="subtitle">Первый белорусский ИИ-помощник</p>
+                <p class="subtitle">Первый белорусский ИИ-помощник с генерацией видео, изображений и голоса</p>
             </div>
 
             <!-- Demo Chat -->
@@ -408,7 +504,7 @@
                     Что ты умеешь?
                 </div>
                 <div class="chat-message">
-                    Всё! Код, анализ изображений, тексты, голос, файлы... 
+                    Всё! Генерация видео, изображений, голоса, анализ файлов, написание кода и многое другое...
                 </div>
                 <div class="typing-indicator">
                     <div class="typing-dots">
@@ -443,16 +539,20 @@
                         Умный ИИ
                     </div>
                     <div class="feature-tag">
-                        <i class="ti ti-code"></i>
-                        Написание кода
+                        <i class="ti ti-video"></i>
+                        Генерация видео
                     </div>
                     <div class="feature-tag">
                         <i class="ti ti-photo"></i>
-                        Анализ изображений
+                        Генерация изображений
                     </div>
                     <div class="feature-tag">
                         <i class="ti ti-microphone"></i>
                         Голосовой ввод
+                    </div>
+                    <div class="feature-tag">
+                        <i class="ti ti-code"></i>
+                        Написание кода
                     </div>
                 </div>
             </div>
@@ -465,10 +565,10 @@
             // Set flag that user has seen welcome page
             localStorage.setItem('khai-user-visited', 'true');
             
-            // Auto redirect after 10 seconds
+            // Auto redirect after 8 seconds
             const redirectTimer = setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 10000);
+            }, 8000);
 
             // Manual redirect when clicking the start button
             const startBtn = document.getElementById('startBtn');
@@ -489,8 +589,9 @@
                         typingIndicator.style.animation = 'fadeIn 0.5s ease forwards';
                     }, 100);
                 }
-            }, 8000);
+            }, 6000);
         })();
     </script>
 </body>
 </html>
+[file content end]
