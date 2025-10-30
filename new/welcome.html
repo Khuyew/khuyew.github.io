@@ -3,288 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KHAI — Первый белорусский чат с ИИ</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <title>KHAI Assistant - Добро пожаловать</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-primary: #121212;
-            --bg-secondary: #1E1E1E;
-            --bg-tertiary: #2D2D2D;
-            --text-primary: #FFFFFF;
-            --text-secondary: rgba(255, 255, 255, 0.7);
-            --accent-primary: #0099FF;
-            --accent-secondary: #0066FF;
-            --neon-glow: 0 0 20px rgba(0, 153, 255, 0.5);
-            --radius-lg: 20px;
-            --radius-md: 12px;
-            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow: hidden;
-            height: 100vh;
-            height: 100dvh;
-        }
-
-        .app-container {
-            height: 100vh;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
+        /* Дополнительные стили для welcome страницы */
+        .welcome-container {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             position: relative;
             overflow: hidden;
         }
-
-        /* Animated Background */
-        .cyber-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(0, 102, 255, 0.15) 0%, transparent 50%),
-                linear-gradient(45deg, #121212 0%, #1a1a1a 100%);
-        }
-
-        .cyber-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 153, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 153, 255, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-        }
-
-        .floating-element {
-            position: absolute;
-            border-radius: 50%;
-            background: var(--accent-primary);
-            opacity: 0.1;
-            animation: float 8s ease-in-out infinite;
-            filter: blur(40px);
-        }
-
-        .element-1 {
-            width: 300px;
-            height: 300px;
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .element-2 {
-            width: 200px;
-            height: 200px;
-            bottom: 20%;
-            right: 15%;
-            animation-delay: -4s;
-            background: var(--accent-secondary);
-        }
-
-        .element-3 {
-            width: 150px;
-            height: 150px;
-            top: 50%;
-            left: 80%;
-            animation-delay: -2s;
-        }
-
-        /* Main Content */
-        .main-content {
-            position: relative;
-            z-index: 2;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .logo-section {
-            margin-bottom: 50px;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: slideUpFade 0.8s ease 0.3s forwards;
-        }
-
-        .logo {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 25px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--neon-glow);
-            animation: pulse 3s ease-in-out infinite;
-        }
-
-        .logo i {
-            font-size: 50px;
-            color: white;
-        }
-
-        .title {
-            font-size: 4rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 15px;
-            line-height: 1.1;
-            text-shadow: 0 0 30px rgba(0, 153, 255, 0.3);
-        }
-
-        .subtitle {
-            font-size: 1.4rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-            max-width: 500px;
-            line-height: 1.5;
-        }
-
-        /* Demo Chat */
-        .demo-chat {
-            background: var(--bg-secondary);
-            border-radius: var(--radius-lg);
-            padding: 30px;
-            margin: 40px 0;
-            backdrop-filter: blur(20px);
-            max-width: 500px;
-            width: 100%;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: slideUpFade 0.8s ease 0.8s forwards;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .demo-chat::before {
+        
+        .welcome-container::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
-            animation: scanline 3s linear infinite;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 102, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            animation: backgroundShift 10s ease-in-out infinite;
+            z-index: 0;
         }
-
-        .chat-message {
-            text-align: left;
-            font-size: 1rem;
-            color: var(--text-primary);
-            line-height: 1.5;
-            margin-bottom: 20px;
-            opacity: 0;
-            transform: translateX(-20px);
-            animation: slideRightFade 0.6s ease forwards;
-            padding: 15px;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
+        
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            box-shadow: var(--shadow-lg), var(--neon-glow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+            width: 90%;
         }
-
-        .chat-message:nth-child(1) { animation-delay: 1.3s; }
-        .chat-message:nth-child(2) { 
-            text-align: right;
-            transform: translateX(20px);
-            animation-name: slideLeftFade;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            animation-delay: 2.1s;
-        }
-        .chat-message:nth-child(3) { 
-            animation-delay: 2.9s;
-            background: var(--bg-tertiary);
-        }
-
-        .typing-indicator {
+        
+        .welcome-logo {
+            width: 120px;
+            height: 120px;
+            background: var(--accent-primary);
+            border-radius: var(--radius-xl);
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: var(--neon-glow);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .welcome-logo i {
+            font-size: 50px;
+            color: white;
+        }
+        
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .welcome-subtitle {
+            font-size: 16px;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            opacity: 0;
-            animation: fadeIn 0.5s ease 3.7s forwards;
-            padding: 10px;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 30px;
         }
-
-        .typing-dots {
+        
+        .welcome-features {
             display: flex;
-            gap: 4px;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-primary);
-            border-radius: 50%;
-            animation: typingBounce 1.4s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-        /* Action Buttons */
-        .action-section {
-            opacity: 0;
-            animation: fadeIn 0.8s ease 4.5s forwards;
-        }
-
-        .action-buttons {
-            display: flex;
+            flex-direction: column;
             gap: 15px;
             margin-bottom: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
+            width: 100%;
         }
-
-        .action-btn {
-            padding: 18px 35px;
-            border-radius: var(--radius-md);
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: var(--transition);
+        
+        .feature-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+        
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            transform: translateX(5px);
+            border-color: var(--accent-primary);
+        }
+        
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        
+        .welcome-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
             border: none;
+            padding: 16px 32px;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: var(--neon-glow);
+            width: 100%;
             position: relative;
             overflow: hidden;
         }
-
-        .primary-btn {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            box-shadow: var(--neon-glow);
-        }
-
-        .primary-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 153, 255, 0.4);
-        }
-
-        .primary-btn::before {
+        
+        .welcome-btn::before {
             content: '';
             position: absolute;
             top: 0;
@@ -294,311 +147,188 @@
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s;
         }
-
-        .primary-btn:hover::before {
+        
+        .welcome-btn:hover::before {
             left: 100%;
         }
-
-        .secondary-btn {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 2px solid var(--accent-primary);
-        }
-
-        .secondary-btn:hover {
-            background: var(--accent-primary);
-            transform: translateY(-3px);
-            box-shadow: var(--neon-glow);
-        }
-
-        .feature-tags {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 600px;
-        }
-
-        .feature-tag {
-            padding: 8px 16px;
-            background: var(--bg-tertiary);
-            border-radius: 25px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-            border: 1px solid transparent;
-        }
-
-        .feature-tag:hover {
-            border-color: var(--accent-primary);
-            color: var(--text-primary);
+        
+        .welcome-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 153, 255, 0.4);
         }
-
-        /* Animations */
+        
+        .welcome-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 12px;
+        }
+        
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
         @keyframes float {
-            0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-20px) scale(1.1); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.9; }
-        }
-
-        @keyframes slideUpFade {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideRightFade {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideLeftFade {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes typingBounce {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        @keyframes scanline {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        /* Mobile Responsive */
+        
+        /* Адаптивность */
         @media (max-width: 768px) {
-            .title {
-                font-size: 3rem;
+            .welcome-content {
+                padding: 30px 25px;
+                margin: 20px;
             }
             
-            .subtitle {
-                font-size: 1.2rem;
+            .welcome-title {
+                font-size: 28px;
             }
             
-            .logo {
-                width: 80px;
-                height: 80px;
+            .welcome-subtitle {
+                font-size: 15px;
             }
             
-            .logo i {
+            .feature-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .welcome-btn {
+                padding: 14px 28px;
+                font-size: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .welcome-content {
+                padding: 25px 20px;
+                margin: 15px;
+            }
+            
+            .welcome-title {
+                font-size: 24px;
+            }
+            
+            .welcome-subtitle {
+                font-size: 14px;
+            }
+            
+            .welcome-logo {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .welcome-logo i {
                 font-size: 40px;
             }
             
-            .demo-chat {
-                padding: 25px;
-                margin: 30px 0;
+            .feature-item {
+                padding: 10px 12px;
+                font-size: 12px;
+                gap: 12px;
             }
             
-            .action-btn {
-                padding: 16px 28px;
-                font-size: 1rem;
+            .feature-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
             }
             
-            .feature-tags {
-                gap: 10px;
-            }
-            
-            .feature-tag {
-                font-size: 0.85rem;
-                padding: 7px 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .title {
-                font-size: 2.5rem;
-            }
-            
-            .subtitle {
-                font-size: 1.1rem;
-            }
-            
-            .logo {
-                width: 70px;
-                height: 70px;
-                margin-bottom: 20px;
-            }
-            
-            .logo i {
-                font-size: 35px;
-            }
-            
-            .demo-chat {
-                padding: 20px;
-                margin: 25px 0;
-            }
-            
-            .chat-message {
-                font-size: 0.9rem;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-                align-items: center;
-                width: 100%;
-            }
-            
-            .action-btn {
-                width: 100%;
-                max-width: 280px;
-                justify-content: center;
-            }
-            
-            .feature-tags {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .feature-tag {
-                width: 100%;
-                max-width: 250px;
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .title {
-                font-size: 2rem;
-            }
-            
-            .subtitle {
-                font-size: 1rem;
-            }
-            
-            .main-content {
-                padding: 15px;
+            .welcome-btn {
+                padding: 12px 24px;
+                font-size: 14px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Cyber Background -->
-        <div class="cyber-background">
-            <div class="cyber-grid"></div>
-            <div class="floating-element element-1"></div>
-            <div class="floating-element element-2"></div>
-            <div class="floating-element element-3"></div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Logo and Title -->
-            <div class="logo-section">
-                <div class="logo">
-                    <i class="ti ti-brain"></i>
-                </div>
-                <h1 class="title">KHAI</h1>
-                <p class="subtitle">Первый белорусский ИИ-помощник нового поколения</p>
+    <div class="welcome-container" id="welcomePage">
+        <div class="welcome-content">
+            <div class="welcome-logo">
+                <i class="fas fa-brain"></i>
             </div>
-
-            <!-- Demo Chat -->
-            <div class="demo-chat">
-                <div class="chat-message">
-                    🚀 Привет! Я KHAI — интеллектуальный помощник будущего
-                </div>
-                <div class="chat-message">
-                    Что ты умеешь?
-                </div>
-                <div class="chat-message">
-                    Всё для твоей продуктивности: код, анализ, тексты, файлы и многое другое!
-                </div>
-                <div class="typing-indicator">
-                    <div class="typing-dots">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
+            
+            <h1 class="welcome-title">KHAI Assistant</h1>
+            <p class="welcome-subtitle">Ваш интеллектуальный помощник нового поколения с передовыми возможностями AI</p>
+            
+            <div class="welcome-features">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
                     </div>
-                    <span>Система активирована</span>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="action-section">
-                <div class="action-buttons">
-                    <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
-                        <i class="ti ti-rocket"></i>
-                        Стартуем!
-                    </a>
-                    <a href="https://t.me/khuyew" target="_blank" class="action-btn secondary-btn">
-                        <i class="ti ti-brand-telegram"></i>
-                        Сотрудничество
-                    </a>
+                    <span>Продвинутые диалоговые возможности</span>
                 </div>
                 
-                <div class="feature-tags">
-                    <div class="feature-tag">
-                        <i class="ti ti-brain"></i>
-                        Умный ИИ
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
                     </div>
-                    <div class="feature-tag">
-                        <i class="ti ti-code"></i>
-                        Написание кода
-                    </div>
-                    <div class="feature-tag">
-                        <i class="ti ti-photo"></i>
-                        Анализ изображений
-                    </div>
-                    <div class="feature-tag">
-                        <i class="ti ti-file-text"></i>
-                        Работа с файлами
-                    </div>
+                    <span>Мультимодальные AI модели</span>
                 </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <span>Полная адаптивность для всех устройств</span>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <span>Мгновенная обработка запросов</span>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <span>Приватность и безопасность данных</span>
+                </div>
+            </div>
+            
+            <button class="welcome-btn" id="startBtn">
+                <i class="fas fa-rocket"></i> Стартуем
+            </button>
+            
+            <div class="welcome-footer">
+                Начните общение с AI будущего прямо сейчас
             </div>
         </div>
     </div>
 
     <script>
-        (function() {
-            // Set flag that user has seen welcome page
-            localStorage.setItem('khai-welcome-seen', 'true');
-            
-            // Manual redirect when clicking the start button
+        document.addEventListener('DOMContentLoaded', function() {
             const startBtn = document.getElementById('startBtn');
-            if (startBtn) {
-                startBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    window.location.href = 'guide.html';
-                });
-            }
-
-            // Simple auto-restart for demo effect
-            setInterval(() => {
-                const typingIndicator = document.querySelector('.typing-indicator');
-                if (typingIndicator) {
-                    typingIndicator.style.animation = 'none';
-                    setTimeout(() => {
-                        typingIndicator.style.animation = 'fadeIn 0.5s ease forwards';
-                    }, 100);
-                }
-            }, 8000);
-        })();
+            
+            startBtn.addEventListener('click', function() {
+                // Сохраняем статус завершения welcome
+                localStorage.setItem('khai_welcome_completed', 'true');
+                
+                // Плавный переход к основному приложению
+                document.body.style.opacity = '0';
+                document.body.style.transition = 'opacity 0.5s ease';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 500);
+            });
+            
+            // Анимация появления элементов
+            const elements = document.querySelectorAll('.welcome-logo, .welcome-title, .welcome-subtitle, .feature-item, .welcome-btn');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 100 + index * 100);
+            });
+        });
     </script>
 </body>
 </html>
