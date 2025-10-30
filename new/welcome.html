@@ -13,25 +13,40 @@
         }
 
         :root {
-            --bg-primary: #121212;
-            --bg-secondary: #1E1E1E;
-            --bg-tertiary: #2D2D2D;
-            --text-primary: #FFFFFF;
-            --text-secondary: #A0A0C0;
-            --accent-primary: #0099FF;
-            --accent-secondary: #0066FF;
-            --neon-glow: 0 0 10px rgba(0, 153, 255, 0.7), 0 0 20px rgba(0, 153, 255, 0.5), 0 0 30px rgba(0, 153, 255, 0.3);
+            --bg-primary: #0f0f23;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --bg-tertiary: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --accent-primary: #0099ff;
+            --accent-secondary: #0066ff;
+            --user-message-bg-start: #667eea;
+            --user-message-bg-end: #764ba2;
+            --ai-message-bg: rgba(255, 255, 255, 0.08);
+            --border-color: rgba(255, 255, 255, 0.15);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-lg: 0 20px 40px -10px rgba(0, 153, 255, 0.3);
             --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            
+            /* Glassmorphism variables */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+            --glass-blur: blur(12px);
+            
+            /* Neumorphism variables */
+            --neu-shadow-light: rgba(255, 255, 255, 0.1);
+            --neu-shadow-dark: rgba(0, 0, 0, 0.3);
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             overflow: hidden;
             height: 100vh;
             height: 100dvh;
-            position: relative;
         }
 
         .app-container {
@@ -41,96 +56,95 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
         }
 
-        /* Animated Background */
-        .cyber-background {
+        /* Animated Background with Polygons */
+        .polygon-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .polygon {
+            position: absolute;
+            background: var(--accent-primary);
+            opacity: 0.05;
+            animation: float 15s ease-in-out infinite;
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+
+        .polygon-1 {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+            background: var(--accent-primary);
+        }
+
+        .polygon-2 {
+            width: 150px;
+            height: 150px;
+            bottom: 15%;
+            right: 10%;
+            animation-delay: -5s;
+            background: var(--user-message-bg-end);
+            clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+        }
+
+        .polygon-3 {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            left: 15%;
+            animation-delay: -10s;
+            background: var(--accent-secondary);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+
+        .polygon-4 {
+            width: 180px;
+            height: 180px;
+            top: 20%;
+            right: 15%;
+            animation-delay: -7s;
+            background: var(--user-message-bg-start);
+            clip-path: polygon(0% 15%, 15% 15%, 15% 0%, 85% 0%, 85% 15%, 100% 15%, 100% 85%, 85% 85%, 85% 100%, 15% 100%, 15% 85%, 0% 85%);
+        }
+
+        /* Glassmorphism Overlay */
+        .glass-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(0, 102, 255, 0.15) 0%, transparent 50%),
-                linear-gradient(135deg, rgba(18, 18, 18, 0.9) 0%, rgba(30, 30, 30, 0.9) 100%);
+                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
             z-index: 1;
-        }
-
-        .cyber-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 153, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 153, 255, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-            z-index: 2;
-        }
-
-        .floating-shapes {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 3;
-        }
-
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            background: var(--accent-primary);
-            opacity: 0.1;
-            filter: blur(40px);
-            animation: float 8s ease-in-out infinite;
-        }
-
-        .shape-1 {
-            width: 300px;
-            height: 300px;
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
-            background: var(--accent-primary);
-        }
-
-        .shape-2 {
-            width: 200px;
-            height: 200px;
-            bottom: 20%;
-            right: 15%;
-            animation-delay: -2s;
-            background: var(--accent-secondary);
-        }
-
-        .shape-3 {
-            width: 150px;
-            height: 150px;
-            top: 50%;
-            left: 70%;
-            animation-delay: -4s;
-            background: #764ba2;
         }
 
         /* Main Content */
         .main-content {
             position: relative;
-            z-index: 10;
+            z-index: 2;
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            width: 100%;
-            max-width: 500px;
             padding: 20px;
+            text-align: center;
         }
 
+        /* Logo Section with Neumorphism */
         .logo-section {
             margin-bottom: 40px;
             opacity: 0;
@@ -138,98 +152,84 @@
             animation: slideUpFade 0.8s ease 0.3s forwards;
         }
 
-        .logo {
+        .logo-container {
             width: 120px;
             height: 120px;
-            margin: 0 auto 30px;
+            margin: 0 auto 25px;
             position: relative;
-        }
-
-        .logo-inner {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .logo-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            box-shadow: 
+                var(--glass-shadow),
+                8px 8px 16px var(--neu-shadow-dark),
+                -8px -8px 16px var(--neu-shadow-light);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .logo {
+            width: 70px;
+            height: 70px;
             position: relative;
-            overflow: hidden;
-            box-shadow: var(--neon-glow);
-            animation: logoPulse 3s ease-in-out infinite;
+            z-index: 2;
+            filter: drop-shadow(0 0 10px rgba(0, 153, 255, 0.5));
         }
 
-        .logo-inner::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), #764ba2, var(--accent-primary));
-            border-radius: 26px;
-            z-index: -1;
-            animation: logoRotate 3s linear infinite;
-        }
-
-        .logo-inner::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            right: 2px;
-            bottom: 2px;
-            background: var(--bg-secondary);
-            border-radius: 22px;
-            z-index: -1;
-        }
-
-        .logo-text {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 20px rgba(0, 153, 255, 0.5);
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .title {
             font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 70%);
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--user-message-bg-end) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             line-height: 1.1;
-            text-shadow: 0 0 30px rgba(0, 153, 255, 0.5);
-            letter-spacing: -0.02em;
+            letter-spacing: -0.5px;
+            text-shadow: 0 5px 15px rgba(0, 153, 255, 0.3);
         }
 
         .subtitle {
             font-size: 1.3rem;
             color: var(--text-secondary);
             font-weight: 400;
-            margin-bottom: 10px;
-            line-height: 1.4;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
-        /* Demo Chat */
+        /* Demo Chat with Glassmorphism */
         .demo-chat {
-            background: rgba(30, 30, 30, 0.8);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
             padding: 25px;
             margin: 30px 0;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            box-shadow: var(--glass-shadow);
+            max-width: 450px;
             width: 100%;
-            max-width: 400px;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.8s forwards;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .demo-chat::before {
@@ -238,14 +238,8 @@
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            border-radius: 20px;
-            padding: 2px;
-            background: linear-gradient(135deg, var(--accent-primary), transparent 30%, transparent 70%, var(--accent-secondary));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
         }
 
         .chat-message {
@@ -258,9 +252,9 @@
             transform: translateX(-20px);
             animation: slideRightFade 0.6s ease forwards;
             padding: 12px 16px;
-            border-radius: 12px;
-            background: rgba(45, 45, 45, 0.6);
-            backdrop-filter: blur(10px);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
         }
 
         .chat-message:nth-child(1) { 
@@ -272,12 +266,14 @@
             transform: translateX(20px);
             animation-name: slideLeftFade;
             animation-delay: 2.1s;
-            background: linear-gradient(135deg, rgba(0, 153, 255, 0.2), rgba(0, 102, 255, 0.2));
-            border-right: 3px solid var(--accent-secondary);
+            margin-left: auto;
+            background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
+            color: white;
+            max-width: 80%;
         }
         .chat-message:nth-child(3) { 
             animation-delay: 2.9s; 
-            border-left: 3px solid var(--accent-primary);
+            border-left: 3px solid var(--user-message-bg-end);
         }
 
         .typing-indicator {
@@ -288,10 +284,11 @@
             font-size: 0.85rem;
             opacity: 0;
             animation: fadeIn 0.5s ease 3.7s forwards;
-            padding: 8px 12px;
-            border-radius: 12px;
-            background: rgba(45, 45, 45, 0.6);
-            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            width: fit-content;
         }
 
         .typing-dots {
@@ -300,8 +297,8 @@
         }
 
         .typing-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             background: var(--accent-primary);
             border-radius: 50%;
             animation: typingBounce 1.4s infinite ease-in-out;
@@ -310,33 +307,32 @@
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
-        /* Action Buttons */
+        /* Action Buttons with Neumorphism */
         .action-section {
             opacity: 0;
             animation: fadeIn 0.8s ease 4.5s forwards;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
         }
 
         .action-buttons {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            gap: 15px;
             margin-bottom: 25px;
-            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .action-btn {
-            padding: 16px 28px;
-            border-radius: 12px;
+            padding: 16px 32px;
+            border-radius: var(--radius-md);
             font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
             transition: var(--transition);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 10px;
             border: none;
             cursor: pointer;
             position: relative;
@@ -346,73 +342,99 @@
         .primary-btn {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
-            box-shadow: var(--neon-glow);
+            box-shadow: 
+                var(--shadow-lg),
+                0 10px 20px rgba(0, 153, 255, 0.3);
+            position: relative;
+        }
+
+        .primary-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .primary-btn:hover::before {
+            left: 100%;
         }
 
         .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(0, 153, 255, 0.8);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 15px 30px rgba(0, 153, 255, 0.4),
+                0 5px 15px rgba(0, 153, 255, 0.3);
         }
 
         .secondary-btn {
-            background: rgba(45, 45, 45, 0.8);
-            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
             color: var(--text-primary);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            box-shadow: 
+                var(--glass-shadow),
+                5px 5px 10px var(--neu-shadow-dark),
+                -5px -5px 10px var(--neu-shadow-light);
         }
 
         .secondary-btn:hover {
-            background: rgba(60, 60, 60, 0.8);
+            background: rgba(255, 255, 255, 0.15);
             border-color: var(--accent-primary);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 10px 20px rgba(0, 0, 0, 0.2),
+                5px 5px 15px var(--neu-shadow-dark),
+                -5px -5px 15px var(--neu-shadow-light);
         }
 
         .feature-tags {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 100%;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .feature-tag {
-            padding: 10px 12px;
-            background: rgba(45, 45, 45, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            font-size: 0.8rem;
+            padding: 8px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
+            gap: 8px;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            box-shadow: 
+                3px 3px 6px var(--neu-shadow-dark),
+                -3px -3px 6px var(--neu-shadow-light);
             transition: var(--transition);
         }
 
         .feature-tag:hover {
-            background: rgba(60, 60, 60, 0.8);
-            color: var(--text-primary);
             transform: translateY(-2px);
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+            box-shadow: 
+                5px 5px 10px var(--neu-shadow-dark),
+                -5px -5px 10px var(--neu-shadow-light);
         }
 
         /* Animations */
         @keyframes float {
-            0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-20px) scale(1.1); }
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
         }
 
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        @keyframes logoPulse {
-            0%, 100% { transform: scale(1); box-shadow: var(--neon-glow); }
-            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 153, 255, 0.9); }
-        }
-
-        @keyframes logoRotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
         }
 
         @keyframes slideUpFade {
@@ -457,10 +479,14 @@
                 font-size: 1.1rem;
             }
             
-            .logo {
+            .logo-container {
                 width: 100px;
                 height: 100px;
-                margin-bottom: 20px;
+            }
+            
+            .logo {
+                width: 60px;
+                height: 60px;
             }
             
             .demo-chat {
@@ -469,20 +495,25 @@
             }
             
             .action-btn {
-                padding: 14px 24px;
+                padding: 14px 28px;
                 font-size: 0.95rem;
             }
             
             .feature-tags {
-                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .feature-tag {
+                font-size: 0.8rem;
+                padding: 7px 14px;
+            }
+
+            .polygon-1, .polygon-2, .polygon-3, .polygon-4 {
+                transform: scale(0.7);
             }
         }
 
         @media (max-width: 480px) {
-            .app-container {
-                padding: 15px;
-            }
-            
             .title {
                 font-size: 2.2rem;
             }
@@ -491,76 +522,78 @@
                 font-size: 1rem;
             }
             
+            .logo-container {
+                width: 90px;
+                height: 90px;
+                margin-bottom: 20px;
+            }
+            
             .logo {
-                width: 80px;
-                height: 80px;
-                margin-bottom: 15px;
+                width: 50px;
+                height: 50px;
             }
             
             .demo-chat {
-                padding: 15px;
+                padding: 18px;
                 margin: 20px 0;
             }
             
             .chat-message {
-                font-size: 0.85rem;
+                font-size: 0.9rem;
             }
             
             .action-buttons {
-                gap: 10px;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
             }
             
             .action-btn {
-                padding: 12px 20px;
-                font-size: 0.9rem;
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+            
+            .feature-tags {
+                gap: 8px;
             }
             
             .feature-tag {
                 font-size: 0.75rem;
-                padding: 8px 10px;
+                padding: 6px 12px;
             }
-        }
 
-        /* Extra small devices */
-        @media (max-width: 360px) {
-            .title {
-                font-size: 1.8rem;
-            }
-            
-            .subtitle {
-                font-size: 0.9rem;
-            }
-            
-            .logo {
-                width: 70px;
-                height: 70px;
+            .polygon-1, .polygon-2, .polygon-3, .polygon-4 {
+                transform: scale(0.5);
             }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Cyber Background -->
-        <div class="cyber-background"></div>
-        <div class="cyber-grid"></div>
-        <div class="floating-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
+        <!-- Animated Polygon Background -->
+        <div class="polygon-background">
+            <div class="polygon polygon-1"></div>
+            <div class="polygon polygon-2"></div>
+            <div class="polygon polygon-3"></div>
+            <div class="polygon polygon-4"></div>
         </div>
+
+        <!-- Glassmorphism Overlay -->
+        <div class="glass-overlay"></div>
 
         <!-- Main Content -->
         <div class="main-content">
             <!-- Logo and Title -->
             <div class="logo-section">
-                <div class="logo">
-                    <div class="logo-inner">
-                        <div class="logo-text">KHAI</div>
+                <div class="logo-container">
+                    <div class="logo-background"></div>
+                    <div class="logo">
+                        <img src="https://raw.githubusercontent.com/Khuyew/khuyew.github.io/refs/heads/main/new/icon.png" alt="KHAI">
                     </div>
                 </div>
                 <h1 class="title">KHAI</h1>
-                <p class="subtitle">Первый белорусский ИИ-помощник</p>
-                <p class="subtitle">С передовыми возможностями AI</p>
+                <p class="subtitle">Первый белорусский ИИ-помощник с передовыми технологиями</p>
             </div>
 
             <!-- Demo Chat -->
@@ -572,7 +605,7 @@
                     Что ты умеешь?
                 </div>
                 <div class="chat-message">
-                    Всё! Анализ изображений, генерация контента, работа с кодом, мультимодальные возможности...
+                    Всё! Код, анализ изображений, тексты, голос, файлы... 
                 </div>
                 <div class="typing-indicator">
                     <div class="typing-dots">
@@ -587,9 +620,17 @@
             <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
+                    <a href="./index.html" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
                         Стартуем!
+                    </a>
+                    <a href="./guide.html" class="action-btn secondary-btn">
+                        <i class="ti ti-book"></i>
+                        Обучение
+                    </a>
+                    <a href="https://t.me/khuyew" target="_blank" class="action-btn secondary-btn">
+                        <i class="ti ti-brand-telegram"></i>
+                        Сотрудничество
                     </a>
                 </div>
                 
@@ -621,12 +662,18 @@
             // Set flag that user has seen welcome page
             localStorage.setItem('khai-user-visited', 'true');
             
+            // Auto redirect after 10 seconds
+            const redirectTimer = setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 10000);
+
             // Manual redirect when clicking the start button
             const startBtn = document.getElementById('startBtn');
             if (startBtn) {
                 startBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    window.location.href = 'guide.html';
+                    clearTimeout(redirectTimer);
+                    window.location.href = 'index.html';
                 });
             }
 
