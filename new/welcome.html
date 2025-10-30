@@ -16,37 +16,35 @@
             --bg-primary: #0f0f23;
             --bg-secondary: rgba(255, 255, 255, 0.03);
             --bg-tertiary: rgba(255, 255, 255, 0.08);
+            --bg-glass: rgba(255, 255, 255, 0.1);
+            --bg-glass-dark: rgba(0, 0, 0, 0.2);
             --text-primary: #ffffff;
             --text-secondary: #a0a0c0;
             --accent-primary: #0099ff;
             --accent-secondary: #0066ff;
+            --accent-glow: rgba(0, 153, 255, 0.5);
             --user-message-bg-start: #667eea;
             --user-message-bg-end: #764ba2;
             --ai-message-bg: rgba(255, 255, 255, 0.08);
             --border-color: rgba(255, 255, 255, 0.15);
+            --border-glow: rgba(255, 255, 255, 0.2);
             --radius-lg: 20px;
-            --radius-md: 12px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
             --shadow-lg: 0 20px 40px -10px rgba(0, 153, 255, 0.3);
+            --shadow-glow: 0 0 20px rgba(0, 153, 255, 0.5);
             --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            
-            /* Glassmorphism variables */
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
-            --glass-blur: blur(12px);
-            
-            /* Neumorphism variables */
-            --neu-shadow-light: rgba(255, 255, 255, 0.1);
-            --neu-shadow-dark: rgba(0, 0, 0, 0.3);
+            --backdrop-blur: blur(20px);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             overflow: hidden;
             height: 100vh;
             height: 100dvh;
+            position: relative;
         }
 
         .app-container {
@@ -58,8 +56,8 @@
             overflow: hidden;
         }
 
-        /* Animated Background with Polygons */
-        .polygon-background {
+        /* Animated Polygonal Background */
+        .polygonal-background {
             position: absolute;
             top: 0;
             left: 0;
@@ -73,50 +71,47 @@
             position: absolute;
             background: var(--accent-primary);
             opacity: 0.05;
-            animation: float 15s ease-in-out infinite;
-            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+            animation: float 8s ease-in-out infinite;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
         }
 
         .polygon-1 {
-            width: 200px;
-            height: 200px;
+            width: 300px;
+            height: 300px;
             top: 10%;
             left: 5%;
             animation-delay: 0s;
-            background: var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-primary), var(--user-message-bg-end));
         }
 
         .polygon-2 {
-            width: 150px;
-            height: 150px;
+            width: 200px;
+            height: 200px;
             bottom: 15%;
             right: 10%;
-            animation-delay: -5s;
-            background: var(--user-message-bg-end);
-            clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+            animation-delay: -2s;
+            background: linear-gradient(135deg, var(--user-message-bg-start), var(--accent-secondary));
         }
 
         .polygon-3 {
-            width: 120px;
-            height: 120px;
+            width: 150px;
+            height: 150px;
             top: 60%;
             left: 15%;
-            animation-delay: -10s;
-            background: var(--accent-secondary);
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            animation-delay: -4s;
+            background: linear-gradient(135deg, var(--user-message-bg-end), var(--accent-primary));
         }
 
         .polygon-4 {
             width: 180px;
             height: 180px;
             top: 20%;
-            right: 15%;
-            animation-delay: -7s;
-            background: var(--user-message-bg-start);
-            clip-path: polygon(0% 15%, 15% 15%, 15% 0%, 85% 0%, 85% 15%, 100% 15%, 100% 85%, 85% 85%, 85% 100%, 15% 100%, 15% 85%, 0% 85%);
+            right: 20%;
+            animation-delay: -6s;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--user-message-bg-start));
         }
 
-        /* Glassmorphism Overlay */
+        /* Glass Morphism Overlay */
         .glass-overlay {
             position: absolute;
             top: 0;
@@ -126,8 +121,8 @@
             background: 
                 radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
             z-index: 1;
         }
 
@@ -166,16 +161,16 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
+            background: var(--bg-glass);
+            border-radius: var(--radius-md);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--border-glow);
             box-shadow: 
-                var(--glass-shadow),
-                8px 8px 16px var(--neu-shadow-dark),
-                -8px -8px 16px var(--neu-shadow-light);
-            animation: pulse 4s ease-in-out infinite;
+                inset 2px 2px 5px rgba(255, 255, 255, 0.1),
+                inset -2px -2px 5px rgba(0, 0, 0, 0.3),
+                0 10px 20px rgba(0, 0, 0, 0.3);
+            animation: pulse 3s ease-in-out infinite;
         }
 
         .logo {
@@ -183,7 +178,7 @@
             height: 70px;
             position: relative;
             z-index: 2;
-            filter: drop-shadow(0 0 10px rgba(0, 153, 255, 0.5));
+            filter: drop-shadow(0 0 10px var(--accent-glow));
         }
 
         .logo img {
@@ -195,14 +190,14 @@
         .title {
             font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--user-message-bg-end) 100%);
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 70%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 10px;
             line-height: 1.1;
+            text-shadow: 0 0 20px var(--accent-glow);
             letter-spacing: -0.5px;
-            text-shadow: 0 5px 15px rgba(0, 153, 255, 0.3);
         }
 
         .subtitle {
@@ -211,23 +206,27 @@
             font-weight: 400;
             max-width: 500px;
             margin: 0 auto;
+            line-height: 1.5;
         }
 
-        /* Demo Chat with Glassmorphism */
+        /* Demo Chat with Glass Morphism */
         .demo-chat {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glow);
             border-radius: var(--radius-lg);
-            padding: 25px;
-            margin: 30px 0;
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            box-shadow: var(--glass-shadow);
+            padding: 30px;
+            margin: 40px 0;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
             max-width: 450px;
             width: 100%;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.8s forwards;
+            box-shadow: 
+                inset 2px 2px 5px rgba(255, 255, 255, 0.1),
+                inset -2px -2px 5px rgba(0, 0, 0, 0.3),
+                0 15px 30px rgba(0, 0, 0, 0.4);
             position: relative;
             overflow: hidden;
         }
@@ -247,48 +246,49 @@
             font-size: 0.95rem;
             color: var(--text-primary);
             line-height: 1.5;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             opacity: 0;
             transform: translateX(-20px);
             animation: slideRightFade 0.6s ease forwards;
             padding: 12px 16px;
             border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(5px);
+            background: var(--bg-glass-dark);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
         }
 
         .chat-message:nth-child(1) { 
             animation-delay: 1.3s; 
-            border-left: 3px solid var(--accent-primary);
+            background: linear-gradient(135deg, var(--ai-message-bg), transparent);
         }
         .chat-message:nth-child(2) { 
             text-align: right;
             transform: translateX(20px);
             animation-name: slideLeftFade;
             animation-delay: 2.1s;
-            margin-left: auto;
             background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
-            color: white;
+            margin-left: auto;
             max-width: 80%;
         }
         .chat-message:nth-child(3) { 
             animation-delay: 2.9s; 
-            border-left: 3px solid var(--user-message-bg-end);
+            background: linear-gradient(135deg, var(--ai-message-bg), transparent);
         }
 
         .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             opacity: 0;
             animation: fadeIn 0.5s ease 3.7s forwards;
             padding: 10px 15px;
             border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(5px);
-            width: fit-content;
+            background: var(--bg-glass-dark);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            max-width: fit-content;
         }
 
         .typing-dots {
@@ -318,7 +318,7 @@
         .action-buttons {
             display: flex;
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -337,18 +337,14 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            flex: 1;
+            min-width: 160px;
+            justify-content: center;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
         }
 
-        .primary-btn {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            box-shadow: 
-                var(--shadow-lg),
-                0 10px 20px rgba(0, 153, 255, 0.3);
-            position: relative;
-        }
-
-        .primary-btn::before {
+        .action-btn::before {
             content: '';
             position: absolute;
             top: 0;
@@ -356,40 +352,44 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: 0.5s;
+            transition: left 0.5s;
         }
 
-        .primary-btn:hover::before {
+        .action-btn:hover::before {
             left: 100%;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .primary-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 
-                0 15px 30px rgba(0, 153, 255, 0.4),
-                0 5px 15px rgba(0, 153, 255, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 153, 255, 0.5), 0 0 25px rgba(0, 153, 255, 0.6);
         }
 
         .secondary-btn {
-            background: var(--glass-bg);
+            background: var(--bg-glass);
             color: var(--text-primary);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-glow);
             box-shadow: 
-                var(--glass-shadow),
-                5px 5px 10px var(--neu-shadow-dark),
-                -5px -5px 10px var(--neu-shadow-light);
+                inset 2px 2px 5px rgba(255, 255, 255, 0.1),
+                inset -2px -2px 5px rgba(0, 0, 0, 0.3),
+                0 10px 20px rgba(0, 0, 0, 0.3);
         }
 
         .secondary-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--bg-glass-dark);
             border-color: var(--accent-primary);
             transform: translateY(-3px);
             box-shadow: 
-                0 10px 20px rgba(0, 0, 0, 0.2),
-                5px 5px 15px var(--neu-shadow-dark),
-                -5px -5px 15px var(--neu-shadow-light);
+                inset 2px 2px 5px rgba(255, 255, 255, 0.1),
+                inset -2px -2px 5px rgba(0, 0, 0, 0.3),
+                0 15px 30px rgba(0, 0, 0, 0.4),
+                0 0 15px rgba(0, 153, 255, 0.3);
         }
 
         .feature-tags {
@@ -401,29 +401,74 @@
 
         .feature-tag {
             padding: 8px 16px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glow);
             border-radius: 20px;
             font-size: 0.85rem;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 8px;
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
             box-shadow: 
-                3px 3px 6px var(--neu-shadow-dark),
-                -3px -3px 6px var(--neu-shadow-light);
+                inset 1px 1px 3px rgba(255, 255, 255, 0.1),
+                inset -1px -1px 3px rgba(0, 0, 0, 0.3);
             transition: var(--transition);
         }
 
         .feature-tag:hover {
-            transform: translateY(-2px);
             color: var(--text-primary);
             border-color: var(--accent-primary);
+            transform: translateY(-2px);
             box-shadow: 
-                5px 5px 10px var(--neu-shadow-dark),
-                -5px -5px 10px var(--neu-shadow-light);
+                inset 1px 1px 3px rgba(255, 255, 255, 0.1),
+                inset -1px -1px 3px rgba(0, 0, 0, 0.3),
+                0 5px 15px rgba(0, 153, 255, 0.2);
+        }
+
+        /* Mobile Navigation Drawer */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-glass);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border-top: 1px solid var(--border-glow);
+            padding: 15px;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+        }
+
+        .nav-item.active {
+            color: var(--accent-primary);
+            background: var(--bg-glass-dark);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
         }
 
         /* Animations */
@@ -490,13 +535,14 @@
             }
             
             .demo-chat {
-                padding: 20px;
-                margin: 25px 0;
+                padding: 25px;
+                margin: 30px 0;
             }
             
             .action-btn {
                 padding: 14px 28px;
                 font-size: 0.95rem;
+                min-width: 140px;
             }
             
             .feature-tags {
@@ -508,14 +554,14 @@
                 padding: 7px 14px;
             }
 
-            .polygon-1, .polygon-2, .polygon-3, .polygon-4 {
-                transform: scale(0.7);
+            .mobile-nav {
+                display: block;
             }
         }
 
         @media (max-width: 480px) {
             .title {
-                font-size: 2.2rem;
+                font-size: 2.3rem;
             }
             
             .subtitle {
@@ -534,18 +580,18 @@
             }
             
             .demo-chat {
-                padding: 18px;
-                margin: 20px 0;
+                padding: 20px;
+                margin: 25px 0;
             }
             
             .chat-message {
                 font-size: 0.9rem;
+                padding: 10px 14px;
             }
             
             .action-buttons {
                 flex-direction: column;
                 align-items: center;
-                gap: 12px;
             }
             
             .action-btn {
@@ -564,22 +610,40 @@
             }
 
             .polygon-1, .polygon-2, .polygon-3, .polygon-4 {
-                transform: scale(0.5);
+                display: none;
+            }
+        }
+
+        /* Performance optimizations */
+        .polygon {
+            will-change: transform;
+        }
+
+        .action-btn, .feature-tag {
+            will-change: transform;
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Animated Polygon Background -->
-        <div class="polygon-background">
+        <!-- Animated Polygonal Background -->
+        <div class="polygonal-background">
             <div class="polygon polygon-1"></div>
             <div class="polygon polygon-2"></div>
             <div class="polygon polygon-3"></div>
             <div class="polygon polygon-4"></div>
         </div>
 
-        <!-- Glassmorphism Overlay -->
+        <!-- Glass Morphism Overlay -->
         <div class="glass-overlay"></div>
 
         <!-- Main Content -->
@@ -589,11 +653,20 @@
                 <div class="logo-container">
                     <div class="logo-background"></div>
                     <div class="logo">
-                        <img src="https://raw.githubusercontent.com/Khuyew/khuyew.github.io/refs/heads/main/new/icon.png" alt="KHAI">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" fill="url(#gradient)"/>
+                            <path d="M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="#0f0f23"/>
+                            <defs>
+                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#0099ff"/>
+                                    <stop offset="100%" stop-color="#764ba2"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
                     </div>
                 </div>
                 <h1 class="title">KHAI</h1>
-                <p class="subtitle">Первый белорусский ИИ-помощник с передовыми технологиями</p>
+                <p class="subtitle">Первый белорусский ИИ-помощник с передовыми возможностями</p>
             </div>
 
             <!-- Demo Chat -->
@@ -630,7 +703,7 @@
                     </a>
                     <a href="https://t.me/khuyew" target="_blank" class="action-btn secondary-btn">
                         <i class="ti ti-brand-telegram"></i>
-                        Сотрудничество
+                        Поддержка
                     </a>
                 </div>
                 
@@ -652,6 +725,28 @@
                         Голосовой ввод
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div class="mobile-nav">
+            <div class="nav-items">
+                <a href="./index.html" class="nav-item active">
+                    <i class="ti ti-home"></i>
+                    <span>Главная</span>
+                </a>
+                <a href="./guide.html" class="nav-item">
+                    <i class="ti ti-book"></i>
+                    <span>Обучение</span>
+                </a>
+                <a href="https://t.me/khuyew" target="_blank" class="nav-item">
+                    <i class="ti ti-brand-telegram"></i>
+                    <span>Поддержка</span>
+                </a>
+                <a href="#" class="nav-item" id="themeToggleMobile">
+                    <i class="ti ti-moon"></i>
+                    <span>Тема</span>
+                </a>
             </div>
         </div>
     </div>
@@ -687,6 +782,29 @@
                     }, 100);
                 }
             }, 8000);
+
+            // Mobile theme toggle
+            const themeToggleMobile = document.getElementById('themeToggleMobile');
+            if (themeToggleMobile) {
+                themeToggleMobile.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Simple theme toggle for demo
+                    document.body.style.filter = document.body.style.filter === 'invert(1)' ? '' : 'invert(1)';
+                });
+            }
+
+            // Performance optimization - stop animations when not visible
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    document.querySelectorAll('.polygon').forEach(poly => {
+                        poly.style.animationPlayState = 'paused';
+                    });
+                } else {
+                    document.querySelectorAll('.polygon').forEach(poly => {
+                        poly.style.animationPlayState = 'running';
+                    });
+                }
+            });
         })();
     </script>
 </body>
