@@ -1,222 +1,152 @@
 <!DOCTYPE html>
-<html lang="ru" itemscope itemtype="https://schema.org/WebApplication">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0f0f23">
-    
-    <!-- SEO Meta Tags -->
-    <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
-    <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
-    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь">
-    <meta name="author" content="KHAI Team">
-    <meta name="robots" content="index, follow, max-image-preview:large">
-    
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="KHAI Assistant">
-    <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
-    <meta property="og:image" content="./assets/og-image.jpg">
-    <meta property="og:url" content="./">
-    <meta property="og:locale" content="ru_RU">
-    
-    <!-- Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.puter.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://api.puter.com wss:;">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
-    <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
-    <link rel="apple-touch-icon" href="./assets/logo-192.png">
-    
-    <!-- Preload Critical Resources -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
-    <link rel="preload" href="./styles.css" as="style">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://js.puter.com">
-    
-    <!-- Styles -->
+    <title>KHAI — Первый белорусский чат с ИИ</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="stylesheet" href="./styles.css">
-    
     <style>
         :root {
-            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --glow-primary: 0 0 40px rgba(102, 126, 234, 0.3);
-            --glow-secondary: 0 0 40px rgba(118, 75, 162, 0.3);
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #0099ff;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --shadow-glow: 0 0 50px rgba(0, 212, 255, 0.3);
         }
 
-        .welcome-container {
-            min-height: 100vh;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        .app-container {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
             position: relative;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
         }
 
-        .animated-background {
+        .neural-network {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            opacity: 0.6;
         }
 
-        .floating-shapes {
+        .neuron {
             position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        .shape {
-            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-primary);
             border-radius: 50%;
-            background: var(--gradient-primary);
-            opacity: 0.1;
-            animation: float 6s ease-in-out infinite;
-            filter: blur(40px);
+            animation: neuronPulse 4s ease-in-out infinite;
         }
 
-        .shape-1 {
-            width: 300px;
-            height: 300px;
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
+        .connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            transform-origin: left;
+            animation: connectionFlow 3s linear infinite;
         }
 
-        .shape-2 {
-            width: 200px;
-            height: 200px;
-            bottom: 20%;
-            right: 15%;
-            animation-delay: -2s;
-            background: var(--gradient-secondary);
-        }
-
-        .shape-3 {
-            width: 250px;
-            height: 250px;
-            top: 50%;
-            left: 70%;
-            animation-delay: -4s;
-            background: var(--gradient-accent);
-        }
-
-        .welcome-content {
+        .main-content {
             position: relative;
             z-index: 2;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
             text-align: center;
-            padding: 2rem;
-            max-width: 800px;
         }
 
         .logo-section {
-            margin-bottom: 3rem;
+            margin-bottom: 40px;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.3s forwards;
         }
 
-        .logo-container {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 2rem;
-            background: var(--gradient-primary);
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 25px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
             border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: var(--glow-primary);
-            animation: pulse 2s ease-in-out infinite;
-            position: relative;
-            overflow: hidden;
+            animation: float 6s ease-in-out infinite;
+            box-shadow: var(--shadow-glow);
         }
 
-        .logo-container::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: var(--gradient-primary);
-            border-radius: 26px;
-            z-index: -1;
-            opacity: 0.6;
-            filter: blur(10px);
-        }
-
-        .logo-icon {
-            width: 60px;
-            height: 60px;
-            background: white;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E") center/contain no-repeat;
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E") center/contain no-repeat;
-        }
-
-        .title {
-            font-size: 4rem;
-            font-weight: 800;
-            background: var(--gradient-primary);
+        .logo i {
+            font-size: 48px;
+            background: var(--bg-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1rem;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
             line-height: 1.1;
             letter-spacing: -0.02em;
         }
 
         .subtitle {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: var(--text-secondary);
             font-weight: 400;
-            margin-bottom: 0.5rem;
-        }
-
-        .tagline {
-            font-size: 1.1rem;
-            color: var(--text-tertiary);
             max-width: 500px;
-            margin: 0 auto;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
-        .demo-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xl);
-            padding: 2rem;
-            margin: 3rem 0;
+        .demo-chat {
+            background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+            max-width: 480px;
+            width: 100%;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.8s forwards;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .demo-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--gradient-primary);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .chat-message {
@@ -224,11 +154,11 @@
             font-size: 0.95rem;
             color: var(--text-primary);
             line-height: 1.5;
-            margin-bottom: 1rem;
-            padding: 1rem 1.2rem;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
             opacity: 0;
             transform: translateX(-20px);
             animation: slideRightFade 0.6s ease forwards;
@@ -240,35 +170,33 @@
             transform: translateX(20px);
             animation-name: slideLeftFade;
             animation-delay: 2.1s;
-            background: var(--gradient-primary);
-            color: white;
-            margin-left: 2rem;
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.2);
         }
-        .chat-message:nth-child(3) { 
-            animation-delay: 2.9s;
-            background: var(--bg-primary);
-            border: 1px solid var(--accent-primary);
-        }
+        .chat-message:nth-child(3) { animation-delay: 2.9s; }
 
         .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 12px;
             color: var(--text-secondary);
             font-size: 0.9rem;
             opacity: 0;
             animation: fadeIn 0.5s ease 3.7s forwards;
-            padding: 0.5rem 0;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
         }
 
         .typing-dots {
             display: flex;
-            gap: 0.25rem;
+            gap: 4px;
         }
 
         .typing-dot {
-            width: 0.5rem;
-            height: 0.5rem;
+            width: 8px;
+            height: 8px;
             background: var(--accent-primary);
             border-radius: 50%;
             animation: typingBounce 1.4s infinite ease-in-out;
@@ -284,23 +212,23 @@
 
         .action-buttons {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 16px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .action-btn {
-            padding: 1rem 2rem;
-            border-radius: var(--radius-lg);
+            padding: 16px 32px;
+            border-radius: 16px;
             font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            border: 2px solid transparent;
+            gap: 10px;
+            border: 1px solid transparent;
             position: relative;
             overflow: hidden;
         }
@@ -321,86 +249,71 @@
         }
 
         .primary-btn {
-            background: var(--gradient-primary);
+            background: var(--bg-gradient);
             color: white;
-            box-shadow: var(--glow-primary);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.3);
         }
 
         .primary-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 12px 40px rgba(0, 212, 255, 0.4);
         }
 
         .secondary-btn {
-            background: var(--bg-tertiary);
+            background: var(--glass-bg);
             color: var(--text-primary);
-            border-color: var(--border-color);
-            backdrop-filter: blur(10px);
+            border-color: var(--glass-border);
+            backdrop-filter: blur(20px);
         }
 
         .secondary-btn:hover {
-            background: var(--bg-hover);
+            background: rgba(255, 255, 255, 0.1);
             border-color: var(--accent-primary);
             transform: translateY(-2px);
         }
 
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
+        .feature-tags {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
         }
 
-        .feature-card {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem 1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-primary);
-            box-shadow: var(--glow-primary);
-        }
-
-        .feature-icon {
-            width: 3rem;
-            height: 3rem;
-            margin: 0 auto 1rem;
-            background: var(--gradient-primary);
-            border-radius: 12px;
+        .feature-tag {
+            padding: 8px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
-        .feature-name {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .feature-desc {
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-            line-height: 1.4;
+        .feature-tag:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
         }
 
         @keyframes float {
             0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-20px) scale(1.05); }
+            50% { transform: translateY(-10px) scale(1.02); }
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.9; }
+        @keyframes neuronPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes connectionFlow {
+            0% { transform: scaleX(0); opacity: 0; }
+            50% { transform: scaleX(1); opacity: 1; }
+            100% { transform: scaleX(0); opacity: 0; }
         }
 
         @keyframes slideUpFade {
@@ -435,33 +348,70 @@
             40% { transform: scale(1); opacity: 1; }
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
             .title {
-                font-size: 3rem;
+                font-size: 2.8rem;
             }
             
             .subtitle {
-                font-size: 1.2rem;
+                font-size: 1.1rem;
             }
             
-            .tagline {
+            .logo {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .logo i {
+                font-size: 40px;
+            }
+            
+            .demo-chat {
+                padding: 24px;
+                margin: 30px 0;
+            }
+            
+            .action-btn {
+                padding: 14px 28px;
+                font-size: 0.95rem;
+            }
+            
+            .feature-tags {
+                gap: 8px;
+            }
+            
+            .feature-tag {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
                 font-size: 1rem;
             }
             
-            .logo-container {
-                width: 100px;
-                height: 100px;
+            .logo {
+                width: 70px;
+                height: 70px;
+                margin-bottom: 20px;
             }
             
-            .logo-icon {
-                width: 50px;
-                height: 50px;
+            .logo i {
+                font-size: 32px;
             }
             
-            .demo-section {
-                padding: 1.5rem;
-                margin: 2rem 0;
+            .demo-chat {
+                padding: 20px;
+                margin: 25px 0;
+            }
+            
+            .chat-message {
+                font-size: 0.9rem;
             }
             
             .action-buttons {
@@ -474,86 +424,35 @@
                 max-width: 280px;
                 justify-content: center;
             }
-            
-            .features-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .title {
-                font-size: 2.5rem;
-            }
-            
-            .subtitle {
-                font-size: 1.1rem;
-            }
-            
-            .logo-container {
-                width: 80px;
-                height: 80px;
-                margin-bottom: 1.5rem;
-            }
-            
-            .logo-icon {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .demo-section {
-                padding: 1rem;
-                margin: 1.5rem 0;
-            }
-            
-            .chat-message {
-                font-size: 0.85rem;
-                padding: 0.8rem 1rem;
-            }
-            
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-            }
-            
-            .feature-card {
-                padding: 1.2rem 0.8rem;
-            }
         }
     </style>
 </head>
-<body data-theme="dark">
-    <div class="welcome-container">
-        <!-- Animated Background -->
-        <div class="animated-background">
-            <div class="floating-shapes">
-                <div class="shape shape-1"></div>
-                <div class="shape shape-2"></div>
-                <div class="shape shape-3"></div>
-            </div>
-        </div>
+<body>
+    <div class="app-container">
+        <!-- Neural Network Background -->
+        <div class="neural-network" id="neuralNetwork"></div>
 
         <!-- Main Content -->
-        <div class="welcome-content">
+        <div class="main-content">
             <!-- Logo and Title -->
             <div class="logo-section">
-                <div class="logo-container">
-                    <div class="logo-icon"></div>
+                <div class="logo">
+                    <i class="ti ti-brain"></i>
                 </div>
                 <h1 class="title">KHAI</h1>
-                <p class="subtitle">Первый белорусский ИИ-помощник</p>
-                <p class="tagline">Мощный искусственный интеллект для решения любых задач. Бесплатно, без ограничений, на русском языке.</p>
+                <p class="subtitle">Первый белорусский ИИ-помощник с нейросетевыми технологиями</p>
             </div>
 
             <!-- Demo Chat -->
-            <div class="demo-section">
+            <div class="demo-chat">
                 <div class="chat-message">
-                    👋 Привет! Я KHAI — умный помощник для решения любых задач. Могу писать код, анализировать изображения, работать с файлами и многое другое!
+                    🧠 Привет! Я KHAI — современный ИИ-помощник на основе нейросетевых технологий
                 </div>
                 <div class="chat-message">
-                    Что конкретно ты умеешь?
+                    Что ты умеешь?
                 </div>
                 <div class="chat-message">
-                    Всё! От написания кода на Python до анализа сложных документов. Поддерживаю голосовое общение, работу с изображениями и файлами разных форматов.
+                    Генерация кода, анализ данных, работа с изображениями, голосовое взаимодействие и многое другое!
                 </div>
                 <div class="typing-indicator">
                     <div class="typing-dots">
@@ -561,7 +460,7 @@
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
                     </div>
-                    <span>Готов к работе</span>
+                    <span>Нейросеть активирована</span>
                 </div>
             </div>
 
@@ -570,57 +469,42 @@
                 <div class="action-buttons">
                     <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
-                        Начать использование
+                        Начать работу
                     </a>
-                    <a href="#features" class="action-btn secondary-btn">
-                        <i class="ti ti-sparkles"></i>
-                        Возможности
+                    <a href="./docs" class="action-btn secondary-btn">
+                        <i class="ti ti-code"></i>
+                        API & Документация
+                    </a>
+                    <a href="https://t.me/khuyew" target="_blank" class="action-btn secondary-btn">
+                        <i class="ti ti-brand-telegram"></i>
+                        Сообщество
                     </a>
                 </div>
                 
-                <!-- Features Grid -->
-                <div class="features-grid" id="features">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="ti ti-brain"></i>
-                        </div>
-                        <div class="feature-name">Умный ИИ</div>
-                        <div class="feature-desc">Передовые модели искусственного интеллекта</div>
+                <div class="feature-tags">
+                    <div class="feature-tag">
+                        <i class="ti ti-brain"></i>
+                        Нейросети
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="ti ti-code"></i>
-                        </div>
-                        <div class="feature-name">Написание кода</div>
-                        <div class="feature-desc">Генерация и анализ кода на 20+ языках</div>
+                    <div class="feature-tag">
+                        <i class="ti ti-code"></i>
+                        Генерация кода
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="ti ti-photo"></i>
-                        </div>
-                        <div class="feature-name">Анализ изображений</div>
-                        <div class="feature-desc">Распознавание текста и объектов на фото</div>
+                    <div class="feature-tag">
+                        <i class="ti ti-photo"></i>
+                        Компьютерное зрение
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="ti ti-microphone"></i>
-                        </div>
-                        <div class="feature-name">Голосовой ввод</div>
-                        <div class="feature-desc">Общайтесь с помощником голосом</div>
+                    <div class="feature-tag">
+                        <i class="ti ti-microphone"></i>
+                        Голосовой AI
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="ti ti-file-text"></i>
-                        </div>
-                        <div class="feature-name">Работа с файлами</div>
-                        <div class="feature-desc">Анализ PDF, документов, таблиц и кода</div>
+                    <div class="feature-tag">
+                        <i class="ti ti-shield"></i>
+                        Безопасность
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="ti ti-message-circle"></i>
-                        </div>
-                        <div class="feature-name">Мультиязычный</div>
-                        <div class="feature-desc">Поддержка русского и английского языков</div>
+                    <div class="feature-tag">
+                        <i class="ti ti-cloud"></i>
+                        Облачные вычисления
                     </div>
                 </div>
             </div>
@@ -628,69 +512,77 @@
     </div>
 
     <script>
-        // Enhanced security and functionality
-        (function() {
-            'use strict';
+        // Create neural network background
+        function createNeuralNetwork() {
+            const container = document.getElementById('neuralNetwork');
+            const neurons = [];
+            const connections = [];
             
-            // Set security flags
-            localStorage.setItem('khai-security-visited', 'true');
-            sessionStorage.setItem('khai-session-id', Date.now().toString());
-            
-            // Validate environment
-            const requiredAPIs = [
-                'Promise',
-                'fetch',
-                'localStorage',
-                'sessionStorage'
-            ];
-            
-            const missingAPIs = requiredAPIs.filter(api => !window[api]);
-            
-            if (missingAPIs.length > 0) {
-                console.error('Missing required APIs:', missingAPIs);
-                return;
+            // Create neurons
+            for (let i = 0; i < 25; i++) {
+                const neuron = document.createElement('div');
+                neuron.className = 'neuron';
+                neuron.style.left = Math.random() * 100 + '%';
+                neuron.style.top = Math.random() * 100 + '%';
+                neuron.style.animationDelay = Math.random() * 4 + 's';
+                container.appendChild(neuron);
+                neurons.push(neuron);
             }
             
-            // Safe redirect functionality
-            let redirectTimer = null;
-            
-            function safeRedirect(url, delay = 10000) {
-                if (redirectTimer) {
-                    clearTimeout(redirectTimer);
+            // Create connections
+            neurons.forEach((neuron, index) => {
+                if (index < neurons.length - 1) {
+                    const nextNeuron = neurons[index + 1];
+                    const connection = document.createElement('div');
+                    connection.className = 'connection';
+                    
+                    const rect1 = neuron.getBoundingClientRect();
+                    const rect2 = nextNeuron.getBoundingClientRect();
+                    
+                    const x1 = parseFloat(neuron.style.left);
+                    const y1 = parseFloat(neuron.style.top);
+                    const x2 = parseFloat(nextNeuron.style.left);
+                    const y2 = parseFloat(nextNeuron.style.top);
+                    
+                    const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                    
+                    connection.style.width = length + '%';
+                    connection.style.left = x1 + '%';
+                    connection.style.top = y1 + '%';
+                    connection.style.transform = `rotate(${angle}deg)`;
+                    connection.style.animationDelay = Math.random() * 3 + 's';
+                    
+                    container.appendChild(connection);
                 }
-                
-                redirectTimer = setTimeout(() => {
-                    try {
-                        if (typeof url === 'string' && url.startsWith('./')) {
-                            window.location.href = url;
-                        }
-                    } catch (error) {
-                        console.error('Redirect error:', error);
-                    }
-                }, delay);
-            }
+            });
+        }
+
+        // User redirection functionality
+        (function() {
+            // Set flag that user has seen welcome page
+            localStorage.setItem('khai-user-visited', 'true');
             
-            // Manual redirect handler
+            // Create neural network
+            createNeuralNetwork();
+            
+            // Auto redirect after 8 seconds
+            const redirectTimer = setTimeout(() => {
+                window.location.href = 'guide.html';
+            }, 8000);
+
+            // Manual redirect when clicking the start button
             const startBtn = document.getElementById('startBtn');
             if (startBtn) {
                 startBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    safeRedirect('./guide.html', 0);
+                    clearTimeout(redirectTimer);
+                    window.location.href = 'guide.html';
                 });
             }
-            
-            // Auto-redirect after delay
-            safeRedirect('./guide.html');
-            
-            // Performance monitoring
-            const loadTime = performance.now();
-            window.addEventListener('load', () => {
-                const totalLoadTime = performance.now() - loadTime;
-                console.log(`Welcome page loaded in ${totalLoadTime.toFixed(2)}ms`);
-            });
-            
-            // Demo animation restart
-            setInterval(() => {
+
+            // Auto-restart for demo effect
+            setTimeout(() => {
                 const typingIndicator = document.querySelector('.typing-indicator');
                 if (typingIndicator) {
                     typingIndicator.style.animation = 'none';
@@ -698,8 +590,7 @@
                         typingIndicator.style.animation = 'fadeIn 0.5s ease forwards';
                     }, 100);
                 }
-            }, 8000);
-            
+            }, 6000);
         })();
     </script>
 </body>
