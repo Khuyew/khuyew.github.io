@@ -1,6 +1,32 @@
+[file name]: index.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="ru" itemscope itemtype="https://schema.org/WebApplication">
 <head>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=104843405', 'ym');
+    
+        ym(104843405, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/104843405" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QQKXYHS18Q"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-QQKXYHS18Q');
+    </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#121212">
@@ -11,6 +37,7 @@
     <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь">
     <meta name="author" content="KHAI Team">
     <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="googlebot" content="index, follow">
     
     <!-- Open Graph -->
     <meta property="og:type" content="website">
@@ -21,6 +48,37 @@
     <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
+    <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
+    <meta name="twitter:image" content="./assets/logo.svg">
+    <meta name="twitter:site" content="@khai_assistant">
+    
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "KHAI Assistant",
+        "url": "./",
+        "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "permissions": "microphone",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "KHAI",
+            "url": "./"
+        }
+    }
+    </script>
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
     <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
@@ -34,19 +92,22 @@
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="./styles.css">
+    
+    <!-- Puter AI SDK -->
+    <script src="https://js.puter.com/v2/"></script>
 </head>
-<body data-theme="dark">
+<body>
     <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-content">
             <svg width="80" height="80" viewBox="0 0 100 100" class="preloader-logo">
                 <defs>
-                    <style>
-                        .logo-path { fill: #0099ff; }
-                        [data-theme="light"] .logo-path { fill: #0066ff; }
-                    </style>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#0099FF" />
+                        <stop offset="100%" stop-color="#0066FF" />
+                    </linearGradient>
                 </defs>
-                <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
+                <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="url(#logoGradient)"/>
             </svg>
             <div class="preloader-spinner"></div>
             <p class="preloader-text">Загрузка KHAI Assistant...</p>
@@ -57,7 +118,13 @@
     <div class="page-404" id="page404" style="display: none;">
         <div class="error-container">
             <svg width="120" height="120" viewBox="0 0 100 100" class="error-logo">
-                <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
+                <defs>
+                    <linearGradient id="errorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#0099FF" />
+                        <stop offset="100%" stop-color="#0066FF" />
+                    </linearGradient>
+                </defs>
+                <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="url(#errorGradient)"/>
             </svg>
             <h1>404 - Страница не найдена</h1>
             <p>Запрошенная страница не существует или была перемещена.</p>
@@ -67,13 +134,27 @@
 
     <!-- Main App Container -->
     <div class="app-container" id="appContainer">
+        <!-- Animated Background -->
+        <div class="parallax-background">
+            <div class="parallax-layer layer-1" data-depth="0.1"></div>
+            <div class="parallax-layer layer-2" data-depth="0.2"></div>
+            <div class="parallax-layer layer-3" data-depth="0.3"></div>
+            <div class="floating-particles"></div>
+        </div>
+
         <!-- Header -->
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
                         <svg width="36" height="36" viewBox="0 0 100 100">
-                            <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
+                            <defs>
+                                <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#0099FF" />
+                                    <stop offset="100%" stop-color="#0066FF" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="url(#headerGradient)"/>
                         </svg>
                     </div>
                 </div>
@@ -93,6 +174,9 @@
                 </div>
                 
                 <div class="header-controls">
+                    <button class="control-btn" id="themeToggle" aria-label="Переключить тему">
+                        <i class="ti ti-moon"></i>
+                    </button>
                     <button class="control-btn menu-toggle" id="menuToggle" aria-label="Открыть меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
@@ -103,20 +187,7 @@
         <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Welcome message -->
-                <div class="message message-ai welcome-message">
-                    <div class="message-content">
-                        <h3>👋 Добро пожаловать в KHAI!</h3>
-                        <p>Я — первый белорусский ИИ-помощник. Готов помочь с:</p>
-                        <ul>
-                            <li>💬 Ответами на вопросы</li>
-                            <li>💻 Написанием и анализом кода</li>
-                            <li>📁 Работой с файлами и изображениями</li>
-                            <li>🎤 Голосовым взаимодействием</li>
-                        </ul>
-                        <p>Просто напишите ваш вопрос или используйте кнопки ниже!</p>
-                    </div>
-                </div>
+                <!-- Welcome message will be loaded here -->
             </div>
 
             <!-- Minimap & Navigation -->
@@ -202,7 +273,7 @@
                 </div>
                 
                 <div class="connection-status">
-                    <i class="ti ti-circle" style="color: #00ff00;"></i>
+                    <i class="ti ti-circle"></i>
                     <span id="connectionStatusText">Подключено</span>
                 </div>
                 
@@ -228,7 +299,13 @@
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
                     <svg width="40" height="40" viewBox="0 0 100 100">
-                        <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
+                        <defs>
+                            <linearGradient id="sidebarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#0099FF" />
+                                <stop offset="100%" stop-color="#0066FF" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="url(#sidebarGradient)"/>
                     </svg>
                 </div>
                 <h3>KHAI <span class="beta-badge">BETA</span></h3>
@@ -259,8 +336,8 @@
                     <button class="sidebar-btn" id="importChatBtn">
                         <i class="ti ti-upload"></i> Импорт чата
                     </button>
-                    <button class="sidebar-btn" id="showGuideBtn">
-                        <i class="ti ti-presentation"></i> Обучение
+                    <button class="sidebar-btn danger" id="deleteAllChatsBtn">
+                        <i class="ti ti-trash"></i> Удалить все
                     </button>
                 </div>
             </div>
@@ -268,8 +345,8 @@
             <div class="sidebar-section">
                 <h4><i class="ti ti-brain"></i> Модель ИИ</h4>
                 <div class="current-model-info">
-                    <span id="currentModelInfo">KHAI Pro</span>
-                    <span class="connection-status">✅ Онлайн</span>
+                    <span id="currentModelInfo">GPT-5 Nano</span>
+                    <span class="connection-status" id="connectionStatus">✅ Онлайн</span>
                 </div>
             </div>
 
@@ -291,9 +368,40 @@
                 </div>
             </div>
 
-            <div class="sidebar-links" style="margin-top: auto; padding: 20px 0; text-align: center;">
-                <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
-                    © 2024 KHAI, Беларусь.<br>
+            <div class="sidebar-links">
+                <button class="sidebar-btn" id="showGuideBtn">
+                    <i class="ti ti-presentation"></i> Показать обучение
+                </button>
+                
+                <div class="sidebar-links-grid">
+                    <a href="https://khai.by/docs" target="_blank" class="sidebar-link">
+                        <i class="ti ti-book"></i> Документация
+                    </a>
+                    <a href="https://khai.by/support" target="_blank" class="sidebar-link">
+                        <i class="ti ti-lifebuoy"></i> Поддержка
+                    </a>
+                    <a href="mailto:khuyew@proton.me" class="sidebar-link">
+                        <i class="ti ti-mail"></i> Сотрудничество
+                    </a>
+                    <a href="https://khai.by/github" target="_blank" class="sidebar-link">
+                        <i class="ti ti-brand-github"></i> GitHub
+                    </a>
+                </div>
+                
+                <div class="sidebar-counters">
+                    <!-- LiveInternet Counter -->
+                    <div class="counter-wrapper">
+                        <!--LiveInternet counter--><a href="https://www.liveinternet.ru/click" target="_blank"><img id="licntB611" width="88" height="31" style="border:0" title="LiveInternet: показано число просмотров и посетителей за 24 часа" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAIBTAA7" alt=""/></a><script>(function(d,s){d.getElementById("licntB611").src="https://counter.yadro.ru/hit?t52.6;r"+escape(d.referrer)+((typeof(s)=="undefined")?"":";s"+s.width+"*"+s.height+"*"+(s.colorDepth?s.colorDepth:s.pixelDepth))+";u"+escape(d.URL)+";h"+escape(d.title.substring(0,150))+";"+Math.random()})(document,screen)</script><!--/LiveInternet-->
+                    </div>
+
+                    <!-- Yandex.Metrika informer -->
+                    <div class="counter-wrapper">
+                        <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow"><img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews" style="width:88px; height:31px; border:0;" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)" class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/></a>
+                    </div>
+                </div>
+                
+                <p class="sidebar-copyright">
+                    © 2025 KHAI, Беларусь.<br>
                     Все права защищены!
                 </p>
             </div>
@@ -334,29 +442,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="model-list" id="modelList">
-                    <div class="model-item selected">
-                        <div class="model-item-header">
-                            <span class="model-name">KHAI Pro</span>
-                            <span class="model-status available">Доступно</span>
-                        </div>
-                        <div class="model-description">Основная модель с расширенными возможностями</div>
-                    </div>
-                    <div class="model-item">
-                        <div class="model-item-header">
-                            <span class="model-name">KHAI Vision</span>
-                            <span class="model-status coming-soon">Скоро</span>
-                        </div>
-                        <div class="model-description">Продвинутый анализ изображений и видео</div>
-                    </div>
-                    <div class="model-item">
-                        <div class="model-item-header">
-                            <span class="model-name">KHAI Voice</span>
-                            <span class="model-status coming-soon">Скоро</span>
-                        </div>
-                        <div class="model-description">Голосовое взаимодействие и синтез речи</div>
-                    </div>
-                </div>
+                <div class="model-list" id="modelList"></div>
             </div>
             <div class="modal-footer">
                 <button class="modal-btn" id="modelModalCancel">Отмена</button>
@@ -369,5 +455,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="./script.js"></script>
+
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker зарегистрирован: ', registration);
+                    })
+                    .catch(error => {
+                        console.log('Ошибка регистрации ServiceWorker: ', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
+[file content end]
