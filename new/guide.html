@@ -32,6 +32,12 @@
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Safe area variables */
+            --safe-area-top: env(safe-area-inset-top, 0px);
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-area-left: env(safe-area-inset-left, 0px);
+            --safe-area-right: env(safe-area-inset-right, 0px);
         }
 
         body {
@@ -43,17 +49,13 @@
             height: 100vh;
             height: 100dvh;
             touch-action: pan-y;
+            padding: var(--safe-area-top) var(--safe-area-right) var(--safe-area-bottom) var(--safe-area-left);
         }
 
         .guide-container {
-            height: 100vh;
-            height: 100dvh;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
             background: 
                 radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
@@ -70,19 +72,22 @@
             padding: 20px;
             position: relative;
             z-index: 2;
+            min-height: 0; /* Important for flex children */
         }
 
         .guide-step {
             display: none;
-            max-width: 600px;
+            max-width: min(600px, 95vw);
             width: 100%;
             background: var(--bg-secondary);
             border-radius: var(--radius-xl);
-            padding: 40px;
+            padding: clamp(20px, 5vw, 40px);
             box-shadow: var(--shadow-lg);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             animation: slideInUp 0.5s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .guide-step.active {
@@ -90,27 +95,28 @@
         }
 
         .guide-step h2 {
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 6vw, 2rem);
             font-weight: 700;
             margin-bottom: 16px;
             background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 70%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            line-height: 1.2;
         }
 
         .guide-step p {
             color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 30px;
+            font-size: clamp(0.9rem, 4vw, 1.1rem);
+            margin-bottom: clamp(20px, 5vw, 30px);
             line-height: 1.6;
         }
 
         .guide-demo {
             background: var(--bg-tertiary);
             border-radius: var(--radius-lg);
-            padding: 25px;
-            margin-bottom: 30px;
+            padding: clamp(15px, 4vw, 25px);
+            margin-bottom: clamp(20px, 5vw, 30px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
@@ -119,12 +125,13 @@
             gap: 12px;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .guide-btn {
-            padding: 12px 24px;
+            padding: clamp(10px, 3vw, 12px) clamp(20px, 4vw, 24px);
             border-radius: var(--radius-md);
-            font-size: 0.95rem;
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
             font-weight: 600;
             text-decoration: none;
             transition: var(--transition);
@@ -134,6 +141,9 @@
             border: 2px solid transparent;
             cursor: pointer;
             font-family: inherit;
+            flex: 1;
+            min-width: min-content;
+            justify-content: center;
         }
 
         .guide-btn.primary {
@@ -163,19 +173,21 @@
             display: flex;
             justify-content: center;
             gap: 12px;
-            padding: 20px;
+            padding: clamp(15px, 4vw, 20px);
             position: relative;
             z-index: 2;
+            flex-shrink: 0;
         }
 
         .guide-progress-dot {
-            width: 12px;
-            height: 12px;
+            width: clamp(10px, 3vw, 12px);
+            height: clamp(10px, 3vw, 12px);
             border-radius: 50%;
             background: var(--bg-tertiary);
             border: 2px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
             transition: var(--transition);
+            flex-shrink: 0;
         }
 
         .guide-progress-dot.active {
@@ -191,10 +203,10 @@
         /* Message styles for demo */
         .message {
             max-width: 85%;
-            padding: 16px 20px;
+            padding: clamp(12px, 3vw, 16px) clamp(14px, 4vw, 20px);
             border-radius: var(--radius-xl);
             line-height: 1.6;
-            font-size: 14px;
+            font-size: clamp(0.8rem, 3.5vw, 14px);
             margin-bottom: 10px;
         }
 
@@ -220,10 +232,12 @@
             margin-bottom: 0.8em;
             padding-bottom: 0.5em;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .code-language {
-            font-size: 0.8em;
+            font-size: clamp(0.7rem, 3vw, 0.8em);
             color: var(--text-tertiary);
             font-weight: 500;
         }
@@ -235,11 +249,12 @@
             padding: 0.3em 0.6em;
             border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 0.7em;
+            font-size: clamp(0.6rem, 2.5vw, 0.7em);
             transition: var(--transition);
             display: flex;
             align-items: center;
             gap: 0.3em;
+            white-space: nowrap;
         }
 
         .copy-code-btn:hover {
@@ -254,7 +269,7 @@
             padding: 1em;
             margin: 1em 0;
             overflow-x: auto;
-            font-size: 0.9em;
+            font-size: clamp(0.8rem, 3vw, 0.9em);
             line-height: 1.4;
         }
 
@@ -264,27 +279,27 @@
             padding: 0.2em 0.4em;
             border-radius: var(--radius-sm);
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.9em;
+            font-size: clamp(0.8rem, 3vw, 0.9em);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Logo styles */
         .logo-container {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: clamp(15px, 4vw, 20px);
         }
 
         .guide-logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
+            width: clamp(60px, 15vw, 80px);
+            height: clamp(60px, 15vw, 80px);
+            margin: 0 auto clamp(10px, 3vw, 15px);
             border-radius: 20px;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 24px;
+            font-size: clamp(18px, 6vw, 24px);
             color: white;
             box-shadow: var(--shadow-lg);
         }
@@ -299,16 +314,16 @@
         }
 
         .dot-1 {
-            width: 200px;
-            height: 200px;
+            width: min(200px, 40vw);
+            height: min(200px, 40vw);
             top: 10%;
             left: 10%;
             animation-delay: 0s;
         }
 
         .dot-2 {
-            width: 150px;
-            height: 150px;
+            width: min(150px, 30vw);
+            height: min(150px, 30vw);
             bottom: 20%;
             right: 15%;
             animation-delay: -2s;
@@ -334,73 +349,64 @@
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .guide-step {
-                padding: 30px 25px;
-                margin: 10px;
+            .guide-content {
+                padding: 15px;
             }
-
-            .guide-step h2 {
-                font-size: 1.7rem;
-            }
-
-            .guide-step p {
-                font-size: 1rem;
-            }
-
-            .guide-demo {
-                padding: 20px;
-            }
-
-            .guide-btn {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-            }
-
-            .message {
-                max-width: 90%;
-                padding: 14px 16px;
-            }
-
-            .guide-logo {
-                width: 70px;
-                height: 70px;
-                font-size: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
+            
             .guide-step {
                 padding: 25px 20px;
-                margin: 5px;
-            }
-
-            .guide-step h2 {
-                font-size: 1.5rem;
-            }
-
-            .guide-step p {
-                font-size: 0.95rem;
-                margin-bottom: 20px;
             }
 
             .guide-actions {
-                flex-direction: column;
                 gap: 10px;
             }
 
             .guide-btn {
+                flex: 1 1 calc(50% - 5px);
+                min-width: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: var(--safe-area-top) 8px var(--safe-area-bottom) 8px;
+            }
+            
+            .guide-content {
+                padding: 10px 5px;
+                align-items: flex-start;
+            }
+
+            .guide-step {
+                padding: 20px 15px;
+                max-height: 85vh;
+            }
+
+            .guide-step h2 {
+                margin-bottom: 12px;
+            }
+
+            .guide-step p {
+                margin-bottom: 15px;
+            }
+
+            .guide-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .guide-btn {
                 width: 100%;
-                justify-content: center;
+                flex: none;
             }
 
             .guide-progress {
-                padding: 15px;
+                padding: 12px 10px;
             }
 
             .message {
-                max-width: 95%;
-                padding: 12px 14px;
-                font-size: 0.85rem;
+                max-width: 92%;
+                padding: 10px 12px;
             }
 
             .floating-dot {
@@ -408,43 +414,90 @@
             }
 
             .guide-demo {
-                padding: 15px;
+                padding: 12px;
+                margin-bottom: 20px;
             }
 
             .guide-logo {
-                width: 60px;
-                height: 60px;
-                font-size: 18px;
                 border-radius: 15px;
+            }
+            
+            /* Specific fixes for very small screens */
+            .code-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .copy-code-btn {
+                align-self: flex-end;
             }
         }
 
         @media (max-width: 360px) {
             .guide-step {
-                padding: 20px 15px;
+                padding: 15px 12px;
             }
-
+            
             .guide-step h2 {
                 font-size: 1.3rem;
             }
 
             .guide-step p {
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }
 
             .guide-demo {
-                padding: 12px;
+                padding: 10px;
+            }
+            
+            .guide-progress {
+                gap: 8px;
             }
         }
 
-        /* Hide scrollbar */
-        ::-webkit-scrollbar {
-            display: none;
+        /* iPhone Notch and Dynamic Island support */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(8px, var(--safe-area-left));
+                padding-right: max(8px, var(--safe-area-right));
+            }
         }
 
-        body {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        /* Hide scrollbar but keep functionality */
+        .guide-step::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .guide-step::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .guide-step::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+
+        /* Orientation changes */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .guide-content {
+                align-items: flex-start;
+                padding-top: 10px;
+            }
+            
+            .guide-step {
+                max-height: 80vh;
+            }
+            
+            .guide-progress {
+                padding: 10px;
+            }
+        }
+
+        /* Prevent zoom on input focus for iOS */
+        @media (max-width: 480px) {
+            input, textarea, select {
+                font-size: 16px !important;
+            }
         }
     </style>
 </head>
@@ -460,32 +513,32 @@
             <div class="guide-step active" id="step1">
                 <div class="logo-container">
                     <div class="guide-logo">KHAI</div>
-                    <h3 style="color: var(--text-primary); margin-bottom: 5px;">Основные элементы интерфейса</h3>
+                    <h3 style="color: var(--text-primary); margin-bottom: 5px; font-size: clamp(1.1rem, 4vw, 1.3rem);">Основные элементы интерфейса</h3>
                 </div>
                 
                 <p>KHAI — это первый белорусский ИИ-помощник с передовыми возможностями. Давайте познакомимся с интерфейсом.</p>
                 
                 <div class="guide-demo">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
                         <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md); text-align: center;">
-                            <i class="ti ti-message" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
-                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Чат с ИИ</strong>
-                            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Общайтесь с разными моделями ИИ</p>
+                            <i class="ti ti-message" style="font-size: clamp(20px, 6vw, 24px); margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
+                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px; font-size: clamp(0.8rem, 3vw, 0.9rem);">Чат с ИИ</strong>
+                            <p style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); color: var(--text-secondary); line-height: 1.4;">Общайтесь с разными моделями ИИ</p>
                         </div>
                         <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md); text-align: center;">
-                            <i class="ti ti-photo" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
-                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Анализ изображений</strong>
-                            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Загружайте и анализируйте изображения</p>
+                            <i class="ti ti-photo" style="font-size: clamp(20px, 6vw, 24px); margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
+                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px; font-size: clamp(0.8rem, 3vw, 0.9rem);">Анализ изображений</strong>
+                            <p style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); color: var(--text-secondary); line-height: 1.4;">Загружайте и анализируйте изображения</p>
                         </div>
                         <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md); text-align: center;">
-                            <i class="ti ti-file-text" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
-                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Работа с файлами</strong>
-                            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Анализируйте текстовые файлы и код</p>
+                            <i class="ti ti-file-text" style="font-size: clamp(20px, 6vw, 24px); margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
+                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px; font-size: clamp(0.8rem, 3vw, 0.9rem);">Работа с файлами</strong>
+                            <p style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); color: var(--text-secondary); line-height: 1.4;">Анализируйте текстовые файлы и код</p>
                         </div>
                         <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md); text-align: center;">
-                            <i class="ti ti-microphone" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
-                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Голосовые функции</strong>
-                            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Голосовой ввод и генерация речи</p>
+                            <i class="ti ti-microphone" style="font-size: clamp(20px, 6vw, 24px); margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
+                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px; font-size: clamp(0.8rem, 3vw, 0.9rem);">Голосовые функции</strong>
+                            <p style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); color: var(--text-secondary); line-height: 1.4;">Голосовой ввод и генерация речи</p>
                         </div>
                     </div>
                 </div>
@@ -533,14 +586,14 @@ def bubble_sort(arr):
                         </div>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: clamp(0.7rem, 2.5vw, 0.75rem);">
                         <div style="text-align: center;">
-                            <i class="ti ti-send" style="color: var(--accent-primary); font-size: 20px; margin-bottom: 5px; display: block;"></i>
+                            <i class="ti ti-send" style="color: var(--accent-primary); font-size: clamp(18px, 5vw, 20px); margin-bottom: 5px; display: block;"></i>
                             <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 3px;">Отправка сообщений</div>
                             <div style="color: var(--text-secondary);">Enter или кнопка отправки</div>
                         </div>
                         <div style="text-align: center;">
-                            <i class="ti ti-copy" style="color: var(--accent-primary); font-size: 20px; margin-bottom: 5px; display: block;"></i>
+                            <i class="ti ti-copy" style="color: var(--accent-primary); font-size: clamp(18px, 5vw, 20px); margin-bottom: 5px; display: block;"></i>
                             <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 3px;">Копирование кода</div>
                             <div style="color: var(--text-secondary);">Кнопка "Копировать" в блоках кода</div>
                         </div>
@@ -565,30 +618,30 @@ def bubble_sort(arr):
                 <div class="guide-demo">
                     <div style="background: var(--bg-primary); padding: 20px; border-radius: var(--radius-md); margin-bottom: 15px;">
                         <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center;">
-                            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-md); flex: 1; min-width: min-content;">
                                 <i class="ti ti-photo" style="color: var(--accent-primary);"></i>
-                                <span style="color: var(--text-primary); font-size: 12px;">image.jpg (2.1 MB)</span>
+                                <span style="color: var(--text-primary); font-size: clamp(0.7rem, 2.5vw, 0.75rem);">image.jpg (2.1 MB)</span>
                                 <i class="ti ti-x" style="color: var(--text-tertiary); cursor: pointer;"></i>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-md); flex: 1; min-width: min-content;">
                                 <i class="ti ti-file-text" style="color: var(--accent-primary);"></i>
-                                <span style="color: var(--text-primary); font-size: 12px;">document.txt (15 KB)</span>
+                                <span style="color: var(--text-primary); font-size: clamp(0.7rem, 2.5vw, 0.75rem);">document.txt (15 KB)</span>
                                 <i class="ti ti-x" style="color: var(--text-tertiary); cursor: pointer;"></i>
                             </div>
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; text-align: center;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; text-align: center;">
                             <div>
-                                <i class="ti ti-photo" style="font-size: 20px; color: var(--accent-primary); margin-bottom: 5px; display: block;"></i>
-                                <div style="font-size: 11px; color: var(--text-secondary);">JPEG, PNG, WebP</div>
+                                <i class="ti ti-photo" style="font-size: clamp(18px, 5vw, 20px); color: var(--accent-primary); margin-bottom: 5px; display: block;"></i>
+                                <div style="font-size: clamp(0.65rem, 2.5vw, 0.7rem); color: var(--text-secondary);">JPEG, PNG, WebP</div>
                             </div>
                             <div>
-                                <i class="ti ti-file-text" style="font-size: 20px; color: var(--accent-primary); margin-bottom: 5px; display: block;"></i>
-                                <div style="font-size: 11px; color: var(--text-secondary);">TXT, MD, PDF</div>
+                                <i class="ti ti-file-text" style="font-size: clamp(18px, 5vw, 20px); color: var(--accent-primary); margin-bottom: 5px; display: block;"></i>
+                                <div style="font-size: clamp(0.65rem, 2.5vw, 0.7rem); color: var(--text-secondary);">TXT, MD, PDF</div>
                             </div>
                             <div>
-                                <i class="ti ti-code" style="font-size: 20px; color: var(--accent-primary); margin-bottom: 5px; display: block;"></i>
-                                <div style="font-size: 11px; color: var(--text-secondary);">Python, JS, Java</div>
+                                <i class="ti ti-code" style="font-size: clamp(18px, 5vw, 20px); color: var(--accent-primary); margin-bottom: 5px; display: block;"></i>
+                                <div style="font-size: clamp(0.65rem, 2.5vw, 0.7rem); color: var(--text-secondary);">Python, JS, Java</div>
                             </div>
                         </div>
                     </div>
@@ -596,9 +649,9 @@ def bubble_sort(arr):
                     <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-md); margin-top: 15px;">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                             <i class="ti ti-info-circle" style="color: var(--accent-primary);"></i>
-                            <strong style="color: var(--text-primary);">Поддерживаемые форматы</strong>
+                            <strong style="color: var(--text-primary); font-size: clamp(0.8rem, 3vw, 0.9rem);">Поддерживаемые форматы</strong>
                         </div>
-                        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                        <div style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); color: var(--text-secondary); line-height: 1.4;">
                             • Изображения: JPEG, PNG, GIF, WebP (до 5MB)<br>
                             • Текстовые файлы: TXT, MD, HTML, CSS, JS<br>
                             • Файлы кода: Python, Java, C++, PHP, Ruby и другие<br>
@@ -625,28 +678,28 @@ def bubble_sort(arr):
                 <div class="guide-demo">
                     <div style="background: var(--bg-primary); padding: 20px; border-radius: var(--radius-md); margin-bottom: 15px;">
                         <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
-                            <div style="text-align: center;">
-                                <div style="width: 50px; height: 50px; background: var(--accent-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                                    <i class="ti ti-microphone" style="color: white; font-size: 20px;"></i>
+                            <div style="text-align: center; flex: 1; min-width: 120px;">
+                                <div style="width: clamp(40px, 10vw, 50px); height: clamp(40px, 10vw, 50px); background: var(--accent-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                                    <i class="ti ti-microphone" style="color: white; font-size: clamp(16px, 4vw, 20px);"></i>
                                 </div>
-                                <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Голосовой ввод</div>
-                                <div style="font-size: 10px; color: var(--text-secondary);">Нажмите и говорите</div>
+                                <div style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); font-weight: 600; color: var(--text-primary);">Голосовой ввод</div>
+                                <div style="font-size: clamp(0.6rem, 2.5vw, 0.65rem); color: var(--text-secondary);">Нажмите и говорите</div>
                             </div>
-                            <div style="text-align: center;">
-                                <div style="width: 50px; height: 50px; background: var(--success-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                                    <i class="ti ti-speakerphone" style="color: var(--success-text); font-size: 20px;"></i>
+                            <div style="text-align: center; flex: 1; min-width: 120px;">
+                                <div style="width: clamp(40px, 10vw, 50px); height: clamp(40px, 10vw, 50px); background: var(--success-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                                    <i class="ti ti-speakerphone" style="color: var(--success-text); font-size: clamp(16px, 4vw, 20px);"></i>
                                 </div>
-                                <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Озвучивание</div>
-                                <div style="font-size: 10px; color: var(--text-secondary);">Слушайте ответы</div>
+                                <div style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); font-weight: 600; color: var(--text-primary);">Озвучивание</div>
+                                <div style="font-size: clamp(0.6rem, 2.5vw, 0.65rem); color: var(--text-secondary);">Слушайте ответы</div>
                             </div>
                         </div>
                         
                         <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-md);">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                 <i class="ti ti-headphones" style="color: var(--accent-primary);"></i>
-                                <strong style="color: var(--text-primary);">Режимы работы с голосом</strong>
+                                <strong style="color: var(--text-primary); font-size: clamp(0.8rem, 3vw, 0.9rem);">Режимы работы с голосом</strong>
                             </div>
-                            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                            <div style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); color: var(--text-secondary); line-height: 1.4;">
                                 • <strong style="color: var(--text-primary);">Голосовой ввод</strong> - нажмите 🎤 и говорите вместо печати<br>
                                 • <strong style="color: var(--text-primary);">Озвучивание ответов</strong> - нажмите 🗣️ под сообщением ИИ<br>
                                 • <strong style="color: var(--text-primary);">Генерация голоса</strong> - создание аудио из текста
@@ -676,25 +729,25 @@ def bubble_sort(arr):
                             <div style="flex: 1; min-width: 140px; background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-md);">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                                     <div style="width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%;"></div>
-                                    <strong style="color: var(--text-primary); font-size: 13px;">Работа</strong>
+                                    <strong style="color: var(--text-primary); font-size: clamp(0.8rem, 3vw, 0.9rem);">Работа</strong>
                                 </div>
-                                <div style="font-size: 11px; color: var(--text-secondary);">Обсуждение проектов и задач...</div>
+                                <div style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); color: var(--text-secondary);">Обсуждение проектов и задач...</div>
                             </div>
                             <div style="flex: 1; min-width: 140px; background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-md);">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                                     <div style="width: 8px; height: 8px; background: var(--success-text); border-radius: 50%;"></div>
-                                    <strong style="color: var(--text-primary); font-size: 13px;">Учеба</strong>
+                                    <strong style="color: var(--text-primary); font-size: clamp(0.8rem, 3vw, 0.9rem);">Учеба</strong>
                                 </div>
-                                <div style="font-size: 11px; color: var(--text-secondary);">Вопросы по программированию...</div>
+                                <div style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); color: var(--text-secondary);">Вопросы по программированию...</div>
                             </div>
                         </div>
                         
                         <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-md);">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                 <i class="ti ti-folders" style="color: var(--accent-primary);"></i>
-                                <strong style="color: var(--text-primary);">Управление чатами</strong>
+                                <strong style="color: var(--text-primary); font-size: clamp(0.8rem, 3vw, 0.9rem);">Управление чатами</strong>
                             </div>
-                            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                            <div style="font-size: clamp(0.7rem, 2.5vw, 0.75rem); color: var(--text-secondary); line-height: 1.4;">
                                 • <strong style="color: var(--text-primary);">Новый чат</strong> - создание отдельной беседы<br>
                                 • <strong style="color: var(--text-primary);">Переименование</strong> - нажмите ✏️ рядом с названием<br>
                                 • <strong style="color: var(--text-primary);">Экспорт/Импорт</strong> - сохраняйте и загружайте чаты<br>
@@ -739,6 +792,9 @@ def bubble_sort(arr):
             
             // Update progress dots
             updateProgressDots();
+            
+            // Scroll to top of step
+            document.getElementById(`step${currentStep}`).scrollTop = 0;
         }
 
         function updateProgressDots() {
@@ -786,6 +842,13 @@ def bubble_sort(arr):
             if (hasCompletedGuide === 'true') {
                 window.location.href = 'index.html';
             }
+            
+            // Handle orientation changes
+            window.addEventListener('orientationchange', function() {
+                setTimeout(() => {
+                    document.getElementById(`step${currentStep}`).scrollTop = 0;
+                }, 300);
+            });
         });
     </script>
 </body>
