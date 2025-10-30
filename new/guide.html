@@ -43,9 +43,10 @@
             height: 100dvh;
             display: flex;
             flex-direction: column;
-            padding: 20px;
-            max-width: 600px;
+            padding: 0;
+            max-width: 100%;
             margin: 0 auto;
+            position: relative;
         }
 
         .guide-content {
@@ -53,46 +54,68 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            padding: 20px;
+            overflow: hidden;
         }
 
         .guide-step {
             display: none;
             animation: fadeIn 0.5s ease;
+            height: 100%;
+            overflow-y: auto;
+            padding-bottom: 20px;
         }
 
         .guide-step.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .guide-step-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
         }
 
         .guide-step h2 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             margin-bottom: 12px;
             color: var(--text-primary);
+            text-align: center;
         }
 
         .guide-step p {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--text-secondary);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             line-height: 1.5;
+            text-align: center;
         }
 
         .guide-demo {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 30px;
+            padding: 16px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+            max-height: 50vh;
+            overflow-y: auto;
         }
 
         .guide-actions {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: space-between;
+            margin-top: auto;
+            padding-top: 20px;
+            flex-shrink: 0;
         }
 
         .guide-btn {
-            padding: 12px 20px;
+            padding: 12px 16px;
             border-radius: var(--radius-md);
             font-size: 0.9rem;
             font-weight: 600;
@@ -106,6 +129,8 @@
             background: var(--bg-tertiary);
             color: var(--text-primary);
             border-color: var(--border-color);
+            flex: 1;
+            justify-content: center;
         }
 
         .guide-btn.primary {
@@ -127,7 +152,10 @@
             display: flex;
             justify-content: center;
             gap: 8px;
-            margin-top: 20px;
+            padding: 15px 20px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
         }
 
         .guide-progress-dot {
@@ -145,10 +173,10 @@
 
         /* Demo Styles */
         .message {
-            padding: 12px 16px;
+            padding: 10px 12px;
             border-radius: var(--radius-lg);
-            margin-bottom: 10px;
-            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
             line-height: 1.4;
         }
 
@@ -169,8 +197,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.8rem;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
         }
 
         .code-language {
@@ -181,61 +209,62 @@
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            padding: 4px 8px;
+            padding: 3px 6px;
             border-radius: var(--radius-md);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
 
         pre {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 12px;
+            padding: 10px;
             overflow-x: auto;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             margin: 0;
         }
 
         .file-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
+            gap: 6px;
+            padding: 6px 10px;
             background: var(--bg-tertiary);
             border-radius: var(--radius-md);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
         }
 
         .feature-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .feature-item {
             text-align: center;
-            padding: 12px;
+            padding: 10px;
             background: var(--bg-tertiary);
             border-radius: var(--radius-md);
         }
 
         .feature-icon {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
+            font-size: 1.2rem;
+            margin-bottom: 6px;
             color: var(--accent-primary);
         }
 
         .info-box {
             background: var(--bg-tertiary);
-            padding: 15px;
+            padding: 12px;
             border-radius: var(--radius-md);
-            margin-top: 15px;
-            font-size: 0.9rem;
+            margin-top: 12px;
+            font-size: 0.8rem;
         }
 
         /* Animations */
@@ -246,49 +275,57 @@
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .guide-container {
+            .guide-content {
                 padding: 15px;
             }
             
             .guide-step h2 {
-                font-size: 1.6rem;
-            }
-            
-            .guide-step p {
-                font-size: 0.95rem;
-            }
-            
-            .guide-demo {
-                padding: 16px;
-            }
-            
-            .guide-btn {
-                padding: 10px 16px;
-                font-size: 0.85rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .guide-container {
-                padding: 10px;
-            }
-            
-            .guide-step h2 {
-                font-size: 1.4rem;
+                font-size: 1.3rem;
             }
             
             .guide-step p {
                 font-size: 0.9rem;
-                margin-bottom: 20px;
+                margin-bottom: 15px;
             }
             
             .guide-demo {
                 padding: 12px;
-                margin-bottom: 20px;
+                margin-bottom: 15px;
+            }
+            
+            .guide-btn {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+            
+            .guide-progress {
+                padding: 12px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .guide-content {
+                padding: 10px;
+            }
+            
+            .guide-step h2 {
+                font-size: 1.2rem;
+            }
+            
+            .guide-step p {
+                font-size: 0.85rem;
+                margin-bottom: 12px;
+            }
+            
+            .guide-demo {
+                padding: 10px;
+                margin-bottom: 12px;
+                max-height: 45vh;
             }
             
             .guide-actions {
                 flex-direction: column;
+                gap: 8px;
             }
             
             .guide-btn {
@@ -298,11 +335,69 @@
             
             .feature-grid {
                 grid-template-columns: 1fr;
+                gap: 6px;
             }
             
             .message {
+                font-size: 0.8rem;
+                padding: 8px 10px;
+            }
+            
+            .feature-item {
+                padding: 8px;
+            }
+            
+            .info-box {
+                padding: 10px;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .guide-step h2 {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+            
+            .guide-step p {
                 font-size: 0.85rem;
-                padding: 10px 12px;
+                margin-bottom: 12px;
+            }
+            
+            .guide-demo {
+                padding: 10px;
+                margin-bottom: 12px;
+                max-height: 40vh;
+            }
+            
+            .guide-actions {
+                padding-top: 15px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .guide-step h2 {
+                font-size: 1.1rem;
+            }
+            
+            .guide-step p {
+                font-size: 0.8rem;
+                margin-bottom: 8px;
+            }
+            
+            .guide-demo {
+                max-height: 35vh;
+                padding: 8px;
+                margin-bottom: 10px;
+            }
+            
+            .guide-actions {
+                padding-top: 10px;
+            }
+            
+            .guide-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -312,45 +407,47 @@
         <div class="guide-content">
             <!-- Step 1: Introduction -->
             <div class="guide-step active" id="step1">
-                <h2>🎯 Добро пожаловать в KHAI!</h2>
-                <p>KHAI — это первый белорусский ИИ-помощник с передовыми возможностями. Давайте познакомимся с интерфейсом.</p>
-                
-                <div class="guide-demo">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <div class="logo" style="width: 60px; height: 60px; margin: 0 auto 15px; border-radius: var(--radius-md); overflow: hidden;">
-                            <img src="./logo.png" alt="KHAI" style="width: 100%; height: 100%; object-fit: contain;">
-                        </div>
-                        <h3 style="margin-bottom: 10px;">Основные элементы интерфейса</h3>
-                    </div>
+                <div class="guide-step-content">
+                    <h2>🎯 Добро пожаловать в KHAI!</h2>
+                    <p>KHAI — это первый белорусский ИИ-помощник с передовыми возможностями. Давайте познакомимся с интерфейсом.</p>
                     
-                    <div class="feature-grid">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-message"></i>
+                    <div class="guide-demo">
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <div class="logo" style="width: 50px; height: 50px; margin: 0 auto 10px; border-radius: var(--radius-md); overflow: hidden;">
+                                <img src="./logo.png" alt="KHAI" style="width: 100%; height: 100%; object-fit: contain;">
                             </div>
-                            <strong>Чат с ИИ</strong>
-                            <p style="font-size: 0.8rem; margin-top: 5px; color: var(--text-secondary);">Общайтесь с разными моделями ИИ</p>
+                            <h3 style="margin-bottom: 8px; font-size: 1rem;">Основные элементы интерфейса</h3>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-photo"></i>
+                        
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="ti ti-message"></i>
+                                </div>
+                                <strong>Чат с ИИ</strong>
+                                <p style="font-size: 0.7rem; margin-top: 4px; color: var(--text-secondary);">Общайтесь с разными моделями ИИ</p>
                             </div>
-                            <strong>Анализ изображений</strong>
-                            <p style="font-size: 0.8rem; margin-top: 5px; color: var(--text-secondary);">Загружайте и анализируйте изображения</p>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-file-text"></i>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="ti ti-photo"></i>
+                                </div>
+                                <strong>Анализ изображений</strong>
+                                <p style="font-size: 0.7rem; margin-top: 4px; color: var(--text-secondary);">Загружайте и анализируйте изображения</p>
                             </div>
-                            <strong>Работа с файлами</strong>
-                            <p style="font-size: 0.8rem; margin-top: 5px; color: var(--text-secondary);">Анализируйте текстовые файлы и код</p>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="ti ti-microphone"></i>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="ti ti-file-text"></i>
+                                </div>
+                                <strong>Работа с файлами</strong>
+                                <p style="font-size: 0.7rem; margin-top: 4px; color: var(--text-secondary);">Анализируйте текстовые файлы и код</p>
                             </div>
-                            <strong>Голосовые функции</strong>
-                            <p style="font-size: 0.8rem; margin-top: 5px; color: var(--text-secondary);">Голосовой ввод и генерация речи</p>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="ti ti-microphone"></i>
+                                </div>
+                                <strong>Голосовые функции</strong>
+                                <p style="font-size: 0.7rem; margin-top: 4px; color: var(--text-secondary);">Голосовой ввод и генерация речи</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -367,23 +464,24 @@
 
             <!-- Step 2: Chat Interface -->
             <div class="guide-step" id="step2">
-                <h2>💬 Основы общения</h2>
-                <p>Научимся эффективно общаться с ИИ-помощником.</p>
-                
-                <div class="guide-demo">
-                    <div style="margin-bottom: 15px;">
-                        <div class="message message-user">
-                            Напиши код для сортировки массива на Python
-                        </div>
-                        <div class="message message-ai">
-                            Вот несколько способов сортировки массива в Python...
-                            <div class="code-header">
-                                <span class="code-language">python</span>
-                                <button class="copy-code-btn">
-                                    <i class="ti ti-copy"></i> Копировать
-                                </button>
+                <div class="guide-step-content">
+                    <h2>💬 Основы общения</h2>
+                    <p>Научимся эффективно общаться с ИИ-помощником.</p>
+                    
+                    <div class="guide-demo">
+                        <div style="margin-bottom: 12px;">
+                            <div class="message message-user">
+                                Напиши код для сортировки массива на Python
                             </div>
-                            <pre><code># Сортировка пузырьком
+                            <div class="message message-ai">
+                                Вот несколько способов сортировки массива в Python...
+                                <div class="code-header">
+                                    <span class="code-language">python</span>
+                                    <button class="copy-code-btn">
+                                        <i class="ti ti-copy"></i> Копировать
+                                    </button>
+                                </div>
+                                <pre><code># Сортировка пузырьком
 def bubble_sort(arr):
     n = len(arr)
     for i in range(n):
@@ -391,19 +489,20 @@ def bubble_sort(arr):
             if arr[j] > arr[j+1]:
                 arr[j], arr[j+1] = arr[j+1], arr[j]
     return arr</code></pre>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem;">
-                        <div style="text-align: center;">
-                            <i class="ti ti-send" style="color: var(--accent-primary);"></i>
-                            <div><strong>Отправка сообщений</strong></div>
-                            <div style="color: var(--text-secondary);">Enter или кнопка отправки</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <i class="ti ti-copy" style="color: var(--accent-primary);"></i>
-                            <div><strong>Копирование кода</strong></div>
-                            <div style="color: var(--text-secondary);">Кнопка "Копировать" в блоках кода</div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem;">
+                            <div style="text-align: center;">
+                                <i class="ti ti-send" style="color: var(--accent-primary);"></i>
+                                <div><strong>Отправка сообщений</strong></div>
+                                <div style="color: var(--text-secondary);">Enter или кнопка отправки</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <i class="ti ti-copy" style="color: var(--accent-primary);"></i>
+                                <div><strong>Копирование кода</strong></div>
+                                <div style="color: var(--text-secondary);">Кнопка "Копировать" в блоках кода</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -420,50 +519,52 @@ def bubble_sort(arr):
 
             <!-- Step 3: File Upload -->
             <div class="guide-step" id="step3">
-                <h2>📁 Работа с файлами</h2>
-                <p>KHAI умеет анализировать изображения, текстовые файлы и код.</p>
-                
-                <div class="guide-demo">
-                    <div style="margin-bottom: 15px;">
-                        <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
-                            <div class="file-item">
-                                <i class="ti ti-photo" style="color: var(--accent-primary);"></i>
-                                <span>image.jpg (2.1 MB)</span>
-                                <i class="ti ti-x" style="color: var(--text-tertiary); cursor: pointer;"></i>
+                <div class="guide-step-content">
+                    <h2>📁 Работа с файлами</h2>
+                    <p>KHAI умеет анализировать изображения, текстовые файлы и код.</p>
+                    
+                    <div class="guide-demo">
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
+                                <div class="file-item">
+                                    <i class="ti ti-photo" style="color: var(--accent-primary);"></i>
+                                    <span>image.jpg</span>
+                                    <i class="ti ti-x" style="color: var(--text-tertiary); cursor: pointer;"></i>
+                                </div>
+                                <div class="file-item">
+                                    <i class="ti ti-file-text" style="color: var(--accent-primary);"></i>
+                                    <span>document.txt</span>
+                                    <i class="ti ti-x" style="color: var(--text-tertiary); cursor: pointer;"></i>
+                                </div>
                             </div>
-                            <div class="file-item">
-                                <i class="ti ti-file-text" style="color: var(--accent-primary);"></i>
-                                <span>document.txt (15 KB)</span>
-                                <i class="ti ti-x" style="color: var(--text-tertiary); cursor: pointer;"></i>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;">
+                                <div>
+                                    <i class="ti ti-photo" style="font-size: 1rem; color: var(--accent-primary); margin-bottom: 4px; display: block;"></i>
+                                    <div style="font-size: 0.65rem; color: var(--text-secondary);">JPEG, PNG, WebP</div>
+                                </div>
+                                <div>
+                                    <i class="ti ti-file-text" style="font-size: 1rem; color: var(--accent-primary); margin-bottom: 4px; display: block;"></i>
+                                    <div style="font-size: 0.65rem; color: var(--text-secondary);">TXT, MD, PDF</div>
+                                </div>
+                                <div>
+                                    <i class="ti ti-code" style="font-size: 1rem; color: var(--accent-primary); margin-bottom: 4px; display: block;"></i>
+                                    <div style="font-size: 0.65rem; color: var(--text-secondary);">Python, JS, Java</div>
+                                </div>
                             </div>
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; text-align: center;">
-                            <div>
-                                <i class="ti ti-photo" style="font-size: 1.2rem; color: var(--accent-primary); margin-bottom: 5px; display: block;"></i>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">JPEG, PNG, WebP</div>
+                        <div class="info-box">
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                <i class="ti ti-info-circle" style="color: var(--accent-primary);"></i>
+                                <strong>Поддерживаемые форматы</strong>
                             </div>
-                            <div>
-                                <i class="ti ti-file-text" style="font-size: 1.2rem; color: var(--accent-primary); margin-bottom: 5px; display: block;"></i>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">TXT, MD, PDF</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+                                • Изображения: JPEG, PNG, GIF, WebP<br>
+                                • Текстовые файлы: TXT, MD, HTML, CSS, JS<br>
+                                • Файлы кода: Python, Java, C++, PHP, Ruby<br>
+                                • Данные: JSON, XML, CSV, YAML
                             </div>
-                            <div>
-                                <i class="ti ti-code" style="font-size: 1.2rem; color: var(--accent-primary); margin-bottom: 5px; display: block;"></i>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">Python, JS, Java</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="info-box">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <i class="ti ti-info-circle" style="color: var(--accent-primary);"></i>
-                            <strong>Поддерживаемые форматы</strong>
-                        </div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">
-                            • Изображения: JPEG, PNG, GIF, WebP (до 5MB)<br>
-                            • Текстовые файлы: TXT, MD, HTML, CSS, JS<br>
-                            • Файлы кода: Python, Java, C++, PHP, Ruby и другие<br>
-                            • Данные: JSON, XML, CSV, YAML
                         </div>
                     </div>
                 </div>
@@ -480,37 +581,39 @@ def bubble_sort(arr):
 
             <!-- Step 4: Voice Features -->
             <div class="guide-step" id="step4">
-                <h2>🎤 Голосовые возможности</h2>
-                <p>Используйте голос для общения с помощником и прослушивания ответов.</p>
-                
-                <div class="guide-demo">
-                    <div style="margin-bottom: 15px;">
-                        <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;">
-                            <div style="text-align: center;">
-                                <div style="width: 50px; height: 50px; background: var(--accent-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                                    <i class="ti ti-microphone" style="color: white; font-size: 1.2rem;"></i>
+                <div class="guide-step-content">
+                    <h2>🎤 Голосовые возможности</h2>
+                    <p>Используйте голос для общения с помощником и прослушивания ответов.</p>
+                    
+                    <div class="guide-demo">
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 15px;">
+                                <div style="text-align: center;">
+                                    <div style="width: 40px; height: 40px; background: var(--accent-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">
+                                        <i class="ti ti-microphone" style="color: white; font-size: 1rem;"></i>
+                                    </div>
+                                    <div style="font-size: 0.75rem; font-weight: 600;">Голосовой ввод</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-secondary);">Нажмите и говорите</div>
                                 </div>
-                                <div style="font-size: 0.8rem; font-weight: 600;">Голосовой ввод</div>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">Нажмите и говорите</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="width: 50px; height: 50px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                                    <i class="ti ti-speakerphone" style="color: var(--accent-primary); font-size: 1.2rem;"></i>
+                                <div style="text-align: center;">
+                                    <div style="width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">
+                                        <i class="ti ti-speakerphone" style="color: var(--accent-primary); font-size: 1rem;"></i>
+                                    </div>
+                                    <div style="font-size: 0.75rem; font-weight: 600;">Озвучивание</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-secondary);">Слушайте ответы</div>
                                 </div>
-                                <div style="font-size: 0.8rem; font-weight: 600;">Озвучивание</div>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">Слушайте ответы</div>
                             </div>
-                        </div>
-                        
-                        <div class="info-box">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                <i class="ti ti-headphones" style="color: var(--accent-primary);"></i>
-                                <strong>Режимы работы с голосом</strong>
-                            </div>
-                            <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">
-                                • <strong>Голосовой ввод</strong> - нажмите 🎤 и говорите вместо печати<br>
-                                • <strong>Озвучивание ответов</strong> - нажмите 🗣️ под сообщением ИИ<br>
-                                • <strong>Генерация голоса</strong> - создание аудио из текста
+                            
+                            <div class="info-box">
+                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                    <i class="ti ti-headphones" style="color: var(--accent-primary);"></i>
+                                    <strong>Режимы работы с голосом</strong>
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+                                    • <strong>Голосовой ввод</strong> - нажмите 🎤 и говорите<br>
+                                    • <strong>Озвучивание ответов</strong> - нажмите 🗣️ под сообщением<br>
+                                    • <strong>Генерация голоса</strong> - создание аудио из текста
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -528,49 +631,51 @@ def bubble_sort(arr):
 
             <!-- Step 5: Multiple Chats -->
             <div class="guide-step" id="step5">
-                <h2>💾 Управление чатами</h2>
-                <p>Создавайте отдельные чаты для разных тем и проектов.</p>
-                
-                <div class="guide-demo">
-                    <div style="margin-bottom: 15px;">
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                            <div style="flex: 1; background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-md);">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                    <div style="width: 6px; height: 6px; background: var(--accent-primary); border-radius: 50%;"></div>
-                                    <strong>Работа</strong>
+                <div class="guide-step-content">
+                    <h2>💾 Управление чатами</h2>
+                    <p>Создавайте отдельные чаты для разных тем и проектов.</p>
+                    
+                    <div class="guide-demo">
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <div style="flex: 1; background: var(--bg-tertiary); padding: 10px; border-radius: var(--radius-md);">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                        <div style="width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></div>
+                                        <strong style="font-size: 0.8rem;">Работа</strong>
+                                    </div>
+                                    <div style="font-size: 0.65rem; color: var(--text-secondary);">Обсуждение проектов...</div>
                                 </div>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">Обсуждение проектов и задач...</div>
-                            </div>
-                            <div style="flex: 1; background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-md);">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                    <div style="width: 6px; height: 6px; background: var(--accent-primary); border-radius: 50%;"></div>
-                                    <strong>Учеба</strong>
+                                <div style="flex: 1; background: var(--bg-tertiary); padding: 10px; border-radius: var(--radius-md);">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                        <div style="width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></div>
+                                        <strong style="font-size: 0.8rem;">Учеба</strong>
+                                    </div>
+                                    <div style="font-size: 0.65rem; color: var(--text-secondary);">Помощь с заданиями...</div>
                                 </div>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">Помощь с домашними заданиями...</div>
                             </div>
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                            <div style="text-align: center; padding: 10px; background: var(--bg-tertiary); border-radius: var(--radius-md);">
-                                <i class="ti ti-plus" style="color: var(--accent-primary); font-size: 1.2rem; margin-bottom: 5px; display: block;"></i>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">Новый чат</div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                                <div style="text-align: center; padding: 8px; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                                    <i class="ti ti-plus" style="color: var(--accent-primary); font-size: 1rem; margin-bottom: 4px; display: block;"></i>
+                                    <div style="font-size: 0.65rem; color: var(--text-secondary);">Новый чат</div>
+                                </div>
+                                <div style="text-align: center; padding: 8px; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                                    <i class="ti ti-trash" style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 4px; display: block;"></i>
+                                    <div style="font-size: 0.65rem; color: var(--text-secondary);">Удалить чат</div>
+                                </div>
                             </div>
-                            <div style="text-align: center; padding: 10px; background: var(--bg-tertiary); border-radius: var(--radius-md);">
-                                <i class="ti ti-trash" style="color: var(--text-secondary); font-size: 1.2rem; margin-bottom: 5px; display: block;"></i>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">Удалить чат</div>
-                            </div>
-                        </div>
-                        
-                        <div class="info-box">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                <i class="ti ti-folders" style="color: var(--accent-primary);"></i>
-                                <strong>Советы по организации</strong>
-                            </div>
-                            <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">
-                                • Создавайте отдельные чаты для разных тем<br>
-                                • Используйте понятные названия для чатов<br>
-                                • Экспортируйте важные беседы<br>
-                                • Архивируйте старые чаты для экономии места
+                            
+                            <div class="info-box">
+                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                    <i class="ti ti-folders" style="color: var(--accent-primary);"></i>
+                                    <strong>Советы по организации</strong>
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+                                    • Создавайте отдельные чаты для разных тем<br>
+                                    • Используйте понятные названия для чатов<br>
+                                    • Экспортируйте важные беседы<br>
+                                    • Архивируйте старые чаты
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -634,6 +739,14 @@ def bubble_sort(arr):
                 return;
             }
         })();
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            // Force reflow to ensure proper layout
+            document.body.style.display = 'none';
+            document.body.offsetHeight;
+            document.body.style.display = '';
+        });
     </script>
 </body>
 </html>
