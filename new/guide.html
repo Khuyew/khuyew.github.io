@@ -50,7 +50,10 @@
             height: 100dvh;
             display: flex;
             flex-direction: column;
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
             background: 
                 radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
@@ -257,12 +260,33 @@
 
         code {
             background: var(--bg-primary);
-            color: var(--code-text);
+            color: var(--text-primary);
             padding: 0.2em 0.4em;
             border-radius: var(--radius-sm);
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 0.9em;
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Logo styles */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .guide-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: white;
+            box-shadow: var(--shadow-lg);
         }
 
         /* Floating background elements */
@@ -336,15 +360,27 @@
                 max-width: 90%;
                 padding: 14px 16px;
             }
+
+            .guide-logo {
+                width: 70px;
+                height: 70px;
+                font-size: 20px;
+            }
         }
 
         @media (max-width: 480px) {
             .guide-step {
                 padding: 25px 20px;
+                margin: 5px;
             }
 
             .guide-step h2 {
                 font-size: 1.5rem;
+            }
+
+            .guide-step p {
+                font-size: 0.95rem;
+                margin-bottom: 20px;
             }
 
             .guide-actions {
@@ -370,6 +406,35 @@
             .floating-dot {
                 display: none;
             }
+
+            .guide-demo {
+                padding: 15px;
+            }
+
+            .guide-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 18px;
+                border-radius: 15px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .guide-step {
+                padding: 20px 15px;
+            }
+
+            .guide-step h2 {
+                font-size: 1.3rem;
+            }
+
+            .guide-step p {
+                font-size: 0.9rem;
+            }
+
+            .guide-demo {
+                padding: 12px;
+            }
         }
 
         /* Hide scrollbar */
@@ -393,42 +458,34 @@
         <div class="guide-content">
             <!-- Step 1: Introduction -->
             <div class="guide-step active" id="step1">
-                <h2>🎯 Добро пожаловать в KHAI!</h2>
+                <div class="logo-container">
+                    <div class="guide-logo">KHAI</div>
+                    <h3 style="color: var(--text-primary); margin-bottom: 5px;">Основные элементы интерфейса</h3>
+                </div>
+                
                 <p>KHAI — это первый белорусский ИИ-помощник с передовыми возможностями. Давайте познакомимся с интерфейсом.</p>
                 
                 <div class="guide-demo">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <svg width="60" height="60" viewBox="0 0 100 100" style="margin-bottom: 15px;">
-                            <defs>
-                                <style>
-                                    .logo-path { fill: #0099ff; }
-                                </style>
-                            </defs>
-                            <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z"/>
-                        </svg>
-                        <h3 style="margin-bottom: 10px; color: var(--text-primary);">Основные элементы интерфейса</h3>
-                    </div>
-                    
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                        <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md);">
+                        <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md); text-align: center;">
                             <i class="ti ti-message" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
-                            <strong style="color: var(--text-primary);">Чат с ИИ</strong>
-                            <p style="font-size: 12px; margin-top: 5px; color: var(--text-secondary);">Общайтесь с разными моделями ИИ</p>
+                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Чат с ИИ</strong>
+                            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Общайтесь с разными моделями ИИ</p>
                         </div>
-                        <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md);">
+                        <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md); text-align: center;">
                             <i class="ti ti-photo" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
-                            <strong style="color: var(--text-primary);">Анализ изображений</strong>
-                            <p style="font-size: 12px; margin-top: 5px; color: var(--text-secondary);">Загружайте и анализируйте изображения</p>
+                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Анализ изображений</strong>
+                            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Загружайте и анализируйте изображения</p>
                         </div>
-                        <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md);">
+                        <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md); text-align: center;">
                             <i class="ti ti-file-text" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
-                            <strong style="color: var(--text-primary);">Работа с файлами</strong>
-                            <p style="font-size: 12px; margin-top: 5px; color: var(--text-secondary);">Анализируйте текстовые файлы и код</p>
+                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Работа с файлами</strong>
+                            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Анализируйте текстовые файлы и код</p>
                         </div>
-                        <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md);">
+                        <div style="background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md); text-align: center;">
                             <i class="ti ti-microphone" style="font-size: 24px; margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
-                            <strong style="color: var(--text-primary);">Голосовые функции</strong>
-                            <p style="font-size: 12px; margin-top: 5px; color: var(--text-secondary);">Голосовой ввод и генерация речи</p>
+                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Голосовые функции</strong>
+                            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Голосовой ввод и генерация речи</p>
                         </div>
                     </div>
                 </div>
@@ -464,7 +521,7 @@
                                         <i class="ti ti-copy"></i> Копировать
                                     </button>
                                 </div>
-                                <pre><code class="python"># Сортировка пузырьком
+                                <pre><code># Сортировка пузырьком
 def bubble_sort(arr):
     n = len(arr)
     for i in range(n):
@@ -478,13 +535,13 @@ def bubble_sort(arr):
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
                         <div style="text-align: center;">
-                            <i class="ti ti-send" style="color: var(--accent-primary);"></i>
-                            <div style="color: var(--text-primary); font-weight: 600;">Отправка сообщений</div>
+                            <i class="ti ti-send" style="color: var(--accent-primary); font-size: 20px; margin-bottom: 5px; display: block;"></i>
+                            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 3px;">Отправка сообщений</div>
                             <div style="color: var(--text-secondary);">Enter или кнопка отправки</div>
                         </div>
                         <div style="text-align: center;">
-                            <i class="ti ti-copy" style="color: var(--accent-primary);"></i>
-                            <div style="color: var(--text-primary); font-weight: 600;">Копирование кода</div>
+                            <i class="ti ti-copy" style="color: var(--accent-primary); font-size: 20px; margin-bottom: 5px; display: block;"></i>
+                            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 3px;">Копирование кода</div>
                             <div style="color: var(--text-secondary);">Кнопка "Копировать" в блоках кода</div>
                         </div>
                     </div>
@@ -507,15 +564,15 @@ def bubble_sort(arr):
                 
                 <div class="guide-demo">
                     <div style="background: var(--bg-primary); padding: 20px; border-radius: var(--radius-md); margin-bottom: 15px;">
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center;">
                             <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-md);">
                                 <i class="ti ti-photo" style="color: var(--accent-primary);"></i>
-                                <span style="color: var(--text-primary);">image.jpg (2.1 MB)</span>
+                                <span style="color: var(--text-primary); font-size: 12px;">image.jpg (2.1 MB)</span>
                                 <i class="ti ti-x" style="color: var(--text-tertiary); cursor: pointer;"></i>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-md);">
                                 <i class="ti ti-file-text" style="color: var(--accent-primary);"></i>
-                                <span style="color: var(--text-primary);">document.txt (15 KB)</span>
+                                <span style="color: var(--text-primary); font-size: 12px;">document.txt (15 KB)</span>
                                 <i class="ti ti-x" style="color: var(--text-tertiary); cursor: pointer;"></i>
                             </div>
                         </div>
@@ -567,7 +624,7 @@ def bubble_sort(arr):
                 
                 <div class="guide-demo">
                     <div style="background: var(--bg-primary); padding: 20px; border-radius: var(--radius-md); margin-bottom: 15px;">
-                        <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
                             <div style="text-align: center;">
                                 <div style="width: 50px; height: 50px; background: var(--accent-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
                                     <i class="ti ti-microphone" style="color: white; font-size: 20px;"></i>
@@ -615,18 +672,18 @@ def bubble_sort(arr):
                 
                 <div class="guide-demo">
                     <div style="background: var(--bg-primary); padding: 20px; border-radius: var(--radius-md); margin-bottom: 15px;">
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                            <div style="flex: 1; background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-md);">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 140px; background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-md);">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                                     <div style="width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%;"></div>
-                                    <strong style="color: var(--text-primary);">Работа</strong>
+                                    <strong style="color: var(--text-primary); font-size: 13px;">Работа</strong>
                                 </div>
                                 <div style="font-size: 11px; color: var(--text-secondary);">Обсуждение проектов и задач...</div>
                             </div>
-                            <div style="flex: 1; background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-md);">
+                            <div style="flex: 1; min-width: 140px; background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-md);">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                                     <div style="width: 8px; height: 8px; background: var(--success-text); border-radius: 50%;"></div>
-                                    <strong style="color: var(--text-primary);">Учеба</strong>
+                                    <strong style="color: var(--text-primary); font-size: 13px;">Учеба</strong>
                                 </div>
                                 <div style="font-size: 11px; color: var(--text-secondary);">Вопросы по программированию...</div>
                             </div>
