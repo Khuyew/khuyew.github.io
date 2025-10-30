@@ -3,19 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KHAI — Первый белорусский ИИ-помощник</title>
-    <meta name="description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
+    <title>KHAI — Первый белорусский чат с ИИ</title>
+    <meta name="description" content="KHAI — первый белорусский ИИ-помощник с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
     <meta name="theme-color" content="#0f0f23">
-    
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="KHAI Assistant">
-    <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
-    <meta property="og:image" content="./logo.png">
-    <meta property="og:url" content="./welcome.html">
-    <meta property="og:locale" content="ru_RU">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
@@ -27,232 +17,257 @@
 
         :root {
             --bg-primary: #0f0f23;
-            --bg-secondary: #1a1a2e;
-            --bg-tertiary: #252545;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --bg-tertiary: rgba(255, 255, 255, 0.08);
             --text-primary: #ffffff;
             --text-secondary: #a0a0c0;
-            --text-tertiary: #8888aa;
             --accent-primary: #0099ff;
             --accent-secondary: #0066ff;
-            --border-color: #2d2d4d;
+            --border-color: rgba(255, 255, 255, 0.15);
             --radius-md: 8px;
             --radius-lg: 12px;
             --transition: all 0.3s ease;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            line-height: 1.6;
             overflow: hidden;
             height: 100vh;
             height: 100dvh;
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
-        .welcome-container {
+        .app-container {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Minimal Background */
+        .minimal-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.05) 0%, transparent 50%);
+        }
+
+        /* Main Content */
+        .main-content {
+            position: relative;
+            z-index: 2;
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
         }
 
-        /* Minimal background */
-        .background-elements {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .bg-circle {
-            position: absolute;
-            border-radius: 50%;
-            background: var(--accent-primary);
-            opacity: 0.03;
-        }
-
-        .circle-1 {
-            width: 300px;
-            height: 300px;
-            top: -150px;
-            right: -150px;
-        }
-
-        .circle-2 {
-            width: 200px;
-            height: 200px;
-            bottom: -100px;
-            left: -100px;
-            background: var(--accent-secondary);
-        }
-
-        /* Content */
-        .content {
-            position: relative;
-            z-index: 1;
-            max-width: 500px;
-            width: 100%;
+        .logo-section {
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUpFade 0.8s ease 0.3s forwards;
         }
 
         .logo {
             width: 80px;
             height: 80px;
-            margin: 0 auto 24px;
+            margin: 0 auto 20px;
             border-radius: var(--radius-md);
-            background: var(--bg-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
+            overflow: hidden;
         }
 
         .logo img {
-            width: 60px;
-            height: 60px;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
         }
 
         .title {
             font-size: 2.5rem;
             font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 8px;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            line-height: 1.1;
         }
 
         .subtitle {
             font-size: 1.1rem;
             color: var(--text-secondary);
-            margin-bottom: 40px;
             font-weight: 400;
         }
 
-        /* Feature grid */
-        .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 40px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .feature {
+        /* Demo Chat */
+        .demo-chat {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 16px 12px;
-            text-align: center;
-            transition: var(--transition);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin: 30px 0;
+            max-width: 400px;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUpFade 0.8s ease 0.8s forwards;
         }
 
-        .feature:hover {
-            border-color: var(--accent-primary);
-            transform: translateY(-2px);
-        }
-
-        .feature i {
-            font-size: 1.5rem;
-            color: var(--accent-primary);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .feature span {
-            font-size: 0.85rem;
+        .chat-message {
+            text-align: left;
+            font-size: 0.9rem;
             color: var(--text-primary);
-            font-weight: 500;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            opacity: 0;
+            transform: translateX(-10px);
+            animation: slideRightFade 0.6s ease forwards;
         }
 
-        /* Action buttons */
-        .actions {
+        .chat-message:nth-child(1) { animation-delay: 1.3s; }
+        .chat-message:nth-child(2) { 
+            text-align: right;
+            transform: translateX(10px);
+            animation-name: slideLeftFade;
+            animation-delay: 2.1s;
+        }
+        .chat-message:nth-child(3) { animation-delay: 2.9s; }
+
+        .typing-indicator {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 300px;
-            margin: 0 auto;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease 3.7s forwards;
         }
 
-        .btn {
-            padding: 14px 24px;
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* Action Buttons */
+        .action-section {
+            opacity: 0;
+            animation: fadeIn 0.8s ease 4.5s forwards;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 12px 24px;
             border-radius: var(--radius-md);
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             text-decoration: none;
             transition: var(--transition);
-            border: none;
-            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
+            border: 1px solid transparent;
         }
 
-        .btn-primary {
+        .primary-btn {
             background: var(--accent-primary);
             color: white;
         }
 
-        .btn-primary:hover {
+        .primary-btn:hover {
             background: var(--accent-secondary);
             transform: translateY(-1px);
         }
 
-        .btn-secondary {
-            background: var(--bg-secondary);
+        .secondary-btn {
+            background: var(--bg-tertiary);
             color: var(--text-primary);
-            border: 1px solid var(--border-color);
+            border-color: var(--border-color);
         }
 
-        .btn-secondary:hover {
-            background: var(--bg-tertiary);
+        .secondary-btn:hover {
+            background: var(--bg-secondary);
             border-color: var(--accent-primary);
         }
 
-        /* Footer */
-        .footer {
-            margin-top: 40px;
-            color: var(--text-tertiary);
-            font-size: 0.85rem;
+        .feature-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .feature-tag {
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
+        @keyframes slideUpFade {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .content > * {
-            animation: fadeInUp 0.6s ease forwards;
+        @keyframes slideRightFade {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        .logo { animation-delay: 0.1s; }
-        .title { animation-delay: 0.2s; }
-        .subtitle { animation-delay: 0.3s; }
-        .features { animation-delay: 0.4s; }
-        .actions { animation-delay: 0.5s; }
-        .footer { animation-delay: 0.6s; }
+        @keyframes slideLeftFade {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-        /* Mobile responsive */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .title {
                 font-size: 2rem;
@@ -265,140 +280,154 @@
             .logo {
                 width: 70px;
                 height: 70px;
-                margin-bottom: 20px;
             }
             
-            .features {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-                margin-bottom: 30px;
+            .demo-chat {
+                padding: 16px;
+                margin: 25px 0;
             }
             
-            .feature {
-                padding: 14px 10px;
-            }
-            
-            .feature i {
-                font-size: 1.3rem;
-                margin-bottom: 6px;
-            }
-            
-            .feature span {
-                font-size: 0.8rem;
+            .action-btn {
+                padding: 10px 20px;
+                font-size: 0.85rem;
             }
         }
 
         @media (max-width: 480px) {
-            .welcome-container {
-                padding: 16px;
-            }
-            
             .title {
                 font-size: 1.8rem;
             }
             
-            .features {
-                grid-template-columns: 1fr;
-                max-width: 250px;
-            }
-            
-            .btn {
-                padding: 12px 20px;
+            .subtitle {
                 font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .title {
-                font-size: 1.6rem;
             }
             
             .logo {
                 width: 60px;
                 height: 60px;
+                margin-bottom: 15px;
             }
             
-            .logo img {
-                width: 50px;
-                height: 50px;
+            .demo-chat {
+                padding: 14px;
+                margin: 20px 0;
+            }
+            
+            .chat-message {
+                font-size: 0.85rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+            
+            .feature-tags {
+                gap: 6px;
+            }
+            
+            .feature-tag {
+                font-size: 0.7rem;
+                padding: 5px 8px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="welcome-container">
-        <!-- Background elements -->
-        <div class="background-elements">
-            <div class="bg-circle circle-1"></div>
-            <div class="bg-circle circle-2"></div>
-        </div>
+    <div class="app-container">
+        <!-- Minimal Background -->
+        <div class="minimal-background"></div>
 
-        <!-- Main content -->
-        <div class="content">
-            <div class="logo">
-                <img src="./logo.png" alt="KHAI" onerror="this.style.display='none'">
-            </div>
-            
-            <h1 class="title">KHAI</h1>
-            <p class="subtitle">Первый белорусский ИИ-помощник</p>
-
-            <div class="features">
-                <div class="feature">
-                    <i class="ti ti-brain"></i>
-                    <span>Умный ИИ</span>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Logo and Title -->
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="./logo.png" alt="KHAI">
                 </div>
-                <div class="feature">
-                    <i class="ti ti-code"></i>
-                    <span>Написание кода</span>
-                </div>
-                <div class="feature">
-                    <i class="ti ti-photo"></i>
-                    <span>Анализ изображений</span>
-                </div>
-                <div class="feature">
-                    <i class="ti ti-microphone"></i>
-                    <span>Голосовой ввод</span>
-                </div>
+                <h1 class="title">KHAI</h1>
+                <p class="subtitle">Первый белорусский ИИ-помощник</p>
             </div>
 
-            <div class="actions">
-                <a href="index.html" class="btn btn-primary" id="startBtn">
-                    <i class="ti ti-rocket"></i>
-                    Начать использовать
-                </a>
-                <a href="guide.html" class="btn btn-secondary">
-                    <i class="ti ti-help"></i>
-                    Пройти обучение
-                </a>
+            <!-- Demo Chat -->
+            <div class="demo-chat">
+                <div class="chat-message">
+                    👋 Привет! Я KHAI — умный помощник для решения любых задач
+                </div>
+                <div class="chat-message">
+                    Что ты умеешь?
+                </div>
+                <div class="chat-message">
+                    Всё! Код, анализ изображений, тексты, голос, файлы... 
+                </div>
+                <div class="typing-indicator">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                    <span>Готов к работе</span>
+                </div>
             </div>
 
-            <div class="footer">
-                Бесплатно • Без ограничений • Для всех
+            <!-- Action Buttons -->
+            <div class="action-section">
+                <div class="action-buttons">
+                    <a href="./index.html" class="action-btn primary-btn" id="startBtn">
+                        <i class="ti ti-rocket"></i>
+                        Начать использовать
+                    </a>
+                    <a href="./guide.html" class="action-btn secondary-btn">
+                        <i class="ti ti-help"></i>
+                        Пройти обучение
+                    </a>
+                </div>
+                
+                <div class="feature-tags">
+                    <div class="feature-tag">
+                        <i class="ti ti-brain"></i>
+                        Умный ИИ
+                    </div>
+                    <div class="feature-tag">
+                        <i class="ti ti-code"></i>
+                        Написание кода
+                    </div>
+                    <div class="feature-tag">
+                        <i class="ti ti-photo"></i>
+                        Анализ изображений
+                    </div>
+                    <div class="feature-tag">
+                        <i class="ti ti-microphone"></i>
+                        Голосовой ввод
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Redirect logic for welcome page
+        // Redirect logic
         (function() {
-            const hasSeenWelcome = localStorage.getItem('khai-welcome-seen');
-            const hasCompletedGuide = localStorage.getItem('khai-guide-completed');
+            // Check if user has completed guide
+            const hasCompletedGuide = localStorage.getItem('khai-completed-guide') === 'true';
+            const hasVisitedWelcome = localStorage.getItem('khai-user-visited') === 'true';
             
-            // If user has completed guide, redirect to main app
-            if (hasCompletedGuide === 'true') {
+            // If user has completed guide and is returning to welcome page, redirect to index
+            if (hasCompletedGuide && hasVisitedWelcome) {
                 window.location.href = 'index.html';
                 return;
             }
             
-            // Mark that user has seen welcome page
-            localStorage.setItem('khai-welcome-seen', 'true');
+            // Set flag that user has visited welcome page
+            localStorage.setItem('khai-user-visited', 'true');
             
-            // Auto-redirect after 15 seconds
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 15000);
-            
-            // Handle start button click
+            // Manual redirect when clicking the start button
             const startBtn = document.getElementById('startBtn');
             if (startBtn) {
                 startBtn.addEventListener('click', function(e) {
