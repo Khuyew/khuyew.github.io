@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KHAI — Первый белорусский ИИ-помощник</title>
+    <title>KHAI — Первый белорусский чат с ИИ</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
     <style>
         * {
             margin: 0;
@@ -17,21 +18,21 @@
             --bg-secondary: #1E1E1E;
             --bg-tertiary: #2D2D2D;
             --text-primary: #FFFFFF;
-            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-secondary: #A0A0A0;
             --accent-primary: #0099FF;
             --accent-secondary: #0066FF;
-            --radius-lg: 20px;
-            --radius-md: 12px;
+            --neon-glow: 0 0 10px rgba(0, 153, 255, 0.7), 0 0 20px rgba(0, 153, 255, 0.5), 0 0 30px rgba(0, 153, 255, 0.3);
             --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             overflow: hidden;
             height: 100vh;
             height: 100dvh;
+            position: relative;
         }
 
         .app-container {
@@ -41,6 +42,7 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         /* Animated Background */
@@ -51,8 +53,9 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 102, 255, 0.1) 0%, transparent 50%);
+            overflow: hidden;
         }
 
         .floating-blob {
@@ -87,7 +90,20 @@
             top: 50%;
             left: 70%;
             animation-delay: -6s;
-            background: #764ba2;
+            background: var(--accent-primary);
+        }
+
+        .digital-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 153, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 153, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
         }
 
         /* Main Content */
@@ -104,7 +120,7 @@
         }
 
         .logo-section {
-            margin-bottom: 50px;
+            margin-bottom: 40px;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.3s forwards;
@@ -114,34 +130,34 @@
             width: 100px;
             height: 100px;
             margin: 0 auto 25px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 25px;
-            box-shadow: 0 20px 40px rgba(0, 153, 255, 0.3);
-            animation: pulse 3s ease-in-out infinite;
+            box-shadow: var(--neon-glow);
+            animation: pulse 2s ease-in-out infinite;
         }
 
         .logo i {
-            font-size: 48px;
+            font-size: 50px;
             color: white;
         }
 
         .title {
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 70%);
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 15px;
             line-height: 1.1;
-            letter-spacing: -0.02em;
+            text-shadow: 0 0 20px rgba(0, 153, 255, 0.5);
         }
 
         .subtitle {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: var(--text-secondary);
             font-weight: 400;
             max-width: 500px;
@@ -151,18 +167,18 @@
         /* Demo Chat */
         .demo-chat {
             background: var(--bg-secondary);
-            border-radius: var(--radius-lg);
-            padding: 30px;
-            margin: 40px 0;
-            backdrop-filter: blur(20px);
-            max-width: 500px;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+            max-width: 450px;
             width: 100%;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.8s forwards;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .demo-chat::before {
@@ -178,42 +194,44 @@
 
         .chat-message {
             text-align: left;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--text-primary);
-            line-height: 1.5;
-            margin-bottom: 20px;
+            line-height: 1.4;
+            margin-bottom: 15px;
             opacity: 0;
             transform: translateX(-20px);
             animation: slideRightFade 0.6s ease forwards;
-            padding: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
         }
 
-        .chat-message:nth-child(1) { animation-delay: 1.3s; }
+        .chat-message:nth-child(1) { 
+            animation-delay: 1.3s; 
+        }
         .chat-message:nth-child(2) { 
             text-align: right;
             transform: translateX(20px);
             animation-name: slideLeftFade;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             animation-delay: 2.1s;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
         }
         .chat-message:nth-child(3) { 
-            animation-delay: 2.9s;
-            background: var(--bg-tertiary);
+            animation-delay: 2.9s; 
         }
 
         .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             opacity: 0;
             animation: fadeIn 0.5s ease 3.7s forwards;
-            padding: 15px;
+            padding: 8px 12px;
+            border-radius: 12px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
         }
 
         .typing-dots {
@@ -222,8 +240,8 @@
         }
 
         .typing-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: var(--accent-primary);
             border-radius: 50%;
             animation: typingBounce 1.4s infinite ease-in-out;
@@ -243,15 +261,15 @@
         .action-buttons {
             display: flex;
             gap: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .action-btn {
-            padding: 18px 32px;
-            border-radius: var(--radius-md);
-            font-size: 1.1rem;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
             transition: var(--transition);
@@ -261,29 +279,48 @@
             border: none;
             cursor: pointer;
             flex: 1;
-            min-width: 200px;
+            min-width: 160px;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .primary-btn {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
-            box-shadow: 0 10px 30px rgba(0, 153, 255, 0.4);
+            box-shadow: var(--neon-glow);
         }
 
         .primary-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(0, 153, 255, 0.6);
+            box-shadow: 0 10px 25px rgba(0, 153, 255, 0.4);
+        }
+
+        .primary-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .primary-btn:hover::before {
+            left: 100%;
         }
 
         .secondary-btn {
             background: var(--bg-tertiary);
             color: var(--text-primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .secondary-btn:hover {
-            background: var(--accent-primary);
-            transform: translateY(-3px);
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
         .feature-tags {
@@ -297,7 +334,7 @@
             padding: 8px 16px;
             background: var(--bg-tertiary);
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
@@ -306,21 +343,20 @@
         }
 
         .feature-tag:hover {
-            background: var(--accent-primary);
-            color: white;
+            background: rgba(0, 153, 255, 0.1);
+            color: var(--accent-primary);
             transform: translateY(-2px);
         }
 
         /* Animations */
         @keyframes float {
             0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
-            33% { transform: translateY(-20px) scale(1.05) rotate(120deg); }
-            66% { transform: translateY(10px) scale(0.95) rotate(240deg); }
+            50% { transform: translateY(-20px) scale(1.05) rotate(5deg); }
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 20px 40px rgba(0, 153, 255, 0.3); }
-            50% { transform: scale(1.05); box-shadow: 0 25px 50px rgba(0, 153, 255, 0.5); }
+            0%, 100% { transform: scale(1); box-shadow: var(--neon-glow); }
+            50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(0, 153, 255, 0.9), 0 0 40px rgba(0, 153, 255, 0.7), 0 0 60px rgba(0, 153, 255, 0.5); }
         }
 
         @keyframes slideUpFade {
@@ -363,11 +399,11 @@
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .title {
-                font-size: 3rem;
+                font-size: 2.8rem;
             }
             
             .subtitle {
-                font-size: 1.2rem;
+                font-size: 1.1rem;
             }
             
             .logo {
@@ -376,37 +412,36 @@
             }
             
             .logo i {
-                font-size: 36px;
+                font-size: 40px;
             }
             
             .demo-chat {
-                padding: 25px;
-                margin: 30px 0;
+                padding: 20px;
+                margin: 25px 0;
             }
             
             .action-btn {
-                padding: 16px 24px;
-                font-size: 1rem;
-                min-width: 160px;
+                padding: 14px 24px;
+                font-size: 0.9rem;
             }
             
             .feature-tags {
-                gap: 8px;
+                gap: 10px;
             }
             
             .feature-tag {
                 font-size: 0.8rem;
-                padding: 6px 12px;
+                padding: 7px 14px;
             }
         }
 
         @media (max-width: 480px) {
             .title {
-                font-size: 2.5rem;
+                font-size: 2.3rem;
             }
             
             .subtitle {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
             
             .logo {
@@ -416,12 +451,12 @@
             }
             
             .logo i {
-                font-size: 32px;
+                font-size: 35px;
             }
             
             .demo-chat {
-                padding: 20px;
-                margin: 25px 0;
+                padding: 18px;
+                margin: 20px 0;
             }
             
             .chat-message {
@@ -436,31 +471,26 @@
             .action-btn {
                 width: 100%;
                 max-width: 280px;
+                justify-content: center;
             }
             
             .feature-tags {
-                flex-direction: column;
-                align-items: center;
+                gap: 8px;
             }
             
             .feature-tag {
-                width: 100%;
-                max-width: 200px;
-                justify-content: center;
+                font-size: 0.75rem;
+                padding: 6px 12px;
             }
         }
 
-        @media (max-height: 700px) {
-            .logo-section {
-                margin-bottom: 30px;
+        @media (max-width: 360px) {
+            .title {
+                font-size: 2rem;
             }
             
-            .demo-chat {
-                margin: 20px 0;
-            }
-            
-            .action-buttons {
-                margin-bottom: 20px;
+            .main-content {
+                padding: 15px;
             }
         }
     </style>
@@ -472,6 +502,7 @@
             <div class="floating-blob blob-1"></div>
             <div class="floating-blob blob-2"></div>
             <div class="floating-blob blob-3"></div>
+            <div class="digital-grid"></div>
         </div>
 
         <!-- Main Content -->
@@ -494,7 +525,7 @@
                     Что ты умеешь?
                 </div>
                 <div class="chat-message">
-                    Всё! Анализ файлов, написание кода, решение задач, контекстный диалог... 
+                    Всё! Код, анализ изображений, тексты, работа с файлами... 
                 </div>
                 <div class="typing-indicator">
                     <div class="typing-dots">
@@ -509,10 +540,10 @@
             <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <button class="action-btn primary-btn" id="startBtn">
+                    <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
                         Стартуем!
-                    </button>
+                    </a>
                 </div>
                 
                 <div class="feature-tags">
@@ -525,12 +556,12 @@
                         Написание кода
                     </div>
                     <div class="feature-tag">
-                        <i class="ti ti-file-text"></i>
-                        Анализ файлов
+                        <i class="ti ti-photo"></i>
+                        Анализ изображений
                     </div>
                     <div class="feature-tag">
-                        <i class="ti ti-message"></i>
-                        Контекстный диалог
+                        <i class="ti ti-file-text"></i>
+                        Работа с файлами
                     </div>
                 </div>
             </div>
@@ -547,13 +578,12 @@
             if (startBtn) {
                 startBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    // Redirect to guide
                     window.location.href = 'guide.html';
                 });
             }
 
             // Simple auto-restart for demo effect
-            setInterval(() => {
+            setTimeout(() => {
                 const typingIndicator = document.querySelector('.typing-indicator');
                 if (typingIndicator) {
                     typingIndicator.style.animation = 'none';
