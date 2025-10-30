@@ -15,9 +15,9 @@
         }
 
         :root {
-            --bg-primary: #121212;
-            --bg-secondary: rgba(30, 30, 30, 0.8);
-            --bg-tertiary: rgba(45, 45, 45, 0.6);
+            --bg-primary: #0f0f23;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --bg-tertiary: rgba(255, 255, 255, 0.08);
             --text-primary: #ffffff;
             --text-secondary: #a0a0c0;
             --accent-primary: #0099ff;
@@ -26,10 +26,9 @@
             --user-message-bg-end: #764ba2;
             --ai-message-bg: rgba(255, 255, 255, 0.08);
             --border-color: rgba(255, 255, 255, 0.15);
-            --radius-lg: 20px;
+            --radius-lg: 16px;
             --radius-md: 12px;
-            --shadow-lg: 0 25px 50px -12px rgba(0, 153, 255, 0.4);
-            --shadow-glow: 0 0 50px rgba(0, 153, 255, 0.3);
+            --shadow-lg: 0 20px 40px -10px rgba(0, 153, 255, 0.3);
             --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
@@ -40,7 +39,8 @@
             overflow: hidden;
             height: 100vh;
             height: 100dvh;
-            position: relative;
+            position: fixed;
+            width: 100%;
         }
 
         .app-container {
@@ -52,7 +52,7 @@
             overflow: hidden;
         }
 
-        /* Animated Background with Parallax */
+        /* Animated Background */
         .floating-background {
             position: absolute;
             top: 0;
@@ -60,30 +60,8 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-                linear-gradient(135deg, #121212 0%, #1a1a2e 50%, #121212 100%);
-            overflow: hidden;
-        }
-
-        .parallax-layer {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        .layer-1 {
-            background: 
-                radial-gradient(circle at 10% 20%, rgba(0, 153, 255, 0.1) 0%, transparent 30%),
-                radial-gradient(circle at 90% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 30%);
-            animation: float 8s ease-in-out infinite;
-        }
-
-        .layer-2 {
-            background: 
-                radial-gradient(circle at 30% 40%, rgba(0, 153, 255, 0.08) 0%, transparent 25%),
-                radial-gradient(circle at 70% 60%, rgba(102, 126, 234, 0.08) 0%, transparent 25%);
-            animation: float 12s ease-in-out infinite reverse;
+                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
         }
 
         .floating-dot {
@@ -92,33 +70,23 @@
             background: var(--accent-primary);
             opacity: 0.1;
             animation: float 6s ease-in-out infinite;
-            filter: blur(20px);
         }
 
         .dot-1 {
-            width: 300px;
-            height: 300px;
+            width: 200px;
+            height: 200px;
             top: 10%;
             left: 10%;
             animation-delay: 0s;
         }
 
         .dot-2 {
-            width: 200px;
-            height: 200px;
+            width: 150px;
+            height: 150px;
             bottom: 20%;
             right: 15%;
             animation-delay: -2s;
             background: var(--user-message-bg-end);
-        }
-
-        .dot-3 {
-            width: 150px;
-            height: 150px;
-            top: 50%;
-            left: 50%;
-            animation-delay: -4s;
-            background: var(--accent-secondary);
         }
 
         /* Main Content */
@@ -132,135 +100,100 @@
             justify-content: center;
             padding: 20px;
             text-align: center;
-            backdrop-filter: blur(10px);
+            max-height: 100vh;
+            overflow: hidden;
         }
 
         .logo-section {
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.3s forwards;
         }
 
         .logo {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 25px;
-            animation: pulse 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 30px rgba(0, 153, 255, 0.5));
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            animation: pulse 2s ease-in-out infinite;
         }
 
-        .logo svg {
+        .logo img {
             width: 100%;
             height: 100%;
+            object-fit: contain;
         }
 
         .title {
-            font-size: 4rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 70%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             line-height: 1.1;
-            text-shadow: 0 0 30px rgba(0, 153, 255, 0.3);
-            letter-spacing: -0.02em;
         }
 
         .subtitle {
-            font-size: 1.4rem;
+            font-size: 1rem;
             color: var(--text-secondary);
             font-weight: 400;
-            max-width: 500px;
-            margin: 0 auto;
-            line-height: 1.4;
         }
 
         /* Demo Chat */
         .demo-chat {
             background: var(--bg-secondary);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 30px;
-            margin: 40px 0;
-            backdrop-filter: blur(20px);
-            max-width: 500px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            max-width: 350px;
             width: 100%;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.8s forwards;
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .demo-chat::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
         }
 
         .chat-message {
             text-align: left;
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: var(--text-primary);
-            line-height: 1.5;
-            margin-bottom: 20px;
+            line-height: 1.4;
+            margin-bottom: 12px;
             opacity: 0;
             transform: translateX(-20px);
             animation: slideRightFade 0.6s ease forwards;
-            padding: 15px 20px;
-            border-radius: var(--radius-md);
-            background: var(--bg-tertiary);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .chat-message:nth-child(1) { 
-            animation-delay: 1.3s; 
-            background: linear-gradient(135deg, var(--ai-message-bg), rgba(255, 255, 255, 0.05));
-        }
+        .chat-message:nth-child(1) { animation-delay: 1.3s; }
         .chat-message:nth-child(2) { 
             text-align: right;
             transform: translateX(20px);
             animation-name: slideLeftFade;
             animation-delay: 2.1s;
-            background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
-            margin-left: auto;
-            max-width: 80%;
         }
-        .chat-message:nth-child(3) { 
-            animation-delay: 2.9s; 
-            background: linear-gradient(135deg, var(--ai-message-bg), rgba(255, 255, 255, 0.05));
-        }
+        .chat-message:nth-child(3) { animation-delay: 2.9s; }
 
         .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             opacity: 0;
             animation: fadeIn 0.5s ease 3.7s forwards;
-            padding: 12px 16px;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .typing-dots {
             display: flex;
-            gap: 4px;
+            gap: 3px;
         }
 
         .typing-dot {
-            width: 8px;
-            height: 8px;
+            width: 5px;
+            height: 5px;
             background: var(--accent-primary);
             border-radius: 50%;
             animation: typingBounce 1.4s infinite ease-in-out;
@@ -273,114 +206,85 @@
         .action-section {
             opacity: 0;
             animation: fadeIn 0.8s ease 4.5s forwards;
-            max-width: 500px;
             width: 100%;
+            max-width: 350px;
         }
 
         .action-buttons {
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 8px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .action-btn {
-            padding: 16px 32px;
+            padding: 12px 20px;
             border-radius: var(--radius-md);
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             text-decoration: none;
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 10px;
-            border: none;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
+            gap: 6px;
+            border: 2px solid transparent;
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
         }
 
         .primary-btn {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
-            box-shadow: var(--shadow-glow);
-            flex: 1;
-            min-width: 200px;
-            justify-content: center;
+            box-shadow: var(--shadow-lg);
         }
 
         .primary-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(0, 153, 255, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(0, 153, 255, 0.4);
         }
 
         .secondary-btn {
-            background: var(--bg-secondary);
+            background: var(--bg-tertiary);
             color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            min-width: 150px;
-            justify-content: center;
+            border-color: var(--border-color);
         }
 
         .secondary-btn:hover {
-            background: var(--bg-tertiary);
+            background: var(--bg-secondary);
             border-color: var(--accent-primary);
             transform: translateY(-2px);
         }
 
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 30px;
+        .feature-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
-        .feature-item {
+        .feature-tag {
+            padding: 5px 10px;
             background: var(--bg-tertiary);
-            padding: 15px;
-            border-radius: var(--radius-md);
-            text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: var(--transition);
-        }
-
-        .feature-item:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent-primary);
-        }
-
-        .feature-icon {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-            color: var(--accent-primary);
-        }
-
-        .feature-text {
-            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.75rem;
             color: var(--text-secondary);
-        }
-
-        /* Footer */
-        .welcome-footer {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            padding: 0 20px;
-            opacity: 0;
-            animation: fadeIn 0.8s ease 5s forwards;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         /* Animations */
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
         }
 
         @keyframes slideUpFade {
@@ -405,12 +309,9 @@
         }
 
         @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes typingBounce {
@@ -418,60 +319,130 @@
             40% { transform: scale(1); opacity: 1; }
         }
 
-        /* Responsive */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .title {
-                font-size: 2.5rem;
+                font-size: 1.8rem;
             }
             
             .subtitle {
-                font-size: 1.1rem;
+                font-size: 0.9rem;
+            }
+            
+            .logo {
+                width: 50px;
+                height: 50px;
             }
             
             .demo-chat {
-                margin: 20px 0;
-                padding: 20px;
+                padding: 15px;
+                margin: 15px 0;
+                max-width: 300px;
             }
             
-            .action-buttons {
-                flex-direction: column;
+            .action-btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-width: 110px;
             }
             
-            .primary-btn,
-            .secondary-btn {
-                min-width: 100%;
+            .feature-tags {
+                gap: 6px;
             }
             
-            .features-grid {
-                grid-template-columns: 1fr 1fr;
+            .feature-tag {
+                font-size: 0.7rem;
+                padding: 4px 8px;
             }
         }
 
         @media (max-width: 480px) {
+            .main-content {
+                padding: 15px;
+            }
+            
             .title {
-                font-size: 2rem;
+                font-size: 1.6rem;
+            }
+            
+            .subtitle {
+                font-size: 0.85rem;
             }
             
             .logo {
-                width: 80px;
-                height: 80px;
+                width: 45px;
+                height: 45px;
+                margin-bottom: 10px;
             }
             
-            .features-grid {
-                grid-template-columns: 1fr;
+            .demo-chat {
+                padding: 12px;
+                margin: 12px 0;
+                max-width: 280px;
+            }
+            
+            .chat-message {
+                font-size: 0.8rem;
+                margin-bottom: 10px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+            
+            .feature-tags {
+                gap: 4px;
             }
         }
 
-        /* Safe area support */
-        @supports(padding: max(0px)) {
-            .main-content {
-                padding-left: max(20px, env(safe-area-inset-left));
-                padding-right: max(20px, env(safe-area-inset-right));
-                padding-bottom: max(20px, env(safe-area-inset-bottom));
+        @media (max-height: 700px) {
+            .logo-section {
+                margin-bottom: 15px;
             }
             
-            .welcome-footer {
-                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            .demo-chat {
+                margin: 15px 0;
+                padding: 15px;
+            }
+            
+            .action-buttons {
+                margin-bottom: 12px;
+            }
+            
+            .logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .title {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .logo-section {
+                margin-bottom: 10px;
+            }
+            
+            .demo-chat {
+                margin: 10px 0;
+                padding: 12px;
+            }
+            
+            .chat-message {
+                margin-bottom: 8px;
+                font-size: 0.8rem;
+            }
+            
+            .feature-tags {
+                display: none;
             }
         }
     </style>
@@ -480,122 +451,116 @@
     <div class="app-container">
         <!-- Animated Background -->
         <div class="floating-background">
-            <div class="parallax-layer layer-1"></div>
-            <div class="parallax-layer layer-2"></div>
             <div class="floating-dot dot-1"></div>
             <div class="floating-dot dot-2"></div>
-            <div class="floating-dot dot-3"></div>
         </div>
 
         <!-- Main Content -->
         <div class="main-content">
+            <!-- Logo and Title -->
             <div class="logo-section">
                 <div class="logo">
-                    <svg viewBox="0 0 100 100">
+                    <svg width="100%" height="100%" viewBox="0 0 100 100" style="filter: drop-shadow(0 0 10px rgba(0, 153, 255, 0.5));">
                         <defs>
-                            <linearGradient id="welcomeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#0099FF" />
-                                <stop offset="50%" stop-color="#0066FF" />
-                                <stop offset="100%" stop-color="#764ba2" />
+                            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#0099ff" />
+                                <stop offset="100%" stop-color="#0066ff" />
                             </linearGradient>
                         </defs>
-                        <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="url(#welcomeGradient)"/>
+                        <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" 
+                              fill="url(#logoGradient)" 
+                              stroke="rgba(255,255,255,0.1)" 
+                              stroke-width="2"/>
                     </svg>
                 </div>
                 <h1 class="title">KHAI</h1>
-                <p class="subtitle">Первый белорусский ИИ-помощник с генерацией изображений и голоса</p>
+                <p class="subtitle">Первый белорусский ИИ-помощник</p>
             </div>
 
+            <!-- Demo Chat -->
             <div class="demo-chat">
                 <div class="chat-message">
-                    Привет! Я KHAI — ваш персональный ИИ-помощник. Готов помочь с любыми вопросами, написанием кода, анализом данных и многим другим!
+                    👋 Привет! Я KHAI — умный помощник для решения любых задач
                 </div>
                 <div class="chat-message">
-                    Напиши код для параллакс-эффекта на чистом CSS
+                    Что ты умеешь?
                 </div>
                 <div class="chat-message">
-                    Конечно! Вот пример реализации параллакс-эффекта с использованием только CSS...
+                    Всё! Код, анализ изображений, тексты, голос, файлы... 
                 </div>
                 <div class="typing-indicator">
-                    <div class="typing-text">KHAI печатает...</div>
                     <div class="typing-dots">
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
                     </div>
+                    <span>Готов к работе</span>
                 </div>
             </div>
 
+            <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <button class="action-btn primary-btn" id="startBtn">
+                    <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
-                        Стартуем
-                    </button>
-                    <button class="action-btn secondary-btn" id="learnMoreBtn">
-                        <i class="ti ti-info-circle"></i>
-                        Узнать больше
-                    </button>
+                        Стартуем!
+                    </a>
+                    <a href="./docs" class="action-btn secondary-btn">
+                        <i class="ti ti-book"></i>
+                        Документация
+                    </a>
                 </div>
-
-                <div class="features-grid">
-                    <div class="feature-item">
-                        <div class="feature-icon"><i class="ti ti-brain"></i></div>
-                        <div class="feature-text">Умный AI-чат</div>
+                
+                <div class="feature-tags">
+                    <div class="feature-tag">
+                        <i class="ti ti-brain"></i>
+                        Умный ИИ
                     </div>
-                    <div class="feature-item">
-                        <div class="feature-icon"><i class="ti ti-photo"></i></div>
-                        <div class="feature-text">Генерация изображений</div>
+                    <div class="feature-tag">
+                        <i class="ti ti-code"></i>
+                        Написание кода
                     </div>
-                    <div class="feature-item">
-                        <div class="feature-icon"><i class="ti ti-microphone"></i></div>
-                        <div class="feature-text">Голосовой ввод</div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon"><i class="ti ti-code"></i></div>
-                        <div class="feature-text">Написание кода</div>
+                    <div class="feature-tag">
+                        <i class="ti ti-photo"></i>
+                        Анализ изображений
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="welcome-footer">
-            © 2025 KHAI, Беларусь. Все права защищены.
         </div>
     </div>
 
     <script>
-        // Set welcome flag in localStorage
-        localStorage.setItem('khai_welcome_shown', 'true');
-        
-        // Handle start button click
-        document.getElementById('startBtn').addEventListener('click', function() {
-            // Add loading animation
-            this.innerHTML = '<i class="ti ti-loader"></i> Загрузка...';
-            this.disabled = true;
+        // User redirection functionality
+        (function() {
+            // Set flag that user has seen welcome page
+            localStorage.setItem('khai-user-visited', 'true');
             
-            // Navigate to guide page
-            setTimeout(() => {
+            // Auto redirect after 10 seconds
+            const redirectTimer = setTimeout(() => {
                 window.location.href = 'guide.html';
-            }, 1000);
-        });
-        
-        // Handle learn more button click
-        document.getElementById('learnMoreBtn').addEventListener('click', function() {
-            // Smooth scroll to features (if more content)
-            const features = document.querySelector('.features-grid');
-            features.scrollIntoView({ behavior: 'smooth' });
-        });
-        
-        // Add parallax effect on mouse move
-        document.addEventListener('mousemove', function(e) {
-            const layers = document.querySelectorAll('.parallax-layer');
-            const x = (e.clientX - window.innerWidth / 2) / 50;
-            const y = (e.clientY - window.innerHeight / 2) / 50;
-            
-            layers[0].style.transform = `translate(${x}px, ${y}px)`;
-            layers[1].style.transform = `translate(${x * 2}px, ${y * 2}px)`;
-        });
+            }, 10000);
+
+            // Manual redirect when clicking the start button
+            const startBtn = document.getElementById('startBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    clearTimeout(redirectTimer);
+                    window.location.href = 'guide.html';
+                });
+            }
+
+            // Simple auto-restart for demo effect
+            setTimeout(() => {
+                const typingIndicator = document.querySelector('.typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.style.animation = 'none';
+                    setTimeout(() => {
+                        typingIndicator.style.animation = 'fadeIn 0.5s ease forwards';
+                    }, 100);
+                }
+            }, 8000);
+        })();
     </script>
 </body>
 </html>
