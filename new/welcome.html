@@ -11,7 +11,7 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="KHAI Assistant">
     <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
+    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
     <meta property="og:image" content="./logo.png">
     <meta property="og:url" content="./welcome.html">
     <meta property="og:locale" content="ru_RU">
@@ -31,40 +31,39 @@
             --bg-tertiary: #252545;
             --text-primary: #ffffff;
             --text-secondary: #a0a0c0;
-            --text-tertiary: #707090;
+            --text-tertiary: #8888aa;
             --accent-primary: #0099ff;
             --accent-secondary: #0066ff;
             --border-color: #2d2d4d;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-            --shadow-lg: 0 8px 32px rgba(0, 153, 255, 0.2);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
+            line-height: 1.6;
             overflow: hidden;
             height: 100vh;
             height: 100dvh;
-            line-height: 1.6;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         .welcome-container {
-            height: 100vh;
-            height: 100dvh;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            text-align: center;
             position: relative;
             overflow: hidden;
         }
 
-        /* Minimal Background */
+        /* Minimal background */
         .background-elements {
             position: absolute;
             top: 0;
@@ -72,88 +71,48 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 1;
+            z-index: 0;
         }
 
-        .bg-grid {
+        .bg-circle {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(var(--border-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: 0.1;
-        }
-
-        .floating-shapes {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        .shape {
-            position: absolute;
-            border-radius: var(--radius-lg);
+            border-radius: 50%;
             background: var(--accent-primary);
-            opacity: 0.05;
-            animation: float 8s ease-in-out infinite;
+            opacity: 0.03;
         }
 
-        .shape-1 {
-            width: 120px;
-            height: 120px;
-            top: 10%;
-            left: 5%;
-            animation-delay: 0s;
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -150px;
         }
 
-        .shape-2 {
-            width: 80px;
-            height: 80px;
-            bottom: 15%;
-            right: 10%;
-            animation-delay: -2s;
+        .circle-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: -100px;
             background: var(--accent-secondary);
         }
 
-        .shape-3 {
-            width: 60px;
-            height: 60px;
-            top: 50%;
-            left: 80%;
-            animation-delay: -4s;
-            border-radius: 50%;
-        }
-
-        /* Main Content */
-        .main-content {
+        /* Content */
+        .content {
             position: relative;
-            z-index: 2;
-            text-align: center;
+            z-index: 1;
             max-width: 500px;
             width: 100%;
-        }
-
-        .logo-section {
-            margin-bottom: 40px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideUpFade 0.8s ease 0.3s forwards;
         }
 
         .logo {
             width: 80px;
             height: 80px;
-            margin: 0 auto 20px;
+            margin: 0 auto 24px;
             border-radius: var(--radius-md);
             background: var(--bg-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-color);
         }
 
@@ -167,7 +126,7 @@
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 8px;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -176,150 +135,124 @@
         .subtitle {
             font-size: 1.1rem;
             color: var(--text-secondary);
+            margin-bottom: 40px;
             font-weight: 400;
         }
 
-        /* Feature Cards */
-        .features-grid {
+        /* Feature grid */
+        .features {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin: 30px 0;
-            opacity: 0;
-            animation: slideUpFade 0.8s ease 0.6s forwards;
+            margin-bottom: 40px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .feature-card {
+        .feature {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 16px;
+            padding: 16px 12px;
             text-align: center;
             transition: var(--transition);
-            box-shadow: var(--shadow-sm);
         }
 
-        .feature-card:hover {
-            transform: translateY(-2px);
+        .feature:hover {
             border-color: var(--accent-primary);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
         }
 
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 10px;
+        .feature i {
+            font-size: 1.5rem;
             color: var(--accent-primary);
-            font-size: 18px;
+            margin-bottom: 8px;
+            display: block;
         }
 
-        .feature-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 4px;
+        .feature span {
+            font-size: 0.85rem;
             color: var(--text-primary);
+            font-weight: 500;
         }
 
-        .feature-desc {
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-            line-height: 1.3;
-        }
-
-        /* Action Section */
-        .action-section {
-            opacity: 0;
-            animation: slideUpFade 0.8s ease 0.9s forwards;
-        }
-
-        .action-buttons {
+        /* Action buttons */
+        .actions {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-bottom: 20px;
+            max-width: 300px;
+            margin: 0 auto;
         }
 
-        .action-btn {
+        .btn {
             padding: 14px 24px;
             border-radius: var(--radius-md);
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
             transition: var(--transition);
+            border: none;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            border: 1px solid transparent;
         }
 
-        .primary-btn {
+        .btn-primary {
             background: var(--accent-primary);
             color: white;
-            box-shadow: var(--shadow-sm);
         }
 
-        .primary-btn:hover {
+        .btn-primary:hover {
             background: var(--accent-secondary);
             transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
         }
 
-        .secondary-btn {
+        .btn-secondary {
             background: var(--bg-secondary);
             color: var(--text-primary);
-            border-color: var(--border-color);
+            border: 1px solid var(--border-color);
         }
 
-        .secondary-btn:hover {
+        .btn-secondary:hover {
             background: var(--bg-tertiary);
             border-color: var(--accent-primary);
         }
 
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
+        /* Footer */
+        .footer {
+            margin-top: 40px;
             color: var(--text-tertiary);
+            font-size: 0.85rem;
         }
 
         /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(180deg); }
-        }
-
-        @keyframes slideUpFade {
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        /* Mobile Responsive */
+        .content > * {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .logo { animation-delay: 0.1s; }
+        .title { animation-delay: 0.2s; }
+        .subtitle { animation-delay: 0.3s; }
+        .features { animation-delay: 0.4s; }
+        .actions { animation-delay: 0.5s; }
+        .footer { animation-delay: 0.6s; }
+
+        /* Mobile responsive */
         @media (max-width: 768px) {
             .title {
                 font-size: 2rem;
@@ -332,130 +265,115 @@
             .logo {
                 width: 70px;
                 height: 70px;
+                margin-bottom: 20px;
             }
             
-            .features-grid {
-                grid-template-columns: 1fr;
+            .features {
+                grid-template-columns: 1fr 1fr;
                 gap: 10px;
+                margin-bottom: 30px;
             }
             
-            .feature-card {
-                padding: 14px;
+            .feature {
+                padding: 14px 10px;
             }
             
-            .action-btn {
-                padding: 12px 20px;
-                font-size: 0.9rem;
+            .feature i {
+                font-size: 1.3rem;
+                margin-bottom: 6px;
             }
             
-            .stats {
-                gap: 15px;
+            .feature span {
+                font-size: 0.8rem;
             }
         }
 
         @media (max-width: 480px) {
             .welcome-container {
-                padding: 15px;
+                padding: 16px;
             }
             
             .title {
                 font-size: 1.8rem;
             }
             
+            .features {
+                grid-template-columns: 1fr;
+                max-width: 250px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .title {
+                font-size: 1.6rem;
+            }
+            
             .logo {
                 width: 60px;
                 height: 60px;
-                margin-bottom: 15px;
             }
             
-            .features-grid {
-                margin: 20px 0;
+            .logo img {
+                width: 50px;
+                height: 50px;
             }
         }
     </style>
 </head>
 <body>
     <div class="welcome-container">
-        <!-- Background Elements -->
+        <!-- Background elements -->
         <div class="background-elements">
-            <div class="bg-grid"></div>
-            <div class="floating-shapes">
-                <div class="shape shape-1"></div>
-                <div class="shape shape-2"></div>
-                <div class="shape shape-3"></div>
-            </div>
+            <div class="bg-circle circle-1"></div>
+            <div class="bg-circle circle-2"></div>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Logo and Title -->
-            <div class="logo-section">
-                <div class="logo">
-                    <i class="ti ti-brain" style="font-size: 32px; color: var(--accent-primary);"></i>
-                </div>
-                <h1 class="title">KHAI</h1>
-                <p class="subtitle">Первый белорусский ИИ-помощник</p>
+        <!-- Main content -->
+        <div class="content">
+            <div class="logo">
+                <img src="./logo.png" alt="KHAI" onerror="this.style.display='none'">
             </div>
+            
+            <h1 class="title">KHAI</h1>
+            <p class="subtitle">Первый белорусский ИИ-помощник</p>
 
-            <!-- Features Grid -->
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="ti ti-message"></i>
-                    </div>
-                    <div class="feature-title">Умный чат</div>
-                    <div class="feature-desc">Общайтесь с продвинутыми моделями ИИ</div>
+            <div class="features">
+                <div class="feature">
+                    <i class="ti ti-brain"></i>
+                    <span>Умный ИИ</span>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="ti ti-photo"></i>
-                    </div>
-                    <div class="feature-title">Анализ изображений</div>
-                    <div class="feature-desc">Загружайте и анализируйте изображения</div>
+                <div class="feature">
+                    <i class="ti ti-code"></i>
+                    <span>Написание кода</span>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="ti ti-file-text"></i>
-                    </div>
-                    <div class="feature-title">Работа с файлами</div>
-                    <div class="feature-desc">Анализируйте тексты, код и документы</div>
+                <div class="feature">
+                    <i class="ti ti-photo"></i>
+                    <span>Анализ изображений</span>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="ti ti-microphone"></i>
-                    </div>
-                    <div class="feature-title">Голосовые функции</div>
-                    <div class="feature-desc">Голосовой ввод и генерация речи</div>
+                <div class="feature">
+                    <i class="ti ti-microphone"></i>
+                    <span>Голосовой ввод</span>
                 </div>
             </div>
 
-            <!-- Action Section -->
-            <div class="action-section">
-                <div class="action-buttons">
-                    <a href="./index.html" class="action-btn primary-btn" id="startBtn">
-                        <i class="ti ti-arrow-right"></i>
-                        Начать использовать
-                    </a>
-                    <a href="./guide.html" class="action-btn secondary-btn">
-                        <i class="ti ti-help"></i>
-                        Пройти обучение
-                    </a>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-number">6</span>
-                        <span class="stat-label">Моделей ИИ</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">∞</span>
-                        <span class="stat-label">Бесплатно</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">24/7</span>
-                        <span class="stat-label">Доступно</span>
-                    </div>
-                </div>
+            <div class="actions">
+                <a href="index.html" class="btn btn-primary" id="startBtn">
+                    <i class="ti ti-rocket"></i>
+                    Начать использовать
+                </a>
+                <a href="guide.html" class="btn btn-secondary">
+                    <i class="ti ti-help"></i>
+                    Пройти обучение
+                </a>
+            </div>
+
+            <div class="footer">
+                Бесплатно • Без ограничений • Для всех
             </div>
         </div>
     </div>
@@ -463,36 +381,28 @@
     <script>
         // Redirect logic for welcome page
         (function() {
-            // Check if user has already completed the guide
-            const hasCompletedGuide = localStorage.getItem('khai-completed-guide');
-            const hasSeenWelcome = localStorage.getItem('khai-user-visited');
+            const hasSeenWelcome = localStorage.getItem('khai-welcome-seen');
+            const hasCompletedGuide = localStorage.getItem('khai-guide-completed');
             
-            // If user has completed guide but came back to welcome page, redirect to main app
+            // If user has completed guide, redirect to main app
             if (hasCompletedGuide === 'true') {
                 window.location.href = 'index.html';
                 return;
             }
             
-            // If user has seen welcome before but not completed guide, redirect to guide
-            if (hasSeenWelcome === 'true' && hasCompletedGuide !== 'true') {
-                window.location.href = 'guide.html';
-                return;
-            }
+            // Mark that user has seen welcome page
+            localStorage.setItem('khai-welcome-seen', 'true');
             
-            // First time visitor - mark as visited and stay on welcome page
-            localStorage.setItem('khai-user-visited', 'true');
-            
-            // Auto redirect to guide after 15 seconds for first-time users
-            const redirectTimer = setTimeout(() => {
-                window.location.href = 'guide.html';
+            // Auto-redirect after 15 seconds
+            setTimeout(() => {
+                window.location.href = 'index.html';
             }, 15000);
-
-            // Manual redirect when clicking the start button
+            
+            // Handle start button click
             const startBtn = document.getElementById('startBtn');
             if (startBtn) {
                 startBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    clearTimeout(redirectTimer);
                     window.location.href = 'index.html';
                 });
             }
