@@ -27,7 +27,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" content="#0f0f23">
     
     <!-- SEO Meta Tags -->
     <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
@@ -42,7 +42,7 @@
     <meta property="og:site_name" content="KHAI Assistant">
     <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
-    <meta property="og:image" content="./assets/logo.png">
+    <meta property="og:image" content="./logo.png">
     <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
@@ -50,7 +50,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
-    <meta name="twitter:image" content="./assets/logo.png">
+    <meta name="twitter:image" content="./logo.png">
     <meta name="twitter:site" content="@khai_assistant">
     
     <!-- Schema.org -->
@@ -79,8 +79,8 @@
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
-    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
-    <link rel="apple-touch-icon" href="./assets/logo.png">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="apple-touch-icon" href="./logo.png">
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
@@ -98,25 +98,33 @@
     <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-content">
-            <div class="cyber-logo">
-                <div class="cyber-logo-inner"></div>
+            <div class="neural-network-animation">
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="connection"></div>
+                <div class="connection"></div>
+                <div class="connection"></div>
             </div>
-            <div class="preloader-spinner"></div>
-            <p class="preloader-text">ИНИЦИАЛИЗАЦИЯ СИСТЕМЫ...</p>
+            <p class="preloader-text">Инициализация нейросети...</p>
+            <div class="loading-progress">
+                <div class="progress-bar"></div>
+            </div>
         </div>
     </div>
 
     <!-- 404 Page (hidden by default) -->
     <div class="page-404" id="page404" style="display: none;">
         <div class="error-container">
-            <div class="cyber-logo">
-                <div class="cyber-logo-inner"></div>
+            <div class="error-animation">
+                <div class="error-code">404</div>
+                <div class="error-glow"></div>
             </div>
-            <h1>404 - СИСТЕМНЫЙ СБОЙ</h1>
-            <p>Запрошенный модуль не существует или был перемещен.</p>
-            <button class="cyber-btn" id="errorBackBtn">
-                <span class="cyber-btn-text">ВОССТАНОВИТЬ СИСТЕМУ</span>
-                <div class="cyber-btn-glow"></div>
+            <h1>Страница не найдена</h1>
+            <p>Запрошенная страница не существует или была перемещена.</p>
+            <button class="neon-btn" id="errorBackBtn">
+                <span class="neon-text">Вернуться в приложение</span>
             </button>
         </div>
     </div>
@@ -127,30 +135,50 @@
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-container">
-                    <div class="cyber-logo-small" id="logoBtn">
-                        <div class="cyber-logo-inner"></div>
+                    <div class="logo" id="logoBtn">
+                        <div class="logo-icon">
+                            <div class="logo-glow"></div>
+                            <svg width="36" height="36" viewBox="0 0 100 100">
+                                <defs>
+                                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#0099ff" />
+                                        <stop offset="100%" stop-color="#764ba2" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" 
+                                      fill="url(#logoGradient)" />
+                            </svg>
+                        </div>
+                        <span class="logo-text">KHAI</span>
                     </div>
                 </div>
                 
-                <button class="cyber-btn-small model-select-btn" id="modelSelectBtn" title="ВЫБРАТЬ МОДЕЛЬ ИИ">
-                    <i class="ti ti-brain"></i>
-                </button>
-                
-                <div class="header-search-container">
-                    <div class="search-wrapper">
-                        <i class="ti ti-search"></i>
-                        <input type="text" id="headerSearch" placeholder="СКАНИРОВАТЬ АРХИВ..." aria-label="Поиск по истории чата">
-                        <button class="search-clear" id="headerSearchClear" style="display: none;" aria-label="Очистить поиск">
-                            <i class="ti ti-x"></i>
-                        </button>
+                <div class="header-center">
+                    <div class="model-indicator" id="modelIndicator">
+                        <i class="ti ti-brain"></i>
+                        <span id="currentModelName">GPT-5 Nano</span>
+                        <div class="status-dot online"></div>
+                    </div>
+                    
+                    <div class="header-search-container">
+                        <div class="search-wrapper">
+                            <i class="ti ti-search"></i>
+                            <input type="text" id="headerSearch" placeholder="Поиск по чату..." aria-label="Поиск по истории чата">
+                            <button class="search-clear" id="headerSearchClear" style="display: none;" aria-label="Очистить поиск">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="header-controls">
-                    <button class="cyber-btn-small" id="themeToggle" aria-label="ПЕРЕКЛЮЧИТЬ РЕЖИМ">
+                    <button class="control-btn" id="themeToggle" aria-label="Переключить тему">
                         <i class="ti ti-moon"></i>
                     </button>
-                    <button class="cyber-btn-small menu-toggle" id="menuToggle" aria-label="ОТКРЫТЬ ПАНЕЛЬ УПРАВЛЕНИЯ">
+                    <button class="control-btn" id="fullscreenToggle" aria-label="Полноэкранный режим">
+                        <i class="ti ti-arrows-maximize"></i>
+                    </button>
+                    <button class="control-btn menu-toggle" id="menuToggle" aria-label="Открыть меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
                 </div>
@@ -160,28 +188,62 @@
         <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Skeleton loading messages -->
-                <div class="message-skeleton">
-                    <div class="skeleton-avatar"></div>
-                    <div class="skeleton-content">
-                        <div class="skeleton-line short"></div>
-                        <div class="skeleton-line medium"></div>
-                        <div class="skeleton-line long"></div>
+                <!-- Welcome message -->
+                <div class="message message-ai welcome-message">
+                    <div class="message-content">
+                        <div class="welcome-header">
+                            <div class="welcome-icon">
+                                <i class="ti ti-sparkles"></i>
+                            </div>
+                            <h2>Добро пожаловать в KHAI</h2>
+                        </div>
+                        <p>Первый белорусский ИИ-помощник готов к работе. Я могу помочь с:</p>
+                        <div class="capabilities-grid">
+                            <div class="capability">
+                                <i class="ti ti-code"></i>
+                                <span>Написанием кода</span>
+                            </div>
+                            <div class="capability">
+                                <i class="ti ti-photo"></i>
+                                <span>Анализом изображений</span>
+                            </div>
+                            <div class="capability">
+                                <i class="ti ti-file-text"></i>
+                                <span>Работой с файлами</span>
+                            </div>
+                            <div class="capability">
+                                <i class="ti ti-microphone"></i>
+                                <span>Голосовым общением</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="message-skeleton user">
-                    <div class="skeleton-content">
-                        <div class="skeleton-line short"></div>
-                        <div class="skeleton-line medium"></div>
-                    </div>
-                    <div class="skeleton-avatar"></div>
-                </div>
+            </div>
+
+            <!-- Quick Actions Panel -->
+            <div class="quick-actions" id="quickActions">
+                <button class="quick-action" data-action="code">
+                    <i class="ti ti-code"></i>
+                    <span>Код</span>
+                </button>
+                <button class="quick-action" data-action="explain">
+                    <i class="ti ti-brain"></i>
+                    <span>Объяснить</span>
+                </button>
+                <button class="quick-action" data-action="translate">
+                    <i class="ti ti-language"></i>
+                    <span>Перевести</span>
+                </button>
+                <button class="quick-action" data-action="summarize">
+                    <i class="ti ti-summarize"></i>
+                    <span>Суммаризировать</span>
+                </button>
             </div>
 
             <!-- Minimap & Navigation -->
             <div class="chat-minimap-container">
                 <div class="minimap-header">
-                    <button class="cyber-btn-small theme-minimap-btn" id="themeMinimapToggle" title="ПЕРЕКЛЮЧИТЬ РЕЖИМ">
+                    <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
                         <i class="ti ti-moon"></i>
                     </button>
                 </div>
@@ -190,10 +252,10 @@
                     <div class="minimap-viewport" id="minimapViewport"></div>
                 </div>
                 <div class="minimap-navigation">
-                    <button class="cyber-btn-small" id="scrollToLastAI" title="К ПОСЛЕДНЕМУ ОТВЕТУ ИИ">
+                    <button class="nav-btn" id="scrollToLastAI" title="К последнему ответу ИИ">
                         <i class="ti ti-arrow-up"></i>
                     </button>
-                    <button class="cyber-btn-small" id="scrollToBottom" title="К НИЗУ ЧАТА">
+                    <button class="nav-btn" id="scrollToBottom" title="К низу чата">
                         <i class="ti ti-arrow-down"></i>
                     </button>
                 </div>
@@ -203,32 +265,45 @@
         <!-- Input Section -->
         <div class="input-section" id="inputSection">
             <div class="mode-indicator">
-                <i class="ti ti-message"></i> СТАНДАРТНЫЙ РЕЖИМ
+                <div class="mode-badge" id="modeBadge">
+                    <i class="ti ti-message"></i>
+                    <span>Обычный режим</span>
+                </div>
+                <div class="token-counter" id="tokenCounter">
+                    <span>0/4000</span>
+                </div>
             </div>
             
             <div class="input-wrapper">
-                <button class="cyber-btn-small attach-btn" id="attachFileBtn" title="ПРИКРЕПИТЬ ФАЙЛ">
-                    <i class="ti ti-plus"></i>
-                    <input type="file" id="fileInput" accept="image/*,.txt,.md,.html,.css,.js,.json,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.swift,.kt,.scala,.rs,.xml,.csv,.yaml,.yml" multiple style="display: none;">
-                </button>
-                
-                <textarea 
-                    id="userInput" 
-                    placeholder="ВВЕДИТЕ КОМАНДУ..." 
-                    autocomplete="off" 
-                    rows="1"
-                    maxlength="4000"
-                    aria-label="Поле ввода сообщения"
-                ></textarea>
-                
-                <div class="input-controls">
-                    <button class="cyber-btn-small" id="clearInputBtn" title="ОЧИСТИТЬ ВВОД" style="display: none;">
-                        <i class="ti ti-x"></i>
+                <div class="input-left-controls">
+                    <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
+                        <i class="ti ti-plus"></i>
+                        <input type="file" id="fileInput" accept="image/*,.txt,.md,.html,.css,.js,.json,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.swift,.kt,.scala,.rs,.xml,.csv,.yaml,.yml" multiple style="display: none;">
                     </button>
-                    <button class="cyber-btn-small" id="voiceInputBtn" title="ГОЛОСОВОЙ ВВОД">
+                    
+                    <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
                         <i class="ti ti-microphone"></i>
                     </button>
-                    <button class="cyber-btn-primary send-btn" id="sendBtn" title="ОТПРАВИТЬ КОМАНДУ">
+                </div>
+                
+                <div class="textarea-container">
+                    <textarea 
+                        id="userInput" 
+                        placeholder="Задайте вопрос или опишите изображение..." 
+                        autocomplete="off" 
+                        rows="1"
+                        maxlength="4000"
+                        aria-label="Поле ввода сообщения"
+                    ></textarea>
+                    <div class="textarea-actions">
+                        <button class="input-btn" id="clearInputBtn" title="Очистить ввод" style="display: none;">
+                            <i class="ti ti-x"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="input-right-controls">
+                    <button class="send-btn" id="sendBtn" title="Отправить сообщение">
                         <i class="ti ti-send"></i>
                     </button>
                 </div>
@@ -237,21 +312,20 @@
             <div class="attached-files" id="attachedFiles"></div>
 
             <div class="action-buttons">
-                <button class="cyber-btn mode-btn active" id="normalModeBtn">
+                <button class="action-btn mode-btn active" id="normalModeBtn" data-mode="normal">
                     <i class="ti ti-message"></i>
-                    <span class="btn-text">СТАНДАРТ</span>
+                    <span class="btn-text">Обычный</span>
                 </button>
-                <button class="cyber-btn mode-btn" id="generateVoiceBtn" disabled>
+                <button class="action-btn mode-btn" id="generateVoiceBtn" data-mode="voice">
                     <i class="ti ti-microphone"></i>
-                    <span class="btn-text">ГОЛОС</span>
+                    <span class="btn-text">Голос</span>
                 </button>
-                <button class="cyber-btn mode-btn" id="generateImageBtn" disabled>
+                <button class="action-btn mode-btn" id="generateImageBtn" data-mode="image" disabled title="В разработке">
                     <i class="ti ti-photo"></i>
-                    <span class="btn-text">ИЗОБРАЖЕНИЯ</span>
+                    <span class="btn-text">Изображения</span>
                 </button>
-                <button class="cyber-btn mode-btn" id="generateVideoBtn" disabled>
-                    <i class="ti ti-video"></i>
-                    <span class="btn-text">ВИДЕО</span>
+                <button class="action-btn" id="settingsBtn" title="Настройки">
+                    <i class="ti ti-settings"></i>
                 </button>
             </div>
         </div>
@@ -261,22 +335,25 @@
             <div class="footer-content">
                 <div class="current-chat-info">
                     <i class="ti ti-message"></i>
-                    <span id="currentChatName">НОВАЯ СЕССИЯ</span>
+                    <span id="currentChatName">Новый чат</span>
                 </div>
                 
                 <div class="connection-status">
-                    <i class="ti ti-circle"></i>
-                    <span id="connectionStatusText">СИСТЕМА АКТИВНА</span>
+                    <div class="status-indicator">
+                        <div class="status-pulse"></div>
+                        <i class="ti ti-circle"></i>
+                    </div>
+                    <span id="connectionStatusText">Подключено</span>
                 </div>
                 
                 <div class="footer-controls">
-                    <button class="cyber-btn-small" id="helpBtn" title="СПРАВОЧНАЯ СИСТЕМА">
+                    <button class="footer-btn" id="helpBtn" title="Помощь">
                         <i class="ti ti-help"></i>
                     </button>
-                    <button class="cyber-btn-small" id="downloadChatBtn" title="ЭКСПОРТ ДАННЫХ">
+                    <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
                         <i class="ti ti-download"></i>
                     </button>
-                    <button class="cyber-btn-small" id="clearChatBtn" title="ОЧИСТКА ПАМЯТИ">
+                    <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
                         <i class="ti ti-trash"></i>
                     </button>
                 </div>
@@ -289,12 +366,16 @@
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
             <div class="sidebar-header-content">
-                <div class="cyber-logo-small">
-                    <div class="cyber-logo-inner"></div>
+                <div class="sidebar-logo">
+                    <div class="logo-glow"></div>
+                    <img src="./icon.png" alt="KHAI" loading="lazy">
                 </div>
-                <h3>KHAI <span class="beta-badge">BETA</span></h3>
+                <div class="sidebar-title">
+                    <h3>KHAI</h3>
+                    <span class="beta-badge">BETA</span>
+                </div>
             </div>
-            <button class="cyber-btn-small sidebar-close" id="sidebarClose">
+            <button class="sidebar-close" id="sidebarClose">
                 <i class="ti ti-x"></i>
             </button>
         </div>
@@ -303,7 +384,7 @@
             <div class="sidebar-search-container">
                 <div class="search-wrapper">
                     <i class="ti ti-search"></i>
-                    <input type="text" id="sidebarSearch" placeholder="ПОИСК СЕССИЙ..." aria-label="Поиск по чатам">
+                    <input type="text" id="sidebarSearch" placeholder="Поиск по чатам..." aria-label="Поиск по чатам">
                     <button class="search-clear" id="sidebarSearchClear" style="display: none;" aria-label="Очистить поиск">
                         <i class="ti ti-x"></i>
                     </button>
@@ -311,65 +392,72 @@
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-messages"></i> АРХИВ СЕССИЙ</h4>
+                <h4><i class="ti ti-messages"></i> Мои чаты</h4>
                 <div class="chat-list" id="chatList"></div>
                 <div class="chat-management-buttons">
-                    <button class="cyber-btn primary" id="newChatBtn">
-                        <i class="ti ti-plus"></i> НОВАЯ СЕССИЯ
+                    <button class="sidebar-btn primary" id="newChatBtn">
+                        <i class="ti ti-plus"></i> Новый чат
                     </button>
-                    <button class="cyber-btn" id="importChatBtn">
-                        <i class="ti ti-upload"></i> ИМПОРТ ДАННЫХ
+                    <button class="sidebar-btn" id="importChatBtn">
+                        <i class="ti ti-upload"></i> Импорт чата
                     </button>
-                    <button class="cyber-btn danger" id="deleteAllChatsBtn">
-                        <i class="ti ti-trash"></i> ОЧИСТКА АРХИВА
-                    </button>
-                    <button class="cyber-btn" id="guideBtn">
-                        <i class="ti ti-book"></i> РУКОВОДСТВО
+                    <button class="sidebar-btn danger" id="deleteAllChatsBtn">
+                        <i class="ti ti-trash"></i> Удалить все
                     </button>
                 </div>
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-brain"></i> ЯДРО СИСТЕМЫ</h4>
+                <h4><i class="ti ti-brain"></i> Модель ИИ</h4>
                 <div class="current-model-info">
-                    <span id="currentModelInfo">GPT-5 NANO</span>
-                    <span class="connection-status" id="connectionStatus">🟢 ОНЛАЙН</span>
+                    <span id="currentModelInfo">GPT-5 Nano</span>
+                    <span class="connection-status" id="connectionStatus">✅ Онлайн</span>
                 </div>
+                <button class="sidebar-btn outline" id="changeModelBtn">
+                    <i class="ti ti-arrows-exchange"></i> Сменить модель
+                </button>
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-info-circle"></i> СИСТЕМНАЯ ИНФОРМАЦИЯ</h4>
+                <h4><i class="ti ti-info-circle"></i> О приложении</h4>
                 <div class="about-content">
                     <div class="about-item">
-                        <strong>KHAI ASSISTANT</strong>
-                        <span>ПЕРВЫЙ БЕЛОРУССКИЙ ИИ-КОМПАНЬОН</span>
+                        <strong>KHAI Assistant</strong>
+                        <span>Первый белорусский ИИ-помощник</span>
                     </div>
                     <div class="about-item">
-                        <strong>ВЕРСИЯ</strong>
+                        <strong>Версия</strong>
                         <span>2.1.0</span>
                     </div>
                     <div class="about-item">
-                        <strong>ОБНОВЛЕНО</strong>
+                        <strong>Обновлено</strong>
                         <span id="appVersionDate">2024</span>
                     </div>
                 </div>
             </div>
 
-            <div class="sidebar-links" style="margin-top: auto; padding: 20px 0; text-align: center;">
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                    <a href="https://khai.by/docs" target="_blank" class="cyber-link">
-                        ДОКУМЕНТАЦИЯ
+            <div class="sidebar-links">
+                <div class="links-grid">
+                    <a href="https://khai.by/docs" target="_blank" class="sidebar-link">
+                        <i class="ti ti-book"></i>
+                        Документация
                     </a>
-                    <a href="https://khai.by/support" target="_blank" class="cyber-link">
-                        ПОДДЕРЖКА СИСТЕМЫ
+                    <a href="https://khai.by/support" target="_blank" class="sidebar-link">
+                        <i class="ti ti-lifebuoy"></i>
+                        Поддержка
                     </a>
-                    <a href="mailto:khuyew@proton.me" class="cyber-link">
-                        КООПЕРАЦИЯ
+                    <a href="mailto:khuyew@proton.me" class="sidebar-link">
+                        <i class="ti ti-mail"></i>
+                        Сотрудничество
+                    </a>
+                    <a href="https://khai.by/github" target="_blank" class="sidebar-link">
+                        <i class="ti ti-brand-github"></i>
+                        GitHub
                     </a>
                 </div>
                 
                 <!-- LiveInternet Counter -->
-                <div style="margin-bottom: 20px; display: flex; justify-content: center;">
+                <div class="counters">
                     <!--LiveInternet counter--><a href="https://www.liveinternet.ru/click"
                     target="_blank"><img id="licntB611" width="88" height="31" style="border:0" 
                     title="LiveInternet: показано число просмотров и посетителей за 24 часа"
@@ -384,13 +472,9 @@
                     <!-- Yandex.Metrika informer --> <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">     <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"          style="width:88px; height:31px; border:0;"          alt="Яндекс.Метрика"          title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"         class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/> </a> <!-- /Yandex.Metrika informer -->  <!-- Yandex.Metrika counter --> <script type="text/javascript">     (function(m,e,t,r,i,k,a){         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};         m[i].l=1*new Date();         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)     })(window, document,'script','https://mc.webvisor.org/metrika/tag_ww.js', 'ym');      ym(104843405, 'init', {webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true}); </script>  <!-- /Yandex.Metrika counter -->   
                 </div>
                 
-                <a href="https://khai.by/github" target="_blank" class="cyber-btn-small" style="margin-bottom: 20px;">
-                    <i class="ti ti-brand-github"></i>
-                </a>
-                
-                <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
-                    © 2025 KHAI, БЕЛАРУСЬ.<br>
-                    ВСЕ ПРАВА ЗАЩИЩЕНЫ!
+                <p class="copyright">
+                    © 2025 KHAI, Беларусь.<br>
+                    Все права защищены!
                 </p>
             </div>
         </div>
@@ -398,34 +482,34 @@
 
     <!-- Edit Chat Modal -->
     <div class="modal-overlay" id="editChatModal">
-        <div class="cyber-modal">
+        <div class="modal">
             <div class="modal-header">
-                <h3>РЕДАКТИРОВАТЬ СЕССИЮ</h3>
-                <button class="cyber-btn-small modal-close" id="editChatModalClose">
+                <h3>Редактировать название чата</h3>
+                <button class="modal-close" id="editChatModalClose">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="modal-input-wrapper">
-                    <input type="text" id="editChatNameInput" placeholder="НАЗВАНИЕ СЕССИИ..." maxlength="16" class="cyber-input">
+                    <input type="text" id="editChatNameInput" placeholder="Введите название чата..." maxlength="16" class="modal-input">
                     <button class="modal-clear-input" id="modalClearInput" style="display: none;">
                         <i class="ti ti-x"></i>
                     </button>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="cyber-btn" id="editChatModalCancel">ОТМЕНА</button>
-                <button class="cyber-btn primary" id="editChatModalSave">СОХРАНИТЬ</button>
+                <button class="modal-btn" id="editChatModalCancel">Отмена</button>
+                <button class="modal-btn primary" id="editChatModalSave">Сохранить</button>
             </div>
         </div>
     </div>
 
     <!-- Model Selection Modal -->
     <div class="modal-overlay" id="modelModalOverlay">
-        <div class="cyber-modal">
+        <div class="modal">
             <div class="modal-header">
-                <h3>ВЫБОР ЯДРА СИСТЕМЫ</h3>
-                <button class="cyber-btn-small modal-close" id="modelModalClose">
+                <h3>Выберите модель ИИ</h3>
+                <button class="modal-close" id="modelModalClose">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
@@ -433,8 +517,62 @@
                 <div class="model-list" id="modelList"></div>
             </div>
             <div class="modal-footer">
-                <button class="cyber-btn" id="modelModalCancel">ОТМЕНА</button>
-                <button class="cyber-btn primary" id="modelModalConfirm">АКТИВИРОВАТЬ</button>
+                <button class="modal-btn" id="modelModalCancel">Отмена</button>
+                <button class="modal-btn primary" id="modelModalConfirm">Выбрать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Настройки</h3>
+                <button class="modal-close" id="settingsModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h4>Внешний вид</h4>
+                    <div class="setting-item">
+                        <label>Тема</label>
+                        <div class="theme-selector">
+                            <button class="theme-option active" data-theme="dark">
+                                <i class="ti ti-moon"></i>
+                                Темная
+                            </button>
+                            <button class="theme-option" data-theme="light">
+                                <i class="ti ti-sun"></i>
+                                Светлая
+                            </button>
+                            <button class="theme-option" data-theme="auto">
+                                <i class="ti ti-device-desktop"></i>
+                                Авто
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Поведение</h4>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="autoScrollSetting" checked>
+                            Автопрокрутка к новым сообщениям
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="typingIndicatorSetting" checked>
+                            Показывать индикатор набора
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="settingsModalCancel">Отмена</button>
+                <button class="modal-btn primary" id="settingsModalSave">Сохранить</button>
             </div>
         </div>
     </div>
