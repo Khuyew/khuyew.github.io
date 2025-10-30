@@ -8,84 +8,40 @@
             m[i].l=1*new Date();
             for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
             k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=104843405', 'ym');
-    
-        ym(104843405, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+
+        ym(104843405, 'init', {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+        });
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/104843405" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter -->
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QQKXYHS18Q"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
 
-        gtag('config', 'G-QQKXYHS18Q');
-    </script>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#121212">
     
     <!-- SEO Meta Tags -->
     <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
-    <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
-    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь">
+    <meta name="description" content="KHAI — первый белорусский ИИ-ассистент. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
+    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, ИИ Беларусь">
     <meta name="author" content="KHAI Team">
     <meta name="robots" content="index, follow, max-image-preview:large">
-    <meta name="googlebot" content="index, follow">
     
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="KHAI Assistant">
     <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
-    <meta property="og:image" content="./assets/logo.png">
+    <meta property="og:description" content="Бесплатный ИИ-ассистент с передовыми возможностями AI">
     <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
-    <meta name="twitter:image" content="./assets/logo.png">
-    <meta name="twitter:site" content="@khai_assistant">
-    
-    <!-- Schema.org -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "KHAI Assistant",
-        "url": "./",
-        "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
-        "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "Any",
-        "permissions": "microphone",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        },
-        "author": {
-            "@type": "Organization",
-            "name": "KHAI",
-            "url": "./"
-        }
-    }
-    </script>
-
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
-    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
-    <link rel="apple-touch-icon" href="./assets/logo.png">
-    
-    <!-- Preload Critical Resources -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
-    <link rel="preload" href="./styles.css" as="style">
-    <link rel="preload" href="./script.js" as="script">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230099FF' rx='20'/><text x='50' y='70' font-family='Arial' font-size='60' text-anchor='middle' fill='white'>🧠</text></svg>">
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
@@ -94,144 +50,12 @@
     <!-- Puter AI SDK -->
     <script src="https://js.puter.com/v2/"></script>
 </head>
-<body>
-    <!-- Onboarding Guide Overlay -->
-    <div class="guide-overlay" id="guideOverlay">
-        <div class="guide-container">
-            <div class="guide-header">
-                <h2>🎯 Обучение KHAI Assistant</h2>
-                <p>Пройдите краткое обучение, чтобы освоить все возможности</p>
-            </div>
-            
-            <div class="guide-content">
-                <!-- Step 1: Introduction -->
-                <div class="guide-step active" id="guideStep1">
-                    <div class="guide-highlight" id="guideHighlight1"></div>
-                    <div class="guide-tooltip" id="guideTooltip1">
-                        <h3>👋 Добро пожаловать в KHAI!</h3>
-                        <p>Это ваш ИИ-помощник. Давайте познакомимся с основными элементами интерфейса.</p>
-                        <div class="guide-actions">
-                            <button class="guide-btn primary" onclick="nextGuideStep()">
-                                Далее <i class="ti ti-arrow-right"></i>
-                            </button>
-                            <button class="guide-btn secondary" onclick="skipGuide()">
-                                Пропустить обучение
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 2: Chat Input -->
-                <div class="guide-step" id="guideStep2">
-                    <div class="guide-highlight" id="guideHighlight2"></div>
-                    <div class="guide-tooltip" id="guideTooltip2">
-                        <h3>💬 Основное поле ввода</h3>
-                        <p>Здесь вы можете задавать вопросы ИИ. Используйте Enter для быстрой отправки или кнопку отправки.</p>
-                        <div class="guide-actions">
-                            <button class="guide-btn secondary" onclick="prevGuideStep()">
-                                <i class="ti ti-arrow-left"></i> Назад
-                            </button>
-                            <button class="guide-btn primary" onclick="nextGuideStep()">
-                                Далее <i class="ti ti-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 3: File Upload -->
-                <div class="guide-step" id="guideStep3">
-                    <div class="guide-highlight" id="guideHighlight3"></div>
-                    <div class="guide-tooltip" id="guideTooltip3">
-                        <h3>📁 Загрузка файлов</h3>
-                        <p>Нажмите эту кнопку, чтобы загрузить изображения, документы или файлы кода для анализа.</p>
-                        <div class="guide-actions">
-                            <button class="guide-btn secondary" onclick="prevGuideStep()">
-                                <i class="ti ti-arrow-left"></i> Назад
-                            </button>
-                            <button class="guide-btn primary" onclick="nextGuideStep()">
-                                Далее <i class="ti ti-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 4: Mode Selection -->
-                <div class="guide-step" id="guideStep4">
-                    <div class="guide-highlight" id="guideHighlight4"></div>
-                    <div class="guide-tooltip" id="guideTooltip4">
-                        <h3>🎛️ Режимы работы</h3>
-                        <p>Переключайтесь между обычным чатом, генерацией голоса, изображений и видео в зависимости от ваших задач.</p>
-                        <div class="guide-actions">
-                            <button class="guide-btn secondary" onclick="prevGuideStep()">
-                                <i class="ti ti-arrow-left"></i> Назад
-                            </button>
-                            <button class="guide-btn primary" onclick="nextGuideStep()">
-                                Далее <i class="ti ti-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 5: Model Selection -->
-                <div class="guide-step" id="guideStep5">
-                    <div class="guide-highlight" id="guideHighlight5"></div>
-                    <div class="guide-tooltip" id="guideTooltip5">
-                        <h3>🤖 Выбор модели ИИ</h3>
-                        <p>Здесь вы можете выбрать подходящую модель ИИ для ваших задач - от быстрых до самых продвинутых.</p>
-                        <div class="guide-actions">
-                            <button class="guide-btn secondary" onclick="prevGuideStep()">
-                                <i class="ti ti-arrow-left"></i> Назад
-                            </button>
-                            <button class="guide-btn primary" onclick="nextGuideStep()">
-                                Далее <i class="ti ti-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 6: Chat Management -->
-                <div class="guide-step" id="guideStep6">
-                    <div class="guide-highlight" id="guideHighlight6"></div>
-                    <div class="guide-tooltip" id="guideTooltip6">
-                        <h3>💾 Управление чатами</h3>
-                        <p>Откройте меню для создания новых чатов, переключения между ними и управления историей.</p>
-                        <div class="guide-actions">
-                            <button class="guide-btn secondary" onclick="prevGuideStep()">
-                                <i class="ti ti-arrow-left"></i> Назад
-                            </button>
-                            <button class="guide-btn primary" onclick="completeGuide()">
-                                Начать использовать! <i class="ti ti-rocket"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress -->
-            <div class="guide-progress">
-                <div class="guide-progress-dot active" data-step="1"></div>
-                <div class="guide-progress-dot" data-step="2"></div>
-                <div class="guide-progress-dot" data-step="3"></div>
-                <div class="guide-progress-dot" data-step="4"></div>
-                <div class="guide-progress-dot" data-step="5"></div>
-                <div class="guide-progress-dot" data-step="6"></div>
-            </div>
-        </div>
-    </div>
-
+<body data-theme="dark">
     <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-content">
-            <div class="logo-animation">
-                <svg width="80" height="80" viewBox="0 0 100 100">
-                    <defs>
-                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#0099FF"/>
-                            <stop offset="100%" stop-color="#0066FF"/>
-                        </linearGradient>
-                    </defs>
-                    <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="url(#logoGradient)"/>
-                </svg>
+            <div class="preloader-logo">
+                <i class="ti ti-brain"></i>
             </div>
             <div class="preloader-spinner"></div>
             <p class="preloader-text">Загрузка KHAI Assistant...</p>
@@ -241,16 +65,8 @@
     <!-- 404 Page (hidden by default) -->
     <div class="page-404" id="page404" style="display: none;">
         <div class="error-container">
-            <div class="logo-animation">
-                <svg width="120" height="120" viewBox="0 0 100 100">
-                    <defs>
-                        <linearGradient id="errorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#0099FF"/>
-                            <stop offset="100%" stop-color="#0066FF"/>
-                        </linearGradient>
-                    </defs>
-                    <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="url(#errorGradient)"/>
-                </svg>
+            <div class="error-logo">
+                <i class="ti ti-brain"></i>
             </div>
             <h1>404 - Страница не найдена</h1>
             <p>Запрошенная страница не существует или была перемещена.</p>
@@ -265,15 +81,7 @@
             <div class="header-content">
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
-                        <svg width="36" height="36" viewBox="0 0 100 100">
-                            <defs>
-                                <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#0099FF"/>
-                                    <stop offset="100%" stop-color="#0066FF"/>
-                                </linearGradient>
-                            </defs>
-                            <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="url(#headerGradient)"/>
-                        </svg>
+                        <i class="ti ti-brain"></i>
                     </div>
                 </div>
                 
@@ -305,7 +113,7 @@
         <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Messages will be loaded here -->
+                <!-- Welcome message will be loaded here -->
             </div>
 
             <!-- Minimap & Navigation -->
@@ -339,12 +147,12 @@
             <div class="input-wrapper">
                 <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
                     <i class="ti ti-plus"></i>
-                    <input type="file" id="fileInput" accept="image/*,.txt,.md,.html,.css,.js,.json,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.swift,.kt,.scala,.rs,.xml,.csv,.yaml,.yml" multiple style="display: none;">
+                    <input type="file" id="fileInput" accept="image/*,.txt,.md,.html,.css,.js,.json,.pdf,.doc,.docx" multiple style="display: none;">
                 </button>
                 
                 <textarea 
                     id="userInput" 
-                    placeholder="Задайте вопрос или опишите изображение..." 
+                    placeholder="Задайте вопрос или опишите задачу..." 
                     autocomplete="off" 
                     rows="1"
                     maxlength="4000"
@@ -371,17 +179,13 @@
                     <i class="ti ti-message"></i>
                     <span class="btn-text">Обычный</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateVoiceBtn" disabled title="В разработке">
+                <button class="action-btn mode-btn" id="generateVoiceBtn">
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateImageBtn" disabled title="В разработке">
+                <button class="action-btn mode-btn" id="generateImageBtn">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
-                </button>
-                <button class="action-btn mode-btn" id="generateVideoBtn">
-                    <i class="ti ti-video"></i>
-                    <span class="btn-text">Видео</span>
                 </button>
             </div>
         </div>
@@ -395,7 +199,7 @@
                 </div>
                 
                 <div class="connection-status">
-                    <i class="ti ti-circle"></i>
+                    <div class="status-indicator"></div>
                     <span id="connectionStatusText">Подключено</span>
                 </div>
                 
@@ -416,214 +220,87 @@
 
     <!-- Sidebar Menu -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <div class="sidebar-menu" id="sidebarMenu">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-header-content">
-                <div class="sidebar-logo">
-                    <svg width="40" height="40" viewBox="0 0 100 100">
-                        <defs>
-                            <linearGradient id="sidebarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#0099FF"/>
-                                <stop offset="100%" stop-color="#0066FF"/>
-                            </linearGradient>
-                        </defs>
-                        <path class="logo-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="url(#sidebarGradient)"/>
-                    </svg>
-                </div>
-                <h3>KHAI <span class="beta-badge">BETA</span></h3>
+            <div class="sidebar-title">
+                <i class="ti ti-brain"></i>
+                KHAI Assistant
             </div>
-            <button class="sidebar-close" id="sidebarClose">
+            <button class="close-sidebar" id="closeSidebar">
                 <i class="ti ti-x"></i>
             </button>
         </div>
         
         <div class="sidebar-content">
-            <div class="sidebar-search-container">
-                <div class="search-wrapper">
-                    <i class="ti ti-search"></i>
-                    <input type="text" id="sidebarSearch" placeholder="Поиск по чатам..." aria-label="Поиск по чатам">
-                    <button class="search-clear" id="sidebarSearchClear" style="display: none;" aria-label="Очистить поиск">
-                        <i class="ti ti-x"></i>
-                    </button>
-                </div>
-            </div>
-
             <div class="sidebar-section">
-                <h4><i class="ti ti-messages"></i> Мои чаты</h4>
+                <div class="sidebar-section-title">Мои чаты</div>
                 <div class="chat-list" id="chatList"></div>
-                <div class="chat-management-buttons">
-                    <button class="sidebar-btn primary" id="newChatBtn">
+                <div class="sidebar-buttons-grid">
+                    <button class="sidebar-btn" id="newChatBtn">
                         <i class="ti ti-plus"></i> Новый чат
                     </button>
-                    <button class="sidebar-btn" id="importChatBtn">
-                        <i class="ti ti-upload"></i> Импорт чата
-                    </button>
-                    <button class="sidebar-btn danger" id="deleteAllChatsBtn">
-                        <i class="ti ti-trash"></i> Удалить все
+                    <button class="sidebar-btn" id="guideBtn">
+                        <i class="ti ti-book"></i> Гайд
                     </button>
                 </div>
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-brain"></i> Модель ИИ</h4>
-                <div class="current-model-info">
-                    <span id="currentModelInfo">GPT-5 Nano</span>
-                    <span class="connection-status" id="connectionStatus">✅ Онлайн</span>
+                <div class="sidebar-section-title">Модель ИИ</div>
+                <div class="model-selection" id="modelSelection">
+                    <div class="model-option active" data-model="gpt-4">
+                        <div class="model-radio"></div>
+                        <div class="model-info">
+                            <div class="model-name">GPT-4</div>
+                            <div class="model-description">Продвинутая модель для сложных задач</div>
+                        </div>
+                    </div>
+                    <div class="model-option" data-model="gpt-3.5">
+                        <div class="model-radio"></div>
+                        <div class="model-info">
+                            <div class="model-name">GPT-3.5 Turbo</div>
+                            <div class="model-description">Быстрая и эффективная</div>
+                        </div>
+                    </div>
+                    <div class="model-option" data-model="claude-3">
+                        <div class="model-radio"></div>
+                        <div class="model-info">
+                            <div class="model-name">Claude 3</div>
+                            <div class="model-description">Улучшенное понимание контекста</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-info-circle"></i> О приложении</h4>
-                <div class="about-content">
-                    <div class="about-item">
-                        <strong>KHAI Assistant</strong>
-                        <span>Первый белорусский ИИ-помощник</span>
+                <div class="sidebar-section-title">Настройки</div>
+                <div class="settings-options">
+                    <div class="settings-option" id="autoScrollOption">
+                        <span>Авто-скролл</span>
+                        <span class="settings-value">Вкл</span>
                     </div>
-                    <div class="about-item">
-                        <strong>Версия</strong>
-                        <span>2.1.0</span>
+                    <div class="settings-option" id="cleanScreenOption">
+                        <span>Чистый экран</span>
+                        <span class="settings-value">Выкл</span>
                     </div>
-                    <div class="about-item">
-                        <strong>Обновлено</strong>
-                        <span id="appVersionDate">2024</span>
+                    <div class="settings-option" id="fullWidthOption">
+                        <span>Полная ширина</span>
+                        <span class="settings-value">Выкл</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="sidebar-links">
-                <button class="sidebar-btn" id="guideBtn" style="margin-bottom: 15px;">
-                    <i class="ti ti-presentation"></i> Пройти обучение
-                </button>
-                
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                    <a href="https://khai.by/docs" target="_blank" class="sidebar-link">
-                        Документация
-                    </a>
-                    <a href="https://khai.by/support" target="_blank" class="sidebar-link">
-                        Поддержка
-                    </a>
-                    <a href="mailto:khuyew@proton.me" class="sidebar-link">
-                        Сотрудничество
-                    </a>
-                </div>
-                
-                <!-- LiveInternet Counter -->
-                <div style="margin-bottom: 20px; display: flex; justify-content: center;">
-                    <!--LiveInternet counter--><a href="https://www.liveinternet.ru/click"
-                    target="_blank"><img id="licntB611" width="88" height="31" style="border:0" 
-                    title="LiveInternet: показано число просмотров и посетителей за 24 часа"
-                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAIBTAA7"
-                    alt=""/></a><script>(function(d,s){d.getElementById("licntB611").src=
-                    "https://counter.yadro.ru/hit?t52.6;r"+escape(d.referrer)+
-                    ((typeof(s)=="undefined")?"":";s"+s.width+"*"+s.height+"*"+
-                    (s.colorDepth?s.colorDepth:s.pixelDepth))+";u"+escape(d.URL)+
-                    ";h"+escape(d.title.substring(0,150))+";"+Math.random()})
-                    (document,screen)</script><!--/LiveInternet-->
-
-                    <!-- Yandex.Metrika informer --> <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">     <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"          style="width:88px; height:31px; border:0;"          alt="Яндекс.Метрика"          title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"         class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/> </a> <!-- /Yandex.Metrika informer -->  <!-- Yandex.Metrika counter --> <script type="text/javascript">     (function(m,e,t,r,i,k,a){         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};         m[i].l=1*new Date();         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)     })(window, document,'script','https://mc.webvisor.org/metrika/tag_ww.js', 'ym');      ym(104843405, 'init', {webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true}); </script>  <!-- /Yandex.Metrika counter -->   
-                </div>
-                
-                <a href="https://khai.by/github" target="_blank" class="github-link">
-                    <i class="ti ti-brand-github"></i>
-                </a>
-                
-                <p class="sidebar-copyright">
-                    © 2025 KHAI, Беларусь.<br>
-                    Все права защищены!
-                </p>
-            </div>
+        <div class="sidebar-footer">
+            <button class="sidebar-btn danger" id="deleteAllChatsBtn">
+                <i class="ti ti-trash"></i> Удалить все чаты
+            </button>
+            <div class="sidebar-version">v2.1.0</div>
         </div>
     </div>
 
-    <!-- Edit Chat Modal -->
-    <div class="modal-overlay" id="editChatModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Редактировать название чата</h3>
-                <button class="modal-close" id="editChatModalClose">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-input-wrapper">
-                    <input type="text" id="editChatNameInput" placeholder="Введите название чата..." maxlength="16" class="modal-input">
-                    <button class="modal-clear-input" id="modalClearInput" style="display: none;">
-                        <i class="ti ti-x"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn" id="editChatModalCancel">Отмена</button>
-                <button class="modal-btn primary" id="editChatModalSave">Сохранить</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Model Selection Modal -->
-    <div class="modal-overlay" id="modelModalOverlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Выберите модель ИИ</h3>
-                <button class="modal-close" id="modelModalClose">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="model-list" id="modelList"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn" id="modelModalCancel">Отмена</button>
-                <button class="modal-btn primary" id="modelModalConfirm">Выбрать</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Video Generation Modal -->
-    <div class="modal-overlay" id="videoModalOverlay">
-        <div class="modal video-modal">
-            <div class="modal-header">
-                <h3>🎬 Генерация видео</h3>
-                <button class="modal-close" id="videoModalClose">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="video-preview" id="videoPreview">
-                    <div class="video-placeholder">
-                        <i class="ti ti-video"></i>
-                        <p>Видео будет сгенерировано здесь</p>
-                    </div>
-                </div>
-                <div class="video-controls">
-                    <div class="video-param">
-                        <label for="videoDuration">Длительность (секунды):</label>
-                        <select id="videoDuration">
-                            <option value="4">4 секунды</option>
-                            <option value="8" selected>8 секунд</option>
-                            <option value="12">12 секунд</option>
-                            <option value="16">16 секунд</option>
-                        </select>
-                    </div>
-                    <div class="video-param">
-                        <label for="videoResolution">Разрешение:</label>
-                        <select id="videoResolution">
-                            <option value="1280x720" selected>1280x720 (HD)</option>
-                            <option value="1920x1080">1920x1080 (Full HD)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="video-prompt">
-                    <textarea id="videoPromptInput" placeholder="Опишите сцену для генерации видео... Например: 'Космонавт летит через галактику в стиле аниме'"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn" id="videoModalCancel">Отмена</button>
-                <button class="modal-btn primary" id="videoModalGenerate">
-                    <i class="ti ti-player-play"></i> Сгенерировать видео
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
