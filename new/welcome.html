@@ -1,147 +1,128 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" itemscope itemtype="https://schema.org/WebApplication">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KHAI — Первый белорусский чат с ИИ</title>
+    <meta name="theme-color" content="#0f0f23">
+    
+    <!-- SEO Meta Tags -->
+    <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
+    <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
+    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь">
+    <meta name="author" content="KHAI Team">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KHAI Assistant">
+    <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
+    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
+    <meta property="og:image" content="./assets/og-image.jpg">
+    <meta property="og:url" content="./">
+    <meta property="og:locale" content="ru_RU">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.puter.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://api.puter.com wss:;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
+    <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
+    <link rel="apple-touch-icon" href="./assets/logo-192.png">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
+    <link rel="preload" href="./styles.css" as="style">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://js.puter.com">
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="./styles.css">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: rgba(255, 255, 255, 0.03);
-            --bg-tertiary: rgba(255, 255, 255, 0.08);
-            --bg-glass: rgba(255, 255, 255, 0.1);
-            --bg-glass-dark: rgba(0, 0, 0, 0.2);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0c0;
-            --accent-primary: #0099ff;
-            --accent-secondary: #0066ff;
-            --accent-glow: rgba(0, 153, 255, 0.5);
-            --user-message-bg-start: #667eea;
-            --user-message-bg-end: #764ba2;
-            --ai-message-bg: rgba(255, 255, 255, 0.08);
-            --border-color: rgba(255, 255, 255, 0.15);
-            --border-glow: rgba(255, 255, 255, 0.2);
-            --radius-lg: 20px;
-            --radius-md: 16px;
-            --radius-sm: 12px;
-            --shadow-lg: 0 20px 40px -10px rgba(0, 153, 255, 0.3);
-            --shadow-glow: 0 0 20px rgba(0, 153, 255, 0.5);
-            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --backdrop-blur: blur(20px);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --glow-primary: 0 0 40px rgba(102, 126, 234, 0.3);
+            --glow-secondary: 0 0 40px rgba(118, 75, 162, 0.3);
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        .welcome-container {
+            min-height: 100vh;
             background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow: hidden;
-            height: 100vh;
-            height: 100dvh;
             position: relative;
-        }
-
-        .app-container {
-            height: 100vh;
-            height: 100dvh;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Animated Polygonal Background */
-        .polygonal-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
-        }
-
-        .polygon {
-            position: absolute;
-            background: var(--accent-primary);
-            opacity: 0.05;
-            animation: float 8s ease-in-out infinite;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-        }
-
-        .polygon-1 {
-            width: 300px;
-            height: 300px;
-            top: 10%;
-            left: 5%;
-            animation-delay: 0s;
-            background: linear-gradient(135deg, var(--accent-primary), var(--user-message-bg-end));
-        }
-
-        .polygon-2 {
-            width: 200px;
-            height: 200px;
-            bottom: 15%;
-            right: 10%;
-            animation-delay: -2s;
-            background: linear-gradient(135deg, var(--user-message-bg-start), var(--accent-secondary));
-        }
-
-        .polygon-3 {
-            width: 150px;
-            height: 150px;
-            top: 60%;
-            left: 15%;
-            animation-delay: -4s;
-            background: linear-gradient(135deg, var(--user-message-bg-end), var(--accent-primary));
-        }
-
-        .polygon-4 {
-            width: 180px;
-            height: 180px;
-            top: 20%;
-            right: 20%;
-            animation-delay: -6s;
-            background: linear-gradient(135deg, var(--accent-secondary), var(--user-message-bg-start));
-        }
-
-        /* Glass Morphism Overlay */
-        .glass-overlay {
+        .animated-background {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(0, 153, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
-            backdrop-filter: var(--backdrop-blur);
-            -webkit-backdrop-filter: var(--backdrop-blur);
-            z-index: 1;
+                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
         }
 
-        /* Main Content */
-        .main-content {
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+            filter: blur(40px);
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: 20%;
+            right: 15%;
+            animation-delay: -2s;
+            background: var(--gradient-secondary);
+        }
+
+        .shape-3 {
+            width: 250px;
+            height: 250px;
+            top: 50%;
+            left: 70%;
+            animation-delay: -4s;
+            background: var(--gradient-accent);
+        }
+
+        .welcome-content {
             position: relative;
             z-index: 2;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
             text-align: center;
+            padding: 2rem;
+            max-width: 800px;
         }
 
-        /* Logo Section with Neumorphism */
         .logo-section {
-            margin-bottom: 40px;
+            margin-bottom: 3rem;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUpFade 0.8s ease 0.3s forwards;
@@ -150,95 +131,92 @@
         .logo-container {
             width: 120px;
             height: 120px;
-            margin: 0 auto 25px;
-            position: relative;
+            margin: 0 auto 2rem;
+            background: var(--gradient-primary);
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .logo-background {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-glass);
-            border-radius: var(--radius-md);
-            backdrop-filter: var(--backdrop-blur);
-            -webkit-backdrop-filter: var(--backdrop-blur);
-            border: 1px solid var(--border-glow);
-            box-shadow: 
-                inset 2px 2px 5px rgba(255, 255, 255, 0.1),
-                inset -2px -2px 5px rgba(0, 0, 0, 0.3),
-                0 10px 20px rgba(0, 0, 0, 0.3);
-            animation: pulse 3s ease-in-out infinite;
-        }
-
-        .logo {
-            width: 70px;
-            height: 70px;
-            position: relative;
-            z-index: 2;
-            filter: drop-shadow(0 0 10px var(--accent-glow));
-        }
-
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 70%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-            line-height: 1.1;
-            text-shadow: 0 0 20px var(--accent-glow);
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            font-size: 1.3rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-            max-width: 500px;
-            margin: 0 auto;
-            line-height: 1.5;
-        }
-
-        /* Demo Chat with Glass Morphism */
-        .demo-chat {
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glow);
-            border-radius: var(--radius-lg);
-            padding: 30px;
-            margin: 40px 0;
-            backdrop-filter: var(--backdrop-blur);
-            -webkit-backdrop-filter: var(--backdrop-blur);
-            max-width: 450px;
-            width: 100%;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: slideUpFade 0.8s ease 0.8s forwards;
-            box-shadow: 
-                inset 2px 2px 5px rgba(255, 255, 255, 0.1),
-                inset -2px -2px 5px rgba(0, 0, 0, 0.3),
-                0 15px 30px rgba(0, 0, 0, 0.4);
+            box-shadow: var(--glow-primary);
+            animation: pulse 2s ease-in-out infinite;
             position: relative;
             overflow: hidden;
         }
 
-        .demo-chat::before {
+        .logo-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--gradient-primary);
+            border-radius: 26px;
+            z-index: -1;
+            opacity: 0.6;
+            filter: blur(10px);
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: white;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E") center/contain no-repeat;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-tertiary);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .demo-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin: 3rem 0;
+            backdrop-filter: blur(20px);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease 0.8s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-section::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            background: var(--gradient-primary);
         }
 
         .chat-message {
@@ -246,59 +224,51 @@
             font-size: 0.95rem;
             color: var(--text-primary);
             line-height: 1.5;
-            margin-bottom: 18px;
+            margin-bottom: 1rem;
+            padding: 1rem 1.2rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
             opacity: 0;
             transform: translateX(-20px);
             animation: slideRightFade 0.6s ease forwards;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            background: var(--bg-glass-dark);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
         }
 
-        .chat-message:nth-child(1) { 
-            animation-delay: 1.3s; 
-            background: linear-gradient(135deg, var(--ai-message-bg), transparent);
-        }
+        .chat-message:nth-child(1) { animation-delay: 1.3s; }
         .chat-message:nth-child(2) { 
             text-align: right;
             transform: translateX(20px);
             animation-name: slideLeftFade;
             animation-delay: 2.1s;
-            background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
-            margin-left: auto;
-            max-width: 80%;
+            background: var(--gradient-primary);
+            color: white;
+            margin-left: 2rem;
         }
         .chat-message:nth-child(3) { 
-            animation-delay: 2.9s; 
-            background: linear-gradient(135deg, var(--ai-message-bg), transparent);
+            animation-delay: 2.9s;
+            background: var(--bg-primary);
+            border: 1px solid var(--accent-primary);
         }
 
         .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 0.75rem;
             color: var(--text-secondary);
             font-size: 0.9rem;
             opacity: 0;
             animation: fadeIn 0.5s ease 3.7s forwards;
-            padding: 10px 15px;
-            border-radius: var(--radius-md);
-            background: var(--bg-glass-dark);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            max-width: fit-content;
+            padding: 0.5rem 0;
         }
 
         .typing-dots {
             display: flex;
-            gap: 4px;
+            gap: 0.25rem;
         }
 
         .typing-dot {
-            width: 8px;
-            height: 8px;
+            width: 0.5rem;
+            height: 0.5rem;
             background: var(--accent-primary);
             border-radius: 50%;
             animation: typingBounce 1.4s infinite ease-in-out;
@@ -307,41 +277,32 @@
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
-        /* Action Buttons with Neumorphism */
         .action-section {
             opacity: 0;
             animation: fadeIn 0.8s ease 4.5s forwards;
-            width: 100%;
-            max-width: 500px;
         }
 
         .action-buttons {
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 1rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .action-btn {
-            padding: 16px 32px;
-            border-radius: var(--radius-md);
+            padding: 1rem 2rem;
+            border-radius: var(--radius-lg);
             font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
-            transition: var(--transition);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 10px;
-            border: none;
-            cursor: pointer;
+            gap: 0.5rem;
+            border: 2px solid transparent;
             position: relative;
             overflow: hidden;
-            flex: 1;
-            min-width: 160px;
-            justify-content: center;
-            backdrop-filter: var(--backdrop-blur);
-            -webkit-backdrop-filter: var(--backdrop-blur);
         }
 
         .action-btn::before {
@@ -360,126 +321,86 @@
         }
 
         .primary-btn {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: var(--gradient-primary);
             color: white;
-            box-shadow: var(--shadow-lg), var(--shadow-glow);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--glow-primary);
         }
 
         .primary-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 25px 50px -12px rgba(0, 153, 255, 0.5), 0 0 25px rgba(0, 153, 255, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
         }
 
         .secondary-btn {
-            background: var(--bg-glass);
+            background: var(--bg-tertiary);
             color: var(--text-primary);
-            border: 1px solid var(--border-glow);
-            box-shadow: 
-                inset 2px 2px 5px rgba(255, 255, 255, 0.1),
-                inset -2px -2px 5px rgba(0, 0, 0, 0.3),
-                0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: var(--border-color);
+            backdrop-filter: blur(10px);
         }
 
         .secondary-btn:hover {
-            background: var(--bg-glass-dark);
-            border-color: var(--accent-primary);
-            transform: translateY(-3px);
-            box-shadow: 
-                inset 2px 2px 5px rgba(255, 255, 255, 0.1),
-                inset -2px -2px 5px rgba(0, 0, 0, 0.3),
-                0 15px 30px rgba(0, 0, 0, 0.4),
-                0 0 15px rgba(0, 153, 255, 0.3);
-        }
-
-        .feature-tags {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .feature-tag {
-            padding: 8px 16px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glow);
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            backdrop-filter: var(--backdrop-blur);
-            -webkit-backdrop-filter: var(--backdrop-blur);
-            box-shadow: 
-                inset 1px 1px 3px rgba(255, 255, 255, 0.1),
-                inset -1px -1px 3px rgba(0, 0, 0, 0.3);
-            transition: var(--transition);
-        }
-
-        .feature-tag:hover {
-            color: var(--text-primary);
+            background: var(--bg-hover);
             border-color: var(--accent-primary);
             transform: translateY(-2px);
-            box-shadow: 
-                inset 1px 1px 3px rgba(255, 255, 255, 0.1),
-                inset -1px -1px 3px rgba(0, 0, 0, 0.3),
-                0 5px 15px rgba(0, 153, 255, 0.2);
         }
 
-        /* Mobile Navigation Drawer */
-        .mobile-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-glass);
-            backdrop-filter: var(--backdrop-blur);
-            -webkit-backdrop-filter: var(--backdrop-blur);
-            border-top: 1px solid var(--border-glow);
-            padding: 15px;
-            z-index: 100;
-            display: none;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
-        .nav-items {
+        .feature-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-primary);
+            box-shadow: var(--glow-primary);
+        }
+
+        .feature-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem;
+            background: var(--gradient-primary);
+            border-radius: 12px;
             display: flex;
-            justify-content: space-around;
             align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.8rem;
-            transition: var(--transition);
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
+        .feature-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
         }
 
-        .nav-item.active {
-            color: var(--accent-primary);
-            background: var(--bg-glass-dark);
+        .feature-desc {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            line-height: 1.4;
         }
 
-        .nav-item i {
-            font-size: 1.2rem;
-        }
-
-        /* Animations */
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
         }
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 0.9; }
         }
 
         @keyframes slideUpFade {
@@ -517,11 +438,15 @@
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .title {
-                font-size: 2.8rem;
+                font-size: 3rem;
             }
             
             .subtitle {
-                font-size: 1.1rem;
+                font-size: 1.2rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
             }
             
             .logo-container {
@@ -529,64 +454,14 @@
                 height: 100px;
             }
             
-            .logo {
-                width: 60px;
-                height: 60px;
-            }
-            
-            .demo-chat {
-                padding: 25px;
-                margin: 30px 0;
-            }
-            
-            .action-btn {
-                padding: 14px 28px;
-                font-size: 0.95rem;
-                min-width: 140px;
-            }
-            
-            .feature-tags {
-                gap: 10px;
-            }
-            
-            .feature-tag {
-                font-size: 0.8rem;
-                padding: 7px 14px;
-            }
-
-            .mobile-nav {
-                display: block;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .title {
-                font-size: 2.3rem;
-            }
-            
-            .subtitle {
-                font-size: 1rem;
-            }
-            
-            .logo-container {
-                width: 90px;
-                height: 90px;
-                margin-bottom: 20px;
-            }
-            
-            .logo {
+            .logo-icon {
                 width: 50px;
                 height: 50px;
             }
             
-            .demo-chat {
-                padding: 20px;
-                margin: 25px 0;
-            }
-            
-            .chat-message {
-                font-size: 0.9rem;
-                padding: 10px 14px;
+            .demo-section {
+                padding: 1.5rem;
+                margin: 2rem 0;
             }
             
             .action-buttons {
@@ -600,85 +475,85 @@
                 justify-content: center;
             }
             
-            .feature-tags {
-                gap: 8px;
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2.5rem;
             }
             
-            .feature-tag {
-                font-size: 0.75rem;
-                padding: 6px 12px;
+            .subtitle {
+                font-size: 1.1rem;
             }
-
-            .polygon-1, .polygon-2, .polygon-3, .polygon-4 {
-                display: none;
+            
+            .logo-container {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 1.5rem;
             }
-        }
-
-        /* Performance optimizations */
-        .polygon {
-            will-change: transform;
-        }
-
-        .action-btn, .feature-tag {
-            will-change: transform;
-        }
-
-        /* Reduced motion for accessibility */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+            
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .demo-section {
+                padding: 1rem;
+                margin: 1.5rem 0;
+            }
+            
+            .chat-message {
+                font-size: 0.85rem;
+                padding: 0.8rem 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+            
+            .feature-card {
+                padding: 1.2rem 0.8rem;
             }
         }
     </style>
 </head>
-<body>
-    <div class="app-container">
-        <!-- Animated Polygonal Background -->
-        <div class="polygonal-background">
-            <div class="polygon polygon-1"></div>
-            <div class="polygon polygon-2"></div>
-            <div class="polygon polygon-3"></div>
-            <div class="polygon polygon-4"></div>
+<body data-theme="dark">
+    <div class="welcome-container">
+        <!-- Animated Background -->
+        <div class="animated-background">
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
         </div>
 
-        <!-- Glass Morphism Overlay -->
-        <div class="glass-overlay"></div>
-
         <!-- Main Content -->
-        <div class="main-content">
+        <div class="welcome-content">
             <!-- Logo and Title -->
             <div class="logo-section">
                 <div class="logo-container">
-                    <div class="logo-background"></div>
-                    <div class="logo">
-                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" fill="url(#gradient)"/>
-                            <path d="M50 30 L70 40 L70 60 L50 70 L30 60 L30 40 Z" fill="#0f0f23"/>
-                            <defs>
-                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#0099ff"/>
-                                    <stop offset="100%" stop-color="#764ba2"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                    </div>
+                    <div class="logo-icon"></div>
                 </div>
                 <h1 class="title">KHAI</h1>
-                <p class="subtitle">Первый белорусский ИИ-помощник с передовыми возможностями</p>
+                <p class="subtitle">Первый белорусский ИИ-помощник</p>
+                <p class="tagline">Мощный искусственный интеллект для решения любых задач. Бесплатно, без ограничений, на русском языке.</p>
             </div>
 
             <!-- Demo Chat -->
-            <div class="demo-chat">
+            <div class="demo-section">
                 <div class="chat-message">
-                    👋 Привет! Я KHAI — умный помощник для решения любых задач
+                    👋 Привет! Я KHAI — умный помощник для решения любых задач. Могу писать код, анализировать изображения, работать с файлами и многое другое!
                 </div>
                 <div class="chat-message">
-                    Что ты умеешь?
+                    Что конкретно ты умеешь?
                 </div>
                 <div class="chat-message">
-                    Всё! Код, анализ изображений, тексты, голос, файлы... 
+                    Всё! От написания кода на Python до анализа сложных документов. Поддерживаю голосовое общение, работу с изображениями и файлами разных форматов.
                 </div>
                 <div class="typing-indicator">
                     <div class="typing-dots">
@@ -693,87 +568,129 @@
             <!-- Action Buttons -->
             <div class="action-section">
                 <div class="action-buttons">
-                    <a href="./index.html" class="action-btn primary-btn" id="startBtn">
+                    <a href="./guide.html" class="action-btn primary-btn" id="startBtn">
                         <i class="ti ti-rocket"></i>
-                        Стартуем!
+                        Начать использование
                     </a>
-                    <a href="./guide.html" class="action-btn secondary-btn">
-                        <i class="ti ti-book"></i>
-                        Обучение
-                    </a>
-                    <a href="https://t.me/khuyew" target="_blank" class="action-btn secondary-btn">
-                        <i class="ti ti-brand-telegram"></i>
-                        Поддержка
+                    <a href="#features" class="action-btn secondary-btn">
+                        <i class="ti ti-sparkles"></i>
+                        Возможности
                     </a>
                 </div>
                 
-                <div class="feature-tags">
-                    <div class="feature-tag">
-                        <i class="ti ti-brain"></i>
-                        Умный ИИ
+                <!-- Features Grid -->
+                <div class="features-grid" id="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="ti ti-brain"></i>
+                        </div>
+                        <div class="feature-name">Умный ИИ</div>
+                        <div class="feature-desc">Передовые модели искусственного интеллекта</div>
                     </div>
-                    <div class="feature-tag">
-                        <i class="ti ti-code"></i>
-                        Написание кода
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="ti ti-code"></i>
+                        </div>
+                        <div class="feature-name">Написание кода</div>
+                        <div class="feature-desc">Генерация и анализ кода на 20+ языках</div>
                     </div>
-                    <div class="feature-tag">
-                        <i class="ti ti-photo"></i>
-                        Анализ изображений
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="ti ti-photo"></i>
+                        </div>
+                        <div class="feature-name">Анализ изображений</div>
+                        <div class="feature-desc">Распознавание текста и объектов на фото</div>
                     </div>
-                    <div class="feature-tag">
-                        <i class="ti ti-microphone"></i>
-                        Голосовой ввод
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="ti ti-microphone"></i>
+                        </div>
+                        <div class="feature-name">Голосовой ввод</div>
+                        <div class="feature-desc">Общайтесь с помощником голосом</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="ti ti-file-text"></i>
+                        </div>
+                        <div class="feature-name">Работа с файлами</div>
+                        <div class="feature-desc">Анализ PDF, документов, таблиц и кода</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="ti ti-message-circle"></i>
+                        </div>
+                        <div class="feature-name">Мультиязычный</div>
+                        <div class="feature-desc">Поддержка русского и английского языков</div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Mobile Navigation Drawer -->
-        <div class="mobile-nav">
-            <div class="nav-items">
-                <a href="./index.html" class="nav-item active">
-                    <i class="ti ti-home"></i>
-                    <span>Главная</span>
-                </a>
-                <a href="./guide.html" class="nav-item">
-                    <i class="ti ti-book"></i>
-                    <span>Обучение</span>
-                </a>
-                <a href="https://t.me/khuyew" target="_blank" class="nav-item">
-                    <i class="ti ti-brand-telegram"></i>
-                    <span>Поддержка</span>
-                </a>
-                <a href="#" class="nav-item" id="themeToggleMobile">
-                    <i class="ti ti-moon"></i>
-                    <span>Тема</span>
-                </a>
             </div>
         </div>
     </div>
 
     <script>
-        // User redirection functionality
+        // Enhanced security and functionality
         (function() {
-            // Set flag that user has seen welcome page
-            localStorage.setItem('khai-user-visited', 'true');
+            'use strict';
             
-            // Auto redirect after 10 seconds
-            const redirectTimer = setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 10000);
-
-            // Manual redirect when clicking the start button
+            // Set security flags
+            localStorage.setItem('khai-security-visited', 'true');
+            sessionStorage.setItem('khai-session-id', Date.now().toString());
+            
+            // Validate environment
+            const requiredAPIs = [
+                'Promise',
+                'fetch',
+                'localStorage',
+                'sessionStorage'
+            ];
+            
+            const missingAPIs = requiredAPIs.filter(api => !window[api]);
+            
+            if (missingAPIs.length > 0) {
+                console.error('Missing required APIs:', missingAPIs);
+                return;
+            }
+            
+            // Safe redirect functionality
+            let redirectTimer = null;
+            
+            function safeRedirect(url, delay = 10000) {
+                if (redirectTimer) {
+                    clearTimeout(redirectTimer);
+                }
+                
+                redirectTimer = setTimeout(() => {
+                    try {
+                        if (typeof url === 'string' && url.startsWith('./')) {
+                            window.location.href = url;
+                        }
+                    } catch (error) {
+                        console.error('Redirect error:', error);
+                    }
+                }, delay);
+            }
+            
+            // Manual redirect handler
             const startBtn = document.getElementById('startBtn');
             if (startBtn) {
                 startBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    clearTimeout(redirectTimer);
-                    window.location.href = 'index.html';
+                    safeRedirect('./guide.html', 0);
                 });
             }
-
-            // Simple auto-restart for demo effect
-            setTimeout(() => {
+            
+            // Auto-redirect after delay
+            safeRedirect('./guide.html');
+            
+            // Performance monitoring
+            const loadTime = performance.now();
+            window.addEventListener('load', () => {
+                const totalLoadTime = performance.now() - loadTime;
+                console.log(`Welcome page loaded in ${totalLoadTime.toFixed(2)}ms`);
+            });
+            
+            // Demo animation restart
+            setInterval(() => {
                 const typingIndicator = document.querySelector('.typing-indicator');
                 if (typingIndicator) {
                     typingIndicator.style.animation = 'none';
@@ -782,29 +699,7 @@
                     }, 100);
                 }
             }, 8000);
-
-            // Mobile theme toggle
-            const themeToggleMobile = document.getElementById('themeToggleMobile');
-            if (themeToggleMobile) {
-                themeToggleMobile.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // Simple theme toggle for demo
-                    document.body.style.filter = document.body.style.filter === 'invert(1)' ? '' : 'invert(1)';
-                });
-            }
-
-            // Performance optimization - stop animations when not visible
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden) {
-                    document.querySelectorAll('.polygon').forEach(poly => {
-                        poly.style.animationPlayState = 'paused';
-                    });
-                } else {
-                    document.querySelectorAll('.polygon').forEach(poly => {
-                        poly.style.animationPlayState = 'running';
-                    });
-                }
-            });
+            
         })();
     </script>
 </body>
