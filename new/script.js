@@ -1,4 +1,4 @@
-// KHAI Assistant - Production Ready v2.1.0 with Drag & Drop
+// KHAI Assistant - Production Ready v2.1.0
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -85,20 +85,6 @@ class KHAIAssistant {
             this.errorBackBtn = document.getElementById('errorBackBtn');
             this.sidebarSearchClear = document.getElementById('sidebarSearchClear');
 
-            // Drag & Drop elements
-            this.layoutManager = document.getElementById('layoutManager');
-            this.layoutToggle = document.getElementById('layoutToggle');
-            this.layoutClose = document.getElementById('layoutClose');
-            this.layoutReset = document.getElementById('layoutReset');
-            this.layoutSave = document.getElementById('layoutSave');
-            this.draggableElements = document.getElementById('draggableElements');
-            this.dropZones = document.getElementById('dropZones');
-            this.headerDraggable = document.getElementById('headerDraggable');
-            this.sidebarDraggable = document.getElementById('sidebarDraggable');
-            this.floatingElements = document.getElementById('floatingElements');
-            this.minimapContainer = document.getElementById('minimapContainer');
-            this.actionButtons = document.getElementById('actionButtons');
-
             // Validate critical elements
             this.validateRequiredElements();
             
@@ -153,16 +139,6 @@ class KHAIAssistant {
         this.activeTimeouts = new Set();
         this.activeEventListeners = new Map();
 
-        // Drag & Drop state
-        this.draggedElement = null;
-        this.currentDropZone = null;
-        this.layoutConfig = {
-            header: [],
-            sidebar: [],
-            footer: [],
-            floating: []
-        };
-
         // Configuration
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
@@ -211,35 +187,6 @@ class KHAIAssistant {
             }
         };
 
-        // Element mappings for drag & drop
-        this.elementMappings = {
-            'headerSearch': {
-                element: this.headerSearch?.parentElement?.parentElement,
-                create: () => this.createSearchElement(),
-                type: 'search'
-            },
-            'modelSelectBtn': {
-                element: this.modelSelectBtn,
-                create: () => this.createModelSelectButton(),
-                type: 'button'
-            },
-            'themeToggle': {
-                element: this.themeToggle,
-                create: () => this.createThemeToggleButton(),
-                type: 'button'
-            },
-            'minimapContainer': {
-                element: this.minimapContainer,
-                create: () => this.createMinimapContainer(),
-                type: 'container'
-            },
-            'actionButtons': {
-                element: this.actionButtons,
-                create: () => this.createActionButtons(),
-                type: 'container'
-            }
-        };
-
         // Limits
         this.MAX_FILES = 3;
         this.MAX_MESSAGE_LENGTH = 4000;
@@ -250,279 +197,6 @@ class KHAIAssistant {
         // PWA state
         this.isPWAInstalled = false;
         this.deferredPrompt = null;
-    }
-
-    // Drag & Drop System
-    initDragAndDrop() {
-        this.loadLayoutConfig();
-        this.setupDraggableElements();
-        this.setupDropZones();
-        this.renderLayout();
-    }
-
-    setupDraggableElements() {
-        const draggableItems = this.draggableElements.querySelectorAll('.draggable-item');
-        
-        draggableItems.forEach(item => {
-            item.setAttribute('draggable', 'true');
-            
-            this.addEventListener(item, 'dragstart', (e) => {
-                this.draggedElement = e.target;
-                e.dataTransfer.setData('text/plain', e.target.dataset.element);
-                e.target.classList.add('dragging');
-            });
-
-            this.addEventListener(item, 'dragend', (e) => {
-                e.target.classList.remove('dragging');
-                this.draggedElement = null;
-            });
-        });
-    }
-
-    setupDropZones() {
-        const dropZones = this.dropZones.querySelectorAll('.drop-zone');
-        
-        dropZones.forEach(zone => {
-            this.addEventListener(zone, 'dragover', (e) => {
-                e.preventDefault();
-                zone.classList.add('drag-over');
-            });
-
-            this.addEventListener(zone, 'dragleave', (e) => {
-                if (!zone.contains(e.relatedTarget)) {
-                    zone.classList.remove('drag-over');
-                }
-            });
-
-            this.addEventListener(zone, 'drop', (e) => {
-                e.preventDefault();
-                zone.classList.remove('drag-over');
-                
-                const elementId = e.dataTransfer.getData('text/plain');
-                const zoneId = zone.dataset.zone;
-                
-                this.moveElementToZone(elementId, zoneId);
-            });
-        });
-    }
-
-    moveElementToZone(elementId, zoneId) {
-        // Remove from current zone
-        Object.keys(this.layoutConfig).forEach(zone => {
-            this.layoutConfig[zone] = this.layoutConfig[zone].filter(id => id !== elementId);
-        });
-        
-        // Add to new zone
-        this.layoutConfig[zoneId].push(elementId);
-        
-        // Re-render layout
-        this.renderLayout();
-        this.saveLayoutConfig();
-    }
-
-    renderLayout() {
-        // Clear all containers
-        this.headerDraggable.innerHTML = '';
-        this.sidebarDraggable.innerHTML = '';
-        this.floatingElements.innerHTML = '';
-        
-        // Hide original elements
-        Object.values(this.elementMappings).forEach(mapping => {
-            if (mapping.element && mapping.element.parentNode) {
-                mapping.element.style.display = 'none';
-            }
-        });
-
-        // Render elements in their zones
-        Object.keys(this.layoutConfig).forEach(zone => {
-            this.layoutConfig[zone].forEach(elementId => {
-                const mapping = this.elementMappings[elementId];
-                if (mapping && mapping.create) {
-                    const element = mapping.create();
-                    
-                    switch(zone) {
-                        case 'header':
-                            this.headerDraggable.appendChild(element);
-                            break;
-                        case 'sidebar':
-                            this.sidebarDraggable.appendChild(element);
-                            break;
-                        case 'floating':
-                            this.floatingElements.appendChild(element);
-                            break;
-                    }
-                }
-            });
-        });
-    }
-
-    createSearchElement() {
-        const container = document.createElement('div');
-        container.className = 'header-search-container';
-        container.innerHTML = `
-            <div class="search-wrapper">
-                <i class="ti ti-search"></i>
-                <input type="text" id="headerSearch" placeholder="Поиск по чату..." aria-label="Поиск по истории чата">
-                <button class="search-clear" id="headerSearchClear" style="display: none;" aria-label="Очистить поиск">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-        `;
-        
-        // Re-attach event listeners
-        this.setTimeout(() => {
-            const searchInput = container.querySelector('#headerSearch');
-            const clearBtn = container.querySelector('#headerSearchClear');
-            
-            if (searchInput && clearBtn) {
-                this.addEventListener(searchInput, 'input', () => 
-                    this.debounce('search', () => this.handleSearchInput(), 300)
-                );
-                this.addEventListener(clearBtn, 'click', () => this.clearSearch());
-            }
-        }, 0);
-        
-        return container;
-    }
-
-    createModelSelectButton() {
-        const button = document.createElement('button');
-        button.className = 'control-btn model-select-btn';
-        button.id = 'modelSelectBtn';
-        button.title = 'Выбрать модель ИИ';
-        button.innerHTML = '<i class="ti ti-brain"></i>';
-        
-        this.addEventListener(button, 'click', () => this.openModelModal());
-        return button;
-    }
-
-    createThemeToggleButton() {
-        const button = document.createElement('button');
-        button.className = 'control-btn';
-        button.id = 'themeToggle';
-        button.setAttribute('aria-label', 'Переключить тему');
-        button.innerHTML = `<i class="ti ${this.currentTheme === 'dark' ? 'ti-sun' : 'ti-moon'}"></i>`;
-        
-        this.addEventListener(button, 'click', () => this.toggleTheme());
-        return button;
-    }
-
-    createMinimapContainer() {
-        const container = this.minimapContainer.cloneNode(true);
-        container.style.display = 'flex';
-        
-        // Re-attach event listeners
-        this.setTimeout(() => {
-            const themeBtn = container.querySelector('#themeMinimapToggle');
-            const scrollUpBtn = container.querySelector('#scrollToLastAI');
-            const scrollDownBtn = container.querySelector('#scrollToBottom');
-            
-            if (themeBtn) this.addEventListener(themeBtn, 'click', () => this.toggleTheme());
-            if (scrollUpBtn) this.addEventListener(scrollUpBtn, 'click', () => this.scrollToLastAIMessage());
-            if (scrollDownBtn) this.addEventListener(scrollDownBtn, 'click', () => this.scrollToBottom(true));
-        }, 0);
-        
-        return container;
-    }
-
-    createActionButtons() {
-        const container = this.actionButtons.cloneNode(true);
-        container.style.display = 'flex';
-        
-        // Re-attach event listeners
-        this.setTimeout(() => {
-            const normalBtn = container.querySelector('#normalModeBtn');
-            const voiceBtn = container.querySelector('#generateVoiceBtn');
-            const imageBtn = container.querySelector('#generateImageBtn');
-            
-            if (normalBtn) this.addEventListener(normalBtn, 'click', () => this.setMode('normal'));
-            if (voiceBtn) this.addEventListener(voiceBtn, 'click', () => this.toggleVoiceMode());
-            if (imageBtn) this.addEventListener(imageBtn, 'click', () => this.toggleImageMode());
-        }, 0);
-        
-        return container;
-    }
-
-    loadLayoutConfig() {
-        try {
-            const saved = localStorage.getItem('khai-assistant-layout');
-            if (saved) {
-                this.layoutConfig = JSON.parse(saved);
-            } else {
-                // Default layout
-                this.layoutConfig = {
-                    header: ['headerSearch', 'modelSelectBtn'],
-                    sidebar: [],
-                    footer: [],
-                    floating: ['minimapContainer', 'actionButtons']
-                };
-            }
-        } catch (error) {
-            console.error('Error loading layout config:', error);
-        }
-    }
-
-    saveLayoutConfig() {
-        try {
-            localStorage.setItem('khai-assistant-layout', JSON.stringify(this.layoutConfig));
-        } catch (error) {
-            console.error('Error saving layout config:', error);
-        }
-    }
-
-    resetLayout() {
-        this.layoutConfig = {
-            header: ['headerSearch', 'modelSelectBtn'],
-            sidebar: [],
-            footer: [],
-            floating: ['minimapContainer', 'actionButtons']
-        };
-        this.renderLayout();
-        this.saveLayoutConfig();
-        this.showNotification('Расположение элементов сброшено', 'success');
-    }
-
-    // Security enhancements
-    sanitizeHTML(html) {
-        const temp = document.createElement('div');
-        temp.textContent = html;
-        return temp.innerHTML;
-    }
-
-    validateURL(url) {
-        try {
-            const parsed = new URL(url);
-            return ['http:', 'https:'].includes(parsed.protocol);
-        } catch {
-            return false;
-        }
-    }
-
-    // SEO optimization
-    updateStructuredData() {
-        const structuredData = {
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": "KHAI Assistant",
-            "applicationCategory": "UtilitiesApplication",
-            "operatingSystem": "Any",
-            "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
-            "offers": {
-                "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "USD"
-            },
-            "author": {
-                "@type": "Organization",
-                "name": "KHAI",
-                "url": "./"
-            }
-        };
-
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.textContent = JSON.stringify(structuredData);
-        document.head.appendChild(script);
     }
 
     detectSystemTheme() {
@@ -600,12 +274,6 @@ class KHAIAssistant {
             this.setup404Handling();
             this.setCurrentYear();
             
-            // Initialize drag & drop system
-            this.initDragAndDrop();
-            
-            // SEO optimization
-            this.updateStructuredData();
-            
             // Скрываем прелоадер после загрузки
             this.hidePreloader();
             
@@ -618,6 +286,20 @@ class KHAIAssistant {
         } catch (error) {
             this.handleCriticalError('Ошибка инициализации приложения', error);
         }
+    }
+
+    setupCleanup() {
+        const cleanup = () => {
+            this.cleanup();
+        };
+        
+        window.addEventListener('beforeunload', cleanup);
+        window.addEventListener('pagehide', cleanup);
+        
+        this.cleanupCallbacks.push(() => {
+            window.removeEventListener('beforeunload', cleanup);
+            window.removeEventListener('pagehide', cleanup);
+        });
     }
 
     bindEvents() {
@@ -672,16 +354,6 @@ class KHAIAssistant {
             [window, 'online', () => this.handleOnlineStatus()],
             [window, 'offline', () => this.handleOfflineStatus()],
             [window, 'resize', () => this.debounce('resize', () => this.handleResize(), 250)],
-            
-            // Drag & Drop events
-            [this.layoutToggle, 'click', () => this.toggleLayoutManager()],
-            [this.layoutClose, 'click', () => this.closeLayoutManager()],
-            [this.layoutReset, 'click', () => this.resetLayout()],
-            [this.layoutSave, 'click', () => this.closeLayoutManager()],
-            [this.layoutManager, 'click', (e) => {
-                if (e.target === this.layoutManager) this.closeLayoutManager();
-            }],
-            
             // PWA events
             [window, 'beforeinstallprompt', (e) => this.handleBeforeInstallPrompt(e)],
             [window, 'appinstalled', () => this.handleAppInstalled()]
@@ -691,29 +363,6 @@ class KHAIAssistant {
             if (element) {
                 this.addEventListener(element, event, handler);
             }
-        });
-    }
-
-    toggleLayoutManager() {
-        this.layoutManager.classList.add('active');
-    }
-
-    closeLayoutManager() {
-        this.layoutManager.classList.remove('active');
-        this.showNotification('Настройки интерфейса сохранены', 'success');
-    }
-
-    setupCleanup() {
-        const cleanup = () => {
-            this.cleanup();
-        };
-        
-        window.addEventListener('beforeunload', cleanup);
-        window.addEventListener('pagehide', cleanup);
-        
-        this.cleanupCallbacks.push(() => {
-            window.removeEventListener('beforeunload', cleanup);
-            window.removeEventListener('pagehide', cleanup);
         });
     }
 
