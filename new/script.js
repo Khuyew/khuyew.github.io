@@ -19,6 +19,9 @@ class KHAIAssistant {
             this.helpBtn = document.getElementById('helpBtn');
             this.generateImageBtn = document.getElementById('generateImageBtn');
             this.generateVoiceBtn = document.getElementById('generateVoiceBtn');
+            this.generateVideoBtn = document.getElementById('generateVideoBtn');
+            this.searchModeBtn = document.getElementById('searchModeBtn');
+            this.deepThinkingBtn = document.getElementById('deepThinkingBtn');
             this.themeToggle = document.getElementById('themeToggle');
             this.logo = document.getElementById('logoBtn');
             this.attachFileBtn = document.getElementById('attachFileBtn');
@@ -50,9 +53,6 @@ class KHAIAssistant {
 
             // Modes
             this.normalModeBtn = document.getElementById('normalModeBtn');
-            this.generateVideoBtn = document.getElementById('generateVideoBtn');
-            this.searchModeBtn = document.getElementById('searchModeBtn');
-            this.deepThinkingBtn = document.getElementById('deepThinkingBtn');
 
             // Modals
             this.editChatModal = document.getElementById('editChatModal');
@@ -2091,6 +2091,866 @@ ${fileContent}
         }
     }
 
+    // Chat Management
+    setupChatSelector() {
+        if (!this.chatSessions.has('default')) {
+            this.createDefaultChat();
+        }
+        this.updateChatList();
+    }
+
+    createDefaultChat() {
+        const defaultSession = {
+            id: 'default',
+            name: 'Основной чат',
+            messages: [],
+            conversationHistory: [],
+            createdAt: Date.now(),
+            lastActivity: Date.now()
+        };
+        this.chatSessions.set('default', defaultSession);
+        this.currentChatId = 'default';
+        this.saveChatSessions();
+    }
+
+    toggleSidebar() {
+        this.sidebarMenu.classList.toggle('active');
+        this.sidebarOverlay.classList.toggle('active');
+        if (this.sidebarMenu.classList.contains('active')) {
+            this.updateChatList();
+            this.updateModelInfo();
+            this.updateConnectionStatus();
+        }
+    }
+
+    closeSidebar() {
+        this.sidebarMenu.classList.remove('active');
+        this.sidebarOverlay.classList.remove('active');
+    }
+
+    updateChatList() {
+        if (!this.chatList) return;
+        
+        this.chatList.innerHTML = '';
+
+        const sessionsArray = Array.from(this.chatSessions.entries())
+            .sort(([,a], [,b]) => b.lastActivity - a.lastActivity);
+
+        if (sessionsArray.length === 0) {
+            this.createDefaultChat();
+            this.updateChatList();
+            return;
+        }
+
+        sessionsArray.forEach(([id, session]) => {
+            const chatItem = this.createChatItem(id, session);
+            this.chatList.appendChild(chatItem);
+        });
+    }
+
+    createChatItem(id, session) {
+        const displayName = session.name.length > this.MAX_CHAT_NAME_LENGTH 
+            ? session.name.substring(0, this.MAX_CHAT_NAME_LENGTH) + '...' 
+            : session.name;
+            
+        const chatItem = document.createElement('div');
+        chatItem.className = `chat-item ${id === this.currentChatId ? 'active' : ''}`;
+        chatItem.setAttribute('data-chat-id', id);
+        
+        chatItem.innerHTML = `
+            <div class="chat-item-content">
+                <div class="chat-item-title">${this.escapeHtml(displayName)}</div>
+                <div class="chat-item-preview">${this.getChatPreview(session)}</div>
+            </div>
+            <div class="chat-item-actions">
+                <button class="chat-item-action download-chat" title="Скачать чат">
+                    <i class="ti ti-download"></i>
+                </button>
+                <button class="chat-item-action edit" title="Редактировать название чата">
+                    <i class="ti ti-pencil"></i>
+                </button>
+                ${id !== 'default' ? '<button class="chat-item-action delete" title="Удалить чат"><i class="ti ti-trash"></i></button>' : ''}
+            </div>
+        `;
+
+        this.addEventListener(chatItem, 'click', (e) => {
+            if (!e.target.closest('.chat-item-action')) {
+                this.switchChat(id);
+                this.closeSidebar();
+            }
+        });
+
+        const downloadBtn = chatItem.querySelector('.download-chat');
+        if (downloadBtn) {
+            this.addEventListener(downloadBtn, 'click', (e) => {
+                e.stopPropagation();
+                this.downloadChat(id);
+            });
+        }
+
+        const editBtn = chatItem.querySelector('.edit');
+        if (editBtn) {
+            this.addEventListener(editBtn, 'click', (e) => {
+                e.stopPropagation();
+                this.openEditChatModal(id, session.name);
+            });
+        }
+
+        const deleteBtn = chatItem.querySelector('.delete');
+        if (deleteBtn) {
+            this.addEventListener(deleteBtn, 'click', (e) => {
+                e.stopPropagation();
+                this.deleteChat(id);
+            });
+        }
+
+        return chatItem;
+    }
+
+    getChatPreview(session) {
+        if (session.conversationHistory && session.conversationHistory.length > 0) {
+            const lastMessage = session.conversationHistory[session.conversationHistory.length - 1];
+            const preview = lastMessage.content.substring(0, 50);
+            return preview + (lastMessage.content.length > 50 ? '...' : '');
+        }
+        return 'Нет сообщений';
+    }
+
+    downloadChat(chatId) {
+        const session = this.chatSessions.get(chatId);
+        if (!session || session.messages.length === 0) {
+            this.showNotification('Нет данных для скачивания', 'warning');
+            return;
+        }
+
+        const chatData = {
+            version: '1.0',
+            name: session.name,
+            exportedAt: new Date().toISOString(),
+            model: this.currentModel,
+            messages: session.messages,
+            conversationHistory: session.conversationHistory
+        };
+
+        const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `khai-chat-${session.name}-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        this.showNotification('Чат скачан', 'success');
+    }
+
+    downloadCurrentChat() {
+        this.downloadChat(this.currentChatId);
+    }
+
+    deleteAllChats() {
+        if (this.chatSessions.size <= 1) {
+            this.showNotification('Нет чатов для удаления', 'warning');
+            return;
+        }
+
+        if (confirm('Вы уверены, что хотите удалить все чаты, кроме основного?')) {
+            const sessionsToDelete = Array.from(this.chatSessions.entries())
+                .filter(([id]) => id !== 'default');
+            
+            sessionsToDelete.forEach(([id]) => {
+                this.chatSessions.delete(id);
+            });
+            
+            if (this.currentChatId !== 'default') {
+                this.switchChat('default');
+            }
+            
+            this.saveChatSessions();
+            this.updateChatList();
+            this.showNotification('Все чаты удалены', 'success');
+        }
+    }
+
+    createNewChat() {
+        const chatNumber = Array.from(this.chatSessions.values()).filter(session => 
+            session.name.startsWith('Чат ')
+        ).length + 1;
+        
+        const chatName = `Чат ${chatNumber}`;
+        const chatId = this.createChatSession(chatName);
+        this.switchChat(chatId);
+        this.closeSidebar();
+        this.showNotification(`Создан новый чат: ${chatName}`, 'success');
+    }
+
+    createChatSession(name = 'Новый чат') {
+        const chatId = 'chat-' + Date.now();
+        const session = {
+            id: chatId,
+            name: name,
+            messages: [],
+            conversationHistory: [],
+            createdAt: Date.now(),
+            lastActivity: Date.now()
+        };
+        
+        this.chatSessions.set(chatId, session);
+        this.saveChatSessions();
+        this.updateChatList();
+        
+        return chatId;
+    }
+
+    switchChat(chatId) {
+        if (!this.chatSessions.has(chatId) || chatId === this.currentChatId) {
+            return;
+        }
+
+        try {
+            this.saveCurrentSession();
+            
+            this.currentChatId = chatId;
+            const session = this.chatSessions.get(chatId);
+            
+            session.lastActivity = Date.now();
+            this.chatSessions.set(chatId, session);
+            
+            this.updateCurrentChatName();
+            this.loadSession(session);
+            this.showNotification(`Переключен на чат: ${session.name}`, 'info');
+            
+            this.saveChatSessions();
+        } catch (error) {
+            console.error('Error switching chat:', error);
+            this.showNotification('Ошибка при переключении чата', 'error');
+        }
+    }
+
+    deleteChat(chatId) {
+        if (chatId === 'default') {
+            this.showNotification('Основной чат нельзя удалить', 'warning');
+            return;
+        }
+
+        if (this.chatSessions.size <= 1) {
+            this.showNotification('Нельзя удалить последний чат', 'warning');
+            return;
+        }
+
+        const session = this.chatSessions.get(chatId);
+        if (!session) return;
+
+        if (confirm(`Удалить чат "${session.name}"?`)) {
+            this.chatSessions.delete(chatId);
+            
+            if (this.currentChatId === chatId) {
+                this.switchChat('default');
+            }
+            
+            this.saveChatSessions();
+            this.updateChatList();
+            this.showNotification('Чат удален', 'success');
+        }
+    }
+
+    openEditChatModal(chatId, currentName) {
+        this.editingChatId = chatId;
+        this.editChatNameInput.value = currentName;
+        this.editChatModal.classList.add('active');
+        this.handleModalInputChange();
+        
+        this.setTimeout(() => {
+            this.editChatNameInput.focus();
+            this.editChatNameInput.select();
+        }, 100);
+    }
+
+    handleModalInputChange() {
+        const hasText = this.editChatNameInput.value.trim().length > 0;
+        if (this.modalClearInput) {
+            this.modalClearInput.style.display = hasText ? 'flex' : 'none';
+        }
+    }
+
+    clearModalInput() {
+        this.editChatNameInput.value = '';
+        this.editChatNameInput.focus();
+        this.handleModalInputChange();
+    }
+
+    closeEditChatModal() {
+        this.editingChatId = null;
+        this.editChatNameInput.value = '';
+        if (this.modalClearInput) {
+            this.modalClearInput.style.display = 'none';
+        }
+        this.editChatModal.classList.remove('active');
+    }
+
+    saveChatName() {
+        if (!this.editingChatId) return;
+        
+        const newName = this.editChatNameInput.value.trim();
+        if (!newName) {
+            this.showNotification('Название чата не может быть пустым', 'error');
+            return;
+        }
+
+        if (newName.length > this.MAX_CHAT_NAME_LENGTH) {
+            this.showNotification(`Название чата слишком длинное (максимум ${this.MAX_CHAT_NAME_LENGTH} символов)`, 'error');
+            return;
+        }
+
+        const session = this.chatSessions.get(this.editingChatId);
+        if (session) {
+            session.name = newName;
+            this.chatSessions.set(this.editingChatId, session);
+            this.saveChatSessions();
+            this.updateChatList();
+            
+            if (this.currentChatId === this.editingChatId) {
+                this.updateCurrentChatName();
+            }
+            
+            this.showNotification('Название чата изменено', 'success');
+        }
+        
+        this.closeEditChatModal();
+    }
+
+    updateCurrentChatName() {
+        if (this.currentChatName) {
+            const session = this.chatSessions.get(this.currentChatId);
+            if (session) {
+                const displayName = session.name.length > this.MAX_CHAT_NAME_LENGTH 
+                    ? session.name.substring(0, this.MAX_CHAT_NAME_LENGTH) + '...' 
+                    : session.name;
+                this.currentChatName.textContent = displayName;
+            }
+        }
+    }
+
+    saveCurrentSession() {
+        try {
+            const messages = [];
+            if (this.messagesContainer) {
+                this.messagesContainer.querySelectorAll('.message').forEach(message => {
+                    if (message.classList.contains('typing-indicator') || 
+                        message.classList.contains('streaming-message')) return;
+                    
+                    const role = message.classList.contains('message-user') ? 'user' : 
+                               message.classList.contains('message-error') ? 'error' : 'ai';
+                    
+                    const content = message.querySelector('.message-content')?.innerHTML || '';
+                    if (content) {
+                        messages.push({ role, content });
+                    }
+                });
+            }
+            
+            const session = this.chatSessions.get(this.currentChatId);
+            if (session) {
+                session.messages = messages;
+                session.conversationHistory = [...this.conversationHistory];
+                session.lastActivity = Date.now();
+                this.chatSessions.set(this.currentChatId, session);
+                this.saveChatSessions();
+            }
+        } catch (error) {
+            console.error('Error saving current session:', error);
+        }
+    }
+
+    loadCurrentSession() {
+        const session = this.chatSessions.get(this.currentChatId);
+        if (session) {
+            this.loadSession(session);
+        } else {
+            this.showWelcomeMessage();
+        }
+    }
+
+    loadSession(session) {
+        if (!this.messagesContainer) return;
+        
+        // Remove skeleton loaders
+        const skeletons = this.messagesContainer.querySelectorAll('.message-skeleton');
+        skeletons.forEach(skeleton => skeleton.remove());
+        
+        this.messagesContainer.innerHTML = '';
+        this.conversationHistory = session.conversationHistory || [];
+        
+        if (session.messages && session.messages.length > 0) {
+            session.messages.forEach(msg => {
+                this.renderMessage(msg.role, msg.content);
+            });
+        } else {
+            this.showWelcomeMessage();
+        }
+        
+        this.scrollToBottom();
+        this.updateMinimap();
+    }
+
+    renderMessage(role, content) {
+        if (!this.messagesContainer) return;
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = `message message-${role}`;
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        messageContent.innerHTML = content;
+        
+        messageElement.appendChild(messageContent);
+        this.messagesContainer.appendChild(messageElement);
+        
+        this.attachMessageHandlers(messageElement);
+    }
+
+    saveChatSessions() {
+        try {
+            const sessions = Array.from(this.chatSessions.entries());
+            localStorage.setItem('khai-assistant-chat-sessions', JSON.stringify(sessions));
+        } catch (error) {
+            console.error('Error saving chat sessions:', error);
+        }
+    }
+
+    loadChatSessions() {
+        try {
+            const saved = localStorage.getItem('khai-assistant-chat-sessions');
+            if (saved) {
+                const sessions = JSON.parse(saved);
+                this.chatSessions = new Map(sessions);
+            }
+        } catch (error) {
+            console.error('Error loading chat sessions:', error);
+        }
+    }
+
+    // File Management
+    async handleFileSelect(event) {
+        const files = Array.from(event.target.files);
+        if (files.length === 0) return;
+
+        let processedCount = 0;
+
+        for (const file of files) {
+            if (processedCount >= this.MAX_FILES) {
+                this.showNotification(`Можно прикрепить не более ${this.MAX_FILES} файлов`, 'warning');
+                break;
+            }
+
+            try {
+                const fileType = this.getFileType(file);
+                
+                if (fileType === 'image') {
+                    if (file.size > this.MAX_IMAGE_SIZE) {
+                        this.showNotification(`Изображение "${file.name}" слишком большое (максимум 5MB)`, 'error');
+                        continue;
+                    }
+                    const imageData = await this.processImageFile(file);
+                    this.attachedImages.push(imageData);
+                    this.showNotification(`Изображение "${file.name}" прикреплено`, 'success');
+                    processedCount++;
+                } else if (fileType === 'text' || fileType === 'code') {
+                    const textData = await this.processTextFile(file);
+                    this.attachedImages.push(textData);
+                    this.showNotification(`Файл "${file.name}" прикреплен`, 'success');
+                    processedCount++;
+                } else {
+                    this.showNotification(`Формат файла "${file.name}" не поддерживается`, 'error');
+                }
+            } catch (error) {
+                console.error('Error processing file:', error);
+                this.showNotification(`Ошибка обработки файла: ${file.name}`, 'error');
+            }
+        }
+
+        this.renderAttachedFiles();
+        event.target.value = '';
+        this.handleInputChange();
+    }
+
+    getFileType(file) {
+        const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        const textTypes = [
+            'text/plain', 
+            'text/html', 
+            'text/css', 
+            'text/javascript',
+            'application/javascript',
+            'application/json',
+            'text/markdown',
+            'text/x-python',
+            'application/x-python-code',
+            'text/x-java',
+            'text/x-c++src',
+            'text/x-c',
+            'text/x-csharp',
+            'text/x-php',
+            'text/x-ruby',
+            'text/x-go',
+            'text/x-swift',
+            'text/x-kotlin',
+            'text/x-scala',
+            'text/x-rust',
+            'application/xml',
+            'text/xml',
+            'text/csv',
+            'text/yaml',
+            'text/x-yaml',
+            'application/yaml'
+        ];
+        
+        if (imageTypes.includes(file.type)) {
+            return 'image';
+        } else if (textTypes.includes(file.type) || file.name.match(/\.(txt|md|html|css|js|json|py|java|cpp|c|cs|php|rb|go|swift|kt|scala|rs|xml|csv|yaml|yml)$/i)) {
+            return file.name.match(/\.(py|java|cpp|c|cs|php|rb|go|swift|kt|scala|rs)$/i) ? 'code' : 'text';
+        }
+        
+        return null;
+    }
+
+    processImageFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                resolve({
+                    name: file.name,
+                    data: e.target.result,
+                    type: file.type,
+                    size: file.size,
+                    fileType: 'image'
+                });
+            };
+            reader.onerror = () => reject(new Error(`Ошибка загрузки изображения: ${file.name}`));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    processTextFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fileType = file.name.match(/\.(py|java|cpp|c|cs|php|rb|go|swift|kt|scala|rs)$/i) ? 'code' : 'text';
+                
+                resolve({
+                    name: file.name,
+                    data: e.target.result,
+                    type: file.type,
+                    size: file.size,
+                    fileType: fileType
+                });
+            };
+            reader.onerror = () => reject(new Error(`Ошибка чтения файла: ${file.name}`));
+            reader.readAsText(file);
+        });
+    }
+
+    renderAttachedFiles() {
+        if (!this.attachedFiles) return;
+        
+        this.attachedFiles.innerHTML = '';
+        
+        if (this.attachedImages.length === 0) {
+            this.attachedFiles.style.display = 'none';
+            return;
+        }
+
+        this.attachedFiles.style.display = 'flex';
+        
+        this.attachedImages.forEach((file, index) => {
+            const fileElement = document.createElement('div');
+            fileElement.className = 'attached-file';
+            
+            const icon = file.fileType === 'image' ? 'ti-photo' : 
+                        file.fileType === 'code' ? 'ti-code' : 'ti-file-text';
+            const typeLabel = file.fileType === 'image' ? 'Изображение' : 
+                             file.fileType === 'code' ? 'Файл кода' : 'Текстовый файл';
+            
+            fileElement.innerHTML = `
+                <i class="ti ${icon}"></i>
+                <span>${this.escapeHtml(file.name)} (${typeLabel}, ${this.formatFileSize(file.size)})</span>
+                <button class="remove-file-btn" data-index="${index}">
+                    <i class="ti ti-x"></i>
+                </button>
+            `;
+            this.attachedFiles.appendChild(fileElement);
+        });
+
+        this.attachedFiles.querySelectorAll('.remove-file-btn').forEach(btn => {
+            this.addEventListener(btn, 'click', (e) => {
+                const index = parseInt(e.currentTarget.getAttribute('data-index'));
+                this.removeAttachedFile(index);
+            });
+        });
+    }
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    removeAttachedFile(index) {
+        if (index < 0 || index >= this.attachedImages.length) return;
+        
+        const removedFile = this.attachedImages.splice(index, 1)[0];
+        this.renderAttachedFiles();
+        this.showNotification(`${removedFile.fileType === 'image' ? 'Изображение' : 'Файл'} "${removedFile.name}" удален`, 'info');
+        this.handleInputChange();
+    }
+
+    // Minimap
+    updateMinimap() {
+        if (!this.minimapContent || !this.messagesContainer) return;
+        
+        this.minimapContent.innerHTML = '';
+        const messages = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
+        
+        messages.forEach((message, index) => {
+            const block = document.createElement('div');
+            block.className = `minimap-message ${message.classList.contains('message-user') ? 'user' : 'ai'}`;
+            block.dataset.index = index;
+            block.addEventListener('click', () => this.scrollToMessage(index));
+            this.minimapContent.appendChild(block);
+        });
+        
+        this.updateMinimapViewport();
+    }
+
+    updateMinimapViewport() {
+        if (!this.minimapViewport || !this.chatMinimap || !this.messagesContainer) return;
+        
+        const container = this.messagesContainer;
+        const containerHeight = container.scrollHeight;
+        const visibleHeight = container.clientHeight;
+        const scrollTop = container.scrollTop;
+        
+        if (containerHeight === 0) return;
+        
+        const viewportHeight = (visibleHeight / containerHeight) * this.chatMinimap.offsetHeight;
+        const viewportTop = (scrollTop / containerHeight) * this.chatMinimap.offsetHeight;
+        
+        this.minimapViewport.style.height = `${Math.max(viewportHeight, 10)}px`;
+        this.minimapViewport.style.top = `${viewportTop}px`;
+    }
+
+    scrollToMessage(index) {
+        const messages = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
+        if (messages[index]) {
+            messages[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    // Search
+    handleSearchInput() {
+        const searchTerm = this.headerSearch.value.trim();
+        if (searchTerm) {
+            if (this.headerSearchClear) {
+                this.headerSearchClear.style.display = 'flex';
+            }
+            this.highlightSearchTerms(searchTerm);
+        } else {
+            if (this.headerSearchClear) {
+                this.headerSearchClear.style.display = 'none';
+            }
+            this.clearSearchHighlights();
+        }
+    }
+
+    highlightSearchTerms(term) {
+        if (!this.messagesContainer) return;
+        
+        const messages = this.messagesContainer.querySelectorAll('.message-content');
+        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedTerm, 'gi');
+        
+        messages.forEach(message => {
+            const originalContent = message.dataset.originalContent || message.innerHTML;
+            message.dataset.originalContent = originalContent;
+            
+            const highlightedContent = originalContent.replace(regex, match => 
+                `<span class="search-highlight">${match}</span>`
+            );
+            
+            message.innerHTML = highlightedContent;
+        });
+
+        if (this.minimapContent) {
+            const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
+            const messageElements = this.messagesContainer.querySelectorAll('.message');
+            
+            minimapMessages.forEach((msg, index) => {
+                const messageElement = messageElements[index];
+                if (messageElement) {
+                    const messageText = messageElement.textContent || '';
+                    if (regex.test(messageText)) {
+                        msg.classList.add('search-highlighted');
+                    } else {
+                        msg.classList.remove('search-highlighted');
+                    }
+                }
+            });
+        }
+    }
+
+    clearSearchHighlights() {
+        if (!this.messagesContainer) return;
+        
+        const messages = this.messagesContainer.querySelectorAll('.message-content');
+        
+        messages.forEach(message => {
+            if (message.dataset.originalContent) {
+                message.innerHTML = message.dataset.originalContent;
+                delete message.dataset.originalContent;
+            }
+        });
+
+        if (this.minimapContent) {
+            const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
+            minimapMessages.forEach(msg => msg.classList.remove('search-highlighted'));
+        }
+    }
+
+    clearSearch() {
+        this.headerSearch.value = '';
+        if (this.headerSearchClear) {
+            this.headerSearchClear.style.display = 'none';
+        }
+        this.clearSearchHighlights();
+    }
+
+    filterChatHistory() {
+        const searchTerm = this.sidebarSearch.value.toLowerCase().trim();
+        const chatItems = this.chatList.querySelectorAll('.chat-item');
+        
+        chatItems.forEach(item => {
+            const title = item.querySelector('.chat-item-title').textContent.toLowerCase();
+            const preview = item.querySelector('.chat-item-preview').textContent.toLowerCase();
+            
+            if (searchTerm === '' || title.includes(searchTerm) || preview.includes(searchTerm)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // Model Management
+    updateModelList() {
+        this.updateModelListForCurrentMode();
+    }
+
+    updateModelListForCurrentMode() {
+        if (!this.modelList) return;
+        
+        this.modelList.innerHTML = '';
+        
+        const currentMode = this.getCurrentModeName();
+        
+        Object.entries(this.modelConfig).forEach(([modelId, config]) => {
+            // Проверяем, поддерживает ли модель текущий режим
+            const supportsCurrentMode = config.modes.includes(currentMode);
+            const isAvailable = config.available && supportsCurrentMode;
+            
+            const modelItem = document.createElement('div');
+            modelItem.className = `model-item ${modelId === this.currentModel ? 'selected' : ''} ${!isAvailable ? 'disabled' : ''}`;
+            modelItem.dataset.model = modelId;
+            
+            if (!isAvailable) {
+                modelItem.style.opacity = '0.6';
+                modelItem.style.pointerEvents = 'none';
+            }
+            
+            let statusText = 'Доступно';
+            let statusClass = 'available';
+            
+            if (!config.available) {
+                statusText = 'В разработке';
+                statusClass = 'coming-soon';
+            } else if (!supportsCurrentMode) {
+                statusText = 'Не для этого режима';
+                statusClass = 'coming-soon';
+            }
+            
+            modelItem.innerHTML = `
+                <div class="model-item-header">
+                    <span class="model-name">${config.name}</span>
+                    <span class="model-status ${statusClass}">
+                        ${statusText}
+                    </span>
+                </div>
+                <div class="model-description">${config.description}</div>
+                <div class="model-type" style="font-size: 10px; color: var(--text-tertiary); margin-top: 4px;">
+                    Тип: ${config.type === 'text' ? 'Текст' : config.type === 'voice' ? 'Голос' : config.type === 'image' ? 'Изображения' : 'Видео'} • 
+                    Режимы: ${config.modes.map(m => this.getModeName(m)).join(', ')}
+                </div>
+            `;
+            
+            if (isAvailable) {
+                this.addEventListener(modelItem, 'click', () => this.handleModelItemClick({ target: modelItem }));
+            }
+            
+            this.modelList.appendChild(modelItem);
+        });
+    }
+
+    openModelModal() {
+        this.modelModalOverlay.classList.add('active');
+        const currentModelItem = this.modelList.querySelector(`[data-model="${this.currentModel}"]`);
+        if (currentModelItem) {
+            currentModelItem.classList.add('selected');
+        }
+    }
+
+    closeModelModal() {
+        this.modelModalOverlay.classList.remove('active');
+    }
+
+    handleModelItemClick(e) {
+        const modelItem = e.target.closest('.model-item');
+        if (modelItem && !modelItem.classList.contains('disabled')) {
+            this.modelList.querySelectorAll('.model-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            modelItem.classList.add('selected');
+        }
+    }
+
+    confirmModelSelection() {
+        const selectedModelItem = this.modelList.querySelector('.model-item.selected');
+        if (selectedModelItem) {
+            const newModel = selectedModelItem.dataset.model;
+            if (newModel !== this.currentModel) {
+                this.currentModel = newModel;
+                this.showNotification(`Модель изменена на: ${this.getModelDisplayName(newModel)}`, 'success');
+                this.updateModelInfo();
+            }
+        }
+        this.closeModelModal();
+    }
+
+    updateModelInfo() {
+        if (this.currentModelInfo) {
+            this.currentModelInfo.textContent = this.getModelDisplayName(this.currentModel);
+        }
+    }
+
+    getModelDisplayName(model) {
+        return this.modelConfig[model]?.name || model;
+    }
+
+    getModelDescription(model) {
+        return this.modelConfig[model]?.description || 'Модель ИИ';
+    }
+
     // Mode Management
     toggleImageMode() {
         this.isImageMode = !this.isImageMode;
@@ -2222,116 +3082,424 @@ ${fileContent}
         return names[mode] || 'Неизвестный';
     }
 
-    // Model Management
-    updateModelList() {
-        this.updateModelListForCurrentMode();
-    }
+    // Voice Recognition
+    setupVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+            if (this.voiceInputBtn) {
+                this.voiceInputBtn.style.display = 'none';
+            }
+            return;
+        }
 
-    updateModelListForCurrentMode() {
-        if (!this.modelList) return;
-        
-        this.modelList.innerHTML = '';
-        
-        const currentMode = this.getCurrentModeName();
-        
-        Object.entries(this.modelConfig).forEach(([modelId, config]) => {
-            // Проверяем, поддерживает ли модель текущий режим
-            const supportsCurrentMode = config.modes.includes(currentMode);
-            const isAvailable = config.available && supportsCurrentMode;
-            
-            const modelItem = document.createElement('div');
-            modelItem.className = `model-item ${modelId === this.currentModel ? 'selected' : ''} ${!isAvailable ? 'disabled' : ''}`;
-            modelItem.dataset.model = modelId;
-            
-            if (!isAvailable) {
-                modelItem.style.opacity = '0.6';
-                modelItem.style.pointerEvents = 'none';
-            }
-            
-            let statusText = 'Доступно';
-            let statusClass = 'available';
-            
-            if (!config.available) {
-                statusText = 'В разработке';
-                statusClass = 'coming-soon';
-            } else if (!supportsCurrentMode) {
-                statusText = 'Не для этого режима';
-                statusClass = 'coming-soon';
-            }
-            
-            modelItem.innerHTML = `
-                <div class="model-item-header">
-                    <span class="model-name">${config.name}</span>
-                    <span class="model-status ${statusClass}">
-                        ${statusText}
-                    </span>
-                </div>
-                <div class="model-description">${config.description}</div>
-                <div class="model-type" style="font-size: 10px; color: var(--text-tertiary); margin-top: 4px;">
-                    Тип: ${config.type === 'text' ? 'Текст' : config.type === 'voice' ? 'Голос' : config.type === 'image' ? 'Изображения' : 'Видео'} • 
-                    Режимы: ${config.modes.map(m => this.getModeName(m)).join(', ')}
-                </div>
-            `;
-            
-            if (isAvailable) {
-                this.addEventListener(modelItem, 'click', () => this.handleModelItemClick({ target: modelItem }));
-            }
-            
-            this.modelList.appendChild(modelItem);
-        });
-    }
+        try {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            this.recognition = new SpeechRecognition();
+            this.recognition.continuous = false;
+            this.recognition.interimResults = false;
+            this.recognition.lang = 'ru-RU';
 
-    openModelModal() {
-        this.modelModalOverlay.classList.add('active');
-        const currentModelItem = this.modelList.querySelector(`[data-model="${this.currentModel}"]`);
-        if (currentModelItem) {
-            currentModelItem.classList.add('selected');
+            this.recognition.onstart = () => {
+                this.isListening = true;
+                this.voiceInputBtn.classList.add('active');
+                this.showNotification('Слушаю...', 'info');
+            };
+
+            this.recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                this.userInput.value = transcript;
+                this.userInput.focus();
+                this.handleInputChange();
+                this.showNotification('Текст распознан', 'success');
+            };
+
+            this.recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                this.showNotification(`Ошибка распознавания: ${event.error}`, 'error');
+                this.isListening = false;
+                this.voiceInputBtn.classList.remove('active');
+            };
+
+            this.recognition.onend = () => {
+                this.isListening = false;
+                this.voiceInputBtn.classList.remove('active');
+            };
+        } catch (error) {
+            console.error('Error setting up voice recognition:', error);
+            if (this.voiceInputBtn) {
+                this.voiceInputBtn.style.display = 'none';
+            }
         }
     }
 
-    closeModelModal() {
-        this.modelModalOverlay.classList.remove('active');
+    toggleVoiceInput() {
+        if (!this.recognition) {
+            this.showNotification('Голосовой ввод не поддерживается', 'error');
+            return;
+        }
+
+        if (this.isListening) {
+            this.recognition.stop();
+        } else {
+            try {
+                this.recognition.start();
+            } catch (error) {
+                console.error('Error starting voice recognition:', error);
+                this.showNotification('Ошибка запуска голосового ввода', 'error');
+            }
+        }
     }
 
-    handleModelItemClick(e) {
-        const modelItem = e.target.closest('.model-item');
-        if (modelItem && !modelItem.classList.contains('disabled')) {
-            this.modelList.querySelectorAll('.model-item').forEach(item => {
-                item.classList.remove('selected');
+    // Import/Export
+    importChatHistory() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const chatData = JSON.parse(event.target.result);
+                        this.importChatSession(chatData);
+                        this.showNotification('Чат успешно импортирован', 'success');
+                    } catch (error) {
+                        this.showNotification('Ошибка при импорте файла', 'error');
+                        console.error('Import error:', error);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+        input.click();
+    }
+
+    importChatSession(chatData) {
+        const chatId = 'imported-' + Date.now();
+        const session = {
+            id: chatId,
+            name: chatData.name || 'Импортированный чат',
+            messages: chatData.messages || [],
+            conversationHistory: chatData.conversationHistory || [],
+            createdAt: chatData.createdAt || Date.now(),
+            lastActivity: Date.now()
+        };
+        
+        this.chatSessions.set(chatId, session);
+        this.saveChatSessions();
+        this.updateChatList();
+        this.switchChat(chatId);
+    }
+
+    // Navigation
+    setupScrollTracking() {
+        this.updateNavigationButtons();
+        this.handleScroll();
+    }
+
+    handleScroll() {
+        if (!this.messagesContainer) return;
+        
+        const container = this.messagesContainer;
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+        
+        this.isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+        this.isAtTop = scrollTop < 50;
+        
+        this.updateNavigationButtons();
+        this.updateMinimapViewport();
+        
+        this.autoScrollEnabled = this.isAtBottom;
+    }
+
+    updateNavigationButtons() {
+        const aiMessages = this.messagesContainer.querySelectorAll('.message-ai:not(.typing-indicator)');
+        const hasAIMessages = aiMessages.length > 0;
+        
+        if (this.scrollToLastAI) {
+            this.scrollToLastAI.classList.toggle('active', !this.isAtBottom && hasAIMessages);
+            this.scrollToLastAI.disabled = !hasAIMessages;
+        }
+        
+        if (this.scrollToBottomBtn) {
+            this.scrollToBottomBtn.classList.toggle('active', !this.isAtBottom);
+            this.scrollToBottomBtn.disabled = this.isAtBottom;
+        }
+    }
+
+    scrollToLastAIMessage() {
+        const aiMessages = this.messagesContainer.querySelectorAll('.message-ai:not(.typing-indicator)');
+        if (aiMessages.length > 0) {
+            const lastAIMessage = aiMessages[aiMessages.length - 1];
+            lastAIMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            this.setTimeout(() => this.updateNavigationButtons(), 300);
+        }
+    }
+
+    scrollToBottom(force = false) {
+        if (force) {
+            this.autoScrollEnabled = true;
+        }
+        
+        if (this.autoScrollEnabled && this.messagesContainer) {
+            this.setTimeout(() => {
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                this.setTimeout(() => this.updateNavigationButtons(), 100);
+            }, 50);
+        }
+    }
+
+    // Global Handlers
+    handleGlobalKeydown(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+            e.preventDefault();
+            this.clearChat();
+        }
+        
+        if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+            e.preventDefault();
+            this.toggleSidebar();
+        }
+        
+        if (e.key === 'Escape') {
+            this.closeSidebar();
+            this.closeModelModal();
+            this.closeEditChatModal();
+        }
+    }
+
+    handleOnlineStatus() {
+        this.showNotification('Соединение восстановлено', 'success');
+        this.updateConnectionStatus(true);
+    }
+
+    handleOfflineStatus() {
+        this.showNotification('Отсутствует интернет-соединение', 'error');
+        this.updateConnectionStatus(false);
+    }
+
+    updateConnectionStatus(online = true) {
+        if (this.connectionStatus) {
+            if (online) {
+                this.connectionStatus.textContent = '✅ Онлайн';
+                this.connectionStatus.style.color = '';
+            } else {
+                this.connectionStatus.textContent = '❌ Офлайн';
+                this.connectionStatus.style.color = 'var(--error-text)';
+            }
+        }
+        
+        if (this.connectionStatusText) {
+            if (online) {
+                this.connectionStatusText.textContent = 'Подключено';
+                const statusIcon = this.connectionStatusText.previousElementSibling;
+                if (statusIcon) {
+                    statusIcon.style.color = 'var(--success-text)';
+                }
+            } else {
+                this.connectionStatusText.textContent = 'Офлайн';
+                const statusIcon = this.connectionStatusText.previousElementSibling;
+                if (statusIcon) {
+                    statusIcon.style.color = 'var(--error-text)';
+                }
+            }
+        }
+    }
+
+    handleResize() {
+        this.updateMinimapViewport();
+        this.setupResponsiveMinimap();
+    }
+
+    setupResponsiveMinimap() {
+        const isMobile = window.innerWidth <= 480;
+        if (isMobile && this.chatMinimapContainer) {
+            this.chatMinimapContainer.style.display = 'none';
+        } else if (this.chatMinimapContainer) {
+            this.chatMinimapContainer.style.display = 'flex';
+        }
+    }
+
+    // PWA
+    checkPWAInstallation() {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                           window.navigator.standalone;
+        
+        this.isPWAInstalled = isStandalone;
+        
+        // Показываем уведомление только если не в standalone режиме и не было отклонения
+        if (!isStandalone && !localStorage.getItem('pwa-notification-dismissed')) {
+            this.setTimeout(() => {
+                this.showPWAInstallNotification();
+            }, 3000);
+        }
+    }
+
+    showPWAInstallNotification() {
+        // Проверяем, не было ли уже показано уведомление
+        if (document.querySelector('.pwa-notification') || localStorage.getItem('pwa-notification-dismissed')) {
+            return;
+        }
+
+        const notification = document.createElement('div');
+        notification.className = 'pwa-notification';
+        notification.innerHTML = `
+            <div class="pwa-notification-content">
+                <strong>Установите KHAI Assistant</strong>
+                <p>Для лучшего опыта установите приложение на ваше устройство</p>
+            </div>
+            <div class="pwa-notification-actions">
+                <button class="pwa-notification-btn" id="pwaDismissBtn">Позже</button>
+                <button class="pwa-notification-btn primary" id="pwaInstallBtn">Установить</button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        const dismissBtn = document.getElementById('pwaDismissBtn');
+        const installBtn = document.getElementById('pwaInstallBtn');
+
+        if (dismissBtn) {
+            this.addEventListener(dismissBtn, 'click', () => {
+                localStorage.setItem('pwa-notification-dismissed', 'true');
+                notification.remove();
             });
-            modelItem.classList.add('selected');
         }
-    }
 
-    confirmModelSelection() {
-        const selectedModelItem = this.modelList.querySelector('.model-item.selected');
-        if (selectedModelItem) {
-            const newModel = selectedModelItem.dataset.model;
-            if (newModel !== this.currentModel) {
-                this.currentModel = newModel;
-                this.showNotification(`Модель изменена на: ${this.getModelDisplayName(newModel)}`, 'success');
-                this.updateModelInfo();
+        if (installBtn) {
+            this.addEventListener(installBtn, 'click', () => {
+                this.installPWA();
+                localStorage.setItem('pwa-notification-dismissed', 'true');
+                notification.remove();
+            });
+        }
+
+        // Автоматическое скрытие через 10 секунд
+        this.setTimeout(() => {
+            if (notification.parentNode) {
+                localStorage.setItem('pwa-notification-dismissed', 'true');
+                notification.remove();
             }
+        }, 10000);
+    }
+
+    async installPWA() {
+        // Для iOS показываем инструкции
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        if (isIOS) {
+            this.showNotification(
+                'Для установки на iOS: нажмите "Поделиться" и выберите "На экран «Домой»"', 
+                'info'
+            );
+            return;
         }
-        this.closeModelModal();
-    }
-
-    updateModelInfo() {
-        if (this.currentModelInfo) {
-            this.currentModelInfo.textContent = this.getModelDisplayName(this.currentModel);
+        
+        // Для других платформ используем стандартную установку
+        if (this.deferredPrompt) {
+            try {
+                this.deferredPrompt.prompt();
+                const { outcome } = await this.deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    this.showNotification('Приложение устанавливается...', 'success');
+                    this.isPWAInstalled = true;
+                }
+            } catch (error) {
+                console.error('Ошибка установки PWA:', error);
+                this.showNotification('Ошибка установки приложения', 'error');
+            }
+        } else {
+            this.showNotification(
+                'Для установки используйте меню браузера: "Установить приложение"', 
+                'info'
+            );
         }
     }
 
-    getModelDisplayName(model) {
-        return this.modelConfig[model]?.name || model;
+    // Utility Methods
+    escapeHtml(text) {
+        if (typeof text !== 'string') return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
-    getModelDescription(model) {
-        return this.modelConfig[model]?.description || 'Модель ИИ';
+    showNotification(message, type = 'info') {
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="ti ti-${this.getNotificationIcon(type)}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="ti ti-x"></i>
+            </button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        this.setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 4000);
     }
 
-    // Остальные методы остаются без изменений (chat management, file management, etc.)
-    // ... (все остальные методы из предыдущей версии)
+    getNotificationIcon(type) {
+        const icons = {
+            'success': 'circle-check',
+            'error': 'alert-circle',
+            'warning': 'alert-triangle',
+            'info': 'info-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+
+    handleError(userMessage, error) {
+        console.error(userMessage, error);
+        this.addMessage('error', `${userMessage}: ${error.message}`);
+        this.showNotification(userMessage, 'error');
+    }
+
+    handleCriticalError(message, error) {
+        console.error(message, error);
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ff4444;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            max-width: 400px;
+            text-align: center;
+        `;
+        errorDiv.innerHTML = `
+            <h3>Ошибка загрузки приложения</h3>
+            <p>${message}</p>
+            <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: white; color: #ff4444; border: none; border-radius: 4px; cursor: pointer;">
+                Перезагрузить
+            </button>
+        `;
+        document.body.appendChild(errorDiv);
+    }
+
+    debug(...args) {
+        if (this.DEBUG) {
+            console.log('[KHAI Debug]', ...args);
+        }
+    }
 
     showWelcomeMessage() {
         if (this.conversationHistory.length > 0) {
@@ -2433,8 +3601,42 @@ ${fileContent}
         this.addToConversationHistory('assistant', helpMessage);
     }
 
-    // Остальные методы остаются без изменений
-    // ... (все остальные методы из предыдущей версии)
+    clearInput() {
+        this.userInput.value = '';
+        this.userInput.style.height = 'auto';
+        this.attachedImages = [];
+        this.renderAttachedFiles();
+        this.userInput.focus();
+        this.showNotification('Ввод очищен', 'success');
+        this.handleInputChange();
+    }
+
+    clearChat() {
+        if (!this.messagesContainer || this.messagesContainer.children.length === 0) {
+            return;
+        }
+
+        if (confirm('Вы уверены, что хотите очистить всю историю чата?')) {
+            this.messagesContainer.innerHTML = '';
+            this.conversationHistory = [];
+            this.saveCurrentSession();
+            this.updateMinimap();
+            this.showNotification('Чат очищен', 'success');
+        }
+    }
+
+    refreshPage() {
+        location.reload();
+    }
+
+    updateDocumentTitle() {
+        document.title = 'KHAI — Первый белорусский чат с ИИ';
+        
+        const sidebarTitle = document.querySelector('.sidebar-header h3');
+        if (sidebarTitle) {
+            sidebarTitle.innerHTML = 'KHAI <span class="beta-badge">BETA</span>';
+        }
+    }
 
     cleanup() {
         this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
