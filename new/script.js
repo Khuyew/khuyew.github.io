@@ -1,4 +1,4 @@
-// KHAI Assistant - Production Ready v2.2.0
+// KHAI Assistant - Production Ready v2.1.0 with Drag & Drop
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -19,9 +19,6 @@ class KHAIAssistant {
             this.helpBtn = document.getElementById('helpBtn');
             this.generateImageBtn = document.getElementById('generateImageBtn');
             this.generateVoiceBtn = document.getElementById('generateVoiceBtn');
-            this.generateVideoBtn = document.getElementById('generateVideoBtn');
-            this.searchModeBtn = document.getElementById('searchModeBtn');
-            this.deepThinkingBtn = document.getElementById('deepThinkingBtn');
             this.themeToggle = document.getElementById('themeToggle');
             this.logo = document.getElementById('logoBtn');
             this.attachFileBtn = document.getElementById('attachFileBtn');
@@ -88,6 +85,20 @@ class KHAIAssistant {
             this.errorBackBtn = document.getElementById('errorBackBtn');
             this.sidebarSearchClear = document.getElementById('sidebarSearchClear');
 
+            // Drag & Drop elements
+            this.layoutManager = document.getElementById('layoutManager');
+            this.layoutToggle = document.getElementById('layoutToggle');
+            this.layoutClose = document.getElementById('layoutClose');
+            this.layoutReset = document.getElementById('layoutReset');
+            this.layoutSave = document.getElementById('layoutSave');
+            this.draggableElements = document.getElementById('draggableElements');
+            this.dropZones = document.getElementById('dropZones');
+            this.headerDraggable = document.getElementById('headerDraggable');
+            this.sidebarDraggable = document.getElementById('sidebarDraggable');
+            this.floatingElements = document.getElementById('floatingElements');
+            this.minimapContainer = document.getElementById('minimapContainer');
+            this.actionButtons = document.getElementById('actionButtons');
+
             // Validate critical elements
             this.validateRequiredElements();
             
@@ -111,9 +122,6 @@ class KHAIAssistant {
         this.currentTheme = this.detectSystemTheme();
         this.isImageMode = false;
         this.isVoiceMode = false;
-        this.isVideoMode = false;
-        this.isSearchMode = false;
-        this.isDeepThinkingMode = false;
         this.attachedImages = [];
         this.isListening = false;
         this.recognition = null;
@@ -145,6 +153,16 @@ class KHAIAssistant {
         this.activeTimeouts = new Set();
         this.activeEventListeners = new Map();
 
+        // Drag & Drop state
+        this.draggedElement = null;
+        this.currentDropZone = null;
+        this.layoutConfig = {
+            header: [],
+            sidebar: [],
+            footer: [],
+            floating: []
+        };
+
         // Configuration
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
@@ -159,89 +177,66 @@ class KHAIAssistant {
                 name: 'GPT-5 Nano', 
                 description: 'Быстрая и эффективная модель для повседневных задач',
                 available: true,
-                context: 128000,
-                type: 'text',
-                modes: ['normal', 'search', 'deep-thinking']
+                context: 128000
             },
             'o3-mini': { 
                 name: 'O3 Mini', 
                 description: 'Продвинутая модель с улучшенными возможностями рассуждения',
                 available: true,
-                context: 128000,
-                type: 'text',
-                modes: ['normal', 'search', 'deep-thinking']
+                context: 128000
             },
             'deepseek-chat': { 
                 name: 'DeepSeek Chat', 
                 description: 'Универсальная модель для общения и решения задач',
                 available: true,
-                context: 128000,
-                type: 'text',
-                modes: ['normal', 'search', 'deep-thinking']
+                context: 128000
             },
             'deepseek-reasoner': { 
                 name: 'DeepSeek Reasoner', 
                 description: 'Специализированная модель для сложных логических рассуждений',
-                available: true,
-                context: 128000,
-                type: 'text',
-                modes: ['normal', 'deep-thinking']
+                available: false,
+                context: 128000
             },
             'gemini-2.0-flash': { 
                 name: 'Gemini 2.0 Flash', 
                 description: 'Новейшая быстрая модель от Google с улучшенными возможностями',
                 available: true,
-                context: 128000,
-                type: 'text',
-                modes: ['normal', 'search']
+                context: 128000
             },
             'grok-beta': { 
                 name: 'xAI Grok', 
                 description: 'Модель от xAI с уникальным характером и остроумными ответами',
                 available: true,
-                context: 128000,
-                type: 'text',
-                modes: ['normal', 'search']
+                context: 128000
+            }
+        };
+
+        // Element mappings for drag & drop
+        this.elementMappings = {
+            'headerSearch': {
+                element: this.headerSearch?.parentElement?.parentElement,
+                create: () => this.createSearchElement(),
+                type: 'search'
             },
-            'gpt-4o-mini-tts': {
-                name: 'GPT-4o Mini TTS',
-                description: 'Модель для генерации естественной речи',
-                available: true,
-                context: 128000,
-                type: 'voice',
-                modes: ['voice']
+            'modelSelectBtn': {
+                element: this.modelSelectBtn,
+                create: () => this.createModelSelectButton(),
+                type: 'button'
             },
-            'gpt-image-1': {
-                name: 'GPT Image',
-                description: 'Модель для генерации изображений',
-                available: true,
-                context: 128000,
-                type: 'image',
-                modes: ['image']
+            'themeToggle': {
+                element: this.themeToggle,
+                create: () => this.createThemeToggleButton(),
+                type: 'button'
             },
-            'gpt-video-1': {
-                name: 'GPT Video',
-                description: 'Модель для генерации видео',
-                available: true,
-                context: 128000,
-                type: 'video',
-                modes: ['video']
+            'minimapContainer': {
+                element: this.minimapContainer,
+                create: () => this.createMinimapContainer(),
+                type: 'container'
             },
-            'claude-search': {
-                name: 'Claude Search',
-                description: 'Специализированная модель для поиска информации',
-                available: true,
-                context: 128000,
-                type: 'text',
-                modes: ['search']
-            },
-            'reasoning-pro': {
-                name: 'Reasoning Pro',
-                description: 'Модель для глубокого анализа и размышлений',
-                available: true,
-                context: 128000,
-                type: 'text',
-                modes: ['deep-thinking']
+            'actionButtons': {
+                element: this.actionButtons,
+                create: () => this.createActionButtons(),
+                type: 'container'
             }
         };
 
@@ -255,6 +250,279 @@ class KHAIAssistant {
         // PWA state
         this.isPWAInstalled = false;
         this.deferredPrompt = null;
+    }
+
+    // Drag & Drop System
+    initDragAndDrop() {
+        this.loadLayoutConfig();
+        this.setupDraggableElements();
+        this.setupDropZones();
+        this.renderLayout();
+    }
+
+    setupDraggableElements() {
+        const draggableItems = this.draggableElements.querySelectorAll('.draggable-item');
+        
+        draggableItems.forEach(item => {
+            item.setAttribute('draggable', 'true');
+            
+            this.addEventListener(item, 'dragstart', (e) => {
+                this.draggedElement = e.target;
+                e.dataTransfer.setData('text/plain', e.target.dataset.element);
+                e.target.classList.add('dragging');
+            });
+
+            this.addEventListener(item, 'dragend', (e) => {
+                e.target.classList.remove('dragging');
+                this.draggedElement = null;
+            });
+        });
+    }
+
+    setupDropZones() {
+        const dropZones = this.dropZones.querySelectorAll('.drop-zone');
+        
+        dropZones.forEach(zone => {
+            this.addEventListener(zone, 'dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            this.addEventListener(zone, 'dragleave', (e) => {
+                if (!zone.contains(e.relatedTarget)) {
+                    zone.classList.remove('drag-over');
+                }
+            });
+
+            this.addEventListener(zone, 'drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                
+                const elementId = e.dataTransfer.getData('text/plain');
+                const zoneId = zone.dataset.zone;
+                
+                this.moveElementToZone(elementId, zoneId);
+            });
+        });
+    }
+
+    moveElementToZone(elementId, zoneId) {
+        // Remove from current zone
+        Object.keys(this.layoutConfig).forEach(zone => {
+            this.layoutConfig[zone] = this.layoutConfig[zone].filter(id => id !== elementId);
+        });
+        
+        // Add to new zone
+        this.layoutConfig[zoneId].push(elementId);
+        
+        // Re-render layout
+        this.renderLayout();
+        this.saveLayoutConfig();
+    }
+
+    renderLayout() {
+        // Clear all containers
+        this.headerDraggable.innerHTML = '';
+        this.sidebarDraggable.innerHTML = '';
+        this.floatingElements.innerHTML = '';
+        
+        // Hide original elements
+        Object.values(this.elementMappings).forEach(mapping => {
+            if (mapping.element && mapping.element.parentNode) {
+                mapping.element.style.display = 'none';
+            }
+        });
+
+        // Render elements in their zones
+        Object.keys(this.layoutConfig).forEach(zone => {
+            this.layoutConfig[zone].forEach(elementId => {
+                const mapping = this.elementMappings[elementId];
+                if (mapping && mapping.create) {
+                    const element = mapping.create();
+                    
+                    switch(zone) {
+                        case 'header':
+                            this.headerDraggable.appendChild(element);
+                            break;
+                        case 'sidebar':
+                            this.sidebarDraggable.appendChild(element);
+                            break;
+                        case 'floating':
+                            this.floatingElements.appendChild(element);
+                            break;
+                    }
+                }
+            });
+        });
+    }
+
+    createSearchElement() {
+        const container = document.createElement('div');
+        container.className = 'header-search-container';
+        container.innerHTML = `
+            <div class="search-wrapper">
+                <i class="ti ti-search"></i>
+                <input type="text" id="headerSearch" placeholder="Поиск по чату..." aria-label="Поиск по истории чата">
+                <button class="search-clear" id="headerSearchClear" style="display: none;" aria-label="Очистить поиск">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+        `;
+        
+        // Re-attach event listeners
+        this.setTimeout(() => {
+            const searchInput = container.querySelector('#headerSearch');
+            const clearBtn = container.querySelector('#headerSearchClear');
+            
+            if (searchInput && clearBtn) {
+                this.addEventListener(searchInput, 'input', () => 
+                    this.debounce('search', () => this.handleSearchInput(), 300)
+                );
+                this.addEventListener(clearBtn, 'click', () => this.clearSearch());
+            }
+        }, 0);
+        
+        return container;
+    }
+
+    createModelSelectButton() {
+        const button = document.createElement('button');
+        button.className = 'control-btn model-select-btn';
+        button.id = 'modelSelectBtn';
+        button.title = 'Выбрать модель ИИ';
+        button.innerHTML = '<i class="ti ti-brain"></i>';
+        
+        this.addEventListener(button, 'click', () => this.openModelModal());
+        return button;
+    }
+
+    createThemeToggleButton() {
+        const button = document.createElement('button');
+        button.className = 'control-btn';
+        button.id = 'themeToggle';
+        button.setAttribute('aria-label', 'Переключить тему');
+        button.innerHTML = `<i class="ti ${this.currentTheme === 'dark' ? 'ti-sun' : 'ti-moon'}"></i>`;
+        
+        this.addEventListener(button, 'click', () => this.toggleTheme());
+        return button;
+    }
+
+    createMinimapContainer() {
+        const container = this.minimapContainer.cloneNode(true);
+        container.style.display = 'flex';
+        
+        // Re-attach event listeners
+        this.setTimeout(() => {
+            const themeBtn = container.querySelector('#themeMinimapToggle');
+            const scrollUpBtn = container.querySelector('#scrollToLastAI');
+            const scrollDownBtn = container.querySelector('#scrollToBottom');
+            
+            if (themeBtn) this.addEventListener(themeBtn, 'click', () => this.toggleTheme());
+            if (scrollUpBtn) this.addEventListener(scrollUpBtn, 'click', () => this.scrollToLastAIMessage());
+            if (scrollDownBtn) this.addEventListener(scrollDownBtn, 'click', () => this.scrollToBottom(true));
+        }, 0);
+        
+        return container;
+    }
+
+    createActionButtons() {
+        const container = this.actionButtons.cloneNode(true);
+        container.style.display = 'flex';
+        
+        // Re-attach event listeners
+        this.setTimeout(() => {
+            const normalBtn = container.querySelector('#normalModeBtn');
+            const voiceBtn = container.querySelector('#generateVoiceBtn');
+            const imageBtn = container.querySelector('#generateImageBtn');
+            
+            if (normalBtn) this.addEventListener(normalBtn, 'click', () => this.setMode('normal'));
+            if (voiceBtn) this.addEventListener(voiceBtn, 'click', () => this.toggleVoiceMode());
+            if (imageBtn) this.addEventListener(imageBtn, 'click', () => this.toggleImageMode());
+        }, 0);
+        
+        return container;
+    }
+
+    loadLayoutConfig() {
+        try {
+            const saved = localStorage.getItem('khai-assistant-layout');
+            if (saved) {
+                this.layoutConfig = JSON.parse(saved);
+            } else {
+                // Default layout
+                this.layoutConfig = {
+                    header: ['headerSearch', 'modelSelectBtn'],
+                    sidebar: [],
+                    footer: [],
+                    floating: ['minimapContainer', 'actionButtons']
+                };
+            }
+        } catch (error) {
+            console.error('Error loading layout config:', error);
+        }
+    }
+
+    saveLayoutConfig() {
+        try {
+            localStorage.setItem('khai-assistant-layout', JSON.stringify(this.layoutConfig));
+        } catch (error) {
+            console.error('Error saving layout config:', error);
+        }
+    }
+
+    resetLayout() {
+        this.layoutConfig = {
+            header: ['headerSearch', 'modelSelectBtn'],
+            sidebar: [],
+            footer: [],
+            floating: ['minimapContainer', 'actionButtons']
+        };
+        this.renderLayout();
+        this.saveLayoutConfig();
+        this.showNotification('Расположение элементов сброшено', 'success');
+    }
+
+    // Security enhancements
+    sanitizeHTML(html) {
+        const temp = document.createElement('div');
+        temp.textContent = html;
+        return temp.innerHTML;
+    }
+
+    validateURL(url) {
+        try {
+            const parsed = new URL(url);
+            return ['http:', 'https:'].includes(parsed.protocol);
+        } catch {
+            return false;
+        }
+    }
+
+    // SEO optimization
+    updateStructuredData() {
+        const structuredData = {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "KHAI Assistant",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Any",
+            "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            },
+            "author": {
+                "@type": "Organization",
+                "name": "KHAI",
+                "url": "./"
+            }
+        };
+
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.textContent = JSON.stringify(structuredData);
+        document.head.appendChild(script);
     }
 
     detectSystemTheme() {
@@ -332,9 +600,11 @@ class KHAIAssistant {
             this.setup404Handling();
             this.setCurrentYear();
             
-            // Разблокируем кнопки
-            this.generateImageBtn.disabled = false;
-            this.generateImageBtn.title = 'Режим генерации изображений';
+            // Initialize drag & drop system
+            this.initDragAndDrop();
+            
+            // SEO optimization
+            this.updateStructuredData();
             
             // Скрываем прелоадер после загрузки
             this.hidePreloader();
@@ -350,20 +620,6 @@ class KHAIAssistant {
         }
     }
 
-    setupCleanup() {
-        const cleanup = () => {
-            this.cleanup();
-        };
-        
-        window.addEventListener('beforeunload', cleanup);
-        window.addEventListener('pagehide', cleanup);
-        
-        this.cleanupCallbacks.push(() => {
-            window.removeEventListener('beforeunload', cleanup);
-            window.removeEventListener('pagehide', cleanup);
-        });
-    }
-
     bindEvents() {
         const events = [
             [this.sendBtn, 'click', () => this.handleSendButtonClick()],
@@ -374,9 +630,6 @@ class KHAIAssistant {
             [this.helpBtn, 'click', () => this.showHelp()],
             [this.generateImageBtn, 'click', () => this.toggleImageMode()],
             [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
-            [this.generateVideoBtn, 'click', () => this.toggleVideoMode()],
-            [this.searchModeBtn, 'click', () => this.toggleSearchMode()],
-            [this.deepThinkingBtn, 'click', () => this.toggleDeepThinkingMode()],
             [this.themeToggle, 'click', () => this.toggleTheme()],
             [this.logo, 'click', () => this.refreshPage()],
             [this.attachFileBtn, 'click', () => this.fileInput.click()],
@@ -419,6 +672,16 @@ class KHAIAssistant {
             [window, 'online', () => this.handleOnlineStatus()],
             [window, 'offline', () => this.handleOfflineStatus()],
             [window, 'resize', () => this.debounce('resize', () => this.handleResize(), 250)],
+            
+            // Drag & Drop events
+            [this.layoutToggle, 'click', () => this.toggleLayoutManager()],
+            [this.layoutClose, 'click', () => this.closeLayoutManager()],
+            [this.layoutReset, 'click', () => this.resetLayout()],
+            [this.layoutSave, 'click', () => this.closeLayoutManager()],
+            [this.layoutManager, 'click', (e) => {
+                if (e.target === this.layoutManager) this.closeLayoutManager();
+            }],
+            
             // PWA events
             [window, 'beforeinstallprompt', (e) => this.handleBeforeInstallPrompt(e)],
             [window, 'appinstalled', () => this.handleAppInstalled()]
@@ -428,6 +691,29 @@ class KHAIAssistant {
             if (element) {
                 this.addEventListener(element, event, handler);
             }
+        });
+    }
+
+    toggleLayoutManager() {
+        this.layoutManager.classList.add('active');
+    }
+
+    closeLayoutManager() {
+        this.layoutManager.classList.remove('active');
+        this.showNotification('Настройки интерфейса сохранены', 'success');
+    }
+
+    setupCleanup() {
+        const cleanup = () => {
+            this.cleanup();
+        };
+        
+        window.addEventListener('beforeunload', cleanup);
+        window.addEventListener('pagehide', cleanup);
+        
+        this.cleanupCallbacks.push(() => {
+            window.removeEventListener('beforeunload', cleanup);
+            window.removeEventListener('pagehide', cleanup);
         });
     }
 
@@ -704,19 +990,10 @@ class KHAIAssistant {
         this.updateSendButton(true);
 
         try {
-            // Автоматический выбор модели в зависимости от режима
-            this.autoSelectModelForMode();
-            
             if (this.isVoiceMode) {
                 await this.generateVoice(message);
             } else if (this.isImageMode) {
                 await this.generateImage(message);
-            } else if (this.isVideoMode) {
-                await this.generateVideo(message);
-            } else if (this.isSearchMode) {
-                await this.processSearchMessage(message);
-            } else if (this.isDeepThinkingMode) {
-                await this.processDeepThinkingMessage(message);
             } else {
                 await this.processUserMessage(message);
             }
@@ -730,45 +1007,6 @@ class KHAIAssistant {
                 this.updateSendButton(false);
             }
         }
-    }
-
-    // Автоматический выбор модели в зависимости от режима
-    autoSelectModelForMode() {
-        let modelToUse;
-        
-        if (this.isVoiceMode) {
-            modelToUse = 'gpt-4o-mini-tts';
-        } else if (this.isImageMode) {
-            modelToUse = 'gpt-image-1';
-        } else if (this.isVideoMode) {
-            modelToUse = 'gpt-video-1';
-        } else if (this.isSearchMode) {
-            // Для поиска используем специализированные модели
-            const searchModels = ['claude-search', 'gemini-2.0-flash', 'grok-beta', 'gpt-5-nano'];
-            modelToUse = searchModels.find(model => this.modelConfig[model]?.available) || 'gpt-5-nano';
-        } else if (this.isDeepThinkingMode) {
-            // Для глубокого размышления используем специализированные модели
-            const thinkingModels = ['reasoning-pro', 'deepseek-reasoner', 'o3-mini'];
-            modelToUse = thinkingModels.find(model => this.modelConfig[model]?.available) || 'o3-mini';
-        } else {
-            // Для обычного режима используем текущую выбранную модель
-            modelToUse = this.currentModel;
-        }
-        
-        if (modelToUse !== this.currentModel) {
-            this.debug(`Автоматически выбрана модель: ${modelToUse} для режима: ${this.getCurrentModeName()}`);
-        }
-        
-        return modelToUse;
-    }
-
-    getCurrentModeName() {
-        if (this.isVoiceMode) return 'voice';
-        if (this.isImageMode) return 'image';
-        if (this.isVideoMode) return 'video';
-        if (this.isSearchMode) return 'search';
-        if (this.isDeepThinkingMode) return 'deep-thinking';
-        return 'normal';
     }
 
     handleSendButtonClick() {
@@ -796,24 +1034,13 @@ class KHAIAssistant {
             this.inputSection.classList.remove('input-disabled');
             this.userInput.disabled = false;
             
-            // Обновляем placeholder в зависимости от режима
-            this.updateInputPlaceholder();
-        }
-    }
-
-    updateInputPlaceholder() {
-        if (this.isVoiceMode) {
-            this.userInput.placeholder = 'Введите текст для генерации голоса...';
-        } else if (this.isImageMode) {
-            this.userInput.placeholder = 'Опишите изображение для генерации...';
-        } else if (this.isVideoMode) {
-            this.userInput.placeholder = 'Опишите видео для генерации...';
-        } else if (this.isSearchMode) {
-            this.userInput.placeholder = 'Введите запрос для поиска информации...';
-        } else if (this.isDeepThinkingMode) {
-            this.userInput.placeholder = 'Задайте сложный вопрос для глубокого анализа...';
-        } else {
-            this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+            if (this.isVoiceMode) {
+                this.userInput.placeholder = 'Введите текст для генерации голоса...';
+            } else if (this.isImageMode) {
+                this.userInput.placeholder = 'Опишите изображение для генерации...';
+            } else {
+                this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+            }
         }
     }
 
@@ -864,46 +1091,6 @@ class KHAIAssistant {
         await this.getAIResponse(message, filesToProcess);
     }
 
-    async processSearchMessage(message) {
-        this.lastUserMessage = {
-            text: message,
-            files: [...this.attachedImages],
-            mode: 'search'
-        };
-        
-        this.addMessage('user', `🔍 **Поисковый запрос:** ${message}`, this.attachedImages);
-        this.addToConversationHistory('user', `[ПОИСК] ${message}`, this.attachedImages);
-        
-        this.userInput.value = '';
-        this.userInput.style.height = 'auto';
-        const filesToProcess = [...this.attachedImages];
-        this.attachedImages = [];
-        this.renderAttachedFiles();
-        this.handleInputChange();
-        
-        await this.getSearchResponse(message, filesToProcess);
-    }
-
-    async processDeepThinkingMessage(message) {
-        this.lastUserMessage = {
-            text: message,
-            files: [...this.attachedImages],
-            mode: 'deep-thinking'
-        };
-        
-        this.addMessage('user', `💭 **Вопрос для глубокого анализа:** ${message}`, this.attachedImages);
-        this.addToConversationHistory('user', `[ГЛУБОКИЙ АНАЛИЗ] ${message}`, this.attachedImages);
-        
-        this.userInput.value = '';
-        this.userInput.style.height = 'auto';
-        const filesToProcess = [...this.attachedImages];
-        this.attachedImages = [];
-        this.renderAttachedFiles();
-        this.handleInputChange();
-        
-        await this.getDeepThinkingResponse(message, filesToProcess);
-    }
-
     async getAIResponse(userMessage, files) {
         this.removeTypingIndicator();
         this.activeTypingIndicator = this.showTypingIndicator();
@@ -918,40 +1105,6 @@ class KHAIAssistant {
         } catch (error) {
             this.removeTypingIndicator();
             this.handleError('Ошибка при получении ответа от ИИ', error);
-        }
-    }
-
-    async getSearchResponse(userMessage, files) {
-        this.removeTypingIndicator();
-        this.activeTypingIndicator = this.showTypingIndicator('🔍 Ищу информацию...');
-        
-        try {
-            const prompt = await this.buildSearchPrompt(userMessage, files);
-            const response = await this.callAIService(prompt);
-            
-            this.removeTypingIndicator();
-            await this.processSearchAIResponse(response);
-            
-        } catch (error) {
-            this.removeTypingIndicator();
-            this.handleError('Ошибка при поиске информации', error);
-        }
-    }
-
-    async getDeepThinkingResponse(userMessage, files) {
-        this.removeTypingIndicator();
-        this.activeTypingIndicator = this.showTypingIndicator('💭 Глубоко анализирую...');
-        
-        try {
-            const prompt = await this.buildDeepThinkingPrompt(userMessage, files);
-            const response = await this.callAIService(prompt);
-            
-            this.removeTypingIndicator();
-            await this.processDeepThinkingAIResponse(response);
-            
-        } catch (error) {
-            this.removeTypingIndicator();
-            this.handleError('Ошибка при глубоком анализе', error);
         }
     }
 
@@ -1007,95 +1160,10 @@ ${fileContent}
         }
     }
 
-    async buildSearchPrompt(userMessage, files) {
-        if (files.length > 0) {
-            const file = files[0];
-            
-            if (file.fileType === 'image') {
-                const extractedText = await puter.ai.img2txt(file.data);
-                return `ПОИСКОВЫЙ ЗАПРОС С ИЗОБРАЖЕНИЕМ:
-
-Пользователь отправил изображение "${file.name}" с поисковым запросом: "${userMessage}"
-
-Извлеченный текст с изображения: "${extractedText}"
-
-Проведи поиск информации по данному запросу. Предоставь актуальные, проверенные данные. Если на изображении есть дополнительная информация - используй её для уточнения поиска. Структурируй ответ, выдели ключевые факты. Отвечай на русском языке.`;
-            } else if (file.fileType === 'text' || file.fileType === 'code') {
-                const fileContent = file.data;
-                return `ПОИСКОВЫЙ ЗАПРОС С ФАЙЛОМ:
-
-Пользователь отправил файл "${file.name}" с поисковым запросом: "${userMessage}"
-
-Содержимое файла:
-"""
-${fileContent}
-"""
-
-Проведи поиск информации, связанной с содержимым файла и запросом пользователя. Предоставь развернутый ответ с актуальными данными. Структурируй информацию, выдели ключевые моменты. Отвечай на русском языке.`;
-            }
-        } else {
-            return `ПОИСКОВЫЙ ЗАПРОС:
-
-Пользователь ищет информацию по запросу: "${userMessage}"
-
-Проведи комплексный поиск по данному запросу. Предоставь:
-1. Актуальные и проверенные факты
-2. Различные точки зрения (если применимо)
-3. Практические рекомендации
-4. Источники информации (если доступны)
-
-Структурируй ответ для легкого восприятия. Отвечай на русском языке.`;
-        }
-    }
-
-    async buildDeepThinkingPrompt(userMessage, files) {
-        if (files.length > 0) {
-            const file = files[0];
-            
-            if (file.fileType === 'image') {
-                const extractedText = await puter.ai.img2txt(file.data);
-                return `ГЛУБОКИЙ АНАЛИЗ С ИЗОБРАЖЕНИЕМ:
-
-Пользователь отправил изображение "${file.name}" с вопросом для глубокого анализа: "${userMessage}"
-
-Извлеченный текст с изображения: "${extractedText}"
-
-Проведи глубокий анализ данного вопроса. Рассмотри проблему с разных сторон, проанализируй причинно-следственные связи, предложи комплексное решение. Учитывай контекст изображения. Отвечай подробно и структурированно на русском языке.`;
-            } else if (file.fileType === 'text' || file.fileType === 'code') {
-                const fileContent = file.data;
-                return `ГЛУБОКИЙ АНАЛИЗ С ФАЙЛОМ:
-
-Пользователь отправил файл "${file.name}" с вопросом для глубокого анализа: "${userMessage}"
-
-Содержимое файла:
-"""
-${fileContent}
-"""
-
-Проведи комплексный анализ данного вопроса. Рассмотри все аспекты проблемы, проанализируй взаимосвязи, предложи глубокие инсайты и рекомендации. Учитывай содержимое файла. Структурируй ответ для максимальной ясности. Отвечай на русском языке.`;
-            }
-        } else {
-            return `ГЛУБОКИЙ АНАЛИЗ:
-
-Пользователь задал сложный вопрос для глубокого анализа: "${userMessage}"
-
-Проведи всесторонний анализ данной проблемы. Рассмотри:
-1. Различные аспекты и перспективы
-2. Причинно-следственные связи
-3. Возможные решения и их последствия
-4. Рекомендации и выводы
-
-Прояви критическое мышление, будь максимально подробным и структурированным. Отвечай на русском языке.`;
-        }
-    }
-
     async callAIService(prompt) {
         if (typeof puter?.ai?.chat !== 'function') {
             throw new Error('Функция чата недоступна');
         }
-        
-        // Автоматический выбор модели в зависимости от режима
-        const modelToUse = this.autoSelectModelForMode();
         
         const modelOptions = {
             'gpt-5-nano': { model: 'gpt-5-nano' },
@@ -1103,26 +1171,12 @@ ${fileContent}
             'deepseek-chat': { model: 'deepseek-chat' },
             'deepseek-reasoner': { model: 'deepseek-reasoner' },
             'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
-            'grok-beta': { model: 'grok-beta' },
-            'gpt-4o-mini-tts': { model: 'gpt-4o-mini' },
-            'gpt-image-1': { model: 'gpt-4o-mini' },
-            'gpt-video-1': { model: 'gpt-4o-mini' },
-            'claude-search': { model: 'gpt-4o-mini' },
-            'reasoning-pro': { model: 'gpt-4o-mini' }
+            'grok-beta': { model: 'grok-beta' }
         };
         
-        let systemPrompt = "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.";
-        
-        // Специализированные системные промпты для разных режимов
-        if (this.isSearchMode) {
-            systemPrompt = "Ты специализированный поисковый ассистент. Предоставляй актуальную, проверенную информацию. Структурируй ответы, выделяй ключевые факты. Будь точным и объективным.";
-        } else if (this.isDeepThinkingMode) {
-            systemPrompt = "Ты эксперт по глубокому анализу и критическому мышлению. Тщательно анализируй проблемы со всех сторон, рассматривай причинно-следственные связи, предоставляй комплексные решения. Будь максимально подробным и структурированным.";
-        }
-        
         const options = {
-            ...modelOptions[modelToUse],
-            systemPrompt: systemPrompt,
+            ...modelOptions[this.currentModel],
+            systemPrompt: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.",
             stream: true
         };
         
@@ -1168,102 +1222,17 @@ ${fileContent}
         }
     }
 
-    async processSearchAIResponse(response) {
-        this.activeStreamingMessage = this.createStreamingMessage('search');
-        this.currentStreamController = response;
-        
-        let fullResponse = '';
-        try {
-            for await (const part of response) {
-                if (this.generationAborted) break;
-                
-                if (part?.text) {
-                    fullResponse += part.text;
-                    this.updateStreamingMessage(this.activeStreamingMessage, fullResponse, 'search');
-                    await this.delay(10);
-                }
-            }
-            
-            if (!this.generationAborted) {
-                this.finalizeSearchMessage(this.activeStreamingMessage, fullResponse);
-                this.addToConversationHistory('assistant', `[ПОИСК] ${fullResponse}`);
-                this.saveCurrentSession();
-                this.updateMinimap();
-                this.isGenerating = false;
-                this.isProcessing = false;
-                this.updateSendButton(false);
-            }
-        } catch (error) {
-            if (!this.generationAborted) {
-                console.error('Error processing search response:', error);
-                this.handleError('Ошибка при обработке поискового ответа', error);
-                this.isGenerating = false;
-                this.isProcessing = false;
-                this.updateSendButton(false);
-            }
-        } finally {
-            this.activeStreamingMessage = null;
-            this.currentStreamController = null;
-        }
-    }
-
-    async processDeepThinkingAIResponse(response) {
-        this.activeStreamingMessage = this.createStreamingMessage('deep-thinking');
-        this.currentStreamController = response;
-        
-        let fullResponse = '';
-        try {
-            for await (const part of response) {
-                if (this.generationAborted) break;
-                
-                if (part?.text) {
-                    fullResponse += part.text;
-                    this.updateStreamingMessage(this.activeStreamingMessage, fullResponse, 'deep-thinking');
-                    await this.delay(10);
-                }
-            }
-            
-            if (!this.generationAborted) {
-                this.finalizeDeepThinkingMessage(this.activeStreamingMessage, fullResponse);
-                this.addToConversationHistory('assistant', `[ГЛУБОКИЙ АНАЛИЗ] ${fullResponse}`);
-                this.saveCurrentSession();
-                this.updateMinimap();
-                this.isGenerating = false;
-                this.isProcessing = false;
-                this.updateSendButton(false);
-            }
-        } catch (error) {
-            if (!this.generationAborted) {
-                console.error('Error processing deep thinking response:', error);
-                this.handleError('Ошибка при обработке глубокого анализа', error);
-                this.isGenerating = false;
-                this.isProcessing = false;
-                this.updateSendButton(false);
-            }
-        } finally {
-            this.activeStreamingMessage = null;
-            this.currentStreamController = null;
-        }
-    }
-
     delay(ms) {
         return new Promise(resolve => this.setTimeout(resolve, ms));
     }
 
-    createStreamingMessage(mode = 'normal') {
+    createStreamingMessage() {
         const messageElement = document.createElement('div');
-        messageElement.className = `message message-ai streaming-message ${mode === 'search' ? 'message-search' : mode === 'deep-thinking' ? 'message-deep-thinking' : ''}`;
+        messageElement.className = 'message message-ai streaming-message';
         messageElement.id = 'streaming-' + Date.now();
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content streaming-content';
-        
-        let typingText = 'ИИ думает...';
-        if (mode === 'search') {
-            typingText = '🔍 Ищу информацию...';
-        } else if (mode === 'deep-thinking') {
-            typingText = '💭 Глубоко анализирую...';
-        }
         
         messageContent.innerHTML = `
             <div class="typing-indicator-inline">
@@ -1272,7 +1241,7 @@ ${fileContent}
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                 </div>
-                <span>${typingText}</span>
+                <span>ИИ думает...</span>
             </div>
             <div class="streaming-text"></div>
         `;
@@ -1284,28 +1253,7 @@ ${fileContent}
         return messageElement.id;
     }
 
-    showTypingIndicator(text = 'ИИ думает...') {
-        const messagesContainer = document.getElementById('messagesContainer');
-        const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'message message-ai typing-indicator';
-        typingIndicator.id = 'typing-' + Date.now();
-        
-        typingIndicator.innerHTML = `
-            <div class="typing-dots">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-            <span>${text}</span>
-        `;
-        
-        messagesContainer.appendChild(typingIndicator);
-        this.scrollToBottom();
-        
-        return typingIndicator.id;
-    }
-
-    updateStreamingMessage(messageId, content, mode = 'normal') {
+    updateStreamingMessage(messageId, content) {
         const messageElement = document.getElementById(messageId);
         if (!messageElement) return;
         
@@ -1349,62 +1297,7 @@ ${fileContent}
         
         const modelIndicator = document.createElement('div');
         modelIndicator.className = 'model-indicator';
-        const modelToUse = this.autoSelectModelForMode();
-        modelIndicator.textContent = `Модель: ${this.getModelDisplayName(modelToUse)} • ${this.getModelDescription(modelToUse)}`;
-        messageContent.appendChild(modelIndicator);
-        
-        this.attachMessageHandlers(messageElement);
-        this.addCodeDownloadButtons(messageElement, fullContent);
-        this.scrollToBottom();
-    }
-
-    finalizeSearchMessage(messageId, fullContent) {
-        const messageElement = document.getElementById(messageId);
-        if (!messageElement) return;
-        
-        messageElement.classList.remove('streaming-message');
-        const messageContent = messageElement.querySelector('.message-content');
-        messageContent.classList.remove('streaming-content');
-        
-        const typingIndicator = messageContent.querySelector('.typing-indicator-inline');
-        if (typingIndicator) {
-            typingIndicator.remove();
-        }
-        
-        const processedContent = this.processCodeBlocks(fullContent);
-        messageContent.innerHTML = `🔍 **Результаты поиска:**\n\n${processedContent}`;
-        
-        const modelIndicator = document.createElement('div');
-        modelIndicator.className = 'model-indicator';
-        const modelToUse = this.autoSelectModelForMode();
-        modelIndicator.textContent = `Модель: ${this.getModelDisplayName(modelToUse)} • Специализированная поисковая модель`;
-        messageContent.appendChild(modelIndicator);
-        
-        this.attachMessageHandlers(messageElement);
-        this.addCodeDownloadButtons(messageElement, fullContent);
-        this.scrollToBottom();
-    }
-
-    finalizeDeepThinkingMessage(messageId, fullContent) {
-        const messageElement = document.getElementById(messageId);
-        if (!messageElement) return;
-        
-        messageElement.classList.remove('streaming-message');
-        const messageContent = messageElement.querySelector('.message-content');
-        messageContent.classList.remove('streaming-content');
-        
-        const typingIndicator = messageContent.querySelector('.typing-indicator-inline');
-        if (typingIndicator) {
-            typingIndicator.remove();
-        }
-        
-        const processedContent = this.processCodeBlocks(fullContent);
-        messageContent.innerHTML = `💭 **Глубокий анализ:**\n\n${processedContent}`;
-        
-        const modelIndicator = document.createElement('div');
-        modelIndicator.className = 'model-indicator';
-        const modelToUse = this.autoSelectModelForMode();
-        modelIndicator.textContent = `Модель: ${this.getModelDisplayName(modelToUse)} • Модель для глубокого анализа`;
+        modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
         messageContent.appendChild(modelIndicator);
         
         this.attachMessageHandlers(messageElement);
@@ -1507,154 +1400,37 @@ ${fileContent}
     }
 
     async generateImage(prompt) {
+        if (!this.modelConfig['deepseek-reasoner'].available) {
+            this.showNotification('Генерация изображений временно недоступна', 'warning');
+            this.setMode('normal');
+            return;
+        }
+
         try {
-            if (typeof puter?.ai?.txt2img !== 'function') {
+            if (typeof puter?.ai?.imagine !== 'function') {
                 throw new Error('Функция генерации изображений недоступна');
             }
             
-            this.addMessage('user', `🖼️ **Генерация изображения по запросу:** "${prompt}"`);
+            this.addMessage('ai', `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n*Идет процесс создания изображения...*`);
             
-            this.userInput.value = '';
-            this.userInput.style.height = 'auto';
-            
-            this.showNotification('Генерация изображения...', 'info');
-            
-            // Генерация изображения с помощью Puter AI
-            const image = await puter.ai.txt2img(prompt, { 
-                model: "gpt-image-1", 
-                quality: "standard" 
+            const imageResult = await puter.ai.imagine(prompt, {
+                model: "dall-e-3",
+                size: "1024x1024"
             });
             
-            // Добавляем сообщение с изображением
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message message-ai';
-            
-            const messageContent = document.createElement('div');
-            messageContent.className = 'message-content';
-            
-            messageContent.innerHTML = `
-                🖼️ **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"
-                <div class="message-image">
-                    <img src="${image.src}" alt="Сгенерированное изображение: ${prompt}" style="max-width: 100%; border-radius: 8px;">
-                </div>
-                <div class="message-actions">
-                    <button class="action-btn-small download-file-btn" onclick="khaiAssistant.downloadImage('${image.src}', '${prompt.replace(/[^a-zA-Z0-9]/g, '_')}')">
-                        <i class="ti ti-download"></i> Скачать изображение
-                    </button>
-                </div>
-            `;
-            
-            const modelIndicator = document.createElement('div');
-            modelIndicator.className = 'model-indicator';
-            modelIndicator.textContent = `Модель: GPT Image • Специализированная модель для генерации изображений`;
-            messageContent.appendChild(modelIndicator);
-            
-            messageElement.appendChild(messageContent);
-            this.messagesContainer.appendChild(messageElement);
-            this.scrollToBottom();
+            const messages = this.messagesContainer.querySelectorAll('.message-ai');
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage) {
+                lastMessage.querySelector('.message-content').innerHTML = 
+                    `🖼️ **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"\n\n` +
+                    `<img src="${imageResult.url}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`;
+            }
             
             this.addToConversationHistory('assistant', `Сгенерировано изображение по запросу: ${prompt}`);
             this.saveCurrentSession();
             
         } catch (error) {
             this.handleError('Ошибка при генерации изображения', error);
-        }
-    }
-
-    async generateVideo(prompt) {
-        try {
-            if (typeof puter?.ai?.txt2vid !== 'function') {
-                throw new Error('Функция генерации видео недоступна');
-            }
-            
-            this.addMessage('user', `🎬 **Генерация видео по запросу:** "${prompt}"`);
-            
-            this.userInput.value = '';
-            this.userInput.style.height = 'auto';
-            
-            this.showNotification('Генерация видео... Это может занять несколько минут.', 'info');
-            
-            // Генерация видео с помощью Puter AI
-            const video = await puter.ai.txt2vid(prompt, { 
-                model: "gpt-video-1", 
-                duration: 10,
-                resolution: "720p"
-            });
-            
-            // Добавляем сообщение с видео
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message message-ai message-video';
-            
-            const messageContent = document.createElement('div');
-            messageContent.className = 'message-content';
-            
-            messageContent.innerHTML = `
-                🎬 **Сгенерированное видео по запросу:** "${this.escapeHtml(prompt)}"
-                <div class="message-video-player" style="margin-top: 12px;">
-                    <video controls style="max-width: 100%; border-radius: 8px;">
-                        <source src="${video.src}" type="video/mp4">
-                        Ваш браузер не поддерживает видео элементы.
-                    </video>
-                </div>
-                <div class="message-actions">
-                    <button class="action-btn-small download-file-btn" onclick="khaiAssistant.downloadVideo('${video.src}', '${prompt.replace(/[^a-zA-Z0-9]/g, '_')}')">
-                        <i class="ti ti-download"></i> Скачать видео
-                    </button>
-                </div>
-            `;
-            
-            const modelIndicator = document.createElement('div');
-            modelIndicator.className = 'model-indicator';
-            modelIndicator.textContent = `Модель: GPT Video • Специализированная модель для генерации видео`;
-            messageContent.appendChild(modelIndicator);
-            
-            messageElement.appendChild(messageContent);
-            this.messagesContainer.appendChild(messageElement);
-            this.scrollToBottom();
-            
-            this.addToConversationHistory('assistant', `Сгенерировано видео по запросу: ${prompt}`);
-            this.saveCurrentSession();
-            
-        } catch (error) {
-            this.handleError('Ошибка при генерации видео', error);
-        }
-    }
-
-    async downloadImage(imageUrl, filename) {
-        try {
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${filename || 'khai_image'}.png`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            this.showNotification('Изображение скачано', 'success');
-        } catch (error) {
-            console.error('Download error:', error);
-            this.showError('Не удалось скачать изображение');
-        }
-    }
-
-    async downloadVideo(videoUrl, filename) {
-        try {
-            const response = await fetch(videoUrl);
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${filename || 'khai_video'}.mp4`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            this.showNotification('Видео скачано', 'success');
-        } catch (error) {
-            console.error('Download error:', error);
-            this.showError('Не удалось скачать видео');
         }
     }
 
@@ -1676,18 +1452,7 @@ ${fileContent}
             
             this.showNotification('Генерация голоса...', 'info');
             
-            // Генерация голоса с помощью Puter AI
-            const audio = await puter.ai.txt2speech(
-                text,
-                {
-                    provider: "openai",
-                    model: "gpt-4o-mini-tts",
-                    voice: "alloy",
-                    response_format: "mp3",
-                    instructions: "Sound cheerful but not overly fast."
-                }
-            );
-            
+            const audio = await puter.ai.txt2speech(text);
             this.addVoiceMessage(text, audio);
             
             this.addToConversationHistory('user', `Сгенерирован голос для текста: ${text}`);
@@ -1713,17 +1478,7 @@ ${fileContent}
                     Ваш браузер не поддерживает аудио элементы.
                 </audio>
             </div>
-            <div class="message-actions">
-                <button class="action-btn-small download-file-btn" onclick="khaiAssistant.downloadAudio('${audio.src}', '${text.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_')}')">
-                    <i class="ti ti-download"></i> Скачать аудио
-                </button>
-            </div>
         `;
-        
-        const modelIndicator = document.createElement('div');
-        modelIndicator.className = 'model-indicator';
-        modelIndicator.textContent = `Модель: GPT-4o Mini TTS • Модель для генерации естественной речи`;
-        messageContent.appendChild(modelIndicator);
         
         messageElement.appendChild(messageContent);
         this.messagesContainer.appendChild(messageElement);
@@ -1735,39 +1490,9 @@ ${fileContent}
         });
     }
 
-    async downloadAudio(audioUrl, filename) {
-        try {
-            const response = await fetch(audioUrl);
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${filename || 'khai_audio'}.mp3`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            this.showNotification('Аудио скачано', 'success');
-        } catch (error) {
-            console.error('Download error:', error);
-            this.showError('Не удалось скачать аудио');
-        }
-    }
-
     addMessage(role, content, images = []) {
         const messageElement = document.createElement('div');
-        
-        // Добавляем специальные классы для разных режимов
-        let additionalClass = '';
-        if (this.isSearchMode) {
-            additionalClass = 'message-search';
-        } else if (this.isDeepThinkingMode) {
-            additionalClass = 'message-deep-thinking';
-        } else if (this.isVideoMode) {
-            additionalClass = 'message-video';
-        }
-        
-        messageElement.className = `message message-${role} ${additionalClass}`;
+        messageElement.className = `message message-${role}`;
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
@@ -1782,8 +1507,7 @@ ${fileContent}
         if (role === 'ai') {
             const modelIndicator = document.createElement('div');
             modelIndicator.className = 'model-indicator';
-            const modelToUse = this.autoSelectModelForMode();
-            modelIndicator.textContent = `Модель: ${this.getModelDisplayName(modelToUse)} • ${this.getModelDescription(modelToUse)}`;
+            modelIndicator.textContent = `Модель: ${this.getModelDisplayName(this.currentModel)} • ${this.getModelDescription(this.currentModel)}`;
             messageContent.appendChild(modelIndicator);
         }
         
@@ -2078,6 +1802,28 @@ ${fileContent}
         }
         this.isSpeaking = false;
         this.currentUtterance = null;
+    }
+
+    showTypingIndicator() {
+        this.removeTypingIndicator();
+        
+        const typingElement = document.createElement('div');
+        typingElement.className = 'message message-ai typing-indicator';
+        typingElement.id = 'typing-' + Date.now();
+        
+        typingElement.innerHTML = `
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+            <span>ИИ думает...</span>
+        `;
+        
+        this.messagesContainer.appendChild(typingElement);
+        this.scrollToBottom();
+        
+        return typingElement.id;
     }
 
     removeTypingIndicator(typingId = null) {
@@ -2845,56 +2591,31 @@ ${fileContent}
 
     // Model Management
     updateModelList() {
-        this.updateModelListForCurrentMode();
-    }
-
-    updateModelListForCurrentMode() {
         if (!this.modelList) return;
         
         this.modelList.innerHTML = '';
         
-        const currentMode = this.getCurrentModeName();
-        
         Object.entries(this.modelConfig).forEach(([modelId, config]) => {
-            // Проверяем, поддерживает ли модель текущий режим
-            const supportsCurrentMode = config.modes.includes(currentMode);
-            const isAvailable = config.available && supportsCurrentMode;
-            
             const modelItem = document.createElement('div');
-            modelItem.className = `model-item ${modelId === this.currentModel ? 'selected' : ''} ${!isAvailable ? 'disabled' : ''}`;
+            modelItem.className = `model-item ${modelId === this.currentModel ? 'selected' : ''} ${!config.available ? 'disabled' : ''}`;
             modelItem.dataset.model = modelId;
             
-            if (!isAvailable) {
+            if (!config.available) {
                 modelItem.style.opacity = '0.6';
                 modelItem.style.pointerEvents = 'none';
-            }
-            
-            let statusText = 'Доступно';
-            let statusClass = 'available';
-            
-            if (!config.available) {
-                statusText = 'В разработке';
-                statusClass = 'coming-soon';
-            } else if (!supportsCurrentMode) {
-                statusText = 'Не для этого режима';
-                statusClass = 'coming-soon';
             }
             
             modelItem.innerHTML = `
                 <div class="model-item-header">
                     <span class="model-name">${config.name}</span>
-                    <span class="model-status ${statusClass}">
-                        ${statusText}
+                    <span class="model-status ${config.available ? 'available' : 'coming-soon'}">
+                        ${config.available ? 'Доступно' : 'В разработке'}
                     </span>
                 </div>
                 <div class="model-description">${config.description}</div>
-                <div class="model-type" style="font-size: 10px; color: var(--text-tertiary); margin-top: 4px;">
-                    Тип: ${config.type === 'text' ? 'Текст' : config.type === 'voice' ? 'Голос' : config.type === 'image' ? 'Изображения' : 'Видео'} • 
-                    Режимы: ${config.modes.map(m => this.getModeName(m)).join(', ')}
-                </div>
             `;
             
-            if (isAvailable) {
+            if (config.available) {
                 this.addEventListener(modelItem, 'click', () => this.handleModelItemClick({ target: modelItem }));
             }
             
@@ -2949,204 +2670,6 @@ ${fileContent}
 
     getModelDescription(model) {
         return this.modelConfig[model]?.description || 'Модель ИИ';
-    }
-
-    // Mode Management
-    toggleImageMode() {
-        this.isImageMode = !this.isImageMode;
-        this.setMode(this.isImageMode ? 'image' : 'normal');
-    }
-
-    toggleVoiceMode() {
-        this.isVoiceMode = !this.isVoiceMode;
-        this.setMode(this.isVoiceMode ? 'voice' : 'normal');
-    }
-
-    toggleVideoMode() {
-        this.isVideoMode = !this.isVideoMode;
-        this.setMode(this.isVideoMode ? 'video' : 'normal');
-    }
-
-    toggleSearchMode() {
-        this.isSearchMode = !this.isSearchMode;
-        this.setMode(this.isSearchMode ? 'search' : 'normal');
-    }
-
-    toggleDeepThinkingMode() {
-        this.isDeepThinkingMode = !this.isDeepThinkingMode;
-        this.setMode(this.isDeepThinkingMode ? 'deep-thinking' : 'normal');
-    }
-
-    setMode(mode) {
-        // Reset all modes
-        this.isImageMode = false;
-        this.isVoiceMode = false;
-        this.isVideoMode = false;
-        this.isSearchMode = false;
-        this.isDeepThinkingMode = false;
-        
-        // Reset all mode buttons
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.classList.remove('active');
-            const btnText = btn.querySelector('.btn-text');
-            if (btnText) {
-                btnText.style.display = 'none';
-            }
-        });
-        
-        const modeIndicator = document.querySelector('.mode-indicator');
-        if (modeIndicator) {
-            let modeText = '';
-            let modeIcon = '';
-            
-            if (mode === 'normal') {
-                modeText = 'Обычный режим';
-                modeIcon = 'ti-message';
-                this.normalModeBtn.classList.add('active');
-            } else if (mode === 'voice') {
-                modeText = 'Режим генерации голоса';
-                modeIcon = 'ti-microphone';
-                this.generateVoiceBtn.classList.add('active');
-                this.isVoiceMode = true;
-            } else if (mode === 'image') {
-                modeText = 'Режим генерации изображений';
-                modeIcon = 'ti-photo';
-                this.generateImageBtn.classList.add('active');
-                this.isImageMode = true;
-            } else if (mode === 'video') {
-                modeText = 'Режим генерации видео';
-                modeIcon = 'ti-video';
-                this.generateVideoBtn.classList.add('active');
-                this.isVideoMode = true;
-            } else if (mode === 'search') {
-                modeText = 'Режим поиска информации';
-                modeIcon = 'ti-search';
-                this.searchModeBtn.classList.add('active');
-                this.isSearchMode = true;
-            } else if (mode === 'deep-thinking') {
-                modeText = 'Режим глубокого анализа';
-                modeIcon = 'ti-brain';
-                this.deepThinkingBtn.classList.add('active');
-                this.isDeepThinkingMode = true;
-            }
-            
-            modeIndicator.innerHTML = `<i class="ti ${modeIcon}"></i> ${modeText}`;
-            
-            // Reset all input section classes
-            this.inputSection.classList.remove(
-                'voice-mode-active', 
-                'image-mode-active', 
-                'video-mode-active',
-                'search-mode-active',
-                'deep-thinking-mode-active'
-            );
-            
-            // Add appropriate class for current mode
-            if (mode === 'voice') {
-                this.inputSection.classList.add('voice-mode-active');
-            } else if (mode === 'image') {
-                this.inputSection.classList.add('image-mode-active');
-            } else if (mode === 'video') {
-                this.inputSection.classList.add('video-mode-active');
-            } else if (mode === 'search') {
-                this.inputSection.classList.add('search-mode-active');
-            } else if (mode === 'deep-thinking') {
-                this.inputSection.classList.add('deep-thinking-mode-active');
-            }
-        }
-        
-        const activeBtn = document.querySelector('.mode-btn.active');
-        if (activeBtn) {
-            const activeBtnText = activeBtn.querySelector('.btn-text');
-            if (activeBtnText) {
-                activeBtnText.style.display = 'inline';
-            }
-        }
-        
-        this.updateInputPlaceholder();
-        this.showNotification(`Режим: ${this.getModeName(mode)}`, 'info');
-        
-        // Обновляем список моделей для текущего режима
-        this.updateModelListForCurrentMode();
-    }
-
-    getModeName(mode) {
-        const names = {
-            'normal': 'Обычный',
-            'voice': 'Генерация голоса',
-            'image': 'Генерация изображений',
-            'video': 'Генерация видео',
-            'search': 'Поиск информации',
-            'deep-thinking': 'Глубокий анализ'
-        };
-        return names[mode] || 'Неизвестный';
-    }
-
-    // Voice Recognition
-    setupVoiceRecognition() {
-        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            if (this.voiceInputBtn) {
-                this.voiceInputBtn.style.display = 'none';
-            }
-            return;
-        }
-
-        try {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            this.recognition = new SpeechRecognition();
-            this.recognition.continuous = false;
-            this.recognition.interimResults = false;
-            this.recognition.lang = 'ru-RU';
-
-            this.recognition.onstart = () => {
-                this.isListening = true;
-                this.voiceInputBtn.classList.add('active');
-                this.showNotification('Слушаю...', 'info');
-            };
-
-            this.recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                this.userInput.value = transcript;
-                this.userInput.focus();
-                this.handleInputChange();
-                this.showNotification('Текст распознан', 'success');
-            };
-
-            this.recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                this.showNotification(`Ошибка распознавания: ${event.error}`, 'error');
-                this.isListening = false;
-                this.voiceInputBtn.classList.remove('active');
-            };
-
-            this.recognition.onend = () => {
-                this.isListening = false;
-                this.voiceInputBtn.classList.remove('active');
-            };
-        } catch (error) {
-            console.error('Error setting up voice recognition:', error);
-            if (this.voiceInputBtn) {
-                this.voiceInputBtn.style.display = 'none';
-            }
-        }
-    }
-
-    toggleVoiceInput() {
-        if (!this.recognition) {
-            this.showNotification('Голосовой ввод не поддерживается', 'error');
-            return;
-        }
-
-        if (this.isListening) {
-            this.recognition.stop();
-        } else {
-            try {
-                this.recognition.start();
-            } catch (error) {
-                console.error('Error starting voice recognition:', error);
-                this.showNotification('Ошибка запуска голосового ввода', 'error');
-            }
-        }
     }
 
     // Import/Export
@@ -3248,6 +2771,150 @@ ${fileContent}
                 this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
                 this.setTimeout(() => this.updateNavigationButtons(), 100);
             }, 50);
+        }
+    }
+
+    // Mode Management
+    toggleImageMode() {
+        this.isImageMode = !this.isImageMode;
+        this.setMode(this.isImageMode ? 'image' : 'normal');
+    }
+
+    toggleVoiceMode() {
+        this.isVoiceMode = !this.isVoiceMode;
+        this.setMode(this.isVoiceMode ? 'voice' : 'normal');
+    }
+
+    setMode(mode) {
+        this.isImageMode = false;
+        this.isVoiceMode = false;
+        
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.remove('active');
+            const btnText = btn.querySelector('.btn-text');
+            if (btnText) {
+                btnText.style.display = 'none';
+            }
+        });
+        
+        const modeIndicator = document.querySelector('.mode-indicator');
+        if (modeIndicator) {
+            let modeText = '';
+            let modeIcon = '';
+            
+            if (mode === 'normal') {
+                modeText = 'Обычный режим';
+                modeIcon = 'ti-message';
+                this.normalModeBtn.classList.add('active');
+                this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+            } else if (mode === 'voice') {
+                modeText = 'Режим генерации голоса';
+                modeIcon = 'ti-microphone';
+                this.generateVoiceBtn.classList.add('active');
+                this.isVoiceMode = true;
+                this.userInput.placeholder = 'Введите текст для генерации голоса...';
+            } else if (mode === 'image') {
+                modeText = 'Режим генерации изображений';
+                modeIcon = 'ti-photo';
+                this.generateImageBtn.classList.add('active');
+                this.isImageMode = true;
+                this.userInput.placeholder = 'Опишите изображение для генерации...';
+            }
+            
+            modeIndicator.innerHTML = `<i class="ti ${modeIcon}"></i> ${modeText}`;
+            
+            this.inputSection.classList.remove('voice-mode-active', 'image-mode-active');
+            if (mode === 'voice') {
+                this.inputSection.classList.add('voice-mode-active');
+            } else if (mode === 'image') {
+                this.inputSection.classList.add('image-mode-active');
+            }
+        }
+        
+        const activeBtn = document.querySelector('.mode-btn.active');
+        if (activeBtn) {
+            const activeBtnText = activeBtn.querySelector('.btn-text');
+            if (activeBtnText) {
+                activeBtnText.style.display = 'inline';
+            }
+        }
+        
+        this.showNotification(`Режим: ${this.getModeName(mode)}`, 'info');
+    }
+
+    getModeName(mode) {
+        const names = {
+            'normal': 'Обычный',
+            'voice': 'Генерация голоса',
+            'image': 'Генерация изображений'
+        };
+        return names[mode] || 'Неизвестный';
+    }
+
+    // Voice Recognition
+    setupVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+            if (this.voiceInputBtn) {
+                this.voiceInputBtn.style.display = 'none';
+            }
+            return;
+        }
+
+        try {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            this.recognition = new SpeechRecognition();
+            this.recognition.continuous = false;
+            this.recognition.interimResults = false;
+            this.recognition.lang = 'ru-RU';
+
+            this.recognition.onstart = () => {
+                this.isListening = true;
+                this.voiceInputBtn.classList.add('active');
+                this.showNotification('Слушаю...', 'info');
+            };
+
+            this.recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                this.userInput.value = transcript;
+                this.userInput.focus();
+                this.handleInputChange();
+                this.showNotification('Текст распознан', 'success');
+            };
+
+            this.recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                this.showNotification(`Ошибка распознавания: ${event.error}`, 'error');
+                this.isListening = false;
+                this.voiceInputBtn.classList.remove('active');
+            };
+
+            this.recognition.onend = () => {
+                this.isListening = false;
+                this.voiceInputBtn.classList.remove('active');
+            };
+        } catch (error) {
+            console.error('Error setting up voice recognition:', error);
+            if (this.voiceInputBtn) {
+                this.voiceInputBtn.style.display = 'none';
+            }
+        }
+    }
+
+    toggleVoiceInput() {
+        if (!this.recognition) {
+            this.showNotification('Голосовой ввод не поддерживается', 'error');
+            return;
+        }
+
+        if (this.isListening) {
+            this.recognition.stop();
+        } else {
+            try {
+                this.recognition.start();
+            } catch (error) {
+                console.error('Error starting voice recognition:', error);
+                this.showNotification('Ошибка запуска голосового ввода', 'error');
+            }
         }
     }
 
@@ -3518,11 +3185,7 @@ ${fileContent}
 • **Анализ изображений** - извлечение текста и решение задач по фото
 • **Анализ файлов** - чтение и анализ содержимого файлов (текст, код, XML, CSV, YAML и др.)
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
-• **Генерация голоса** - преобразование текста в естественную речь с помощью OpenAI TTS
-• **Генерация изображений** - создание изображений по текстовому описанию
-• **🎬 Генерация видео** - создание видео по текстовому описанию
-• **🔍 Поиск информации** - специализированный режим для поиска актуальных данных
-• **💭 Глубокий анализ** - режим для комплексного анализа сложных вопросов
+• **Генерация голоса** - преобразование текста в естественную речь
 • **Озвучивание ответов** - слушайте ответы ИИ в аудиоформате
 • **Контекстный диалог** - помню историю нашего разговора
 • **Подсветка синтаксиса** - красивое отображение кода
@@ -3544,13 +3207,8 @@ ${fileContent}
         
         const helpMessage = `# 🆘 Помощь по KHAI Assistant
 
-## 🤖 Автоматический выбор моделей:
-• **Текстовый режим** - использует выбранную текстовую модель (GPT-5 Nano, O3 Mini и др.)
-• **Голосовой режим** - автоматически использует GPT-4o Mini TTS для генерации речи
-• **Режим изображений** - автоматически использует GPT Image для генерации изображений
-• **🎬 Режим видео** - автоматически использует GPT Video для генерации видео
-• **🔍 Режим поиска** - автоматически выбирает лучшую модель для поиска информации
-• **💭 Режим глубокого анализа** - автоматически выбирает модель для комплексного анализа
+## 🤖 Текущая модель: ${currentModelName}
+Вы можете переключать модели в верхнем правом углу.
 
 ## 💬 Система чатов:
 • **Создание нового чата** - нажмите "Новый чат" в меню
@@ -3569,31 +3227,19 @@ ${fileContent}
 • **Максимум файлов** - можно прикрепить до 3 файлов за раз
 
 ## 🔊 Аудио функции:
-• **Генерация голоса** - создает аудио из текста с помощью OpenAI TTS
+• **Генерация голоса** - создает аудио из текста с помощью ИИ
 • **Озвучить ответ** - воспроизводит ответ ИИ
 • **Остановить озвучку** - нажмите кнопку повторно для остановки
 
-## 🖼️ Генерация изображений:
-• **Нажмите кнопку изображения** для активации режима генерации
-• **Опишите изображение** - что вы хотите сгенерировать
-• **Нажмите Отправить** - ИИ создаст изображение по вашему описанию
-• **Скачайте результат** - используйте кнопку скачивания под изображением
+## 🖼️ Работа с изображениями:
+1. **Нажмите кнопку ➕** чтобы прикрепить изображение
+2. **Напишите вопрос** (опционально) - что вы хотите узнать о изображении
+3. **Нажмите Отправить** - ИИ проанализирует изображение и ответит
 
-## 🎬 Генерация видео:
-• **Нажмите кнопку видео** для активации режима генерации
-• **Опишите видео** - сценарий, действие, стиль
-• **Нажмите Отправить** - ИИ создаст видео по вашему описанию
-• **Скачайте результат** - используйте кнопку скачивания под видео
-
-## 🔍 Режим поиска:
-• **Актуальная информация** - получайте свежие данные по запросам
-• **Структурированные ответы** - информация представляется в удобном формате
-• **Различные источники** - поиск по множеству информационных баз
-
-## 💭 Режим глубокого анализа:
-• **Комплексный подход** - анализ проблем со всех сторон
-• **Критическое мышление** - глубокое проникновение в суть вопроса
-• **Структурированные выводы** - четкие рекомендации и решения
+## 📄 Работа с файлами:
+1. **Нажмите кнопку ➕** чтобы прикрепить файл
+2. **Напишите вопрос** (опционально) - что вы хотите узнать о содержимом
+3. **Нажмите Отправить** - ИИ проанализирует файл и ответит
 
 **Попробуйте отправить изображение или файл с вопросом!**`;
 
