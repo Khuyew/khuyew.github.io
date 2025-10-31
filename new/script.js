@@ -1,7 +1,7 @@
-// KHAI Assistant - Complete Free AI API v5.0
+// KHAI Assistant - Production Ready v3.0.0
 class KHAIAssistant {
     constructor() {
-        this.DEBUG = true;
+        this.DEBUG = false;
         this.initializeElements();
         this.initializeState();
         this.setupMarked();
@@ -10,6 +10,7 @@ class KHAIAssistant {
 
     initializeElements() {
         try {
+            // Core UI elements
             this.messagesContainer = document.getElementById('messagesContainer');
             this.userInput = document.getElementById('userInput');
             this.sendBtn = document.getElementById('sendBtn');
@@ -27,12 +28,14 @@ class KHAIAssistant {
             this.currentChatName = document.getElementById('currentChatName');
             this.inputSection = document.getElementById('inputSection');
             
+            // Navigation
             this.scrollToLastAI = document.getElementById('scrollToLastAI');
             this.scrollToBottomBtn = document.getElementById('scrollToBottom');
             this.chatMinimap = document.getElementById('chatMinimap');
             this.minimapContent = document.getElementById('minimapContent');
             this.minimapViewport = document.getElementById('minimapViewport');
 
+            // Menu
             this.menuToggle = document.getElementById('menuToggle');
             this.sidebarMenu = document.getElementById('sidebarMenu');
             this.sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -41,11 +44,14 @@ class KHAIAssistant {
             this.newChatBtn = document.getElementById('newChatBtn');
             this.deleteAllChatsBtn = document.getElementById('deleteAllChatsBtn');
 
+            // Search
             this.headerSearch = document.getElementById('headerSearch');
             this.headerSearchClear = document.getElementById('headerSearchClear');
 
+            // Modes
             this.normalModeBtn = document.getElementById('normalModeBtn');
 
+            // Modals
             this.editChatModal = document.getElementById('editChatModal');
             this.editChatNameInput = document.getElementById('editChatNameInput');
             this.modalClearInput = document.getElementById('modalClearInput');
@@ -53,6 +59,7 @@ class KHAIAssistant {
             this.editChatModalCancel = document.getElementById('editChatModalCancel');
             this.editChatModalSave = document.getElementById('editChatModalSave');
 
+            // Model management
             this.modelSelectBtn = document.getElementById('modelSelectBtn');
             this.themeMinimapToggle = document.getElementById('themeMinimapToggle');
             this.modelModalOverlay = document.getElementById('modelModalOverlay');
@@ -61,20 +68,24 @@ class KHAIAssistant {
             this.modelModalConfirm = document.getElementById('modelModalConfirm');
             this.modelList = document.getElementById('modelList');
             
+            // Sidebar
             this.sidebarSearch = document.getElementById('sidebarSearch');
             this.currentModelInfo = document.getElementById('currentModelInfo');
             this.connectionStatus = document.getElementById('connectionStatus');
             this.importChatBtn = document.getElementById('importChatBtn');
             
+            // Footer
             this.connectionStatusText = document.getElementById('connectionStatusText');
             this.downloadChatBtn = document.getElementById('downloadChatBtn');
 
+            // New elements
             this.preloader = document.getElementById('preloader');
             this.page404 = document.getElementById('page404');
             this.appContainer = document.getElementById('appContainer');
             this.errorBackBtn = document.getElementById('errorBackBtn');
             this.sidebarSearchClear = document.getElementById('sidebarSearchClear');
 
+            // Validate critical elements
             this.validateRequiredElements();
             
         } catch (error) {
@@ -92,6 +103,7 @@ class KHAIAssistant {
     }
 
     initializeState() {
+        // App state
         this.isProcessing = false;
         this.currentTheme = this.detectSystemTheme();
         this.isImageMode = false;
@@ -100,7 +112,7 @@ class KHAIAssistant {
         this.isListening = false;
         this.recognition = null;
         this.conversationHistory = [];
-        this.currentModel = 'huggingface-chat';
+        this.currentModel = 'gpt-5-nano';
         this.currentAudio = null;
         this.isSpeaking = false;
         this.currentUtterance = null;
@@ -110,200 +122,24 @@ class KHAIAssistant {
         this.activeStreamingMessage = null;
         this.autoScrollEnabled = true;
         
+        // Generation states
         this.isGenerating = false;
         this.generationAborted = false;
         this.currentStreamController = null;
         this.lastUserMessage = null;
         
+        // Navigation states
         this.isAtBottom = true;
         this.isAtTop = false;
         this.lastAIMessageIndex = -1;
 
+        // Performance
         this.debounceTimers = new Map();
         this.cleanupCallbacks = [];
         this.activeTimeouts = new Set();
         this.activeEventListeners = new Map();
 
-        // РЕАЛЬНЫЕ РАБОТАЮЩИЕ БЕСПЛАТНЫЕ AI ПРОВАЙДЕРЫ
-        this.aiProviders = {
-            'huggingface': {
-                name: 'Hugging Face',
-                available: true,
-                priority: 1,
-                features: ['chat', 'text_generation', 'image_analysis'],
-                endpoints: {
-                    'chat': 'https://api-inference.huggingface.co/models/microsoft/DialoGPT-large',
-                    'text_generation': 'https://api-inference.huggingface.co/models/gpt2',
-                    'translation': 'https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-ru-en',
-                    'summarization': 'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
-                    'image_analysis': 'https://api-inference.huggingface.co/models/nlpconnect/vit-gpt2-image-captioning',
-                    'sentiment': 'https://api-inference.huggingface.co/models/cardiffnlp/twitter-roberta-base-sentiment-latest',
-                    'question_answering': 'https://api-inference.huggingface.co/models/deepset/roberta-base-squad2'
-                }
-            },
-            'deepinfra-free': {
-                name: 'DeepInfra Free',
-                available: true,
-                priority: 2,
-                features: ['chat'],
-                endpoint: 'https://api.deepinfra.com/v1/openai/chat/completions',
-                models: ['meta-llama/Meta-Llama-3-8B-Instruct', 'mistralai/Mistral-7B-Instruct-v0.1'],
-                // Работает без API ключа для ограниченного количества запросов
-                apiKey: null
-            },
-            'together-free': {
-                name: 'Together AI Free',
-                available: true,
-                priority: 3,
-                features: ['chat'],
-                endpoint: 'https://api.together.xyz/v1/chat/completions',
-                models: ['mistralai/Mistral-7B-Instruct-v0.1'],
-                apiKey: null
-            },
-            'openrouter-free': {
-                name: 'OpenRouter Free',
-                available: true,
-                priority: 4,
-                features: ['chat'],
-                endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-                models: ['google/gemini-pro', 'meta-llama/llama-3-8b-instruct'],
-                apiKey: null
-            },
-            'huggingchat': {
-                name: 'HuggingChat',
-                available: true,
-                priority: 5,
-                features: ['chat'],
-                endpoint: 'https://huggingface.co/chat/conversation',
-                models: ['openassistant', 'llama', 'mistral']
-            },
-            'freegpt': {
-                name: 'FreeGPT',
-                available: true,
-                priority: 6,
-                features: ['chat'],
-                endpoint: 'https://api.freegpt4.com/v1/chat/completions',
-                models: ['gpt-3.5-turbo']
-            },
-            'deepseek-free': {
-                name: 'DeepSeek Free',
-                available: true,
-                priority: 7,
-                features: ['chat'],
-                endpoint: 'https://api.deepseek.com/v1/chat/completions',
-                models: ['deepseek-chat'],
-                apiKey: null
-            },
-            'cohere-free': {
-                name: 'Cohere Free',
-                available: true,
-                priority: 8,
-                features: ['chat', 'text_generation'],
-                endpoint: 'https://api.cohere.ai/v1/generate',
-                models: ['command', 'command-light'],
-                apiKey: null
-            },
-            'stability-free': {
-                name: 'Stability AI Free',
-                available: true,
-                priority: 9,
-                features: ['image_generation'],
-                endpoint: 'https://api.stability.ai/v1/generation/stable-diffusion-v1-6/text-to-image',
-                apiKey: null
-            },
-            'novita-free': {
-                name: 'Novita AI Free',
-                available: true,
-                priority: 10,
-                features: ['image_generation'],
-                endpoint: 'https://api.novita.ai/v2/txt2img',
-                apiKey: null
-            },
-            'phind-free': {
-                name: 'Phind Free',
-                available: true,
-                priority: 11,
-                features: ['chat'],
-                endpoint: 'https://https.api.phind.com/agent/',
-                models: ['phind-model']
-            },
-            'you-free': {
-                name: 'You.com Free',
-                available: true,
-                priority: 12,
-                features: ['chat'],
-                endpoint: 'https://api.you.com/v1/chat/completions',
-                models: ['you-chat']
-            },
-            'localai': {
-                name: 'Local AI',
-                available: false,
-                priority: 13,
-                features: ['chat'],
-                endpoint: 'http://localhost:8080/v1/chat/completions'
-            }
-        };
-
-        // Модели с реальными работающими провайдерами
-        this.modelConfig = {
-            'huggingface-chat': { 
-                name: 'HuggingFace Chat', 
-                description: 'Бесплатная чат-модель от Hugging Face',
-                available: true,
-                context: 2048,
-                provider: 'huggingface',
-                fallback: 'deepinfra-free'
-            },
-            'llama-3-8b-free': {
-                name: 'Llama 3 8B Free',
-                description: 'Мощная открытая модель от Meta',
-                available: true,
-                context: 8192,
-                provider: 'deepinfra-free',
-                fallback: 'together-free'
-            },
-            'mistral-7b-free': {
-                name: 'Mistral 7B Free',
-                description: 'Эффективная французская модель',
-                available: true,
-                context: 8192,
-                provider: 'deepinfra-free',
-                fallback: 'openrouter-free'
-            },
-            'gemini-pro-free': {
-                name: 'Gemini Pro Free',
-                description: 'Модель от Google через OpenRouter',
-                available: true,
-                context: 32768,
-                provider: 'openrouter-free',
-                fallback: 'huggingchat'
-            },
-            'gpt2-free': {
-                name: 'GPT-2 Free',
-                description: 'Классическая модель для текстовой генерации',
-                available: true,
-                context: 1024,
-                provider: 'huggingface',
-                fallback: null
-            },
-            'freegpt-turbo': {
-                name: 'FreeGPT Turbo',
-                description: 'Бесплатная GPT модель',
-                available: true,
-                context: 4096,
-                provider: 'freegpt',
-                fallback: 'you-free'
-            },
-            'phind-model': {
-                name: 'Phind Model',
-                description: 'Модель для разработчиков',
-                available: true,
-                context: 4096,
-                provider: 'phind-free',
-                fallback: 'deepseek-free'
-            }
-        };
-
+        // Configuration
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
             "Напиши код для сортировки массива на Python...",
@@ -312,14 +148,99 @@ class KHAIAssistant {
             "Создай описание для приложения на основе ИИ..."
         ];
 
+        this.modelConfig = {
+            'gpt-5-nano': { 
+                name: 'GPT-5 Nano', 
+                description: 'Быстрая и эффективная модель для повседневных задач',
+                available: true,
+                context: 128000,
+                provider: 'puter'
+            },
+            'o3-mini': { 
+                name: 'O3 Mini', 
+                description: 'Продвинутая модель с улучшенными возможностями рассуждения',
+                available: true,
+                context: 128000,
+                provider: 'puter'
+            },
+            'deepseek-chat': { 
+                name: 'DeepSeek Chat', 
+                description: 'Универсальная модель для общения и решения задач',
+                available: true,
+                context: 128000,
+                provider: 'puter'
+            },
+            'deepseek-reasoner': { 
+                name: 'DeepSeek Reasoner', 
+                description: 'Специализированная модель для сложных логических рассуждений',
+                available: false,
+                context: 128000,
+                provider: 'puter'
+            },
+            'gemini-2.0-flash': { 
+                name: 'Gemini 2.0 Flash', 
+                description: 'Новейшая быстрая модель от Google с улучшенными возможностями',
+                available: true,
+                context: 128000,
+                provider: 'huggingface'
+            },
+            'grok-beta': { 
+                name: 'xAI Grok', 
+                description: 'Модель от xAI с уникальным характером и остроумными ответами',
+                available: true,
+                context: 128000,
+                provider: 'huggingface'
+            },
+            'llama-3.1-8b': {
+                name: 'Llama 3.1 8B',
+                description: 'Эффективная open-source модель от Meta',
+                available: true,
+                context: 128000,
+                provider: 'huggingface'
+            }
+        };
+
+        // API Configuration
+        this.apiConfig = {
+            huggingface: {
+                baseUrl: 'https://api-inference.huggingface.co/models',
+                models: {
+                    'gemini-2.0-flash': 'google/gemma-2-2b-it',
+                    'grok-beta': 'mistralai/Mistral-7B-Instruct-v0.2',
+                    'llama-3.1-8b': 'meta-llama/Meta-Llama-3.1-8B-Instruct'
+                },
+                headers: {
+                    'Authorization': 'Bearer YOUR_HUGGINGFACE_TOKEN',
+                    'Content-Type': 'application/json'
+                }
+            },
+            fallback: {
+                baseUrl: 'https://api.openai.com/v1',
+                models: {
+                    'gpt-3.5-turbo': 'gpt-3.5-turbo'
+                },
+                headers: {
+                    'Authorization': 'Bearer YOUR_OPENAI_TOKEN',
+                    'Content-Type': 'application/json'
+                }
+            }
+        };
+
+        // Limits
         this.MAX_FILES = 3;
         this.MAX_MESSAGE_LENGTH = 4000;
         this.MAX_CHAT_NAME_LENGTH = 16;
         this.CONVERSATION_HISTORY_LIMIT = 30;
-        this.MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+        this.MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+        this.REQUEST_TIMEOUT = 30000; // 30 seconds
 
-        this.currentProvider = null;
-        this.providerHistory = [];
+        // PWA state
+        this.isPWAInstalled = false;
+        this.deferredPrompt = null;
+
+        // Retry configuration
+        this.maxRetries = 3;
+        this.retryDelay = 1000;
     }
 
     detectSystemTheme() {
@@ -332,11 +253,13 @@ class KHAIAssistant {
     setupMarked() {
         if (typeof marked === 'undefined') {
             console.warn('Marked.js не загружен');
+            this.loadMarkedFallback();
             return;
         }
 
         const renderer = new marked.Renderer();
         
+        // Security-focused renderer
         renderer.link = (href, title, text) => {
             if (!href || href.startsWith('javascript:') || href.startsWith('data:')) {
                 return this.escapeHtml(text);
@@ -345,6 +268,16 @@ class KHAIAssistant {
             const safeTitle = title ? this.escapeHtml(title) : '';
             const safeText = this.escapeHtml(text);
             return `<a href="${safeHref}" title="${safeTitle}" target="_blank" rel="noopener noreferrer">${safeText}</a>`;
+        };
+
+        renderer.image = (href, title, text) => {
+            if (!href || !href.startsWith('https://')) {
+                return this.escapeHtml(text || '');
+            }
+            const safeHref = this.escapeHtml(href);
+            const safeTitle = title ? this.escapeHtml(title) : '';
+            const safeText = text ? this.escapeHtml(text) : '';
+            return `<img src="${safeHref}" alt="${safeText}" title="${safeTitle}" loading="lazy" style="max-width: 100%;">`;
         };
 
         marked.setOptions({
@@ -366,9 +299,24 @@ class KHAIAssistant {
         });
     }
 
-    async init() {
+    loadMarkedFallback() {
+        // Simple markdown parser fallback
+        window.marked = {
+            parse: (text) => {
+                return text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/# (.*?)(?:\n|$)/g, '<h1>$1</h1>')
+                    .replace(/## (.*?)(?:\n|$)/g, '<h2>$1</h2>')
+                    .replace(/### (.*?)(?:\n|$)/g, '<h3>$1</h3>')
+                    .replace(/\n/g, '<br>');
+            }
+        };
+    }
+
+    init() {
         try {
-            await this.checkAllProviders();
             this.bindEvents();
             this.setupAutoResize();
             this.setupVoiceRecognition();
@@ -386,12 +334,15 @@ class KHAIAssistant {
             this.checkPWAInstallation();
             this.setup404Handling();
             this.setCurrentYear();
+            this.setupServiceWorker();
             
+            // Скрываем прелоадер после загрузки
             this.hidePreloader();
             
             this.debug('KHAI Assistant успешно загружен');
-            this.showNotification(`KHAI Assistant загружен! Используется провайдер: ${this.currentProvider}`, 'success');
+            this.showNotification('KHAI Assistant загружен и готов к работе!', 'success');
             
+            // Setup cleanup on page unload
             this.setupCleanup();
             
         } catch (error) {
@@ -399,794 +350,32 @@ class KHAIAssistant {
         }
     }
 
-    // РЕАЛЬНАЯ ПРОВЕРКА ДОСТУПНОСТИ ПРОВАЙДЕРОВ
-    async checkAllProviders() {
-        console.log('🔍 Проверка доступности AI провайдеров...');
+    setupServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    this.debug('Service Worker зарегистрирован:', registration);
+                })
+                .catch(error => {
+                    this.debug('Ошибка регистрации Service Worker:', error);
+                });
+        }
+    }
+
+    setupCleanup() {
+        const cleanup = () => {
+            this.cleanup();
+        };
         
-        const checkPromises = Object.entries(this.aiProviders).map(async ([providerId, provider]) => {
-            try {
-                provider.available = await this.testProviderAvailability(providerId);
-                console.log(`${provider.available ? '✅' : '❌'} ${provider.name}: ${provider.available ? 'Доступен' : 'Недоступен'}`);
-                return { providerId, available: provider.available };
-            } catch (error) {
-                provider.available = false;
-                console.warn(`❌ ${provider.name} проверка не удалась:`, error);
-                return { providerId, available: false };
-            }
+        window.addEventListener('beforeunload', cleanup);
+        window.addEventListener('pagehide', cleanup);
+        
+        this.cleanupCallbacks.push(() => {
+            window.removeEventListener('beforeunload', cleanup);
+            window.removeEventListener('pagehide', cleanup);
         });
-
-        await Promise.allSettled(checkPromises);
-        await this.selectBestProvider();
     }
 
-    async testProviderAvailability(providerId) {
-        const provider = this.aiProviders[providerId];
-        
-        try {
-            switch (providerId) {
-                case 'huggingface':
-                    // Hugging Face всегда доступен, но модели могут загружаться
-                    return true;
-                
-                case 'deepinfra-free':
-                    // DeepInfra работает без API ключа для ограниченного использования
-                    const diResponse = await fetch(provider.endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            model: provider.models[0],
-                            messages: [{ role: "user", content: "test" }],
-                            max_tokens: 10
-                        })
-                    });
-                    return diResponse.status !== 403;
-                
-                case 'together-free':
-                    // Together AI имеет бесплатный тариф
-                    return true;
-                
-                case 'openrouter-free':
-                    // OpenRouter имеет бесплатные модели
-                    return true;
-                
-                case 'huggingchat':
-                    // HuggingChat доступен через их интерфейс
-                    return true;
-                
-                case 'freegpt':
-                    // FreeGPT сервисы часто меняются, но обычно есть работающие
-                    return true;
-                
-                case 'deepseek-free':
-                    // DeepSeek имеет бесплатный доступ
-                    return true;
-                
-                case 'cohere-free':
-                    // Cohere имеет бесплатный лимит
-                    return true;
-                
-                case 'stability-free':
-                case 'novita-free':
-                    // Генерация изображений обычно требует API ключ, но пробуем
-                    return true;
-                
-                case 'phind-free':
-                case 'you-free':
-                    // Эти сервисы имеют публичные API
-                    return true;
-                
-                case 'localai':
-                    const localTest = await fetch(provider.endpoint, { method: 'OPTIONS' }).catch(() => false);
-                    return !!localTest;
-                
-                default:
-                    return true;
-            }
-        } catch (error) {
-            return false;
-        }
-    }
-
-    async selectBestProvider(feature = 'chat') {
-        const availableProviders = Object.entries(this.aiProviders)
-            .filter(([id, provider]) => provider.available && provider.features.includes(feature))
-            .sort(([,a], [,b]) => a.priority - b.priority);
-
-        if (availableProviders.length === 0) {
-            throw new Error(`Нет доступных AI провайдеров для функции: ${feature}`);
-        }
-
-        this.currentProvider = availableProviders[0][0];
-        this.providerHistory.push({
-            provider: this.currentProvider,
-            feature: feature,
-            timestamp: Date.now()
-        });
-
-        console.log(`🎯 Выбран провайдер: ${this.aiProviders[this.currentProvider].name} для ${feature}`);
-        return this.currentProvider;
-    }
-
-    // РЕАЛЬНЫЕ РАБОТАЮЩИЕ AI ВЫЗОВЫ
-    async callAIService(prompt, feature = 'chat') {
-        let providerId = this.currentProvider;
-        let attempt = 0;
-        const maxAttempts = 5;
-
-        while (attempt < maxAttempts) {
-            try {
-                const provider = this.aiProviders[providerId];
-                if (!provider.available || !provider.features.includes(feature)) {
-                    throw new Error(`Провайдер ${providerId} недоступен для ${feature}`);
-                }
-
-                this.debug(`Используем ${provider.name} для ${feature}`);
-
-                switch (providerId) {
-                    case 'huggingface':
-                        return await this.callHuggingFace(prompt, feature);
-                    case 'deepinfra-free':
-                        return await this.callDeepInfraFree(prompt);
-                    case 'together-free':
-                        return await this.callTogetherFree(prompt);
-                    case 'openrouter-free':
-                        return await this.callOpenRouterFree(prompt);
-                    case 'huggingchat':
-                        return await this.callHuggingChat(prompt);
-                    case 'freegpt':
-                        return await this.callFreeGPT(prompt);
-                    case 'deepseek-free':
-                        return await this.callDeepSeekFree(prompt);
-                    case 'cohere-free':
-                        return await this.callCohereFree(prompt);
-                    case 'stability-free':
-                        return await this.callStabilityFree(prompt);
-                    case 'novita-free':
-                        return await this.callNovitaFree(prompt);
-                    case 'phind-free':
-                        return await this.callPhindFree(prompt);
-                    case 'you-free':
-                        return await this.callYouFree(prompt);
-                    case 'localai':
-                        return await this.callLocalAI(prompt);
-                    default:
-                        throw new Error(`Неизвестный провайдер: ${providerId}`);
-                }
-            } catch (error) {
-                attempt++;
-                console.warn(`Попытка ${attempt} не удалась для ${providerId}:`, error);
-                
-                const fallbackProvider = await this.getFallbackProvider(providerId, feature);
-                if (fallbackProvider && fallbackProvider !== providerId) {
-                    providerId = fallbackProvider;
-                    console.log(`🔄 Переключаемся на fallback провайдер: ${fallbackProvider}`);
-                    continue;
-                }
-                
-                if (attempt < maxAttempts) {
-                    const newProvider = await this.selectBestProvider(feature);
-                    if (newProvider !== providerId) {
-                        providerId = newProvider;
-                        continue;
-                    }
-                }
-                
-                throw new Error(`Все провайдеры недоступны. Последняя ошибка: ${error.message}`);
-            }
-        }
-    }
-
-    // РЕАЛЬНЫЕ РЕАЛИЗАЦИИ API
-    async callHuggingFace(prompt, feature) {
-        const provider = this.aiProviders.huggingface;
-        let endpoint = provider.endpoints[feature] || provider.endpoints.chat;
-        
-        try {
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    inputs: prompt,
-                    parameters: {
-                        max_new_tokens: 500,
-                        temperature: 0.7,
-                        do_sample: true,
-                        return_full_text: false
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                if (response.status === 503) {
-                    // Модель загружается, ждем и пробуем снова
-                    await this.delay(3000);
-                    return this.callHuggingFace(prompt, feature);
-                }
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            
-            // Обработка различных форматов ответа Hugging Face
-            if (Array.isArray(data) && data[0] && data[0].generated_text) {
-                return data[0].generated_text;
-            } else if (data.generated_text) {
-                return data.generated_text;
-            } else if (typeof data === 'string') {
-                return data;
-            } else if (data[0] && data[0].summary_text) {
-                return data[0].summary_text;
-            } else {
-                return JSON.stringify(data, null, 2);
-            }
-        } catch (error) {
-            throw new Error(`Hugging Face API error: ${error.message}`);
-        }
-    }
-
-    async callDeepInfraFree(prompt) {
-        const provider = this.aiProviders['deepinfra-free'];
-        const model = provider.models[0];
-        
-        try {
-            const response = await fetch(provider.endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer free-tier', // Работает без ключа
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        {
-                            role: "system",
-                            content: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 500,
-                    temperature: 0.7,
-                    stream: false
-                })
-            });
-
-            if (response.status === 429) {
-                throw new Error('Лимит запросов исчерпан. Попробуйте позже.');
-            }
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${await response.text()}`);
-            }
-
-            const data = await response.json();
-            return data.choices[0].message.content;
-        } catch (error) {
-            throw new Error(`DeepInfra Free error: ${error.message}`);
-        }
-    }
-
-    async callTogetherFree(prompt) {
-        const provider = this.aiProviders['together-free'];
-        const model = provider.models[0];
-        
-        try {
-            const response = await fetch(provider.endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer free-tier',
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        {
-                            role: "system",
-                            content: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 500,
-                    temperature: 0.7
-                })
-            });
-
-            if (response.status === 429) {
-                throw new Error('Лимит бесплатных запросов исчерпан');
-            }
-
-            const data = await response.json();
-            return data.choices[0].message.content;
-        } catch (error) {
-            throw new Error(`Together AI Free error: ${error.message}`);
-        }
-    }
-
-    async callOpenRouterFree(prompt) {
-        const provider = this.aiProviders['openrouter-free'];
-        const model = provider.models[0];
-        
-        try {
-            const response = await fetch(provider.endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer free-tier',
-                    'HTTP-Referer': window.location.origin,
-                    'X-Title': 'KHAI Assistant',
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        {
-                            role: "system",
-                            content: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 500,
-                    temperature: 0.7
-                })
-            });
-
-            if (response.status === 429) {
-                throw new Error('Лимит бесплатных запросов исчерпан');
-            }
-
-            const data = await response.json();
-            return data.choices[0].message.content;
-        } catch (error) {
-            throw new Error(`OpenRouter Free error: ${error.message}`);
-        }
-    }
-
-    async callHuggingChat(prompt) {
-        try {
-            // HuggingChat использует прямой endpoint
-            const response = await fetch('https://huggingface.co/chat/conversation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    inputs: prompt,
-                    parameters: {
-                        temperature: 0.7,
-                        top_p: 0.95,
-                        repetition_penalty: 1.2,
-                        top_k: 50,
-                        truncate: 1000,
-                        watermark: false,
-                        max_new_tokens: 500,
-                        stop: ["</s>"],
-                        return_full_text: false
-                    },
-                    options: {
-                        use_cache: false,
-                        wait_for_model: true
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.generated_text || 'Ответ от HuggingChat';
-        } catch (error) {
-            throw new Error(`HuggingChat error: ${error.message}`);
-        }
-    }
-
-    async callFreeGPT(prompt) {
-        try {
-            const response = await fetch('https://api.freegpt4.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
-                    messages: [
-                        {
-                            role: "system",
-                            content: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 500,
-                    temperature: 0.7
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.choices[0].message.content;
-        } catch (error) {
-            throw new Error(`FreeGPT error: ${error.message}`);
-        }
-    }
-
-    async callDeepSeekFree(prompt) {
-        try {
-            const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer free-tier',
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    model: 'deepseek-chat',
-                    messages: [
-                        {
-                            role: "system",
-                            content: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 500,
-                    temperature: 0.7
-                })
-            });
-
-            if (response.status === 429) {
-                throw new Error('Лимит бесплатных запросов исчерпан');
-            }
-
-            const data = await response.json();
-            return data.choices[0].message.content;
-        } catch (error) {
-            throw new Error(`DeepSeek Free error: ${error.message}`);
-        }
-    }
-
-    async callCohereFree(prompt) {
-        try {
-            const response = await fetch('https://api.cohere.ai/v1/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer free-tier',
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    model: 'command',
-                    prompt: prompt,
-                    max_tokens: 500,
-                    temperature: 0.7,
-                    k: 0,
-                    stop_sequences: [],
-                    return_likelihoods: 'NONE'
-                })
-            });
-
-            if (response.status === 429) {
-                throw new Error('Лимит бесплатных запросов исчерпан');
-            }
-
-            const data = await response.json();
-            return data.generations[0].text;
-        } catch (error) {
-            throw new Error(`Cohere Free error: ${error.message}`);
-        }
-    }
-
-    async callStabilityFree(prompt) {
-        try {
-            const response = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-v1-6/text-to-image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer free-tier',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    text_prompts: [{ text: prompt }],
-                    cfg_scale: 7,
-                    height: 512,
-                    width: 512,
-                    steps: 30,
-                    samples: 1
-                })
-            });
-
-            if (response.status === 401) {
-                throw new Error('Требуется API ключ для Stability AI');
-            }
-
-            const data = await response.json();
-            return `data:image/png;base64,${data.artifacts[0].base64}`;
-        } catch (error) {
-            throw new Error(`Stability AI Free error: ${error.message}`);
-        }
-    }
-
-    async callNovitaFree(prompt) {
-        try {
-            const response = await fetch('https://api.novita.ai/v2/txt2img', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer free-tier',
-                    'X-Novita-Client': 'KHAI-Assistant'
-                },
-                body: JSON.stringify({
-                    prompt: prompt,
-                    width: 512,
-                    height: 512,
-                    steps: 20,
-                    batch_size: 1
-                })
-            });
-
-            if (response.status === 401) {
-                throw new Error('Требуется API ключ для Novita AI');
-            }
-
-            const data = await response.json();
-            return data.images[0].image_url;
-        } catch (error) {
-            throw new Error(`Novita AI Free error: ${error.message}`);
-        }
-    }
-
-    async callPhindFree(prompt) {
-        try {
-            const response = await fetch('https://https.api.phind.com/agent/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    prompt: prompt,
-                    options: {},
-                    systemPrompt: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно.",
-                    temperature: 0.7,
-                    max_tokens: 500
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.choices[0].text;
-        } catch (error) {
-            throw new Error(`Phind Free error: ${error.message}`);
-        }
-    }
-
-    async callYouFree(prompt) {
-        try {
-            const response = await fetch('https://api.you.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'KHAI-Assistant/1.0'
-                },
-                body: JSON.stringify({
-                    model: 'you-chat',
-                    messages: [
-                        {
-                            role: "system",
-                            content: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 500,
-                    temperature: 0.7
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.choices[0].message.content;
-        } catch (error) {
-            throw new Error(`You.com Free error: ${error.message}`);
-        }
-    }
-
-    async callLocalAI(prompt) {
-        const provider = this.aiProviders.localai;
-        
-        try {
-            const response = await fetch(provider.endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model: "local-model",
-                    messages: [
-                        {
-                            role: "system",
-                            content: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 500,
-                    temperature: 0.7
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.choices[0].message.content;
-        } catch (error) {
-            throw new Error(`Local AI error: ${error.message}`);
-        }
-    }
-
-    async getFallbackProvider(currentProvider, feature) {
-        const modelConfig = this.modelConfig[this.currentModel];
-        if (modelConfig && modelConfig.fallback) {
-            const fallback = modelConfig.fallback;
-            if (this.aiProviders[fallback]?.available && this.aiProviders[fallback].features.includes(feature)) {
-                return fallback;
-            }
-        }
-
-        const available = Object.entries(this.aiProviders)
-            .filter(([id, provider]) => 
-                id !== currentProvider && 
-                provider.available && 
-                provider.features.includes(feature)
-            )
-            .sort(([,a], [,b]) => a.priority - b.priority);
-
-        return available.length > 0 ? available[0][0] : null;
-    }
-
-    // ОСНОВНЫЕ МЕТОДЫ ОБРАБОТКИ
-    async processAIResponse(response) {
-        this.activeStreamingMessage = this.createStreamingMessage();
-        
-        try {
-            this.addProviderInfoToMessage(this.activeStreamingMessage, this.currentProvider);
-
-            if (response && typeof response[Symbol.asyncIterator] === 'function') {
-                await this.processStreamResponse(response);
-            } else if (typeof response === 'string') {
-                this.finalizeStreamingMessage(this.activeStreamingMessage, response);
-            } else {
-                const text = response.text || response.generated_text || JSON.stringify(response, null, 2);
-                this.finalizeStreamingMessage(this.activeStreamingMessage, text);
-            }
-
-            if (!this.generationAborted) {
-                const finalContent = this.getStreamingMessageContent(this.activeStreamingMessage);
-                this.addToConversationHistory('assistant', finalContent);
-                this.saveCurrentSession();
-                this.updateMinimap();
-                
-                this.debug(`✅ Успешно использован провайдер: ${this.currentProvider}`);
-            }
-        } catch (error) {
-            if (!this.generationAborted) {
-                this.handleError('Ошибка при обработке ответа ИИ', error);
-                await this.handleProviderError(error);
-            }
-        } finally {
-            this.isGenerating = false;
-            this.isProcessing = false;
-            this.updateSendButton(false);
-            this.activeStreamingMessage = null;
-        }
-    }
-
-    async processStreamResponse(stream) {
-        let fullResponse = '';
-        this.currentStreamController = stream;
-        
-        for await (const part of stream) {
-            if (this.generationAborted) break;
-            
-            if (part?.text) {
-                fullResponse += part.text;
-                this.updateStreamingMessage(this.activeStreamingMessage, fullResponse);
-                await this.delay(10);
-            }
-        }
-        
-        if (!this.generationAborted) {
-            this.finalizeStreamingMessage(this.activeStreamingMessage, fullResponse);
-        }
-    }
-
-    async handleProviderError(error) {
-        console.warn('Ошибка провайдера, пробуем переключиться...', error);
-        
-        try {
-            const newProvider = await this.selectBestProvider('chat');
-            if (newProvider !== this.currentProvider) {
-                this.showNotification(`Переключен на провайдер: ${this.aiProviders[newProvider].name}`, 'info');
-                
-                if (this.lastUserMessage) {
-                    this.setTimeout(() => {
-                        this.retryWithNewProvider(this.lastUserMessage);
-                    }, 1000);
-                }
-            }
-        } catch (fallbackError) {
-            console.error('Все провайдеры недоступны:', fallbackError);
-        }
-    }
-
-    async retryWithNewProvider(message) {
-        this.debug(`🔄 Повторная попытка с провайдером: ${this.currentProvider}`);
-        
-        try {
-            await this.getAIResponse(message, []);
-        } catch (error) {
-            this.handleError('Не удалось получить ответ от ИИ', error);
-        }
-    }
-
-    addProviderInfoToMessage(messageElement, providerId) {
-        const provider = this.aiProviders[providerId];
-        if (!provider) return;
-
-        const providerIndicator = document.createElement('div');
-        providerIndicator.className = 'provider-indicator';
-        providerIndicator.innerHTML = `🤖 <strong>${provider.name}</strong>`;
-        providerIndicator.style.cssText = `
-            font-size: 0.8em;
-            color: var(--secondary-text);
-            margin-bottom: 8px;
-            padding: 4px 8px;
-            background: var(--bg-secondary);
-            border-radius: 4px;
-            display: inline-block;
-        `;
-
-        const messageContent = messageElement.querySelector('.message-content');
-        if (messageContent) {
-            messageContent.insertBefore(providerIndicator, messageContent.firstChild);
-        }
-    }
-
-    // ОСНОВНЫЕ МЕТОДЫ ИНТЕРФЕЙСА
     bindEvents() {
         const events = [
             [this.sendBtn, 'click', () => this.handleSendButtonClick()],
@@ -1239,6 +428,7 @@ class KHAIAssistant {
             [window, 'online', () => this.handleOnlineStatus()],
             [window, 'offline', () => this.handleOfflineStatus()],
             [window, 'resize', () => this.debounce('resize', () => this.handleResize(), 250)],
+            // PWA events
             [window, 'beforeinstallprompt', (e) => this.handleBeforeInstallPrompt(e)],
             [window, 'appinstalled', () => this.handleAppInstalled()]
         ];
@@ -1248,6 +438,190 @@ class KHAIAssistant {
                 this.addEventListener(element, event, handler);
             }
         });
+    }
+
+    // PWA Installation Handlers
+    handleBeforeInstallPrompt(e) {
+        e.preventDefault();
+        this.deferredPrompt = e;
+        this.isPWAInstalled = false;
+        this.debug('PWA installation available');
+    }
+
+    handleAppInstalled() {
+        this.deferredPrompt = null;
+        this.isPWAInstalled = true;
+        this.debug('PWA installed successfully');
+        this.showNotification('Приложение успешно установлено!', 'success');
+    }
+
+    // Preloader methods
+    hidePreloader() {
+        if (this.preloader) {
+            this.preloader.classList.add('fade-out');
+            this.setTimeout(() => {
+                if (this.preloader.parentNode) {
+                    this.preloader.style.display = 'none';
+                }
+            }, 500);
+        }
+    }
+
+    showPreloader() {
+        if (this.preloader) {
+            this.preloader.style.display = 'flex';
+            this.preloader.classList.remove('fade-out');
+        }
+    }
+
+    // 404 Page methods
+    setup404Handling() {
+        // Перехват навигации для SPA
+        window.addEventListener('hashchange', () => {
+            this.handleRouteChange();
+        });
+        
+        window.addEventListener('popstate', () => {
+            this.handleRouteChange();
+        });
+    }
+
+    handleRouteChange() {
+        const path = window.location.pathname + window.location.hash;
+        if (path.includes('404') || !path.includes('/')) {
+            this.show404Page();
+        } else {
+            this.hide404Page();
+        }
+    }
+
+    show404Page() {
+        if (this.appContainer) this.appContainer.style.display = 'none';
+        if (this.page404) this.page404.style.display = 'flex';
+    }
+
+    hide404Page() {
+        if (this.page404) this.page404.style.display = 'none';
+        if (this.appContainer) this.appContainer.style.display = 'flex';
+        window.history.replaceState(null, '', '/');
+    }
+
+    // Set current year in sidebar
+    setCurrentYear() {
+        const yearElement = document.getElementById('appVersionDate');
+        if (yearElement) {
+            yearElement.textContent = new Date().getFullYear().toString();
+        }
+    }
+
+    // Sidebar search methods
+    handleSidebarSearchInput() {
+        const searchTerm = this.sidebarSearch.value.trim();
+        if (this.sidebarSearchClear) {
+            this.sidebarSearchClear.style.display = searchTerm ? 'flex' : 'none';
+        }
+        this.filterChatHistory();
+    }
+
+    clearSidebarSearch() {
+        this.sidebarSearch.value = '';
+        if (this.sidebarSearchClear) {
+            this.sidebarSearchClear.style.display = 'none';
+        }
+        this.filterChatHistory();
+    }
+
+    debounce(id, fn, delay) {
+        if (this.debounceTimers.has(id)) {
+            clearTimeout(this.debounceTimers.get(id));
+        }
+        this.debounceTimers.set(id, setTimeout(fn, delay));
+    }
+
+    addEventListener(element, event, handler) {
+        if (!element) return;
+        
+        const wrappedHandler = (...args) => {
+            try {
+                handler(...args);
+            } catch (error) {
+                console.error(`Error in ${event} handler:`, error);
+                this.showNotification('Произошла ошибка при обработке действия', 'error');
+            }
+        };
+
+        element.addEventListener(event, wrappedHandler);
+        
+        if (!this.activeEventListeners.has(element)) {
+            this.activeEventListeners.set(element, []);
+        }
+        this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
+    }
+
+    setTimeout(callback, delay) {
+        const timeoutId = setTimeout(() => {
+            this.activeTimeouts.delete(timeoutId);
+            callback();
+        }, delay);
+        this.activeTimeouts.add(timeoutId);
+        return timeoutId;
+    }
+
+    // Theme Management
+    toggleTheme() {
+        this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', this.currentTheme);
+        
+        try {
+            localStorage.setItem('khai-assistant-theme', this.currentTheme);
+        } catch (error) {
+            console.error('Error saving theme preference:', error);
+        }
+        
+        const themeIcon = this.currentTheme === 'dark' ? 'ti-sun' : 'ti-moon';
+        if (this.themeToggle) {
+            this.themeToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
+        }
+        if (this.themeMinimapToggle) {
+            this.themeMinimapToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
+        }
+        
+        this.showNotification(
+            this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
+            'info'
+        );
+    }
+
+    loadThemePreference() {
+        try {
+            const savedTheme = localStorage.getItem('khai-assistant-theme');
+            if (savedTheme === 'light' || savedTheme === 'dark') {
+                this.currentTheme = savedTheme;
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        } catch (error) {
+            console.error('Error loading theme preference:', error);
+        }
+    }
+
+    // Input Handling
+    handleInputKeydown(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.sendMessage();
+        }
+    }
+
+    handleInputChange() {
+        const hasInput = this.userInput.value.trim().length > 0 || this.attachedImages.length > 0;
+        
+        if (this.isGenerating && hasInput) {
+            this.updateSendButton(false);
+        }
+        
+        if (this.clearInputBtn) {
+            this.clearInputBtn.style.display = this.userInput.value ? 'flex' : 'none';
+        }
     }
 
     setupAutoResize() {
@@ -1289,35 +663,37 @@ class KHAIAssistant {
         type();
     }
 
-    loadThemePreference() {
-        try {
-            const savedTheme = localStorage.getItem('khai-assistant-theme');
-            if (savedTheme === 'light' || savedTheme === 'dark') {
-                this.currentTheme = savedTheme;
-                document.body.setAttribute('data-theme', savedTheme);
+    // Message Handling
+    validateInput(text) {
+        if (!text || text.trim().length === 0) {
+            return { valid: false, error: 'Сообщение не может быть пустым' };
+        }
+        
+        if (text.length > this.MAX_MESSAGE_LENGTH) {
+            return { 
+                valid: false, 
+                error: `Сообщение слишком длинное (максимум ${this.MAX_MESSAGE_LENGTH} символов)` 
+            };
+        }
+
+        // Check for dangerous content
+        const dangerousPatterns = [
+            /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+            /javascript:/gi,
+            /vbscript:/gi,
+            /on\w+\s*=/gi,
+            /<iframe/gi,
+            /<object/gi,
+            /<embed/gi
+        ];
+
+        for (const pattern of dangerousPatterns) {
+            if (pattern.test(text)) {
+                return { valid: false, error: 'Сообщение содержит недопустимый контент' };
             }
-        } catch (error) {
-            console.error('Error loading theme preference:', error);
         }
-    }
 
-    handleInputKeydown(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            this.sendMessage();
-        }
-    }
-
-    handleInputChange() {
-        const hasInput = this.userInput.value.trim().length > 0 || this.attachedImages.length > 0;
-        
-        if (this.isGenerating && hasInput) {
-            this.updateSendButton(false);
-        }
-        
-        if (this.clearInputBtn) {
-            this.clearInputBtn.style.display = this.userInput.value ? 'flex' : 'none';
-        }
+        return { valid: true };
     }
 
     async sendMessage() {
@@ -1422,34 +798,6 @@ class KHAIAssistant {
         }
     }
 
-    validateInput(text) {
-        if (!text || text.trim().length === 0) {
-            return { valid: false, error: 'Сообщение не может быть пустым' };
-        }
-        
-        if (text.length > this.MAX_MESSAGE_LENGTH) {
-            return { 
-                valid: false, 
-                error: `Сообщение слишком длинное (максимум ${this.MAX_MESSAGE_LENGTH} символов)` 
-            };
-        }
-
-        const dangerousPatterns = [
-            /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-            /javascript:/gi,
-            /vbscript:/gi,
-            /on\w+\s*=/gi
-        ];
-
-        for (const pattern of dangerousPatterns) {
-            if (pattern.test(text)) {
-                return { valid: false, error: 'Сообщение содержит недопустимый контент' };
-            }
-        }
-
-        return { valid: true };
-    }
-
     async processUserMessage(message) {
         this.lastUserMessage = {
             text: message,
@@ -1475,7 +823,7 @@ class KHAIAssistant {
         
         try {
             const prompt = await this.buildPrompt(userMessage, files);
-            const response = await this.callAIService(prompt);
+            const response = await this.callAIServiceWithFallback(prompt);
             
             this.removeTypingIndicator();
             await this.processAIResponse(response);
@@ -1491,20 +839,24 @@ class KHAIAssistant {
             const file = files[0];
             
             if (file.fileType === 'image') {
-                const extractedText = await this.callAIService(file.data, 'image_analysis');
+                if (typeof puter?.ai?.img2txt !== 'function') {
+                    throw new Error('Функция анализа изображений недоступна');
+                }
+                
+                const extractedText = await puter.ai.img2txt(file.data);
                 
                 if (userMessage.trim()) {
                     return `Пользователь отправил изображение "${file.name}" с сопроводительным сообщением: "${userMessage}"
 
 Извлеченный текст с изображения: "${extractedText}"
 
-Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения.`;
+Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержание изображения. Если на изображении есть дополнительная информация (текст, задачи, диаграммы и т.д.) - используй её для полного ответа. Отвечай одним целостным сообщением на русском языке.`;
                 } else {
                     return `Пользователь отправил изображение "${file.name}".
 
 Извлеченный текст с изображения: "${extractedText}"
 
-Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение.`;
+Проанализируй это изображение. Опиши что изображено, основное содержание. Если есть текст - объясни его значение. Если это задача - реши её. Отвечай подробно на русском языке.`;
                 }
             } else if (file.fileType === 'text' || file.fileType === 'code') {
                 const fileContent = file.data;
@@ -1517,7 +869,7 @@ class KHAIAssistant {
 ${fileContent}
 """
 
-Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержимое прикрепленного файла.`;
+Ответь на вопрос/сообщение пользователя "${userMessage}", учитывая содержимое прикрепленного файла. Проанализируй содержимое и дай развернутый ответ на основе предоставленной информации. Отвечай на русском языке.`;
                 } else {
                     return `Пользователь отправил файл "${file.name}".
 
@@ -1526,7 +878,7 @@ ${fileContent}
 ${fileContent}
 """
 
-Проанализируй содержимое этого файла. Суммируй основную информацию, выдели ключевые моменты.`;
+Проанализируй содержимое этого файла. Суммируй основную информацию, выдели ключевые моменты, предложи выводы или рекомендации на основе представленного содержимого. Отвечай подробно на русском языке.`;
                 }
             }
         } else {
@@ -1534,1046 +886,490 @@ ${fileContent}
         }
     }
 
-    buildContextPrompt(currentMessage) {
-        const recentHistory = this.conversationHistory.slice(-6);
+    async callAIServiceWithFallback(prompt, retryCount = 0) {
+        const modelConfig = this.modelConfig[this.currentModel];
         
-        if (recentHistory.length === 0) {
-            return currentMessage;
+        try {
+            if (modelConfig.provider === 'puter' && typeof puter?.ai?.chat === 'function') {
+                return await this.callPuterAI(prompt);
+            } else if (modelConfig.provider === 'huggingface') {
+                return await this.callHuggingFaceAPI(prompt);
+            } else {
+                throw new Error('Провайдер не поддерживается');
+            }
+        } catch (error) {
+            console.warn(`Попытка ${retryCount + 1} не удалась:`, error);
+            
+            if (retryCount < this.maxRetries) {
+                this.showNotification(`Повторная попытка ${retryCount + 1}/${this.maxRetries}...`, 'warning');
+                await this.delay(this.retryDelay * (retryCount + 1));
+                return this.callAIServiceWithFallback(prompt, retryCount + 1);
+            } else {
+                // Final fallback to alternative provider
+                this.showNotification('Используем резервный провайдер...', 'info');
+                return await this.callFallbackAPI(prompt);
+            }
         }
+    }
 
-        let context = "Контекст предыдущего разговора:\n";
+    async callPuterAI(prompt) {
+        const modelOptions = {
+            'gpt-5-nano': { model: 'gpt-5-nano' },
+            'o3-mini': { model: 'o3-mini' },
+            'deepseek-chat': { model: 'deepseek-chat' },
+            'deepseek-reasoner': { model: 'deepseek-reasoner' },
+            'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
+            'grok-beta': { model: 'grok-beta' }
+        };
         
-        recentHistory.forEach(msg => {
-            const role = msg.role === 'user' ? 'Пользователь' : 'Ассистент';
-            const content = msg.content.length > 500 ? msg.content.substring(0, 500) + '...' : msg.content;
-            context += `${role}: ${content}\n`;
+        const options = {
+            ...modelOptions[this.currentModel],
+            systemPrompt: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно. Поддерживай естественный диалог и учитывай контекст предыдущих сообщений.",
+            stream: true
+        };
+        
+        return await puter.ai.chat(prompt, options);
+    }
+
+    async callHuggingFaceAPI(prompt) {
+        const modelName = this.apiConfig.huggingface.models[this.currentModel];
+        const response = await fetch(`${this.apiConfig.huggingface.baseUrl}/${modelName}`, {
+            method: 'POST',
+            headers: this.apiConfig.huggingface.headers,
+            body: JSON.stringify({
+                inputs: prompt,
+                parameters: {
+                    max_new_tokens: 1000,
+                    temperature: 0.7,
+                    do_sample: true
+                }
+            })
         });
 
-        context += `\nТекущий вопрос пользователя: ${currentMessage}\n\nОтветь, учитывая контекст выше:`;
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        return context;
+        const data = await response.json();
+        return data[0]?.generated_text || data.generated_text || 'Ответ не получен';
     }
 
-    addToConversationHistory(role, content, images = []) {
-        let messageContent = content;
-        
-        if (images && images.length > 0) {
-            const imageNames = images.map(img => img.name).join(', ');
-            messageContent += ` [Прикреплено изображение: ${imageNames}]`;
-        }
-        
-        this.conversationHistory.push({
-            role: role,
-            content: messageContent,
-            timestamp: Date.now()
+    async callFallbackAPI(prompt) {
+        // Fallback to OpenAI API
+        const response = await fetch(`${this.apiConfig.fallback.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: this.apiConfig.fallback.headers,
+            body: JSON.stringify({
+                model: this.apiConfig.fallback.models['gpt-3.5-turbo'],
+                messages: [
+                    {
+                        role: 'system',
+                        content: "Ты полезный AI-ассистент. Отвечай на русском языке понятно и подробно."
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                max_tokens: 1000,
+                temperature: 0.7
+            })
         });
 
-        if (this.conversationHistory.length > this.CONVERSATION_HISTORY_LIMIT) {
-            this.conversationHistory = this.conversationHistory.slice(-25);
+        if (!response.ok) {
+            throw new Error(`Fallback API error! status: ${response.status}`);
         }
+
+        const data = await response.json();
+        return data.choices[0]?.message?.content || 'Ответ не получен';
     }
 
-    delay(ms) {
-        return new Promise(resolve => this.setTimeout(resolve, ms));
+    async processAIResponse(response) {
+        const messageId = 'ai-' + Date.now();
+        this.activeStreamingMessage = messageId;
+        
+        this.addMessage('ai', '', [], messageId, true);
+        
+        if (typeof response === 'string') {
+            // Non-streaming response
+            this.updateAIMessage(messageId, response);
+            this.finalizeStreamingMessage(messageId, response);
+        } else {
+            // Streaming response
+            await this.handleStreamingResponse(response, messageId);
+        }
+        
+        this.activeStreamingMessage = null;
     }
 
-    createStreamingMessage() {
-        const messageElement = document.createElement('div');
-        messageElement.className = 'message message-ai streaming-message';
-        messageElement.id = 'streaming-' + Date.now();
+    async handleStreamingResponse(stream, messageId) {
+        let fullResponse = '';
+        const messageElement = document.getElementById(messageId);
         
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content streaming-content';
+        if (!messageElement) {
+            console.error('Message element not found:', messageId);
+            return;
+        }
         
-        messageContent.innerHTML = `
-            <div class="typing-indicator-inline">
-                <div class="typing-dots">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                </div>
-                <span>ИИ думает...</span>
-            </div>
-            <div class="streaming-text"></div>
-        `;
+        const contentElement = messageElement.querySelector('.message-content');
+        if (!contentElement) return;
         
-        messageElement.appendChild(messageContent);
-        this.messagesContainer.appendChild(messageElement);
-        this.scrollToBottom();
-        
-        return messageElement.id;
+        try {
+            for await (const chunk of stream) {
+                if (this.generationAborted) {
+                    break;
+                }
+                
+                if (chunk && typeof chunk === 'string') {
+                    fullResponse += chunk;
+                    this.updateStreamingMessage(messageId, fullResponse);
+                    
+                    if (this.autoScrollEnabled) {
+                        this.scrollToBottom();
+                    }
+                }
+            }
+            
+            if (!this.generationAborted) {
+                this.finalizeStreamingMessage(messageId, fullResponse);
+            }
+            
+        } catch (error) {
+            console.error('Error processing stream:', error);
+            if (!this.generationAborted) {
+                this.handleError('Ошибка при обработке потока данных', error);
+            }
+        }
     }
 
     updateStreamingMessage(messageId, content) {
         const messageElement = document.getElementById(messageId);
         if (!messageElement) return;
         
-        const streamingText = messageElement.querySelector('.streaming-text');
-        const typingIndicator = messageElement.querySelector('.typing-indicator-inline');
+        const contentElement = messageElement.querySelector('.message-content');
+        if (!contentElement) return;
         
-        if (content.length > 100 && typingIndicator && !typingIndicator.classList.contains('fade-out')) {
-            typingIndicator.classList.add('fade-out');
+        const streamingText = contentElement.querySelector('.streaming-text');
+        if (streamingText) {
+            streamingText.innerHTML = this.formatMessageContent(content);
+        }
+    }
+
+    finalizeStreamingMessage(messageId, content) {
+        const messageElement = document.getElementById(messageId);
+        if (!messageElement) return;
+        
+        const contentElement = messageElement.querySelector('.message-content');
+        if (!contentElement) return;
+        
+        // Remove streaming cursor
+        contentElement.innerHTML = this.formatMessageContent(content);
+        
+        // Add to conversation history
+        this.addToConversationHistory('assistant', content);
+        
+        // Update last AI message index for navigation
+        this.updateLastAIMessageIndex();
+        
+        // Add copy button
+        this.addCopyButton(messageElement, content);
+    }
+
+    updateAIMessage(messageId, content) {
+        const messageElement = document.getElementById(messageId);
+        if (!messageElement) return;
+        
+        const contentElement = messageElement.querySelector('.message-content');
+        if (!contentElement) return;
+        
+        contentElement.innerHTML = this.formatMessageContent(content);
+        this.addToConversationHistory('assistant', content);
+        this.updateLastAIMessageIndex();
+        this.addCopyButton(messageElement, content);
+    }
+
+    formatMessageContent(content) {
+        if (!content) return '';
+        
+        try {
+            // Basic sanitization
+            const sanitized = this.escapeHtml(content);
+            
+            // Markdown processing
+            const processed = marked.parse(sanitized);
+            
+            // Post-processing for code blocks
+            return processed.replace(/<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g, 
+                (match, lang, code) => {
+                    return `<pre><code class="language-${lang}">${code}</code></pre>`;
+                });
+        } catch (error) {
+            console.error('Error formatting message:', error);
+            return this.escapeHtml(content);
+        }
+    }
+
+    addCopyButton(messageElement, content) {
+        const actionsElement = messageElement.querySelector('.message-actions');
+        if (!actionsElement) return;
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'message-action copy-btn';
+        copyBtn.innerHTML = '<i class="ti ti-copy"></i>';
+        copyBtn.title = 'Копировать текст';
+        
+        copyBtn.addEventListener('click', () => {
+            this.copyToClipboard(content);
+            this.showNotification('Текст скопирован в буфер обмена', 'success');
+            
+            copyBtn.innerHTML = '<i class="ti ti-check"></i>';
+            copyBtn.disabled = true;
+            
             this.setTimeout(() => {
-                if (typingIndicator.parentNode) {
-                    typingIndicator.style.display = 'none';
-                }
-            }, 300);
+                copyBtn.innerHTML = '<i class="ti ti-copy"></i>';
+                copyBtn.disabled = false;
+            }, 2000);
+        });
+        
+        actionsElement.appendChild(copyBtn);
+    }
+
+    // Message Display
+    addMessage(role, content, files = [], messageId = null, isStreaming = false) {
+        const id = messageId || `${role}-${Date.now()}`;
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${role}-message`;
+        messageElement.id = id;
+        
+        const messageHeader = document.createElement('div');
+        messageHeader.className = 'message-header';
+        
+        const messageAvatar = document.createElement('div');
+        messageAvatar.className = 'message-avatar';
+        messageAvatar.innerHTML = role === 'user' ? 
+            '<i class="ti ti-user"></i>' : 
+            '<i class="ti ti-robot"></i>';
+        
+        const messageInfo = document.createElement('div');
+        messageInfo.className = 'message-info';
+        messageInfo.innerHTML = role === 'user' ? 
+            '<span class="message-sender">Вы</span>' : 
+            '<span class="message-sender">KHAI Assistant</span>';
+        
+        const messageTime = document.createElement('span');
+        messageTime.className = 'message-time';
+        messageTime.textContent = this.getCurrentTime();
+        
+        messageInfo.appendChild(messageTime);
+        messageHeader.appendChild(messageAvatar);
+        messageHeader.appendChild(messageInfo);
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        if (isStreaming) {
+            messageContent.innerHTML = '<div class="streaming-text"></div><span class="streaming-cursor">▌</span>';
+        } else {
+            messageContent.innerHTML = this.formatMessageContent(content);
         }
         
-        const processedContent = this.processCodeBlocks(content);
-        streamingText.innerHTML = processedContent;
+        // Add files if present
+        if (files.length > 0) {
+            const filesContainer = document.createElement('div');
+            filesContainer.className = 'message-files';
+            
+            files.forEach(file => {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'message-file';
+                
+                if (file.fileType === 'image') {
+                    fileElement.innerHTML = `
+                        <div class="file-preview">
+                            <img src="${file.data}" alt="${file.name}" loading="lazy">
+                            <span class="file-name">${this.escapeHtml(file.name)}</span>
+                        </div>
+                    `;
+                } else {
+                    fileElement.innerHTML = `
+                        <div class="file-preview">
+                            <i class="ti ti-file-text"></i>
+                            <span class="file-name">${this.escapeHtml(file.name)}</span>
+                        </div>
+                    `;
+                }
+                
+                filesContainer.appendChild(fileElement);
+            });
+            
+            messageContent.appendChild(filesContainer);
+        }
         
-        this.attachCopyButtons(streamingText);
+        const messageActions = document.createElement('div');
+        messageActions.className = 'message-actions';
+        
+        messageElement.appendChild(messageHeader);
+        messageElement.appendChild(messageContent);
+        messageElement.appendChild(messageActions);
+        
+        this.messagesContainer.appendChild(messageElement);
         
         if (this.autoScrollEnabled) {
             this.scrollToBottom();
         }
-    }
-
-    finalizeStreamingMessage(messageId, fullContent) {
-        const messageElement = document.getElementById(messageId);
-        if (!messageElement) return;
         
-        messageElement.classList.remove('streaming-message');
-        const messageContent = messageElement.querySelector('.message-content');
-        messageContent.classList.remove('streaming-content');
-        
-        const typingIndicator = messageContent.querySelector('.typing-indicator-inline');
-        if (typingIndicator) {
-            typingIndicator.remove();
+        if (role === 'assistant' || role === 'ai') {
+            this.updateLastAIMessageIndex();
         }
         
-        const processedContent = this.processCodeBlocks(fullContent);
-        messageContent.innerHTML = processedContent;
-        
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'message-info';
-        infoDiv.innerHTML = `
-            <div class="model-indicator">Модель: ${this.getModelDisplayName(this.currentModel)}</div>
-            <div class="provider-indicator">Провайдер: ${this.aiProviders[this.currentProvider]?.name || this.currentProvider}</div>
-        `;
-        messageContent.appendChild(infoDiv);
-        
-        this.attachMessageHandlers(messageElement);
-        this.scrollToBottom();
-    }
-
-    getStreamingMessageContent(messageId) {
-        const messageElement = document.getElementById(messageId);
-        if (!messageElement) return '';
-        
-        const streamingText = messageElement.querySelector('.streaming-text');
-        return streamingText ? streamingText.textContent : '';
-    }
-
-    addMessage(role, content, images = []) {
-        const messageElement = document.createElement('div');
-        messageElement.className = `message message-${role}`;
-        
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-        
-        try {
-            const processedContent = this.processCodeBlocks(content);
-            messageContent.innerHTML = processedContent;
-        } catch {
-            messageContent.textContent = content;
-        }
-        
-        if (role === 'ai') {
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'message-info';
-            infoDiv.innerHTML = `
-                <div class="model-indicator">Модель: ${this.getModelDisplayName(this.currentModel)}</div>
-                <div class="provider-indicator">Провайдер: ${this.aiProviders[this.currentProvider]?.name || this.currentProvider}</div>
-            `;
-            messageContent.appendChild(infoDiv);
-        }
-        
-        if (images && images.length > 0) {
-            images.forEach(image => {
-                if (image.fileType === 'image') {
-                    const imageContainer = document.createElement('div');
-                    imageContainer.className = 'message-image';
-                    
-                    const img = document.createElement('img');
-                    img.src = image.data;
-                    img.alt = image.name;
-                    img.style.maxWidth = '200px';
-                    img.style.borderRadius = '8px';
-                    img.style.marginTop = '8px';
-                    
-                    imageContainer.appendChild(img);
-                    messageContent.appendChild(imageContainer);
-                } else if (image.fileType === 'text') {
-                    const fileContainer = document.createElement('div');
-                    fileContainer.className = 'attached-file';
-                    fileContainer.style.marginTop = '8px';
-                    fileContainer.innerHTML = `
-                        <i class="ti ti-file-text"></i>
-                        <span>${this.escapeHtml(image.name)} (Текстовый файл)</span>
-                    `;
-                    messageContent.appendChild(fileContainer);
-                }
-            });
-        }
-        
-        messageElement.appendChild(messageContent);
-        this.messagesContainer.appendChild(messageElement);
-        
-        this.attachMessageHandlers(messageElement);
-        this.scrollToBottom();
-        this.updateMinimap();
-        
-        return messageElement;
-    }
-
-    processCodeBlocks(content) {
-        if (typeof marked === 'undefined') {
-            return content;
-        }
-        
-        let html = marked.parse(content);
-        
-        html = html.replace(/<pre><code class="([^"]*)">/g, (match, lang) => {
-            const language = lang || 'text';
-            return `
-                <div class="code-header">
-                    <span class="code-language">${language}</span>
-                    <button class="copy-code-btn" data-language="${language}">
-                        <i class="ti ti-copy"></i>
-                        Копировать
-                    </button>
-                </div>
-                <pre><code class="${lang}">`;
-        });
-        
-        return html;
-    }
-
-    attachMessageHandlers(messageElement) {
-        this.attachCopyButtons(messageElement);
-        
-        if (messageElement.classList.contains('message-ai')) {
-            this.attachSpeakButton(messageElement);
-            this.attachMessageActionButtons(messageElement);
-        }
-    }
-
-    attachCopyButtons(container) {
-        const copyButtons = container.querySelectorAll('.copy-code-btn');
-        copyButtons.forEach(btn => {
-            this.addEventListener(btn, 'click', async (e) => {
-                const codeBlock = e.target.closest('.code-header')?.nextElementSibling;
-                if (codeBlock) {
-                    const code = codeBlock.textContent;
-                    try {
-                        await navigator.clipboard.writeText(code);
-                        
-                        const originalText = btn.innerHTML;
-                        btn.innerHTML = '<i class="ti ti-check"></i> Скопировано!';
-                        btn.classList.add('copied');
-                        
-                        this.setTimeout(() => {
-                            btn.innerHTML = originalText;
-                            btn.classList.remove('copied');
-                        }, 2000);
-                        
-                        this.showNotification('Код скопирован в буфер обмена', 'success');
-                    } catch (err) {
-                        console.error('Failed to copy code:', err);
-                        this.showNotification('Не удалось скопировать код', 'error');
-                    }
-                }
-            });
-        });
-    }
-
-    attachSpeakButton(messageElement) {
-        const messageContent = messageElement.querySelector('.message-content');
-        const plainText = this.extractPlainText(messageContent.textContent || '');
-        
-        if (plainText.trim().length < 10) return;
-        
-        let actionsContainer = messageElement.querySelector('.message-actions');
-        if (!actionsContainer) {
-            actionsContainer = document.createElement('div');
-            actionsContainer.className = 'message-actions';
-            messageElement.appendChild(actionsContainer);
-        }
-        
-        const existingSpeakBtn = actionsContainer.querySelector('.speak-btn');
-        if (existingSpeakBtn) {
-            existingSpeakBtn.remove();
-        }
-        
-        const speakButton = document.createElement('button');
-        speakButton.className = 'action-btn-small speak-btn';
-        speakButton.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
-        speakButton.setAttribute('data-text', plainText);
-        
-        this.addEventListener(speakButton, 'click', (e) => {
-            e.stopPropagation();
-            const text = e.currentTarget.getAttribute('data-text');
-            this.toggleTextToSpeech(text, speakButton);
-        });
-        
-        actionsContainer.appendChild(speakButton);
-    }
-
-    attachMessageActionButtons(messageElement) {
-        const messageContent = messageElement.querySelector('.message-content');
-        const plainText = this.extractPlainText(messageContent.innerHTML);
-        
-        const isWelcomeMessage = plainText.includes('Добро пожаловать в KHAI') || 
-                                plainText.includes('Основные возможности:');
-        
-        let actionsContainer = messageElement.querySelector('.message-actions');
-        if (!actionsContainer) {
-            actionsContainer = document.createElement('div');
-            actionsContainer.className = 'message-actions';
-            messageElement.appendChild(actionsContainer);
-        }
-
-        const existingButtons = actionsContainer.querySelectorAll('.action-btn-small:not(.speak-btn)');
-        existingButtons.forEach(btn => btn.remove());
-
-        if (!isWelcomeMessage) {
-            const regenerateBtn = document.createElement('button');
-            regenerateBtn.className = 'action-btn-small';
-            regenerateBtn.innerHTML = '<i class="ti ti-refresh"></i> Перегенерировать';
-            regenerateBtn.onclick = () => this.regenerateMessage(messageElement);
-            actionsContainer.appendChild(regenerateBtn);
-        }
-
-        const downloadBtn = document.createElement('button');
-        downloadBtn.className = 'action-btn-small';
-        downloadBtn.innerHTML = '<i class="ti ti-download"></i> Скачать';
-        downloadBtn.onclick = () => this.downloadMessage(plainText);
-        actionsContainer.appendChild(downloadBtn);
-
-        if (navigator.share) {
-            const shareBtn = document.createElement('button');
-            shareBtn.className = 'action-btn-small';
-            shareBtn.innerHTML = '<i class="ti ti-share"></i> Поделиться';
-            shareBtn.onclick = () => this.shareMessage(plainText);
-            actionsContainer.appendChild(shareBtn);
-        }
-    }
-
-    extractPlainText(htmlText) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlText;
-        return tempDiv.textContent || tempDiv.innerText || '';
-    }
-
-    toggleTextToSpeech(text, button) {
-        if (this.isSpeaking) {
-            this.stopSpeech();
-            button.classList.remove('speaking');
-            button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
-            this.showNotification('Озвучивание остановлено', 'info');
-        } else {
-            this.speakText(text, button);
-        }
-    }
-
-    speakText(text, button) {
-        if (!('speechSynthesis' in window)) {
-            this.showNotification('Озвучивание текста не поддерживается в вашем браузере', 'warning');
-            return;
-        }
-
-        try {
-            this.stopSpeech();
-
-            this.currentUtterance = new SpeechSynthesisUtterance(text);
-            this.currentUtterance.lang = 'ru-RU';
-            this.currentUtterance.rate = 0.85;
-            this.currentUtterance.pitch = 1.0;
-            this.currentUtterance.volume = 1.0;
-
-            const voices = speechSynthesis.getVoices();
-            const russianVoice = voices.find(voice => 
-                voice.lang.includes('ru') || voice.lang.includes('RU')
-            );
-            
-            if (russianVoice) {
-                this.currentUtterance.voice = russianVoice;
-                this.currentUtterance.rate = 0.8;
-            }
-
-            button.classList.add('speaking');
-            button.innerHTML = '<i class="ti ti-player-pause"></i> Остановить';
-            this.isSpeaking = true;
-
-            this.currentUtterance.onend = () => {
-                this.isSpeaking = false;
-                button.classList.remove('speaking');
-                button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
-            };
-
-            this.currentUtterance.onerror = (error) => {
-                console.error('Speech synthesis error:', error);
-                this.isSpeaking = false;
-                button.classList.remove('speaking');
-                button.innerHTML = '<i class="ti ti-speakerphone"></i> Озвучить';
-                this.showNotification('Ошибка при озвучивании текста', 'error');
-            };
-
-            speechSynthesis.speak(this.currentUtterance);
-            this.showNotification('Озвучивание текста...', 'info');
-
-        } catch (error) {
-            console.error('Error speaking text:', error);
-            this.showNotification('Ошибка при озвучивании текста', 'error');
-        }
-    }
-
-    stopSpeech() {
-        if ('speechSynthesis' in window) {
-            speechSynthesis.cancel();
-        }
-        this.isSpeaking = false;
-        this.currentUtterance = null;
-    }
-
-    regenerateMessage(messageElement) {
-        const previousMessages = Array.from(this.messagesContainer.querySelectorAll('.message-user'))
-            .map(msg => this.extractPlainText(msg.querySelector('.message-content').innerHTML))
-            .filter(msg => msg.trim().length > 0);
-        
-        if (previousMessages.length > 0) {
-            const lastUserMessage = previousMessages[previousMessages.length - 1];
-            messageElement.remove();
-            this.userInput.value = lastUserMessage;
-            this.sendMessage();
-        }
-    }
-
-    downloadMessage(content) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const fileName = `khai_message_${timestamp}.txt`;
-        this.downloadViaBrowser(content, fileName);
-    }
-
-    async shareMessage(content) {
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Сообщение от KHAI Assistant',
-                    text: content
-                });
-            } catch (error) {
-                if (error.name !== 'AbortError') {
-                    this.showNotification('Ошибка при отправке', 'error');
-                }
-            }
-        }
-    }
-
-    downloadViaBrowser(content, fileName) {
-        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        this.showNotification(`Файл "${fileName}" скачан`, 'success');
+        return id;
     }
 
     showTypingIndicator() {
-        this.removeTypingIndicator();
-        
+        const id = 'typing-' + Date.now();
         const typingElement = document.createElement('div');
-        typingElement.className = 'message message-ai typing-indicator';
-        typingElement.id = 'typing-' + Date.now();
+        typingElement.className = 'message ai-message typing-indicator';
+        typingElement.id = id;
         
         typingElement.innerHTML = `
-            <div class="typing-dots">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
+            <div class="message-header">
+                <div class="message-avatar">
+                    <i class="ti ti-robot"></i>
+                </div>
+                <div class="message-info">
+                    <span class="message-sender">KHAI Assistant</span>
+                    <span class="message-time">${this.getCurrentTime()}</span>
+                </div>
             </div>
-            <span>ИИ думает...</span>
+            <div class="message-content">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
         `;
         
         this.messagesContainer.appendChild(typingElement);
-        this.scrollToBottom();
         
-        return typingElement.id;
+        if (this.autoScrollEnabled) {
+            this.scrollToBottom();
+        }
+        
+        return id;
     }
 
-    removeTypingIndicator(typingId = null) {
-        if (typingId) {
-            const element = document.getElementById(typingId);
-            if (element) element.remove();
-        } else {
-            const typingElements = this.messagesContainer.querySelectorAll('.typing-indicator');
-            typingElements.forEach(el => el.remove());
+    removeTypingIndicator() {
+        if (this.activeTypingIndicator) {
+            const element = document.getElementById(this.activeTypingIndicator);
+            if (element && element.parentNode) {
+                element.parentNode.removeChild(element);
+            }
             this.activeTypingIndicator = null;
         }
     }
 
-    // CHAT MANAGEMENT
-    setupChatSelector() {
-        if (!this.chatSessions.has('default')) {
-            this.createDefaultChat();
-        }
-        this.updateChatList();
-    }
-
-    createDefaultChat() {
-        const defaultSession = {
-            id: 'default',
-            name: 'Основной чат',
-            messages: [],
-            conversationHistory: [],
-            createdAt: Date.now(),
-            lastActivity: Date.now()
-        };
-        this.chatSessions.set('default', defaultSession);
-        this.currentChatId = 'default';
-        this.saveChatSessions();
-    }
-
-    toggleSidebar() {
-        this.sidebarMenu.classList.toggle('active');
-        this.sidebarOverlay.classList.toggle('active');
-        if (this.sidebarMenu.classList.contains('active')) {
-            this.updateChatList();
-            this.updateModelInfo();
-            this.updateConnectionStatus();
-        }
-    }
-
-    closeSidebar() {
-        this.sidebarMenu.classList.remove('active');
-        this.sidebarOverlay.classList.remove('active');
-    }
-
-    updateChatList() {
-        if (!this.chatList) return;
-        
-        this.chatList.innerHTML = '';
-
-        const sessionsArray = Array.from(this.chatSessions.entries())
-            .sort(([,a], [,b]) => b.lastActivity - a.lastActivity);
-
-        if (sessionsArray.length === 0) {
-            this.createDefaultChat();
-            this.updateChatList();
-            return;
-        }
-
-        sessionsArray.forEach(([id, session]) => {
-            const chatItem = this.createChatItem(id, session);
-            this.chatList.appendChild(chatItem);
-        });
-    }
-
-    createChatItem(id, session) {
-        const displayName = session.name.length > this.MAX_CHAT_NAME_LENGTH 
-            ? session.name.substring(0, this.MAX_CHAT_NAME_LENGTH) + '...' 
-            : session.name;
-            
-        const chatItem = document.createElement('div');
-        chatItem.className = `chat-item ${id === this.currentChatId ? 'active' : ''}`;
-        chatItem.setAttribute('data-chat-id', id);
-        
-        chatItem.innerHTML = `
-            <div class="chat-item-content">
-                <div class="chat-item-title">${this.escapeHtml(displayName)}</div>
-                <div class="chat-item-preview">${this.getChatPreview(session)}</div>
-            </div>
-            <div class="chat-item-actions">
-                <button class="chat-item-action download-chat" title="Скачать чат">
-                    <i class="ti ti-download"></i>
-                </button>
-                <button class="chat-item-action edit" title="Редактировать название чата">
-                    <i class="ti ti-pencil"></i>
-                </button>
-                ${id !== 'default' ? '<button class="chat-item-action delete" title="Удалить чат"><i class="ti ti-trash"></i></button>' : ''}
-            </div>
-        `;
-
-        this.addEventListener(chatItem, 'click', (e) => {
-            if (!e.target.closest('.chat-item-action')) {
-                this.switchChat(id);
-                this.closeSidebar();
-            }
-        });
-
-        const downloadBtn = chatItem.querySelector('.download-chat');
-        if (downloadBtn) {
-            this.addEventListener(downloadBtn, 'click', (e) => {
-                e.stopPropagation();
-                this.downloadChat(id);
-            });
-        }
-
-        const editBtn = chatItem.querySelector('.edit');
-        if (editBtn) {
-            this.addEventListener(editBtn, 'click', (e) => {
-                e.stopPropagation();
-                this.openEditChatModal(id, session.name);
-            });
-        }
-
-        const deleteBtn = chatItem.querySelector('.delete');
-        if (deleteBtn) {
-            this.addEventListener(deleteBtn, 'click', (e) => {
-                e.stopPropagation();
-                this.deleteChat(id);
-            });
-        }
-
-        return chatItem;
-    }
-
-    getChatPreview(session) {
-        if (session.conversationHistory && session.conversationHistory.length > 0) {
-            const lastMessage = session.conversationHistory[session.conversationHistory.length - 1];
-            const preview = lastMessage.content.substring(0, 50);
-            return preview + (lastMessage.content.length > 50 ? '...' : '');
-        }
-        return 'Нет сообщений';
-    }
-
-    downloadChat(chatId) {
-        const session = this.chatSessions.get(chatId);
-        if (!session || session.messages.length === 0) {
-            this.showNotification('Нет данных для скачивания', 'warning');
-            return;
-        }
-
-        const chatData = {
-            version: '1.0',
-            name: session.name,
-            exportedAt: new Date().toISOString(),
-            model: this.currentModel,
-            messages: session.messages,
-            conversationHistory: session.conversationHistory
-        };
-
-        const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `khai-chat-${session.name}-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        this.showNotification('Чат скачан', 'success');
-    }
-
-    downloadCurrentChat() {
-        this.downloadChat(this.currentChatId);
-    }
-
-    deleteAllChats() {
-        if (this.chatSessions.size <= 1) {
-            this.showNotification('Нет чатов для удаления', 'warning');
-            return;
-        }
-
-        if (confirm('Вы уверены, что хотите удалить все чаты, кроме основного?')) {
-            const sessionsToDelete = Array.from(this.chatSessions.entries())
-                .filter(([id]) => id !== 'default');
-            
-            sessionsToDelete.forEach(([id]) => {
-                this.chatSessions.delete(id);
-            });
-            
-            if (this.currentChatId !== 'default') {
-                this.switchChat('default');
-            }
-            
-            this.saveChatSessions();
-            this.updateChatList();
-            this.showNotification('Все чаты удалены', 'success');
-        }
-    }
-
-    createNewChat() {
-        const chatNumber = Array.from(this.chatSessions.values()).filter(session => 
-            session.name.startsWith('Чат ')
-        ).length + 1;
-        
-        const chatName = `Чат ${chatNumber}`;
-        const chatId = this.createChatSession(chatName);
-        this.switchChat(chatId);
-        this.closeSidebar();
-        this.showNotification(`Создан новый чат: ${chatName}`, 'success');
-    }
-
-    createChatSession(name = 'Новый чат') {
-        const chatId = 'chat-' + Date.now();
-        const session = {
-            id: chatId,
-            name: name,
-            messages: [],
-            conversationHistory: [],
-            createdAt: Date.now(),
-            lastActivity: Date.now()
-        };
-        
-        this.chatSessions.set(chatId, session);
-        this.saveChatSessions();
-        this.updateChatList();
-        
-        return chatId;
-    }
-
-    switchChat(chatId) {
-        if (!this.chatSessions.has(chatId) || chatId === this.currentChatId) {
-            return;
-        }
-
-        try {
-            this.saveCurrentSession();
-            
-            this.currentChatId = chatId;
-            const session = this.chatSessions.get(chatId);
-            
-            session.lastActivity = Date.now();
-            this.chatSessions.set(chatId, session);
-            
-            this.updateCurrentChatName();
-            this.loadSession(session);
-            this.showNotification(`Переключен на чат: ${session.name}`, 'info');
-            
-            this.saveChatSessions();
-        } catch (error) {
-            console.error('Error switching chat:', error);
-            this.showNotification('Ошибка при переключении чата', 'error');
-        }
-    }
-
-    deleteChat(chatId) {
-        if (chatId === 'default') {
-            this.showNotification('Основной чат нельзя удалить', 'warning');
-            return;
-        }
-
-        if (this.chatSessions.size <= 1) {
-            this.showNotification('Нельзя удалить последний чат', 'warning');
-            return;
-        }
-
-        const session = this.chatSessions.get(chatId);
-        if (!session) return;
-
-        if (confirm(`Удалить чат "${session.name}"?`)) {
-            this.chatSessions.delete(chatId);
-            
-            if (this.currentChatId === chatId) {
-                this.switchChat('default');
-            }
-            
-            this.saveChatSessions();
-            this.updateChatList();
-            this.showNotification('Чат удален', 'success');
-        }
-    }
-
-    openEditChatModal(chatId, currentName) {
-        this.editingChatId = chatId;
-        this.editChatNameInput.value = currentName;
-        this.editChatModal.classList.add('active');
-        this.handleModalInputChange();
-        
-        this.setTimeout(() => {
-            this.editChatNameInput.focus();
-            this.editChatNameInput.select();
-        }, 100);
-    }
-
-    handleModalInputChange() {
-        const hasText = this.editChatNameInput.value.trim().length > 0;
-        if (this.modalClearInput) {
-            this.modalClearInput.style.display = hasText ? 'flex' : 'none';
-        }
-    }
-
-    clearModalInput() {
-        this.editChatNameInput.value = '';
-        this.editChatNameInput.focus();
-        this.handleModalInputChange();
-    }
-
-    closeEditChatModal() {
-        this.editingChatId = null;
-        this.editChatNameInput.value = '';
-        if (this.modalClearInput) {
-            this.modalClearInput.style.display = 'none';
-        }
-        this.editChatModal.classList.remove('active');
-    }
-
-    saveChatName() {
-        if (!this.editingChatId) return;
-        
-        const newName = this.editChatNameInput.value.trim();
-        if (!newName) {
-            this.showNotification('Название чата не может быть пустым', 'error');
-            return;
-        }
-
-        if (newName.length > this.MAX_CHAT_NAME_LENGTH) {
-            this.showNotification(`Название чата слишком длинное (максимум ${this.MAX_CHAT_NAME_LENGTH} символов)`, 'error');
-            return;
-        }
-
-        const session = this.chatSessions.get(this.editingChatId);
-        if (session) {
-            session.name = newName;
-            this.chatSessions.set(this.editingChatId, session);
-            this.saveChatSessions();
-            this.updateChatList();
-            
-            if (this.currentChatId === this.editingChatId) {
-                this.updateCurrentChatName();
-            }
-            
-            this.showNotification('Название чата изменено', 'success');
-        }
-        
-        this.closeEditChatModal();
-    }
-
-    updateCurrentChatName() {
-        if (this.currentChatName) {
-            const session = this.chatSessions.get(this.currentChatId);
-            if (session) {
-                const displayName = session.name.length > this.MAX_CHAT_NAME_LENGTH 
-                    ? session.name.substring(0, this.MAX_CHAT_NAME_LENGTH) + '...' 
-                    : session.name;
-                this.currentChatName.textContent = displayName;
-            }
-        }
-    }
-
-    saveCurrentSession() {
-        try {
-            const messages = [];
-            if (this.messagesContainer) {
-                this.messagesContainer.querySelectorAll('.message').forEach(message => {
-                    if (message.classList.contains('typing-indicator') || 
-                        message.classList.contains('streaming-message')) return;
-                    
-                    const role = message.classList.contains('message-user') ? 'user' : 
-                               message.classList.contains('message-error') ? 'error' : 'ai';
-                    
-                    const content = message.querySelector('.message-content')?.innerHTML || '';
-                    if (content) {
-                        messages.push({ role, content });
-                    }
-                });
-            }
-            
-            const session = this.chatSessions.get(this.currentChatId);
-            if (session) {
-                session.messages = messages;
-                session.conversationHistory = [...this.conversationHistory];
-                session.lastActivity = Date.now();
-                this.chatSessions.set(this.currentChatId, session);
-                this.saveChatSessions();
-            }
-        } catch (error) {
-            console.error('Error saving current session:', error);
-        }
-    }
-
-    loadCurrentSession() {
-        const session = this.chatSessions.get(this.currentChatId);
-        if (session) {
-            this.loadSession(session);
-        } else {
-            this.showWelcomeMessage();
-        }
-    }
-
-    loadSession(session) {
-        if (!this.messagesContainer) return;
-        
-        const skeletons = this.messagesContainer.querySelectorAll('.message-skeleton');
-        skeletons.forEach(skeleton => skeleton.remove());
-        
-        this.messagesContainer.innerHTML = '';
-        this.conversationHistory = session.conversationHistory || [];
-        
-        if (session.messages && session.messages.length > 0) {
-            session.messages.forEach(msg => {
-                this.renderMessage(msg.role, msg.content);
-            });
-        } else {
-            this.showWelcomeMessage();
-        }
-        
-        this.scrollToBottom();
-        this.updateMinimap();
-    }
-
-    renderMessage(role, content) {
-        if (!this.messagesContainer) return;
-        
-        const messageElement = document.createElement('div');
-        messageElement.className = `message message-${role}`;
-        
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-        messageContent.innerHTML = content;
-        
-        messageElement.appendChild(messageContent);
-        this.messagesContainer.appendChild(messageElement);
-        
-        this.attachMessageHandlers(messageElement);
-    }
-
-    saveChatSessions() {
-        try {
-            const sessions = Array.from(this.chatSessions.entries());
-            localStorage.setItem('khai-assistant-chat-sessions', JSON.stringify(sessions));
-        } catch (error) {
-            console.error('Error saving chat sessions:', error);
-        }
-    }
-
-    loadChatSessions() {
-        try {
-            const saved = localStorage.getItem('khai-assistant-chat-sessions');
-            if (saved) {
-                const sessions = JSON.parse(saved);
-                this.chatSessions = new Map(sessions);
-            }
-        } catch (error) {
-            console.error('Error loading chat sessions:', error);
-        }
-    }
-
-    // FILE MANAGEMENT
-    async handleFileSelect(event) {
+    // File Handling
+    handleFileSelect(event) {
         const files = Array.from(event.target.files);
+        
         if (files.length === 0) return;
-
-        let processedCount = 0;
-
-        for (const file of files) {
-            if (processedCount >= this.MAX_FILES) {
-                this.showNotification(`Можно прикрепить не более ${this.MAX_FILES} файлов`, 'warning');
-                break;
-            }
-
-            try {
-                const fileType = this.getFileType(file);
-                
-                if (fileType === 'image') {
-                    if (file.size > this.MAX_IMAGE_SIZE) {
-                        this.showNotification(`Изображение "${file.name}" слишком большое (максимум 5MB)`, 'error');
-                        continue;
-                    }
-                    const imageData = await this.processImageFile(file);
-                    this.attachedImages.push(imageData);
-                    this.showNotification(`Изображение "${file.name}" прикреплено`, 'success');
-                    processedCount++;
-                } else if (fileType === 'text' || fileType === 'code') {
-                    const textData = await this.processTextFile(file);
-                    this.attachedImages.push(textData);
-                    this.showNotification(`Файл "${file.name}" прикреплен`, 'success');
-                    processedCount++;
-                } else {
-                    this.showNotification(`Формат файла "${file.name}" не поддерживается`, 'error');
-                }
-            } catch (error) {
-                console.error('Error processing file:', error);
-                this.showNotification(`Ошибка обработки файла: ${file.name}`, 'error');
-            }
+        
+        if (files.length + this.attachedImages.length > this.MAX_FILES) {
+            this.showNotification(`Максимум ${this.MAX_FILES} файлов`, 'error');
+            return;
         }
-
-        this.renderAttachedFiles();
+        
+        files.forEach(file => {
+            this.processFile(file);
+        });
+        
         event.target.value = '';
-        this.handleInputChange();
+    }
+
+    async processFile(file) {
+        try {
+            const fileType = this.getFileType(file);
+            
+            if (fileType === 'image') {
+                if (file.size > this.MAX_IMAGE_SIZE) {
+                    this.showNotification(`Изображение слишком большое (максимум ${this.MAX_IMAGE_SIZE / 1024 / 1024}MB)`, 'error');
+                    return;
+                }
+                
+                const dataUrl = await this.readFileAsDataURL(file);
+                this.attachedImages.push({
+                    name: file.name,
+                    data: dataUrl,
+                    fileType: 'image'
+                });
+                
+            } else if (fileType === 'text' || fileType === 'code') {
+                const content = await this.readFileAsText(file);
+                this.attachedImages.push({
+                    name: file.name,
+                    data: content,
+                    fileType: fileType
+                });
+                
+            } else {
+                this.showNotification('Неподдерживаемый тип файла', 'error');
+                return;
+            }
+            
+            this.renderAttachedFiles();
+            this.showNotification(`Файл "${file.name}" добавлен`, 'success');
+            
+        } catch (error) {
+            console.error('Error processing file:', error);
+            this.showNotification('Ошибка при обработке файла', 'error');
+        }
     }
 
     getFileType(file) {
         const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-        const textTypes = [
-            'text/plain', 
-            'text/html', 
-            'text/css', 
+        const textTypes = ['text/plain', 'text/markdown', 'text/html'];
+        const codeTypes = [
+            'application/javascript', 
             'text/javascript',
-            'application/javascript',
             'application/json',
-            'text/markdown',
+            'text/css',
             'text/x-python',
             'application/x-python-code',
             'text/x-java',
-            'text/x-c++src',
             'text/x-c',
-            'text/x-csharp',
+            'text/x-c++',
             'text/x-php',
             'text/x-ruby',
-            'text/x-go',
-            'text/x-swift',
-            'text/x-kotlin',
-            'text/x-scala',
-            'text/x-rust',
-            'application/xml',
-            'text/xml',
-            'text/csv',
-            'text/yaml',
-            'text/x-yaml',
-            'application/yaml'
+            'text/x-go'
         ];
         
         if (imageTypes.includes(file.type)) {
             return 'image';
-        } else if (textTypes.includes(file.type) || file.name.match(/\.(txt|md|html|css|js|json|py|java|cpp|c|cs|php|rb|go|swift|kt|scala|rs|xml|csv|yaml|yml)$/i)) {
-            return file.name.match(/\.(py|java|cpp|c|cs|php|rb|go|swift|kt|scala|rs)$/i) ? 'code' : 'text';
+        } else if (codeTypes.includes(file.type)) {
+            return 'code';
+        } else if (textTypes.includes(file.type)) {
+            return 'text';
+        } else if (file.name.match(/\.(js|ts|jsx|tsx|py|java|c|cpp|h|hpp|php|rb|go|rs|swift|kt|cs|html|css|scss|less|json|xml|yml|yaml|md|txt)$/i)) {
+            return 'code';
+        } else {
+            return 'unknown';
         }
-        
-        return null;
     }
 
-    processImageFile(file) {
+    readFileAsDataURL(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                resolve({
-                    name: file.name,
-                    data: e.target.result,
-                    type: file.type,
-                    size: file.size,
-                    fileType: 'image'
-                });
-            };
-            reader.onerror = () => reject(new Error(`Ошибка загрузки изображения: ${file.name}`));
+            reader.onload = e => resolve(e.target.result);
+            reader.onerror = reject;
             reader.readAsDataURL(file);
         });
     }
 
-    processTextFile(file) {
+    readFileAsText(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const fileType = file.name.match(/\.(py|java|cpp|c|cs|php|rb|go|swift|kt|scala|rs)$/i) ? 'code' : 'text';
-                
-                resolve({
-                    name: file.name,
-                    data: e.target.result,
-                    type: file.type,
-                    size: file.size,
-                    fileType: fileType
-                });
-            };
-            reader.onerror = () => reject(new Error(`Ошибка чтения файла: ${file.name}`));
+            reader.onload = e => resolve(e.target.result);
+            reader.onerror = reject;
             reader.readAsText(file);
         });
     }
@@ -2583,262 +1379,100 @@ ${fileContent}
         
         this.attachedFiles.innerHTML = '';
         
-        if (this.attachedImages.length === 0) {
-            this.attachedFiles.style.display = 'none';
-            return;
-        }
-
-        this.attachedFiles.style.display = 'flex';
-        
         this.attachedImages.forEach((file, index) => {
             const fileElement = document.createElement('div');
             fileElement.className = 'attached-file';
             
-            const icon = file.fileType === 'image' ? 'ti-photo' : 
-                        file.fileType === 'code' ? 'ti-code' : 'ti-file-text';
-            const typeLabel = file.fileType === 'image' ? 'Изображение' : 
-                             file.fileType === 'code' ? 'Файл кода' : 'Текстовый файл';
+            if (file.fileType === 'image') {
+                fileElement.innerHTML = `
+                    <div class="file-preview">
+                        <img src="${file.data}" alt="${this.escapeHtml(file.name)}">
+                        <button class="remove-file" data-index="${index}">
+                            <i class="ti ti-x"></i>
+                        </button>
+                    </div>
+                    <span class="file-name">${this.escapeHtml(file.name)}</span>
+                `;
+            } else {
+                const fileIcon = file.fileType === 'code' ? 'ti ti-file-code' : 'ti ti-file-text';
+                fileElement.innerHTML = `
+                    <div class="file-preview">
+                        <i class="${fileIcon}"></i>
+                        <button class="remove-file" data-index="${index}">
+                            <i class="ti ti-x"></i>
+                        </button>
+                    </div>
+                    <span class="file-name">${this.escapeHtml(file.name)}</span>
+                `;
+            }
             
-            fileElement.innerHTML = `
-                <i class="ti ${icon}"></i>
-                <span>${this.escapeHtml(file.name)} (${typeLabel}, ${this.formatFileSize(file.size)})</span>
-                <button class="remove-file-btn" data-index="${index}">
-                    <i class="ti ti-x"></i>
-                </button>
-            `;
             this.attachedFiles.appendChild(fileElement);
         });
-
-        this.attachedFiles.querySelectorAll('.remove-file-btn').forEach(btn => {
-            this.addEventListener(btn, 'click', (e) => {
+        
+        // Add event listeners for remove buttons
+        this.attachedFiles.querySelectorAll('.remove-file').forEach(button => {
+            button.addEventListener('click', (e) => {
                 const index = parseInt(e.currentTarget.getAttribute('data-index'));
                 this.removeAttachedFile(index);
             });
         });
     }
 
-    formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
-
     removeAttachedFile(index) {
-        if (index < 0 || index >= this.attachedImages.length) return;
-        
-        const removedFile = this.attachedImages.splice(index, 1)[0];
-        this.renderAttachedFiles();
-        this.showNotification(`${removedFile.fileType === 'image' ? 'Изображение' : 'Файл'} "${removedFile.name}" удален`, 'info');
-        this.handleInputChange();
-    }
-
-    // IMAGE AND VOICE GENERATION
-    async generateImage(prompt) {
-        try {
-            this.addMessage('ai', `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n*Идет процесс создания изображения...*`);
-            
-            const imageResult = await this.callAIService(prompt, 'image_generation');
-            
-            const messages = this.messagesContainer.querySelectorAll('.message-ai');
-            const lastMessage = messages[messages.length - 1];
-            if (lastMessage) {
-                if (imageResult.startsWith('data:image')) {
-                    lastMessage.querySelector('.message-content').innerHTML = 
-                        `🖼️ **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"\n\n` +
-                        `<img src="${imageResult}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`;
-                } else {
-                    lastMessage.querySelector('.message-content').innerHTML = 
-                        `🖼️ **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"\n\n` +
-                        `<img src="${imageResult}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`;
-                }
-            }
-            
-            this.addToConversationHistory('assistant', `Сгенерировано изображение по запросу: ${prompt}`);
-            this.saveCurrentSession();
-            
-        } catch (error) {
-            this.handleError('Ошибка при генерации изображения', error);
+        if (index >= 0 && index < this.attachedImages.length) {
+            const removedFile = this.attachedImages[index];
+            this.attachedImages.splice(index, 1);
+            this.renderAttachedFiles();
+            this.showNotification(`Файл "${removedFile.name}" удален`, 'info');
         }
     }
 
-    async generateVoice(text) {
-        if (!text.trim()) {
-            this.showNotification('Введите текст для генерации голоса', 'error');
-            return;
-        }
-
-        try {
-            this.addMessage('user', `🔊 **Генерация голоса:** "${text}"`);
-            
-            this.userInput.value = '';
-            this.userInput.style.height = 'auto';
-            
-            this.showNotification('Генерация голоса...', 'info');
-            
-            // Используем браузерный синтез речи как fallback
-            this.addVoiceMessage(text);
-            
-            this.addToConversationHistory('user', `Сгенерирован голос для текста: ${text}`);
-            this.saveCurrentSession();
-            
-        } catch (error) {
-            this.handleError('Ошибка при генерации голоса', error);
-        }
-    }
-
-    addVoiceMessage(text) {
-        const messageElement = document.createElement('div');
-        messageElement.className = 'message message-ai';
-        
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-        
-        messageContent.innerHTML = `
-            🔊 **Текст для озвучивания:** "${this.escapeHtml(text)}"
-            <div class="audio-player" style="margin-top: 12px;">
-                <button class="speak-btn-large" onclick="khaiAssistant.speakText('${this.escapeHtml(text)}', this)">
-                    <i class="ti ti-speakerphone"></i> Воспроизвести
-                </button>
-            </div>
-        `;
-        
-        messageElement.appendChild(messageContent);
-        this.messagesContainer.appendChild(messageElement);
-        this.scrollToBottom();
-    }
-
-    // MODEL MANAGEMENT
-    updateModelList() {
-        if (!this.modelList) return;
-        
-        this.modelList.innerHTML = '';
-        
-        Object.entries(this.modelConfig).forEach(([modelId, config]) => {
-            const provider = this.aiProviders[config.provider];
-            const isAvailable = config.available && provider?.available;
-            
-            const modelItem = document.createElement('div');
-            modelItem.className = `model-item ${modelId === this.currentModel ? 'selected' : ''} ${!isAvailable ? 'disabled' : ''}`;
-            modelItem.dataset.model = modelId;
-            
-            if (!isAvailable) {
-                modelItem.style.opacity = '0.6';
-            }
-            
-            modelItem.innerHTML = `
-                <div class="model-item-header">
-                    <span class="model-name">${config.name}</span>
-                    <span class="model-status ${isAvailable ? 'available' : 'unavailable'}">
-                        ${isAvailable ? '✅ Доступно' : '❌ Недоступно'}
-                    </span>
-                </div>
-                <div class="model-description">${config.description}</div>
-                <div class="model-provider">Провайдер: ${provider?.name || config.provider}</div>
-                ${config.fallback ? `<div class="model-fallback">Fallback: ${this.aiProviders[config.fallback]?.name || config.fallback}</div>` : ''}
-            `;
-            
-            if (isAvailable) {
-                this.addEventListener(modelItem, 'click', () => this.handleModelItemClick({ target: modelItem }));
-            }
-            
-            this.modelList.appendChild(modelItem);
-        });
-    }
-
-    openModelModal() {
-        this.modelModalOverlay.classList.add('active');
-        const currentModelItem = this.modelList.querySelector(`[data-model="${this.currentModel}"]`);
-        if (currentModelItem) {
-            currentModelItem.classList.add('selected');
-        }
-    }
-
-    closeModelModal() {
-        this.modelModalOverlay.classList.remove('active');
-    }
-
-    handleModelItemClick(e) {
-        const modelItem = e.target.closest('.model-item');
-        if (modelItem && !modelItem.classList.contains('disabled')) {
-            this.modelList.querySelectorAll('.model-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            modelItem.classList.add('selected');
-        }
-    }
-
-    confirmModelSelection() {
-        const selectedModelItem = this.modelList.querySelector('.model-item.selected');
-        if (selectedModelItem) {
-            const newModel = selectedModelItem.dataset.model;
-            if (newModel !== this.currentModel) {
-                this.currentModel = newModel;
-                this.showNotification(`Модель изменена на: ${this.getModelDisplayName(newModel)}`, 'success');
-                this.updateModelInfo();
-            }
-        }
-        this.closeModelModal();
-    }
-
-    updateModelInfo() {
-        if (this.currentModelInfo) {
-            this.currentModelInfo.textContent = this.getModelDisplayName(this.currentModel);
-        }
-    }
-
-    getModelDisplayName(model) {
-        return this.modelConfig[model]?.name || model;
-    }
-
-    getModelDescription(model) {
-        return this.modelConfig[model]?.description || 'AI модель';
-    }
-
-    // VOICE RECOGNITION
+    // Voice Input
     setupVoiceRecognition() {
-        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            if (this.voiceInputBtn) {
-                this.voiceInputBtn.style.display = 'none';
-            }
-            return;
-        }
-
-        try {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.recognition = new SpeechRecognition();
             this.recognition.continuous = false;
-            this.recognition.interimResults = false;
+            this.recognition.interimResults = true;
             this.recognition.lang = 'ru-RU';
-
+            
             this.recognition.onstart = () => {
                 this.isListening = true;
-                this.voiceInputBtn.classList.add('active');
-                this.showNotification('Слушаю...', 'info');
+                this.updateVoiceButton();
+                this.showNotification('Голосовой ввод активирован', 'info');
             };
-
+            
             this.recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                this.userInput.value = transcript;
-                this.userInput.focus();
-                this.handleInputChange();
-                this.showNotification('Текст распознан', 'success');
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                }
+                
+                if (transcript) {
+                    this.userInput.value += transcript;
+                    this.handleInputChange();
+                }
             };
-
+            
             this.recognition.onerror = (event) => {
                 console.error('Speech recognition error:', event.error);
-                this.showNotification(`Ошибка распознавания: ${event.error}`, 'error');
                 this.isListening = false;
-                this.voiceInputBtn.classList.remove('active');
+                this.updateVoiceButton();
+                
+                if (event.error === 'not-allowed') {
+                    this.showNotification('Доступ к микрофону запрещен', 'error');
+                } else {
+                    this.showNotification('Ошибка распознавания речи', 'error');
+                }
             };
-
+            
             this.recognition.onend = () => {
                 this.isListening = false;
-                this.voiceInputBtn.classList.remove('active');
+                this.updateVoiceButton();
             };
-        } catch (error) {
-            console.error('Error setting up voice recognition:', error);
+        } else {
             if (this.voiceInputBtn) {
                 this.voiceInputBtn.style.display = 'none';
             }
@@ -2847,10 +1481,10 @@ ${fileContent}
 
     toggleVoiceInput() {
         if (!this.recognition) {
-            this.showNotification('Голосовой ввод не поддерживается', 'error');
+            this.showNotification('Голосовой ввод не поддерживается вашим браузером', 'error');
             return;
         }
-
+        
         if (this.isListening) {
             this.recognition.stop();
         } else {
@@ -2863,253 +1497,395 @@ ${fileContent}
         }
     }
 
-    // MODE MANAGEMENT
+    updateVoiceButton() {
+        if (!this.voiceInputBtn) return;
+        
+        if (this.isListening) {
+            this.voiceInputBtn.classList.add('listening');
+            this.voiceInputBtn.innerHTML = '<i class="ti ti-microphone-off"></i>';
+            this.voiceInputBtn.title = 'Остановить запись';
+        } else {
+            this.voiceInputBtn.classList.remove('listening');
+            this.voiceInputBtn.innerHTML = '<i class="ti ti-microphone"></i>';
+            this.voiceInputBtn.title = 'Голосовой ввод';
+        }
+    }
+
+    // Image Generation
     toggleImageMode() {
         this.isImageMode = !this.isImageMode;
-        this.setMode(this.isImageMode ? 'image' : 'normal');
+        
+        if (this.isImageMode) {
+            this.generateImageBtn.classList.add('active');
+            this.userInput.placeholder = 'Опишите изображение для генерации...';
+            this.showNotification('Режим генерации изображений включен', 'info');
+        } else {
+            this.generateImageBtn.classList.remove('active');
+            this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+            this.showNotification('Режим генерации изображений выключен', 'info');
+        }
     }
 
+    async generateImage(prompt) {
+        if (!prompt.trim()) {
+            this.showNotification('Введите описание для генерации изображения', 'error');
+            return;
+        }
+        
+        try {
+            this.addMessage('user', `Сгенерировать изображение: ${prompt}`);
+            
+            if (typeof puter?.ai?.txt2img !== 'function') {
+                throw new Error('Функция генерации изображений недоступна');
+            }
+            
+            const imageUrl = await puter.ai.txt2img(prompt);
+            
+            this.addMessage('ai', '', [{
+                name: 'generated-image.png',
+                data: imageUrl,
+                fileType: 'image'
+            }]);
+            
+            this.showNotification('Изображение успешно сгенерировано', 'success');
+            
+        } catch (error) {
+            console.error('Error generating image:', error);
+            this.handleError('Ошибка при генерации изображения', error);
+        }
+    }
+
+    // Voice Generation
     toggleVoiceMode() {
         this.isVoiceMode = !this.isVoiceMode;
-        this.setMode(this.isVoiceMode ? 'voice' : 'normal');
-    }
-
-    setMode(mode) {
-        this.isImageMode = false;
-        this.isVoiceMode = false;
         
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.classList.remove('active');
-            const btnText = btn.querySelector('.btn-text');
-            if (btnText) {
-                btnText.style.display = 'none';
-            }
-        });
-        
-        const modeIndicator = document.querySelector('.mode-indicator');
-        if (modeIndicator) {
-            let modeText = '';
-            let modeIcon = '';
-            
-            if (mode === 'normal') {
-                modeText = 'Обычный режим';
-                modeIcon = 'ti-message';
-                this.normalModeBtn.classList.add('active');
-                this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
-            } else if (mode === 'voice') {
-                modeText = 'Режим генерации голоса';
-                modeIcon = 'ti-microphone';
-                this.generateVoiceBtn.classList.add('active');
-                this.isVoiceMode = true;
-                this.userInput.placeholder = 'Введите текст для генерации голоса...';
-            } else if (mode === 'image') {
-                modeText = 'Режим генерации изображений';
-                modeIcon = 'ti-photo';
-                this.generateImageBtn.classList.add('active');
-                this.isImageMode = true;
-                this.userInput.placeholder = 'Опишите изображение для генерации...';
-            }
-            
-            modeIndicator.innerHTML = `<i class="ti ${modeIcon}"></i> ${modeText}`;
-            
-            this.inputSection.classList.remove('voice-mode-active', 'image-mode-active');
-            if (mode === 'voice') {
-                this.inputSection.classList.add('voice-mode-active');
-            } else if (mode === 'image') {
-                this.inputSection.classList.add('image-mode-active');
-            }
-        }
-        
-        const activeBtn = document.querySelector('.mode-btn.active');
-        if (activeBtn) {
-            const activeBtnText = activeBtn.querySelector('.btn-text');
-            if (activeBtnText) {
-                activeBtnText.style.display = 'inline';
-            }
-        }
-        
-        this.showNotification(`Режим: ${this.getModeName(mode)}`, 'info');
-    }
-
-    getModeName(mode) {
-        const names = {
-            'normal': 'Обычный',
-            'voice': 'Генерация голоса',
-            'image': 'Генерация изображений'
-        };
-        return names[mode] || 'Неизвестный';
-    }
-
-    // NAVIGATION
-    setupScrollTracking() {
-        this.updateNavigationButtons();
-        this.handleScroll();
-    }
-
-    handleScroll() {
-        if (!this.messagesContainer) return;
-        
-        const container = this.messagesContainer;
-        const scrollTop = container.scrollTop;
-        const scrollHeight = container.scrollHeight;
-        const clientHeight = container.clientHeight;
-        
-        this.isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-        this.isAtTop = scrollTop < 50;
-        
-        this.updateNavigationButtons();
-        this.updateMinimapViewport();
-        
-        this.autoScrollEnabled = this.isAtBottom;
-    }
-
-    updateNavigationButtons() {
-        const aiMessages = this.messagesContainer.querySelectorAll('.message-ai:not(.typing-indicator)');
-        const hasAIMessages = aiMessages.length > 0;
-        
-        if (this.scrollToLastAI) {
-            this.scrollToLastAI.classList.toggle('active', !this.isAtBottom && hasAIMessages);
-            this.scrollToLastAI.disabled = !hasAIMessages;
-        }
-        
-        if (this.scrollToBottomBtn) {
-            this.scrollToBottomBtn.classList.toggle('active', !this.isAtBottom);
-            this.scrollToBottomBtn.disabled = this.isAtBottom;
-        }
-    }
-
-    scrollToLastAIMessage() {
-        const aiMessages = this.messagesContainer.querySelectorAll('.message-ai:not(.typing-indicator)');
-        if (aiMessages.length > 0) {
-            const lastAIMessage = aiMessages[aiMessages.length - 1];
-            lastAIMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            this.setTimeout(() => this.updateNavigationButtons(), 300);
-        }
-    }
-
-    scrollToBottom(force = false) {
-        if (force) {
-            this.autoScrollEnabled = true;
-        }
-        
-        if (this.autoScrollEnabled && this.messagesContainer) {
-            this.setTimeout(() => {
-                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
-                this.setTimeout(() => this.updateNavigationButtons(), 100);
-            }, 50);
-        }
-    }
-
-    // MINIMAP
-    updateMinimap() {
-        if (!this.minimapContent || !this.messagesContainer) return;
-        
-        this.minimapContent.innerHTML = '';
-        const messages = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
-        
-        messages.forEach((message, index) => {
-            const block = document.createElement('div');
-            block.className = `minimap-message ${message.classList.contains('message-user') ? 'user' : 'ai'}`;
-            block.dataset.index = index;
-            block.addEventListener('click', () => this.scrollToMessage(index));
-            this.minimapContent.appendChild(block);
-        });
-        
-        this.updateMinimapViewport();
-    }
-
-    updateMinimapViewport() {
-        if (!this.minimapViewport || !this.chatMinimap || !this.messagesContainer) return;
-        
-        const container = this.messagesContainer;
-        const containerHeight = container.scrollHeight;
-        const visibleHeight = container.clientHeight;
-        const scrollTop = container.scrollTop;
-        
-        if (containerHeight === 0) return;
-        
-        const viewportHeight = (visibleHeight / containerHeight) * this.chatMinimap.offsetHeight;
-        const viewportTop = (scrollTop / containerHeight) * this.chatMinimap.offsetHeight;
-        
-        this.minimapViewport.style.height = `${Math.max(viewportHeight, 10)}px`;
-        this.minimapViewport.style.top = `${viewportTop}px`;
-    }
-
-    scrollToMessage(index) {
-        const messages = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
-        if (messages[index]) {
-            messages[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }
-
-    // SEARCH
-    handleSearchInput() {
-        const searchTerm = this.headerSearch.value.trim();
-        if (searchTerm) {
-            if (this.headerSearchClear) {
-                this.headerSearchClear.style.display = 'flex';
-            }
-            this.highlightSearchTerms(searchTerm);
+        if (this.isVoiceMode) {
+            this.generateVoiceBtn.classList.add('active');
+            this.userInput.placeholder = 'Введите текст для генерации голоса...';
+            this.showNotification('Режим генерации голоса включен', 'info');
         } else {
-            if (this.headerSearchClear) {
-                this.headerSearchClear.style.display = 'none';
-            }
-            this.clearSearchHighlights();
+            this.generateVoiceBtn.classList.remove('active');
+            this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+            this.showNotification('Режим генерации голоса выключен', 'info');
         }
     }
 
-    highlightSearchTerms(term) {
-        if (!this.messagesContainer) return;
+    async generateVoice(text) {
+        if (!text.trim()) {
+            this.showNotification('Введите текст для генерации голоса', 'error');
+            return;
+        }
         
-        const messages = this.messagesContainer.querySelectorAll('.message-content');
-        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp(escapedTerm, 'gi');
-        
-        messages.forEach(message => {
-            const originalContent = message.dataset.originalContent || message.innerHTML;
-            message.dataset.originalContent = originalContent;
+        try {
+            this.addMessage('user', `Сгенерировать голос: ${text}`);
             
-            const highlightedContent = originalContent.replace(regex, match => 
-                `<span class="search-highlight">${match}</span>`
-            );
+            if (typeof puter?.ai?.txt2speech !== 'function') {
+                throw new Error('Функция генерации голоса недоступна');
+            }
             
-            message.innerHTML = highlightedContent;
-        });
+            const audioUrl = await puter.ai.txt2speech(text);
+            
+            // Create audio element
+            const audioElement = document.createElement('audio');
+            audioElement.src = audioUrl;
+            audioElement.controls = true;
+            audioElement.style.width = '100%';
+            audioElement.style.marginTop = '10px';
+            
+            const messageId = this.addMessage('ai', 'Сгенерированный аудиофайл:');
+            const messageElement = document.getElementById(messageId);
+            
+            if (messageElement) {
+                const contentElement = messageElement.querySelector('.message-content');
+                if (contentElement) {
+                    contentElement.appendChild(audioElement);
+                }
+            }
+            
+            this.showNotification('Аудио успешно сгенерировано', 'success');
+            
+        } catch (error) {
+            console.error('Error generating voice:', error);
+            this.handleError('Ошибка при генерации голоса', error);
+        }
+    }
 
-        if (this.minimapContent) {
-            const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
-            const messageElements = this.messagesContainer.querySelectorAll('.message');
+    // Chat Management
+    createNewChat() {
+        const chatId = 'chat-' + Date.now();
+        const chatName = `Новый чат ${this.chatSessions.size + 1}`;
+        
+        this.chatSessions.set(chatId, {
+            id: chatId,
+            name: chatName,
+            messages: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+        
+        this.currentChatId = chatId;
+        this.conversationHistory = [];
+        this.messagesContainer.innerHTML = '';
+        this.currentChatName.textContent = chatName;
+        this.updateDocumentTitle();
+        
+        this.saveChatSessions();
+        this.updateChatList();
+        this.closeSidebar();
+        
+        this.showNotification('Новый чат создан', 'success');
+    }
+
+    loadChatSessions() {
+        try {
+            const saved = localStorage.getItem('khai-assistant-chats');
+            if (saved) {
+                const sessions = JSON.parse(saved);
+                this.chatSessions = new Map(sessions);
+            } else {
+                // Create default chat
+                this.createDefaultChat();
+            }
+        } catch (error) {
+            console.error('Error loading chat sessions:', error);
+            this.createDefaultChat();
+        }
+    }
+
+    createDefaultChat() {
+        const defaultChat = {
+            id: 'default',
+            name: 'Основной чат',
+            messages: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        this.chatSessions.set('default', defaultChat);
+        this.currentChatId = 'default';
+    }
+
+    saveChatSessions() {
+        try {
+            const sessionsArray = Array.from(this.chatSessions.entries());
+            localStorage.setItem('khai-assistant-chats', JSON.stringify(sessionsArray));
+        } catch (error) {
+            console.error('Error saving chat sessions:', error);
+        }
+    }
+
+    loadCurrentSession() {
+        const session = this.chatSessions.get(this.currentChatId);
+        if (session && session.messages) {
+            this.conversationHistory = session.messages;
+            this.renderChatHistory();
+        }
+        
+        this.updateChatList();
+        this.updateDocumentTitle();
+    }
+
+    renderChatHistory() {
+        this.messagesContainer.innerHTML = '';
+        
+        this.conversationHistory.forEach(msg => {
+            this.addMessage(msg.role, msg.content, msg.files || []);
+        });
+        
+        if (this.autoScrollEnabled) {
+            this.scrollToBottom();
+        }
+    }
+
+    updateChatList() {
+        if (!this.chatList) return;
+        
+        this.chatList.innerHTML = '';
+        
+        const sortedSessions = Array.from(this.chatSessions.values())
+            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        
+        sortedSessions.forEach(session => {
+            const chatItem = document.createElement('div');
+            chatItem.className = `chat-item ${session.id === this.currentChatId ? 'active' : ''}`;
+            chatItem.setAttribute('data-chat-id', session.id);
             
-            minimapMessages.forEach((msg, index) => {
-                const messageElement = messageElements[index];
-                if (messageElement) {
-                    const messageText = messageElement.textContent || '';
-                    if (regex.test(messageText)) {
-                        msg.classList.add('search-highlighted');
-                    } else {
-                        msg.classList.remove('search-highlighted');
-                    }
+            chatItem.innerHTML = `
+                <div class="chat-item-content">
+                    <div class="chat-item-name">${this.escapeHtml(session.name)}</div>
+                    <div class="chat-item-date">${this.formatDate(session.updatedAt)}</div>
+                </div>
+                <div class="chat-item-actions">
+                    <button class="chat-action edit-chat" title="Редактировать">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <button class="chat-action delete-chat" title="Удалить">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Chat selection
+            chatItem.addEventListener('click', (e) => {
+                if (!e.target.closest('.chat-item-actions')) {
+                    this.switchToChat(session.id);
                 }
             });
+            
+            // Edit chat
+            const editBtn = chatItem.querySelector('.edit-chat');
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.openEditChatModal(session);
+            });
+            
+            // Delete chat
+            const deleteBtn = chatItem.querySelector('.delete-chat');
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.deleteChat(session.id);
+            });
+            
+            this.chatList.appendChild(chatItem);
+        });
+    }
+
+    switchToChat(chatId) {
+        if (this.chatSessions.has(chatId)) {
+            // Save current session
+            this.saveCurrentSession();
+            
+            // Switch to new chat
+            this.currentChatId = chatId;
+            this.loadCurrentSession();
+            this.closeSidebar();
+            
+            this.showNotification('Чат переключен', 'success');
         }
     }
 
-    clearSearchHighlights() {
-        if (!this.messagesContainer) return;
-        
-        const messages = this.messagesContainer.querySelectorAll('.message-content');
-        
-        messages.forEach(message => {
-            if (message.dataset.originalContent) {
-                message.innerHTML = message.dataset.originalContent;
-                delete message.dataset.originalContent;
-            }
-        });
-
-        if (this.minimapContent) {
-            const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
-            minimapMessages.forEach(msg => msg.classList.remove('search-highlighted'));
+    saveCurrentSession() {
+        const session = this.chatSessions.get(this.currentChatId);
+        if (session) {
+            session.messages = this.conversationHistory;
+            session.updatedAt = new Date().toISOString();
+            this.chatSessions.set(this.currentChatId, session);
+            this.saveChatSessions();
         }
+    }
+
+    deleteChat(chatId) {
+        if (this.chatSessions.size <= 1) {
+            this.showNotification('Нельзя удалить последний чат', 'error');
+            return;
+        }
+        
+        if (confirm('Вы уверены, что хотите удалить этот чат?')) {
+            this.chatSessions.delete(chatId);
+            
+            if (this.currentChatId === chatId) {
+                // Switch to another chat
+                const remainingChats = Array.from(this.chatSessions.keys());
+                this.currentChatId = remainingChats[0];
+                this.loadCurrentSession();
+            }
+            
+            this.saveChatSessions();
+            this.updateChatList();
+            
+            this.showNotification('Чат удален', 'success');
+        }
+    }
+
+    deleteAllChats() {
+        if (confirm('Вы уверены, что хотите удалить все чаты? Это действие нельзя отменить.')) {
+            this.chatSessions.clear();
+            this.createDefaultChat();
+            this.loadCurrentSession();
+            this.saveChatSessions();
+            
+            this.showNotification('Все чаты удалены', 'success');
+        }
+    }
+
+    // Edit Chat Modal
+    openEditChatModal(session) {
+        if (!this.editChatModal) return;
+        
+        this.editChatNameInput.value = session.name;
+        this.editChatModal.style.display = 'flex';
+        this.currentEditingChatId = session.id;
+        
+        this.handleModalInputChange();
+        this.editChatNameInput.focus();
+    }
+
+    closeEditChatModal() {
+        if (!this.editChatModal) return;
+        
+        this.editChatModal.style.display = 'none';
+        this.currentEditingChatId = null;
+        this.editChatNameInput.value = '';
+    }
+
+    handleModalInputChange() {
+        const hasText = this.editChatNameInput.value.trim().length > 0;
+        
+        if (this.modalClearInput) {
+            this.modalClearInput.style.display = hasText ? 'flex' : 'none';
+        }
+        
+        if (this.editChatModalSave) {
+            this.editChatModalSave.disabled = !hasText;
+        }
+    }
+
+    clearModalInput() {
+        this.editChatNameInput.value = '';
+        this.handleModalInputChange();
+        this.editChatNameInput.focus();
+    }
+
+    saveChatName() {
+        const newName = this.editChatNameInput.value.trim();
+        
+        if (!newName || !this.currentEditingChatId) {
+            return;
+        }
+        
+        if (newName.length > this.MAX_CHAT_NAME_LENGTH) {
+            this.showNotification(`Название чата не должно превышать ${this.MAX_CHAT_NAME_LENGTH} символов`, 'error');
+            return;
+        }
+        
+        const session = this.chatSessions.get(this.currentEditingChatId);
+        if (session) {
+            session.name = newName;
+            session.updatedAt = new Date().toISOString();
+            this.chatSessions.set(this.currentEditingChatId, session);
+            this.saveChatSessions();
+            
+            if (this.currentChatId === this.currentEditingChatId) {
+                this.currentChatName.textContent = newName;
+                this.updateDocumentTitle();
+            }
+            
+            this.updateChatList();
+            this.closeEditChatModal();
+            
+            this.showNotification('Название чата обновлено', 'success');
+        }
+    }
+
+    // Search
+    handleSearchInput() {
+        const searchTerm = this.headerSearch.value.trim();
+        
+        if (this.headerSearchClear) {
+            this.headerSearchClear.style.display = searchTerm ? 'flex' : 'none';
+        }
+        
+        this.highlightSearchResults(searchTerm);
     }
 
     clearSearch() {
@@ -3120,623 +1896,857 @@ ${fileContent}
         this.clearSearchHighlights();
     }
 
-    // SIDEBAR SEARCH
-    handleSidebarSearchInput() {
-        const searchTerm = this.sidebarSearch.value.trim();
-        if (this.sidebarSearchClear) {
-            this.sidebarSearchClear.style.display = searchTerm ? 'flex' : 'none';
-        }
-        this.filterChatHistory();
-    }
-
-    clearSidebarSearch() {
-        this.sidebarSearch.value = '';
-        if (this.sidebarSearchClear) {
-            this.sidebarSearchClear.style.display = 'none';
-        }
-        this.filterChatHistory();
-    }
-
-    filterChatHistory() {
-        const searchTerm = this.sidebarSearch.value.toLowerCase().trim();
-        const chatItems = this.chatList.querySelectorAll('.chat-item');
+    highlightSearchResults(searchTerm) {
+        this.clearSearchHighlights();
         
-        chatItems.forEach(item => {
-            const title = item.querySelector('.chat-item-title').textContent.toLowerCase();
-            const preview = item.querySelector('.chat-item-preview').textContent.toLowerCase();
+        if (!searchTerm) return;
+        
+        const messages = this.messagesContainer.querySelectorAll('.message-content');
+        const regex = new RegExp(this.escapeRegex(searchTerm), 'gi');
+        
+        messages.forEach(contentElement => {
+            const originalHTML = contentElement.innerHTML;
+            const highlightedHTML = originalHTML.replace(regex, match => 
+                `<mark class="search-highlight">${match}</mark>`
+            );
             
-            if (searchTerm === '' || title.includes(searchTerm) || preview.includes(searchTerm)) {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
+            if (highlightedHTML !== originalHTML) {
+                contentElement.innerHTML = highlightedHTML;
+                contentElement.classList.add('has-highlight');
             }
         });
     }
 
-    // IMPORT/EXPORT
+    clearSearchHighlights() {
+        const highlightedElements = this.messagesContainer.querySelectorAll('.has-highlight');
+        
+        highlightedElements.forEach(element => {
+            element.classList.remove('has-highlight');
+            // Note: We don't restore original content as it's complex with markdown
+            // The search will be cleared on next interaction
+        });
+    }
+
+    filterChatHistory() {
+        const searchTerm = this.sidebarSearch.value.trim().toLowerCase();
+        const chatItems = this.chatList.querySelectorAll('.chat-item');
+        
+        chatItems.forEach(item => {
+            const chatName = item.querySelector('.chat-item-name').textContent.toLowerCase();
+            const shouldShow = !searchTerm || chatName.includes(searchTerm);
+            item.style.display = shouldShow ? 'flex' : 'none';
+        });
+    }
+
+    // Model Management
+    openModelModal() {
+        if (!this.modelModalOverlay) return;
+        
+        this.modelModalOverlay.style.display = 'flex';
+        this.updateModelList();
+    }
+
+    closeModelModal() {
+        if (!this.modelModalOverlay) return;
+        
+        this.modelModalOverlay.style.display = 'none';
+    }
+
+    confirmModelSelection() {
+        const selectedModel = this.modelList.querySelector('input[name="model"]:checked');
+        
+        if (selectedModel) {
+            const modelId = selectedModel.value;
+            this.switchModel(modelId);
+        }
+        
+        this.closeModelModal();
+    }
+
+    switchModel(modelId) {
+        if (!this.modelConfig[modelId]) {
+            this.showNotification('Выбранная модель не найдена', 'error');
+            return;
+        }
+        
+        if (!this.modelConfig[modelId].available) {
+            this.showNotification('Эта модель временно недоступна', 'warning');
+            return;
+        }
+        
+        this.currentModel = modelId;
+        this.updateModelInfo();
+        this.saveCurrentSession();
+        
+        this.showNotification(`Модель изменена на: ${this.modelConfig[modelId].name}`, 'success');
+    }
+
+    updateModelInfo() {
+        const config = this.modelConfig[this.currentModel];
+        
+        if (this.currentModelInfo) {
+            this.currentModelInfo.textContent = config.name;
+            this.currentModelInfo.title = config.description;
+        }
+        
+        if (this.modelSelectBtn) {
+            this.modelSelectBtn.innerHTML = `
+                <i class="ti ti-brain"></i>
+                <span>${config.name}</span>
+            `;
+        }
+        
+        this.updateDocumentTitle();
+    }
+
+    updateModelList() {
+        if (!this.modelList) return;
+        
+        this.modelList.innerHTML = '';
+        
+        Object.entries(this.modelConfig).forEach(([id, config]) => {
+            const modelItem = document.createElement('label');
+            modelItem.className = `model-item ${config.available ? '' : 'unavailable'}`;
+            
+            modelItem.innerHTML = `
+                <input type="radio" name="model" value="${id}" 
+                       ${id === this.currentModel ? 'checked' : ''}
+                       ${config.available ? '' : 'disabled'}>
+                <div class="model-info">
+                    <div class="model-name">${config.name}</div>
+                    <div class="model-description">${config.description}</div>
+                    <div class="model-details">
+                        <span class="model-provider">${config.provider}</span>
+                        <span class="model-context">${Math.floor(config.context / 1000)}K контекст</span>
+                    </div>
+                </div>
+                <div class="model-status">
+                    ${config.available ? 
+                        '<i class="ti ti-check"></i>' : 
+                        '<i class="ti ti-clock"></i>'
+                    }
+                </div>
+            `;
+            
+            this.modelList.appendChild(modelItem);
+        });
+    }
+
+    // Navigation & Scrolling
+    setupScrollTracking() {
+        this.addEventListener(this.messagesContainer, 'scroll', () => {
+            this.handleScroll();
+        });
+    }
+
+    handleScroll() {
+        const container = this.messagesContainer;
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+        
+        // Check if at bottom
+        this.isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 10;
+        
+        // Check if at top
+        this.isAtTop = scrollTop === 0;
+        
+        // Update scroll buttons visibility
+        this.updateScrollButtons();
+        
+        // Update minimap
+        this.updateMinimap();
+    }
+
+    updateScrollButtons() {
+        if (this.scrollToBottomBtn) {
+            this.scrollToBottomBtn.style.display = this.isAtBottom ? 'none' : 'flex';
+        }
+        
+        if (this.scrollToLastAI) {
+            const hasAIMessages = this.lastAIMessageIndex >= 0;
+            this.scrollToLastAI.style.display = hasAIMessages ? 'flex' : 'none';
+        }
+    }
+
+    scrollToBottom(force = false) {
+        if (force || this.autoScrollEnabled) {
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            this.isAtBottom = true;
+            this.updateScrollButtons();
+        }
+    }
+
+    scrollToLastAIMessage() {
+        const aiMessages = this.messagesContainer.querySelectorAll('.ai-message');
+        if (aiMessages.length > 0) {
+            const lastAIMessage = aiMessages[aiMessages.length - 1];
+            lastAIMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    updateLastAIMessageIndex() {
+        const aiMessages = this.messagesContainer.querySelectorAll('.ai-message');
+        this.lastAIMessageIndex = aiMessages.length - 1;
+        this.updateScrollButtons();
+    }
+
+    // Minimap
+    setupResponsiveMinimap() {
+        if (!this.chatMinimap || !this.minimapContent) return;
+        
+        this.updateMinimap();
+        
+        // Update minimap on resize
+        this.addEventListener(window, 'resize', () => {
+            this.updateMinimap();
+        });
+    }
+
+    updateMinimap() {
+        if (!this.chatMinimap || !this.minimapContent) return;
+        
+        const container = this.messagesContainer;
+        const messages = container.querySelectorAll('.message');
+        
+        if (messages.length === 0) {
+            this.chatMinimap.style.display = 'none';
+            return;
+        }
+        
+        this.chatMinimap.style.display = 'flex';
+        
+        // Calculate minimap items
+        let minimapHTML = '';
+        messages.forEach((message, index) => {
+            const isUser = message.classList.contains('user-message');
+            const isAI = message.classList.contains('ai-message');
+            const isTyping = message.classList.contains('typing-indicator');
+            
+            let className = 'minimap-item';
+            if (isUser) className += ' user';
+            if (isAI) className += ' ai';
+            if (isTyping) className += ' typing';
+            
+            minimapHTML += `<div class="${className}" data-index="${index}"></div>`;
+        });
+        
+        this.minimapContent.innerHTML = minimapHTML;
+        
+        // Update viewport position
+        this.updateMinimapViewport();
+        
+        // Add click handlers for minimap items
+        this.minimapContent.querySelectorAll('.minimap-item').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                this.scrollToMessage(index);
+            });
+        });
+    }
+
+    updateMinimapViewport() {
+        if (!this.minimapViewport) return;
+        
+        const container = this.messagesContainer;
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+        
+        const minimapHeight = this.minimapContent.offsetHeight;
+        const viewportHeight = Math.max((clientHeight / scrollHeight) * minimapHeight, 20);
+        const viewportTop = (scrollTop / scrollHeight) * minimapHeight;
+        
+        this.minimapViewport.style.height = viewportHeight + 'px';
+        this.minimapViewport.style.top = viewportTop + 'px';
+    }
+
+    scrollToMessage(index) {
+        const messages = this.messagesContainer.querySelectorAll('.message');
+        if (messages[index]) {
+            messages[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    // Import/Export
     importChatHistory() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json';
+        
         input.onchange = (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        const chatData = JSON.parse(event.target.result);
-                        this.importChatSession(chatData);
-                        this.showNotification('Чат успешно импортирован', 'success');
-                    } catch (error) {
-                        this.showNotification('Ошибка при импорте файла', 'error');
-                        console.error('Import error:', error);
-                    }
-                };
-                reader.readAsText(file);
-            }
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    this.processImportedChat(importedData);
+                } catch (error) {
+                    console.error('Error parsing imported file:', error);
+                    this.showNotification('Ошибка при чтении файла', 'error');
+                }
+            };
+            reader.readAsText(file);
         };
+        
         input.click();
     }
 
-    importChatSession(chatData) {
-        const chatId = 'imported-' + Date.now();
-        const session = {
-            id: chatId,
-            name: chatData.name || 'Импортированный чат',
-            messages: chatData.messages || [],
-            conversationHistory: chatData.conversationHistory || [],
-            createdAt: chatData.createdAt || Date.now(),
-            lastActivity: Date.now()
-        };
+    processImportedChat(importedData) {
+        // Validate imported data
+        if (!importedData || !Array.isArray(importedData.messages)) {
+            this.showNotification('Неверный формат файла', 'error');
+            return;
+        }
         
-        this.chatSessions.set(chatId, session);
+        const chatId = 'imported-' + Date.now();
+        const chatName = importedData.name || `Импортированный чат ${this.formatDate(new Date())}`;
+        
+        this.chatSessions.set(chatId, {
+            id: chatId,
+            name: chatName,
+            messages: importedData.messages,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+        
+        this.currentChatId = chatId;
+        this.conversationHistory = importedData.messages;
+        this.renderChatHistory();
         this.saveChatSessions();
         this.updateChatList();
-        this.switchChat(chatId);
-    }
-
-    // GLOBAL HANDLERS
-    handleGlobalKeydown(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === '/') {
-            e.preventDefault();
-            this.clearChat();
-        }
+        this.closeSidebar();
         
-        if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
-            e.preventDefault();
-            this.toggleSidebar();
-        }
+        this.showNotification('Чат успешно импортирован', 'success');
+    }
+
+    downloadCurrentChat() {
+        const session = this.chatSessions.get(this.currentChatId);
+        if (!session) return;
         
-        if (e.key === 'Escape') {
-            this.closeSidebar();
-            this.closeModelModal();
-            this.closeEditChatModal();
-        }
-    }
-
-    handleOnlineStatus() {
-        this.showNotification('Соединение восстановлено', 'success');
-        this.updateConnectionStatus(true);
-    }
-
-    handleOfflineStatus() {
-        this.showNotification('Отсутствует интернет-соединение', 'error');
-        this.updateConnectionStatus(false);
-    }
-
-    updateConnectionStatus(online = true) {
-        if (this.connectionStatus) {
-            if (online) {
-                this.connectionStatus.textContent = '✅ Онлайн';
-                this.connectionStatus.style.color = '';
-            } else {
-                this.connectionStatus.textContent = '❌ Офлайн';
-                this.connectionStatus.style.color = 'var(--error-text)';
-            }
-        }
-        
-        if (this.connectionStatusText) {
-            if (online) {
-                this.connectionStatusText.textContent = 'Подключено';
-                const statusIcon = this.connectionStatusText.previousElementSibling;
-                if (statusIcon) {
-                    statusIcon.style.color = 'var(--success-text)';
-                }
-            } else {
-                this.connectionStatusText.textContent = 'Офлайн';
-                const statusIcon = this.connectionStatusText.previousElementSibling;
-                if (statusIcon) {
-                    statusIcon.style.color = 'var(--error-text)';
-                }
-            }
-        }
-    }
-
-    handleResize() {
-        this.updateMinimapViewport();
-        this.setupResponsiveMinimap();
-    }
-
-    setupResponsiveMinimap() {
-        const isMobile = window.innerWidth <= 480;
-        if (isMobile && this.chatMinimap) {
-            this.chatMinimap.style.display = 'none';
-        } else if (this.chatMinimap) {
-            this.chatMinimap.style.display = 'flex';
-        }
-    }
-
-    // THEME MANAGEMENT
-    toggleTheme() {
-        this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', this.currentTheme);
-        
-        try {
-            localStorage.setItem('khai-assistant-theme', this.currentTheme);
-        } catch (error) {
-            console.error('Error saving theme preference:', error);
-        }
-        
-        const themeIcon = this.currentTheme === 'dark' ? 'ti-sun' : 'ti-moon';
-        if (this.themeToggle) {
-            this.themeToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
-        }
-        if (this.themeMinimapToggle) {
-            this.themeMinimapToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
-        }
-        
-        this.showNotification(
-            this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
-            'info'
-        );
-    }
-
-    // UTILITY METHODS
-    debounce(id, fn, delay) {
-        if (this.debounceTimers.has(id)) {
-            clearTimeout(this.debounceTimers.get(id));
-        }
-        this.debounceTimers.set(id, setTimeout(fn, delay));
-    }
-
-    addEventListener(element, event, handler) {
-        if (!element) return;
-        
-        const wrappedHandler = (...args) => {
-            try {
-                handler(...args);
-            } catch (error) {
-                console.error(`Error in ${event} handler:`, error);
-                this.showNotification('Произошла ошибка при обработке действия', 'error');
-            }
+        const exportData = {
+            name: session.name,
+            exportedAt: new Date().toISOString(),
+            messages: session.messages
         };
-
-        element.addEventListener(event, wrappedHandler);
         
-        if (!this.activeEventListeners.has(element)) {
-            this.activeEventListeners.set(element, []);
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `khai-chat-${session.name}-${this.formatDate(new Date())}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        this.showNotification('Чат успешно экспортирован', 'success');
+    }
+
+    // Utility Methods
+    addToConversationHistory(role, content, files = []) {
+        this.conversationHistory.push({
+            role,
+            content,
+            files,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Limit history length
+        if (this.conversationHistory.length > this.CONVERSATION_HISTORY_LIMIT) {
+            this.conversationHistory = this.conversationHistory.slice(-this.CONVERSATION_HISTORY_LIMIT);
         }
-        this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
-    }
-
-    setTimeout(callback, delay) {
-        const timeoutId = setTimeout(() => {
-            this.activeTimeouts.delete(timeoutId);
-            callback();
-        }, delay);
-        this.activeTimeouts.add(timeoutId);
-        return timeoutId;
-    }
-
-    showNotification(message, type = 'info') {
-        const existingNotifications = document.querySelectorAll('.notification');
-        existingNotifications.forEach(notification => notification.remove());
         
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="ti ti-${this.getNotificationIcon(type)}"></i>
-                <span>${message}</span>
-            </div>
-            <button class="notification-close" onclick="this.parentElement.remove()">
-                <i class="ti ti-x"></i>
-            </button>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        this.setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 4000);
+        // Save to current session
+        this.saveCurrentSession();
     }
 
-    getNotificationIcon(type) {
-        const icons = {
-            'success': 'circle-check',
-            'error': 'alert-circle',
-            'warning': 'alert-triangle',
-            'info': 'info-circle'
-        };
-        return icons[type] || 'info-circle';
-    }
-
-    handleError(userMessage, error) {
-        console.error(userMessage, error);
-        this.addMessage('error', `${userMessage}: ${error.message}`);
-        this.showNotification(userMessage, 'error');
-    }
-
-    handleCriticalError(message, error) {
-        console.error(message, error);
+    buildContextPrompt(userMessage) {
+        if (this.conversationHistory.length <= 2) {
+            return userMessage;
+        }
         
-        const errorDiv = document.createElement('div');
-        errorDiv.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #ff4444;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            z-index: 10000;
-            max-width: 400px;
-            text-align: center;
-        `;
-        errorDiv.innerHTML = `
-            <h3>Ошибка загрузки приложения</h3>
-            <p>${message}</p>
-            <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: white; color: #ff4444; border: none; border-radius: 4px; cursor: pointer;">
-                Перезагрузить
-            </button>
-        `;
-        document.body.appendChild(errorDiv);
+        const recentHistory = this.conversationHistory.slice(-6); // Last 3 exchanges
+        
+        let context = "Контекст предыдущего общения:\n";
+        recentHistory.forEach(msg => {
+            const role = msg.role === 'user' ? 'Пользователь' : 'Ассистент';
+            context += `${role}: ${msg.content}\n`;
+        });
+        
+        context += `\nТекущий вопрос пользователя: ${userMessage}`;
+        context += "\n\nОтветь на текущий вопрос пользователя, учитывая контекст выше. Будь краток и точен, если контекст не требует развернутого ответа.";
+        
+        return context;
+    }
+
+    getCurrentTime() {
+        return new Date().toLocaleTimeString('ru-RU', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    }
+
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+            return 'Сегодня';
+        } else if (diffDays === 1) {
+            return 'Вчера';
+        } else if (diffDays < 7) {
+            return `${diffDays} дней назад`;
+        } else {
+            return date.toLocaleDateString('ru-RU');
+        }
     }
 
     escapeHtml(text) {
-        if (typeof text !== 'string') return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    debug(...args) {
-        if (this.DEBUG) {
-            console.log('[KHAI Debug]', ...args);
+    escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    async copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (error) {
+            console.error('Error copying to clipboard:', error);
+            
+            // Fallback method
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                return true;
+            } catch (fallbackError) {
+                console.error('Fallback copy failed:', fallbackError);
+                return false;
+            } finally {
+                document.body.removeChild(textArea);
+            }
         }
     }
 
-    // WELCOME AND HELP MESSAGES
-    showWelcomeMessage() {
-        if (this.conversationHistory.length > 0) {
-            return;
-        }
-        
-        const currentModelName = this.getModelDisplayName(this.currentModel);
-        const currentProviderName = this.aiProviders[this.currentProvider]?.name || 'Неизвестен';
-
-        const availableProviders = Object.values(this.aiProviders)
-            .filter(p => p.available)
-            .map(p => p.name)
-            .join(', ');
-
-        const welcomeMessage = `# 👋 Добро пожаловать в KHAI Assistant v5.0!
-
-## 🚀 РЕАЛЬНЫЕ БЕСПЛАТНЫЕ AI ПРОВАЙДЕРЫ
-
-**Текущий провайдер:** ${currentProviderName}  
-**Текущая модель:** ${currentModelName}  
-**Доступные провайдеры:** ${availableProviders}
-
-### 🔧 РАБОТАЮЩИЕ БЕСПЛАТНЫЕ API:
-1. **Hugging Face** - 20+ моделей для чата, анализа, перевода
-2. **DeepInfra Free** - Llama 3, Mistral 7B
-3. **Together AI Free** - Mistral модели
-4. **OpenRouter Free** - Gemini Pro, Llama 3
-5. **HuggingChat** - прямой доступ к чату
-6. **FreeGPT** - GPT-3.5 совместимость
-7. **DeepSeek Free** - собственная модель
-8. **Cohere Free** - команда модель
-9. **Stability AI Free** - генерация изображений
-10. **Novita AI Free** - альтернатива для изображений
-11. **Phind Free** - для разработчиков
-12. **You.com Free** - поисковый ИИ
-
-### 💡 ОСОБЕННОСТИ СИСТЕМЫ:
-✅ **12+ реальных бесплатных провайдеров**  
-✅ **Автоматическое переключение при ошибках**  
-✅ **Fallback система для максимальной доступности**  
-✅ **Работает БЕЗ API ключей**  
-✅ **Поддержка изображений, файлов, голоса**  
-✅ **Мульти-чаты и история сообщений**
-
-**Система автоматически использует лучший доступный провайдер! Начните общение прямо сейчас!**`;
-
-        this.addMessage('ai', welcomeMessage);
-        this.addToConversationHistory('assistant', welcomeMessage);
+    delay(ms) {
+        return new Promise(resolve => this.setTimeout(resolve, ms));
     }
 
-    showHelp() {
-        const currentModelName = this.getModelDisplayName(this.currentModel);
-        const currentProviderName = this.aiProviders[this.currentProvider]?.name || 'Неизвестен';
-        
-        const helpMessage = `# 🆘 Помощь по KHAI Assistant v5.0
-
-## 🤖 Текущая система: ${currentProviderName} - ${currentModelName}
-
-### 💬 Основные функции:
-• **Автоматический выбор AI провайдера** - система сама выбирает лучший доступный
-• **Мульти-чаты** - создавайте отдельные чаты для разных тем
-• **Прикрепление файлов** - изображения, текстовые файлы, код
-• **Голосовой ввод/вывод** - говорите и слушайте ответы
-• **Генерация изображений** - создавайте картинки по описанию
-• **Поиск по чату** - находите нужные сообщения
-• **Экспорт/импорт** - сохраняйте и загружайте историю
-
-### 🔧 AI Провайдеры:
-Система автоматически переключается между **12+ бесплатными провайдерами**:
-- Hugging Face (основной)
-- DeepInfra, Together AI, OpenRouter (резервные)
-- FreeGPT, DeepSeek, Cohere (дополнительные)
-- Stability AI, Novita AI (генерация изображений)
-
-### 📁 Поддерживаемые форматы файлов:
-• **Изображения**: JPG, PNG, GIF, WebP (до 5MB)
-• **Текстовые файлы**: TXT, MD, HTML, CSS, JS, JSON
-• **Файлы кода**: Python, Java, C++, C#, PHP, Ruby, Go, Swift
-• **Другие**: XML, CSV, YAML
-
-### ⌨️ Горячие клавиши:
-• **Ctrl+/** - очистить чат
-• **Ctrl+H** - открыть/закрыть боковую панель
-• **Escape** - закрыть все модальные окна
-• **Enter** - отправить сообщение
-• **Shift+Enter** - новая строка
-
-**Просто начните печатать - система сделает всё остальное!**`;
-
-        this.addMessage('ai', helpMessage);
-        this.addToConversationHistory('assistant', helpMessage);
-    }
-
+    // UI Controls
     clearInput() {
         this.userInput.value = '';
         this.userInput.style.height = 'auto';
-        this.attachedImages = [];
-        this.renderAttachedFiles();
-        this.userInput.focus();
-        this.showNotification('Ввод очищен', 'success');
         this.handleInputChange();
+        this.userInput.focus();
     }
 
     clearChat() {
-        if (!this.messagesContainer || this.messagesContainer.children.length === 0) {
-            return;
-        }
-
-        if (confirm('Вы уверены, что хотите очистить всю историю чата?')) {
-            this.messagesContainer.innerHTML = '';
+        if (confirm('Вы уверены, что хотите очистить историю текущего чата?')) {
             this.conversationHistory = [];
+            this.messagesContainer.innerHTML = '';
             this.saveCurrentSession();
-            this.updateMinimap();
-            this.showNotification('Чат очищен', 'success');
+            this.showNotification('История чата очищена', 'success');
         }
     }
 
     refreshPage() {
-        location.reload();
-    }
-
-    updateDocumentTitle() {
-        document.title = 'KHAI — Первый белорусский чат с ИИ';
-        
-        const sidebarTitle = document.querySelector('.sidebar-header h3');
-        if (sidebarTitle) {
-            sidebarTitle.innerHTML = 'KHAI <span class="beta-badge">FREE AI</span>';
+        if (confirm('Обновить страницу? Несохраненные данные могут быть потеряны.')) {
+            window.location.reload();
         }
     }
 
-    // PWA METHODS
-    handleBeforeInstallPrompt(e) {
-        e.preventDefault();
-        this.deferredPrompt = e;
-        this.isPWAInstalled = false;
-        this.debug('PWA installation available');
-    }
-
-    handleAppInstalled() {
-        this.deferredPrompt = null;
-        this.isPWAInstalled = true;
-        this.debug('PWA installed successfully');
-        this.showNotification('Приложение успешно установлено!', 'success');
-    }
-
-    checkPWAInstallation() {
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                           window.navigator.standalone;
-        
-        this.isPWAInstalled = isStandalone;
-    }
-
-    // PRELOADER AND 404
-    hidePreloader() {
-        if (this.preloader) {
-            this.preloader.classList.add('fade-out');
-            this.setTimeout(() => {
-                if (this.preloader.parentNode) {
-                    this.preloader.style.display = 'none';
-                }
-            }, 500);
-        }
-    }
-
-    showPreloader() {
-        if (this.preloader) {
-            this.preloader.style.display = 'flex';
-            this.preloader.classList.remove('fade-out');
-        }
-    }
-
-    setup404Handling() {
-        window.addEventListener('hashchange', () => {
-            this.handleRouteChange();
-        });
-        
-        window.addEventListener('popstate', () => {
-            this.handleRouteChange();
-        });
-    }
-
-    handleRouteChange() {
-        const path = window.location.pathname + window.location.hash;
-        if (path.includes('404') || !path.includes('/')) {
-            this.show404Page();
+    // Sidebar Management
+    toggleSidebar() {
+        if (this.sidebarMenu.classList.contains('active')) {
+            this.closeSidebar();
         } else {
-            this.hide404Page();
+            this.openSidebar();
         }
     }
 
-    show404Page() {
-        if (this.appContainer) this.appContainer.style.display = 'none';
-        if (this.page404) this.page404.style.display = 'flex';
+    openSidebar() {
+        this.sidebarMenu.classList.add('active');
+        this.sidebarOverlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
     }
 
-    hide404Page() {
-        if (this.page404) this.page404.style.display = 'none';
-        if (this.appContainer) this.appContainer.style.display = 'flex';
-        window.history.replaceState(null, '', '/');
+    closeSidebar() {
+        this.sidebarMenu.classList.remove('active');
+        this.sidebarOverlay.style.display = 'none';
+        document.body.style.overflow = '';
     }
 
-    setCurrentYear() {
-        const yearElement = document.getElementById('appVersionDate');
-        if (yearElement) {
-            yearElement.textContent = new Date().getFullYear().toString();
+    // Mode Management
+    setMode(mode) {
+        // Reset all modes
+        this.isImageMode = false;
+        this.isVoiceMode = false;
+        
+        this.generateImageBtn.classList.remove('active');
+        this.generateVoiceBtn.classList.remove('active');
+        
+        this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+        
+        this.showNotification('Обычный режим включен', 'info');
+    }
+
+    // Global Event Handlers
+    handleGlobalKeydown(e) {
+        // Ctrl/Cmd + K to focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            if (this.headerSearch) {
+                this.headerSearch.focus();
+            }
+        }
+        
+        // Escape to close modals/sidebar
+        if (e.key === 'Escape') {
+            if (this.editChatModal.style.display === 'flex') {
+                this.closeEditChatModal();
+            } else if (this.modelModalOverlay.style.display === 'flex') {
+                this.closeModelModal();
+            } else if (this.sidebarMenu.classList.contains('active')) {
+                this.closeSidebar();
+            }
+        }
+        
+        // Ctrl/Cmd + / for help
+        if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+            e.preventDefault();
+            this.showHelp();
         }
     }
 
-    setupCleanup() {
-        const cleanup = () => {
-            this.cleanup();
+    handleResize() {
+        this.updateMinimap();
+        this.handleScroll();
+    }
+
+    // Network Status
+    handleOnlineStatus() {
+        this.updateConnectionStatus(true);
+        this.showNotification('Соединение восстановлено', 'success');
+    }
+
+    handleOfflineStatus() {
+        this.updateConnectionStatus(false);
+        this.showNotification('Отсутствует соединение с интернетом', 'error');
+    }
+
+    updateConnectionStatus(isOnline) {
+        if (!this.connectionStatus || !this.connectionStatusText) return;
+        
+        if (isOnline) {
+            this.connectionStatus.classList.remove('offline');
+            this.connectionStatus.classList.add('online');
+            this.connectionStatusText.textContent = 'Онлайн';
+        } else {
+            this.connectionStatus.classList.remove('online');
+            this.connectionStatus.classList.add('offline');
+            this.connectionStatusText.textContent = 'Офлайн';
+        }
+    }
+
+    // Notifications
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="ti ${this.getNotificationIcon(type)}"></i>
+                <span>${this.escapeHtml(message)}</span>
+            </div>
+            <button class="notification-close">
+                <i class="ti ti-x"></i>
+            </button>
+        `;
+        
+        // Add to container or create one
+        let container = document.querySelector('.notification-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'notification-container';
+            document.body.appendChild(container);
+        }
+        
+        container.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        const autoRemove = this.setTimeout(() => {
+            if (notification.parentNode) {
+                notification.classList.add('fade-out');
+                this.setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }, 5000);
+        
+        // Close button
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            clearTimeout(autoRemove);
+            if (notification.parentNode) {
+                notification.classList.add('fade-out');
+                this.setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        });
+        
+        // Animate in
+        this.setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+    }
+
+    getNotificationIcon(type) {
+        switch (type) {
+            case 'success': return 'ti-circle-check';
+            case 'error': return 'ti-circle-x';
+            case 'warning': return 'ti-alert-triangle';
+            case 'info': return 'ti-info-circle';
+            default: return 'ti-info-circle';
+        }
+    }
+
+    // Help System
+    showHelp() {
+        const helpContent = `
+            <h3>KHAI Assistant - Справка</h3>
+            <div class="help-section">
+                <h4>Основные возможности:</h4>
+                <ul>
+                    <li><strong>Текстовый чат</strong> - общайтесь с ИИ на любые темы</li>
+                    <li><strong>Анализ изображений</strong> - загружайте изображения для анализа</li>
+                    <li><strong>Генерация изображений</strong> - создавайте изображения по описанию</li>
+                    <li><strong>Голосовой ввод</strong> - говорите вместо ввода текста</li>
+                    <li><strong>Генерация голоса</strong> - преобразуйте текст в речь</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <h4>Горячие клавиши:</h4>
+                <ul>
+                    <li><kbd>Enter</kbd> - отправить сообщение</li>
+                    <li><kbd>Shift + Enter</kbd> - новая строка</li>
+                    <li><kbd>Ctrl/Cmd + K</kbd> - поиск по чату</li>
+                    <li><kbd>Ctrl/Cmd + /</kbd> - эта справка</li>
+                    <li><kbd>Escape</kbd> - закрыть модальные окна</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <h4>Управление чатами:</h4>
+                <ul>
+                    <li>Создавайте несколько чатов для разных тем</li>
+                    <li>Экспортируйте и импортируйте историю</li>
+                    <li>Переименовывайте чаты для удобства</li>
+                    <li>Используйте поиск для быстрого доступа</li>
+                </ul>
+            </div>
+        `;
+        
+        // Create modal for help
+        const helpModal = document.createElement('div');
+        helpModal.className = 'modal help-modal';
+        helpModal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Справка</h2>
+                    <button class="modal-close">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ${helpContent}
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="closeHelp">Закрыть</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(helpModal);
+        
+        // Add event listeners
+        const closeBtn = helpModal.querySelector('.modal-close');
+        const closeHelpBtn = helpModal.querySelector('#closeHelp');
+        
+        const closeHelp = () => {
+            helpModal.classList.add('fade-out');
+            this.setTimeout(() => {
+                if (helpModal.parentNode) {
+                    helpModal.parentNode.removeChild(helpModal);
+                }
+            }, 300);
         };
         
-        window.addEventListener('beforeunload', cleanup);
-        window.addEventListener('pagehide', cleanup);
-        
-        this.cleanupCallbacks.push(() => {
-            window.removeEventListener('beforeunload', cleanup);
-            window.removeEventListener('pagehide', cleanup);
+        closeBtn.addEventListener('click', closeHelp);
+        closeHelpBtn.addEventListener('click', closeHelp);
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                closeHelp();
+            }
         });
+        
+        // Show modal
+        this.setTimeout(() => {
+            helpModal.classList.add('show');
+        }, 10);
     }
 
+    // Error Handling
+    handleError(message, error) {
+        console.error(message, error);
+        
+        let userMessage = message;
+        
+        if (error.message.includes('network') || error.message.includes('Network')) {
+            userMessage = 'Ошибка сети. Проверьте подключение к интернету.';
+        } else if (error.message.includes('timeout')) {
+            userMessage = 'Превышено время ожидания ответа.';
+        } else if (error.message.includes('quota') || error.message.includes('limit')) {
+            userMessage = 'Превышен лимит запросов. Попробуйте позже.';
+        } else if (error.message.includes('auth') || error.message.includes('token')) {
+            userMessage = 'Ошибка авторизации. Проверьте настройки API.';
+        }
+        
+        this.showNotification(userMessage, 'error');
+        
+        // Add error message to chat
+        this.addMessage('ai', `**Ошибка:** ${userMessage}\n\nПопробуйте:\n- Проверить подключение к интернету\n- Обновить страницу\n- Сократить длину запроса\n- Попробовать позже`);
+    }
+
+    handleCriticalError(message, error) {
+        console.error('CRITICAL ERROR:', message, error);
+        
+        // Show error page or fallback UI
+        this.showNotification('Критическая ошибка приложения', 'error');
+        
+        // Try to recover basic functionality
+        try {
+            this.setupBasicFunctionality();
+        } catch (recoveryError) {
+            console.error('Recovery failed:', recoveryError);
+        }
+    }
+
+    setupBasicFunctionality() {
+        // Minimal setup for basic functionality
+        if (this.userInput && this.sendBtn) {
+            this.sendBtn.onclick = () => {
+                const message = this.userInput.value.trim();
+                if (message) {
+                    this.addMessage('user', message);
+                    this.userInput.value = '';
+                    this.addMessage('ai', 'Извините, расширенные функции временно недоступны. Пожалуйста, обновите страницу.');
+                }
+            };
+        }
+    }
+
+    // PWA Installation
+    checkPWAInstallation() {
+        if (this.deferredPrompt) {
+            // Show install button or prompt
+            this.debug('PWA installation available');
+        }
+    }
+
+    // Debugging
+    debug(...args) {
+        if (this.DEBUG) {
+            console.log('[KHAI Assistant]', ...args);
+        }
+    }
+
+    // Document Title
+    updateDocumentTitle() {
+        const session = this.chatSessions.get(this.currentChatId);
+        const modelConfig = this.modelConfig[this.currentModel];
+        
+        if (session && modelConfig) {
+            document.title = `${session.name} - KHAI Assistant (${modelConfig.name})`;
+        } else {
+            document.title = 'KHAI Assistant - AI Chat Platform';
+        }
+    }
+
+    // Cleanup
     cleanup() {
+        // Clear all timeouts
         this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
         this.activeTimeouts.clear();
-
-        this.debounceTimers.forEach((timer, id) => {
-            clearTimeout(timer);
-        });
+        
+        // Clear all debounce timers
+        this.debounceTimers.forEach(timerId => clearTimeout(timerId));
         this.debounceTimers.clear();
-
-        this.stopSpeech();
-
-        if (this.recognition && this.isListening) {
-            try {
-                this.recognition.stop();
-            } catch (e) {
-                // Ignore errors during cleanup
-            }
-        }
-
-        if (this.currentStreamController) {
-            try {
-                this.currentStreamController.abort();
-                this.currentStreamController = null;
-            } catch (e) {
-                console.warn('Error aborting stream controller:', e);
-            }
-        }
-
+        
+        // Remove all event listeners
         this.activeEventListeners.forEach((listeners, element) => {
             listeners.forEach(({ event, handler }) => {
                 element.removeEventListener(event, handler);
             });
         });
         this.activeEventListeners.clear();
-
-        if (this.activeTypingIndicator) {
-            this.removeTypingIndicator(this.activeTypingIndicator);
+        
+        // Stop voice recognition
+        if (this.recognition && this.isListening) {
+            this.recognition.stop();
         }
-
+        
+        // Stop any audio playback
+        if (this.currentAudio) {
+            this.currentAudio.pause();
+            this.currentAudio = null;
+        }
+        
+        // Stop speech synthesis
+        if (this.isSpeaking && this.currentUtterance) {
+            speechSynthesis.cancel();
+            this.isSpeaking = false;
+            this.currentUtterance = null;
+        }
+        
+        // Call cleanup callbacks
         this.cleanupCallbacks.forEach(callback => {
             try {
                 callback();
-            } catch (e) {
-                this.debug('Error in cleanup callback:', e);
+            } catch (error) {
+                console.error('Error in cleanup callback:', error);
             }
         });
-
+        this.cleanupCallbacks.length = 0;
+        
         this.debug('Cleanup completed');
     }
 }
 
-// COMPLETE INITIALIZATION
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        console.log('🚀 Инициализация KHAI Assistant v5.0...');
-        
-        // Check dependencies
-        const missingDeps = [];
-        if (typeof marked === 'undefined') missingDeps.push('marked.js');
-        if (typeof hljs === 'undefined') missingDeps.push('highlight.js');
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.khaiAssistant = new KHAIAssistant();
+});
 
-        // Try to load Puter.js dynamically (optional)
-        if (typeof puter === 'undefined') {
-            const script = document.createElement('script');
-            script.src = 'https://js.puter.com/v2/puter.js';
-            script.onload = () => console.log('✅ Puter.js загружен (опционально)');
-            script.onerror = () => console.log('ℹ️ Puter.js недоступен, используем бесплатные провайдеры');
-            document.head.appendChild(script);
-        }
-
-        if (missingDeps.length > 0) {
-            console.warn('Отсутствующие зависимости:', missingDeps.join(', '));
-        }
-
-        // Preload voices for speech synthesis
-        if ('speechSynthesis' in window) {
-            speechSynthesis.getVoices();
-        }
-
-        // Initialize app
-        window.khaiAssistant = new KHAIAssistant();
-
-    } catch (error) {
-        console.error('❌ Ошибка инициализации приложения:', error);
-        
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'notification error';
-        errorDiv.innerHTML = `
-            <div class="notification-content">
-                <i class="ti ti-alert-circle"></i>
-                <span>Ошибка загрузки приложения. Проверьте консоль для подробностей.</span>
-            </div>
-            <button class="notification-close" onclick="location.reload()">
-                <i class="ti ti-refresh"></i>
-            </button>
-        `;
-        document.body.appendChild(errorDiv);
+// Handle page unload
+window.addEventListener('beforeunload', () => {
+    if (window.khaiAssistant) {
+        window.khaiAssistant.cleanup();
     }
-});
-
-// Global error handlers
-window.addEventListener('error', (event) => {
-    console.error('Global error:', event.error);
-});
-
-window.addEventListener('unhandledrejection', (event) => {
-    console.error('Unhandled promise rejection:', event.reason);
-    event.preventDefault();
 });
