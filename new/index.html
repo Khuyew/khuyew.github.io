@@ -114,6 +114,69 @@
         </div>
     </div>
 
+    <!-- Drag & Drop Layout Manager -->
+    <div class="layout-manager" id="layoutManager">
+        <div class="layout-header">
+            <h3>Настройка интерфейса</h3>
+            <button class="layout-close" id="layoutClose">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        <div class="layout-content">
+            <div class="layout-section">
+                <h4>Перетаскиваемые элементы</h4>
+                <p class="layout-hint">Перетащите элементы для изменения их положения</p>
+                <div class="draggable-elements" id="draggableElements">
+                    <div class="draggable-item" data-element="headerSearch">
+                        <i class="ti ti-search"></i>
+                        <span>Поиск по чату</span>
+                    </div>
+                    <div class="draggable-item" data-element="modelSelectBtn">
+                        <i class="ti ti-brain"></i>
+                        <span>Выбор модели</span>
+                    </div>
+                    <div class="draggable-item" data-element="themeToggle">
+                        <i class="ti ti-moon"></i>
+                        <span>Переключение темы</span>
+                    </div>
+                    <div class="draggable-item" data-element="minimapContainer">
+                        <i class="ti ti-layout-navbar"></i>
+                        <span>Мини-карта</span>
+                    </div>
+                    <div class="draggable-item" data-element="actionButtons">
+                        <i class="ti ti-apps"></i>
+                        <span>Кнопки действий</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layout-section">
+                <h4>Положение элементов</h4>
+                <div class="drop-zones" id="dropZones">
+                    <div class="drop-zone" data-zone="header">
+                        <i class="ti ti-layout-navbar"></i>
+                        <span>Верхняя панель</span>
+                    </div>
+                    <div class="drop-zone" data-zone="sidebar">
+                        <i class="ti ti-layout-sidebar"></i>
+                        <span>Боковая панель</span>
+                    </div>
+                    <div class="drop-zone" data-zone="footer">
+                        <i class="ti ti-layout-footer"></i>
+                        <span>Нижняя панель</span>
+                    </div>
+                    <div class="drop-zone" data-zone="floating">
+                        <i class="ti ti-pinned"></i>
+                        <span>Плавающие элементы</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layout-footer">
+            <button class="layout-btn" id="layoutReset">Сбросить настройки</button>
+            <button class="layout-btn primary" id="layoutSave">Сохранить</button>
+        </div>
+    </div>
+
     <!-- Main App Container -->
     <div class="app-container" id="appContainer">
         <!-- Header -->
@@ -125,23 +188,13 @@
                     </div>
                 </div>
                 
-                <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
-                    <i class="ti ti-brain"></i>
-                </button>
-                
-                <div class="header-search-container">
-                    <div class="search-wrapper">
-                        <i class="ti ti-search"></i>
-                        <input type="text" id="headerSearch" placeholder="Поиск по чату..." aria-label="Поиск по истории чата">
-                        <button class="search-clear" id="headerSearchClear" style="display: none;" aria-label="Очистить поиск">
-                            <i class="ti ti-x"></i>
-                        </button>
-                    </div>
+                <div class="header-draggable" id="headerDraggable">
+                    <!-- Elements will be dynamically placed here -->
                 </div>
                 
                 <div class="header-controls">
-                    <button class="control-btn" id="themeToggle" aria-label="Переключить тему">
-                        <i class="ti ti-moon"></i>
+                    <button class="control-btn layout-toggle" id="layoutToggle" title="Настроить интерфейс">
+                        <i class="ti ti-layout"></i>
                     </button>
                     <button class="control-btn menu-toggle" id="menuToggle" aria-label="Открыть меню">
                         <i class="ti ti-menu-2"></i>
@@ -171,8 +224,13 @@
                 </div>
             </div>
 
+            <!-- Floating Elements Container -->
+            <div class="floating-elements" id="floatingElements">
+                <!-- Floating elements will be placed here -->
+            </div>
+
             <!-- Minimap & Navigation -->
-            <div class="chat-minimap-container">
+            <div class="chat-minimap-container" id="minimapContainer">
                 <div class="minimap-header">
                     <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
                         <i class="ti ti-moon"></i>
@@ -207,7 +265,7 @@
                 
                 <textarea 
                     id="userInput" 
-                    placeholder="Задайте вопрос или опишите изображение..." 
+                    placeholder="Задайте вопрос или опришите изображение..." 
                     autocomplete="off" 
                     rows="1"
                     maxlength="4000"
@@ -229,30 +287,18 @@
 
             <div class="attached-files" id="attachedFiles"></div>
 
-            <div class="action-buttons">
+            <div class="action-buttons" id="actionButtons">
                 <button class="action-btn mode-btn active" id="normalModeBtn">
                     <i class="ti ti-message"></i>
                     <span class="btn-text">Обычный</span>
-                </button>
-                <button class="action-btn mode-btn" id="searchModeBtn">
-                    <i class="ti ti-search"></i>
-                    <span class="btn-text">Поиск</span>
-                </button>
-                <button class="action-btn mode-btn" id="deepThinkingBtn">
-                    <i class="ti ti-brain"></i>
-                    <span class="btn-text">Анализ</span>
                 </button>
                 <button class="action-btn mode-btn" id="generateVoiceBtn">
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateImageBtn">
+                <button class="action-btn mode-btn" id="generateImageBtn" disabled title="В разработке">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
-                </button>
-                <button class="action-btn mode-btn" id="generateVideoBtn">
-                    <i class="ti ti-video"></i>
-                    <span class="btn-text">Видео</span>
                 </button>
             </div>
         </div>
@@ -301,14 +347,8 @@
         </div>
         
         <div class="sidebar-content">
-            <div class="sidebar-search-container">
-                <div class="search-wrapper">
-                    <i class="ti ti-search"></i>
-                    <input type="text" id="sidebarSearch" placeholder="Поиск по чатам..." aria-label="Поиск по чатам">
-                    <button class="search-clear" id="sidebarSearchClear" style="display: none;" aria-label="Очистить поиск">
-                        <i class="ti ti-x"></i>
-                    </button>
-                </div>
+            <div class="sidebar-draggable" id="sidebarDraggable">
+                <!-- Elements will be dynamically placed here -->
             </div>
 
             <div class="sidebar-section">
@@ -344,7 +384,7 @@
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>2.2.0</span>
+                        <span>2.1.0</span>
                     </div>
                     <div class="about-item">
                         <strong>Обновлено</strong>
