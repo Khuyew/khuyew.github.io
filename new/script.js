@@ -86,6 +86,10 @@ class KHAIAssistant {
             this.errorBackBtn = document.getElementById('errorBackBtn');
             this.sidebarSearchClear = document.getElementById('sidebarSearchClear');
 
+            // Help Modal
+            this.helpModal = document.getElementById('helpModal');
+            this.helpModalClose = document.getElementById('helpModalClose');
+
             // Validate critical elements
             this.validateRequiredElements();
             
@@ -310,7 +314,7 @@ class KHAIAssistant {
             [this.userInput, 'input', () => this.handleInputChange()],
             [this.clearInputBtn, 'click', () => this.clearInput()],
             [this.clearChatBtn, 'click', () => this.clearChat()],
-            [this.helpBtn, 'click', () => this.showHelp()],
+            [this.helpBtn, 'click', () => this.showHelpModal()],
             [this.generateImageBtn, 'click', () => this.toggleImageMode()],
             [this.generateVoiceBtn, 'click', () => this.toggleVoiceMode()],
             [this.themeToggle, 'click', () => this.toggleTheme()],
@@ -351,6 +355,7 @@ class KHAIAssistant {
             [this.importChatBtn, 'click', () => this.importChatHistory()],
             [this.downloadChatBtn, 'click', () => this.downloadCurrentChat()],
             [this.errorBackBtn, 'click', () => this.hide404Page()],
+            [this.helpModalClose, 'click', () => this.closeHelpModal()],
             [document, 'keydown', (e) => this.handleGlobalKeydown(e)],
             [window, 'online', () => this.handleOnlineStatus()],
             [window, 'offline', () => this.handleOfflineStatus()],
@@ -558,12 +563,31 @@ class KHAIAssistant {
         if (this.clearInputBtn) {
             this.clearInputBtn.style.display = this.userInput.value ? 'flex' : 'none';
         }
+
+        // Dynamic font size based on input length
+        this.adjustInputFontSize();
+    }
+
+    adjustInputFontSize() {
+        const text = this.userInput.value;
+        const lines = text.split('\n').length;
+        const isSingleLine = lines === 1;
+        const isShortText = text.length <= 10 && isSingleLine;
+        
+        if (isShortText) {
+            this.userInput.style.fontSize = '18px';
+            this.userInput.style.fontWeight = '500';
+        } else {
+            this.userInput.style.fontSize = '16px';
+            this.userInput.style.fontWeight = '400';
+        }
     }
 
     setupAutoResize() {
         this.addEventListener(this.userInput, 'input', () => {
             this.userInput.style.height = 'auto';
             this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+            this.adjustInputFontSize();
         });
     }
 
@@ -742,6 +766,7 @@ class KHAIAssistant {
         
         this.userInput.value = '';
         this.userInput.style.height = 'auto';
+        this.adjustInputFontSize();
         const filesToProcess = [...this.attachedImages];
         this.attachedImages = [];
         this.renderAttachedFiles();
@@ -1064,6 +1089,7 @@ ${fileContent}
             
             this.userInput.value = '';
             this.userInput.style.height = 'auto';
+            this.adjustInputFontSize();
             
             // Показываем индикатор генерации изображения
             const typingId = this.showImageGenerationIndicator();
@@ -1172,6 +1198,7 @@ ${fileContent}
             
             this.userInput.value = '';
             this.userInput.style.height = 'auto';
+            this.adjustInputFontSize();
             
             this.showNotification('Генерация голоса...', 'info');
             
@@ -1214,6 +1241,9 @@ ${fileContent}
     }
 
     addMessage(role, content, images = []) {
+        // Hide welcome message if it exists
+        this.hideWelcomeMessage();
+
         const messageElement = document.createElement('div');
         messageElement.className = `message message-${role}`;
         
@@ -2237,24 +2267,35 @@ ${fileContent}
     highlightSearchTerms(term) {
         if (!this.messagesContainer) return;
         
-        const messages = this.messagesContainer.querySelectorAll('.message-content');
+        const messages = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
         const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(escapedTerm, 'gi');
         
+        let hasMatches = false;
+        
         messages.forEach(message => {
-            const originalContent = message.dataset.originalContent || message.innerHTML;
-            message.dataset.originalContent = originalContent;
+            const messageContent = message.querySelector('.message-content');
+            const originalContent = messageContent.dataset.originalContent || messageContent.innerHTML;
+            messageContent.dataset.originalContent = originalContent;
             
-            const highlightedContent = originalContent.replace(regex, match => 
-                `<span class="search-highlight">${match}</span>`
-            );
+            const messageText = messageContent.textContent || '';
             
-            message.innerHTML = highlightedContent;
+            if (regex.test(messageText)) {
+                hasMatches = true;
+                const highlightedContent = originalContent.replace(regex, match => 
+                    `<span class="search-highlight">${match}</span>`
+                );
+                messageContent.innerHTML = highlightedContent;
+                message.style.display = 'flex';
+            } else {
+                message.style.display = 'none';
+            }
         });
 
+        // Update minimap
         if (this.minimapContent) {
             const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
-            const messageElements = this.messagesContainer.querySelectorAll('.message');
+            const messageElements = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
             
             minimapMessages.forEach((msg, index) => {
                 const messageElement = messageElements[index];
@@ -2262,29 +2303,40 @@ ${fileContent}
                     const messageText = messageElement.textContent || '';
                     if (regex.test(messageText)) {
                         msg.classList.add('search-highlighted');
+                        msg.style.display = 'block';
                     } else {
                         msg.classList.remove('search-highlighted');
+                        msg.style.display = 'none';
                     }
                 }
             });
+        }
+
+        if (!hasMatches && term.length > 0) {
+            this.showNotification('Сообщения не найдены', 'info');
         }
     }
 
     clearSearchHighlights() {
         if (!this.messagesContainer) return;
         
-        const messages = this.messagesContainer.querySelectorAll('.message-content');
+        const messages = this.messagesContainer.querySelectorAll('.message');
         
         messages.forEach(message => {
-            if (message.dataset.originalContent) {
-                message.innerHTML = message.dataset.originalContent;
-                delete message.dataset.originalContent;
+            const messageContent = message.querySelector('.message-content');
+            if (messageContent && messageContent.dataset.originalContent) {
+                messageContent.innerHTML = messageContent.dataset.originalContent;
+                delete messageContent.dataset.originalContent;
             }
+            message.style.display = 'flex';
         });
 
         if (this.minimapContent) {
             const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
-            minimapMessages.forEach(msg => msg.classList.remove('search-highlighted'));
+            minimapMessages.forEach(msg => {
+                msg.classList.remove('search-highlighted');
+                msg.style.display = 'block';
+            });
         }
     }
 
@@ -2655,6 +2707,7 @@ ${fileContent}
             this.closeSidebar();
             this.closeModelModal();
             this.closeEditChatModal();
+            this.closeHelpModal();
         }
     }
 
@@ -2702,10 +2755,8 @@ ${fileContent}
     }
 
     setupResponsiveMinimap() {
-        const isMobile = window.innerWidth <= 480;
-        if (isMobile && this.chatMinimapContainer) {
-            this.chatMinimapContainer.style.display = 'none';
-        } else if (this.chatMinimapContainer) {
+        // Always show minimap and navigation buttons on mobile
+        if (this.chatMinimapContainer) {
             this.chatMinimapContainer.style.display = 'flex';
         }
     }
@@ -2894,41 +2945,52 @@ ${fileContent}
             return;
         }
         
-        const currentModelName = this.getModelDisplayName(this.currentModel);
-        const currentModelDesc = this.getModelDescription(this.currentModel);
-        
         const welcomeContent = document.createElement('div');
-        welcomeContent.className = 'welcome-content';
+        welcomeContent.className = 'welcome-message';
         
         welcomeContent.innerHTML = `
-            <h1>👋 Добро пожаловать в KHAI — Первый белорусский чат с ИИ!</h1>
-            
-            <p>Я ваш бесплатный ИИ-помощник с использованием передовых моделей AI.</p>
-            
-            <h2>🎯 Основные возможности:</h2>
-            <ul>
-                <li><strong>Умные ответы на вопросы</strong> - используя различные модели ИИ</li>
-                <li><strong>Анализ изображений</strong> - извлечение текста и решение задач по фото</li>
-                <li><strong>Анализ файлов</strong> - чтение и анализ содержимого файлов (текст, код, XML, CSV, YAML и др.)</li>
-                <li><strong>Генерация изображений</strong> - создание уникальных изображений по описанию</li>
-                <li><strong>Голосовой ввод</strong> - говорите вместо того, чтобы печатать</li>
-                <li><strong>Генерация голоса</strong> - преобразование текста в естественную речь</li>
-                <li><strong>Озвучивание ответов</strong> - слушайте ответы ИИ в аудиоформате</li>
-                <li><strong>Контекстный диалог</strong> - помню историю нашего разговора</li>
-                <li><strong>Подсветка синтаксиса</strong> - красивое отображение кода</li>
-                <li><strong>Копирование кода</strong> - удобное копирование фрагментов кода</li>
-                <li><strong>Стриминг ответов</strong> - ответы появляются постепенно</li>
-                <li><strong>Мульти-чаты</strong> - создавайте отдельные чаты для разных тем</li>
-                <li><strong>Редактирование названий чатов</strong> - нажмите на иконку карандаша</li>
-            </ul>
-            
-            <p><strong>Текущая модель: ${currentModelName}</strong> - ${currentModelDesc}</p>
-            
-            <p><strong>Начните общение, отправив сообщение, изображение или файл!</strong></p>
+            <div class="welcome-content">
+                <h2>👋 Добро пожаловать в KHAI Assistant</h2>
+                <p>Ваш бесплатный ИИ-помощник с поддержкой различных моделей искусственного интеллекта.</p>
+                <div class="welcome-features">
+                    <div class="feature">
+                        <i class="ti ti-message"></i>
+                        <span>Умные ответы на вопросы</span>
+                    </div>
+                    <div class="feature">
+                        <i class="ti ti-photo"></i>
+                        <span>Анализ изображений</span>
+                    </div>
+                    <div class="feature">
+                        <i class="ti ti-file-text"></i>
+                        <span>Работа с файлами</span>
+                    </div>
+                    <div class="feature">
+                        <i class="ti ti-microphone"></i>
+                        <span>Голосовые функции</span>
+                    </div>
+                </div>
+                <p class="welcome-tip">Начните общение, отправив сообщение!</p>
+            </div>
         `;
         
         this.messagesContainer.appendChild(welcomeContent);
         this.scrollToBottom();
+    }
+
+    hideWelcomeMessage() {
+        const welcomeMessage = this.messagesContainer.querySelector('.welcome-message');
+        if (welcomeMessage) {
+            welcomeMessage.remove();
+        }
+    }
+
+    showHelpModal() {
+        this.helpModal.classList.add('active');
+    }
+
+    closeHelpModal() {
+        this.helpModal.classList.remove('active');
     }
 
     showHelp() {
@@ -3002,6 +3064,7 @@ ${fileContent}
     clearInput() {
         this.userInput.value = '';
         this.userInput.style.height = 'auto';
+        this.adjustInputFontSize();
         this.attachedImages = [];
         this.renderAttachedFiles();
         this.userInput.focus();
@@ -3020,6 +3083,7 @@ ${fileContent}
             this.saveCurrentSession();
             this.updateMinimap();
             this.showNotification('Чат очищен', 'success');
+            this.showWelcomeMessage();
         }
     }
 
