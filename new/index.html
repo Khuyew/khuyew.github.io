@@ -155,24 +155,37 @@
         <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Skeleton loading messages -->
-                <div class="message-skeleton">
-                    <div class="skeleton-avatar">
-                        <i class="ti ti-brain"></i>
+                <!-- Welcome message -->
+                <div class="message ai-message">
+                    <div class="message-header">
+                        <div class="message-avatar">
+                            <i class="ti ti-robot"></i>
+                        </div>
+                        <div class="message-info">
+                            <span class="message-sender">KHAI Assistant</span>
+                            <span class="message-time" id="welcomeTime"></span>
+                        </div>
                     </div>
-                    <div class="skeleton-content">
-                        <div class="skeleton-line short"></div>
-                        <div class="skeleton-line medium"></div>
-                        <div class="skeleton-line long"></div>
+                    <div class="message-content">
+                        <p>Привет! Я KHAI — первый белорусский ИИ-помощник. Готов помочь вам с:</p>
+                        <ul>
+                            <li>Ответами на вопросы и решение задач</li>
+                            <li>Анализом изображений и файлов</li>
+                            <li>Генерацией текста и кода</li>
+                            <li>Объяснением сложных концепций</li>
+                        </ul>
+                        <p>Что вас интересует?</p>
                     </div>
-                </div>
-                <div class="message-skeleton user">
-                    <div class="skeleton-content">
-                        <div class="skeleton-line short"></div>
-                        <div class="skeleton-line medium"></div>
-                    </div>
-                    <div class="skeleton-avatar">
-                        <i class="ti ti-user"></i>
+                    <div class="message-actions">
+                        <button class="action-btn-small quick-action" data-prompt="Расскажи о возможностях искусственного интеллекта">
+                            <i class="ti ti-sparkles"></i> Возможности ИИ
+                        </button>
+                        <button class="action-btn-small quick-action" data-prompt="Напиши пример кода на Python для сортировки массива">
+                            <i class="ti ti-code"></i> Пример кода
+                        </button>
+                        <button class="action-btn-small quick-action" data-prompt="Объясни теорию относительности простыми словами">
+                            <i class="ti ti-school"></i> Объяснить концепцию
+                        </button>
                     </div>
                 </div>
             </div>
@@ -213,7 +226,7 @@
                 
                 <textarea 
                     id="userInput" 
-                    placeholder="Задайте вопрос или опришите изображение..." 
+                    placeholder="Задайте вопрос или опишите изображение..." 
                     autocomplete="off" 
                     rows="1"
                     maxlength="4000"
@@ -244,7 +257,7 @@
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateImageBtn" disabled title="В разработке">
+                <button class="action-btn mode-btn" id="generateImageBtn">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
                 </button>
@@ -256,12 +269,12 @@
             <div class="footer-content">
                 <div class="current-chat-info">
                     <i class="ti ti-message"></i>
-                    <span id="currentChatName">Новый чат</span>
+                    <span id="currentChatName">Основной чат</span>
                 </div>
                 
                 <div class="connection-status">
-                    <i class="ti ti-circle"></i>
-                    <span id="connectionStatusText">Подключено</span>
+                    <i class="ti ti-circle" id="connectionStatusIcon"></i>
+                    <span id="connectionStatusText">Подключение...</span>
                 </div>
                 
                 <div class="footer-controls">
@@ -325,7 +338,7 @@
                 <h4><i class="ti ti-brain"></i> Модель ИИ</h4>
                 <div class="current-model-info">
                     <span id="currentModelInfo">GPT-5 Nano</span>
-                    <span class="connection-status" id="connectionStatus">✅ Онлайн</span>
+                    <span class="connection-status" id="connectionStatus">🔄 Проверка...</span>
                 </div>
             </div>
 
@@ -338,7 +351,7 @@
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>2.1.0</span>
+                        <span>3.0.0</span>
                     </div>
                     <div class="about-item">
                         <strong>Обновлено</strong>
@@ -381,7 +394,7 @@
                 </a>
                 
                 <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
-                    © 2025 KHAI, Беларусь.<br>
+                    © 2024 KHAI, Беларусь.<br>
                     Все права защищены!
                 </p>
             </div>
@@ -389,7 +402,7 @@
     </div>
 
     <!-- Edit Chat Modal -->
-    <div class="modal-overlay" id="editChatModal">
+    <div class="modal-overlay" id="editChatModal" style="display: none;">
         <div class="modal">
             <div class="modal-header">
                 <h3>Редактировать название чата</h3>
@@ -413,7 +426,7 @@
     </div>
 
     <!-- Model Selection Modal -->
-    <div class="modal-overlay" id="modelModalOverlay">
+    <div class="modal-overlay" id="modelModalOverlay" style="display: none;">
         <div class="modal">
             <div class="modal-header">
                 <h3>Выберите модель ИИ</h3>
