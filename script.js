@@ -1064,6 +1064,9 @@ ${fileContent}
             this.userInput.value = '';
             this.userInput.style.height = 'auto';
             
+            // Показываем индикатор генерации изображения
+            const typingId = this.showImageGenerationIndicator();
+            
             if (typeof puter?.ai?.txt2img !== 'function') {
                 throw new Error('Функция генерации изображений недоступна');
             }
@@ -1075,14 +1078,38 @@ ${fileContent}
                 quality: "low" 
             });
             
+            this.removeTypingIndicator(typingId);
             this.addImageMessage(prompt, imageResult);
             
             this.addToConversationHistory('user', `Сгенерировано изображение по запросу: ${prompt}`);
             this.saveCurrentSession();
             
         } catch (error) {
+            this.removeTypingIndicator();
             this.handleError('Ошибка при генерации изображения', error);
         }
+    }
+
+    showImageGenerationIndicator() {
+        this.removeTypingIndicator();
+        
+        const typingElement = document.createElement('div');
+        typingElement.className = 'message message-ai typing-indicator';
+        typingElement.id = 'typing-' + Date.now();
+        
+        typingElement.innerHTML = `
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+            <span>ИИ генерирует изображение...</span>
+        `;
+        
+        this.messagesContainer.appendChild(typingElement);
+        this.scrollToBottom();
+        
+        return typingElement.id;
     }
 
     addImageMessage(prompt, imageResult) {
@@ -1095,7 +1122,7 @@ ${fileContent}
         messageContent.innerHTML = `
             🎨 **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"
             <div class="message-image" style="margin-top: 12px;">
-                <img src="${imageResult.src}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">
+                <img src="${imageResult.src}" alt="Сгенерированное изображение" loading="lazy" style="max-width: 100%; border-radius: 8px;">
             </div>
             <div class="message-actions" style="margin-top: 12px;">
                 <button class="action-btn-small download-image-btn">
