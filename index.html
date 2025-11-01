@@ -8,22 +8,18 @@
             m[i].l=1*new Date();
             for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
             k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=104843405', 'ym');
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
     
-        ym(104843405, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+        ym(104843405,'init', {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true,
+            ecommerce:"dataLayer"
+        });
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/104843405" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter -->
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QQKXYHS18Q"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-QQKXYHS18Q');
-    </script>
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -42,7 +38,7 @@
     <meta property="og:site_name" content="KHAI Assistant">
     <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
-    <meta property="og:image" content="./logo.png">
+    <meta property="og:image" content="./logo.svg">
     <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
@@ -50,7 +46,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
-    <meta name="twitter:image" content="./logo.png">
+    <meta property="twitter:image" content="./logo.svg">
     <meta name="twitter:site" content="@khai_assistant">
     
     <!-- Schema.org -->
@@ -79,8 +75,8 @@
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
-    <link rel="apple-touch-icon" href="./logo.png">
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="apple-touch-icon" href="./logo.svg">
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
@@ -98,8 +94,12 @@
     <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-content">
-            <img src="./logo.png" alt="KHAI" class="preloader-logo">
-            <div class="preloader-spinner"></div>
+            <div class="preloader-logo">
+                <i class="ti ti-brain"></i>
+            </div>
+            <div class="preloader-spinner">
+                <i class="ti ti-brain"></i>
+            </div>
             <p class="preloader-text">Загрузка KHAI Assistant...</p>
         </div>
     </div>
@@ -107,7 +107,9 @@
     <!-- 404 Page (hidden by default) -->
     <div class="page-404" id="page404" style="display: none;">
         <div class="error-container">
-            <img src="./logo.png" alt="KHAI" class="error-logo">
+            <div class="error-logo">
+                <i class="ti ti-brain"></i>
+            </div>
             <h1>404 - Страница не найдена</h1>
             <p>Запрошенная страница не существует или была перемещена.</p>
             <button class="error-btn" id="errorBackBtn">Вернуться в приложение</button>
@@ -121,12 +123,12 @@
             <div class="header-content">
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
-                        <img src="./logo.webp" alt="KHAI Assistant" width="36" height="36" loading="eager">
+                        <i class="ti ti-brain"></i>
                     </div>
                 </div>
                 
                 <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
-                    <i class="ti ti-brain"></i>
+                    <i class="ti ti-signal"></i>
                 </button>
                 
                 <div class="header-search-container">
@@ -153,21 +155,38 @@
         <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Skeleton loading messages -->
-                <div class="message-skeleton">
-                    <div class="skeleton-avatar"></div>
-                    <div class="skeleton-content">
-                        <div class="skeleton-line short"></div>
-                        <div class="skeleton-line medium"></div>
-                        <div class="skeleton-line long"></div>
+                <!-- Welcome message -->
+                <div class="message ai-message">
+                    <div class="message-header">
+                        <div class="message-avatar">
+                            <i class="ti ti-robot"></i>
+                        </div>
+                        <div class="message-info">
+                            <span class="message-sender">KHAI Assistant</span>
+                            <span class="message-time" id="welcomeTime"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="message-skeleton user">
-                    <div class="skeleton-content">
-                        <div class="skeleton-line short"></div>
-                        <div class="skeleton-line medium"></div>
+                    <div class="message-content">
+                        <p>Привет! Я KHAI — первый белорусский ИИ-помощник. Готов помочь вам с:</p>
+                        <ul>
+                            <li>Ответами на вопросы и решение задач</li>
+                            <li>Анализом изображений и файлов</li>
+                            <li>Генерацией текста и кода</li>
+                            <li>Объяснением сложных концепций</li>
+                        </ul>
+                        <p>Что вас интересует?</p>
                     </div>
-                    <div class="skeleton-avatar"></div>
+                    <div class="message-actions">
+                        <button class="action-btn-small quick-action" data-prompt="Расскажи о возможностях искусственного интеллекта">
+                            <i class="ti ti-sparkles"></i> Возможности ИИ
+                        </button>
+                        <button class="action-btn-small quick-action" data-prompt="Напиши пример кода на Python для сортировки массива">
+                            <i class="ti ti-code"></i> Пример кода
+                        </button>
+                        <button class="action-btn-small quick-action" data-prompt="Объясни теорию относительности простыми словами">
+                            <i class="ti ti-school"></i> Объяснить концепцию
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -201,7 +220,7 @@
             
             <div class="input-wrapper">
                 <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
-                    <i class="ti ti-plus"></i>
+                    <i class="ti ti-clip"></i>
                     <input type="file" id="fileInput" accept="image/*,.txt,.md,.html,.css,.js,.json,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.swift,.kt,.scala,.rs,.xml,.csv,.yaml,.yml" multiple style="display: none;">
                 </button>
                 
@@ -238,7 +257,7 @@
                     <i class="ti ti-microphone"></i>
                     <span class="btn-text">Голос</span>
                 </button>
-                <button class="action-btn mode-btn" id="generateImageBtn" disabled title="В разработке">
+                <button class="action-btn mode-btn" id="generateImageBtn">
                     <i class="ti ti-photo"></i>
                     <span class="btn-text">Изображения</span>
                 </button>
@@ -250,12 +269,12 @@
             <div class="footer-content">
                 <div class="current-chat-info">
                     <i class="ti ti-message"></i>
-                    <span id="currentChatName">Новый чат</span>
+                    <span id="currentChatName">Основной чат</span>
                 </div>
                 
                 <div class="connection-status">
-                    <i class="ti ti-circle"></i>
-                    <span id="connectionStatusText">Подключено</span>
+                    <i class="ti ti-circle" id="connectionStatusIcon"></i>
+                    <span id="connectionStatusText">Подключение...</span>
                 </div>
                 
                 <div class="footer-controls">
@@ -279,7 +298,7 @@
         <div class="sidebar-header">
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
-                    <img src="./logo.webp" alt="KHAI" loading="lazy">
+                    <i class="ti ti-brain"></i>
                 </div>
                 <h3>KHAI <span class="beta-badge">BETA</span></h3>
             </div>
@@ -319,7 +338,7 @@
                 <h4><i class="ti ti-brain"></i> Модель ИИ</h4>
                 <div class="current-model-info">
                     <span id="currentModelInfo">GPT-5 Nano</span>
-                    <span class="connection-status" id="connectionStatus">✅ Онлайн</span>
+                    <span class="connection-status" id="connectionStatus">🔄 Проверка...</span>
                 </div>
             </div>
 
@@ -332,7 +351,7 @@
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>2.1.0</span>
+                        <span>3.0.0</span>
                     </div>
                     <div class="about-item">
                         <strong>Обновлено</strong>
@@ -375,7 +394,7 @@
                 </a>
                 
                 <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
-                    © 2025 KHAI, Беларусь.<br>
+                    © 2024 KHAI, Беларусь.<br>
                     Все права защищены!
                 </p>
             </div>
@@ -383,7 +402,7 @@
     </div>
 
     <!-- Edit Chat Modal -->
-    <div class="modal-overlay" id="editChatModal">
+    <div class="modal-overlay" id="editChatModal" style="display: none;">
         <div class="modal">
             <div class="modal-header">
                 <h3>Редактировать название чата</h3>
@@ -407,7 +426,7 @@
     </div>
 
     <!-- Model Selection Modal -->
-    <div class="modal-overlay" id="modelModalOverlay">
+    <div class="modal-overlay" id="modelModalOverlay" style="display: none;">
         <div class="modal">
             <div class="modal-header">
                 <h3>Выберите модель ИИ</h3>
