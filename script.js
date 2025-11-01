@@ -1,4 +1,4 @@
-// KHAI Assistant - Production Ready v2.1.0
+// KHAI Assistant - Production Ready v3.0.0
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -143,7 +143,7 @@ class KHAIAssistant {
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
             "Напиши код для сортировки массива на Python...",
-            "Объясни теорию относительности простыми словами...",
+            "Сгенерируй изображение космического корабля...",
             "Какие есть способы улучшить производительность веб-сайта?",
             "Создай описание для приложения на основе ИИ..."
         ];
@@ -170,7 +170,7 @@ class KHAIAssistant {
             'deepseek-reasoner': { 
                 name: 'DeepSeek Reasoner', 
                 description: 'Специализированная модель для сложных логических рассуждений',
-                available: false,
+                available: true,
                 context: 128000
             },
             'gemini-2.0-flash': { 
@@ -363,6 +363,15 @@ class KHAIAssistant {
             if (element) {
                 this.addEventListener(element, event, handler);
             }
+        });
+
+        // Quick action buttons
+        document.querySelectorAll('.quick-action').forEach(btn => {
+            this.addEventListener(btn, 'click', (e) => {
+                const prompt = e.currentTarget.getAttribute('data-prompt');
+                this.userInput.value = prompt;
+                this.sendMessage();
+            });
         });
     }
 
@@ -1049,38 +1058,75 @@ ${fileContent}
     }
 
     async generateImage(prompt) {
-        if (!this.modelConfig['deepseek-reasoner'].available) {
-            this.showNotification('Генерация изображений временно недоступна', 'warning');
-            this.setMode('normal');
-            return;
-        }
-
         try {
-            if (typeof puter?.ai?.imagine !== 'function') {
+            this.addMessage('user', `🎨 **Генерация изображения:** "${prompt}"`);
+            
+            this.userInput.value = '';
+            this.userInput.style.height = 'auto';
+            
+            if (typeof puter?.ai?.txt2img !== 'function') {
                 throw new Error('Функция генерации изображений недоступна');
             }
             
-            this.addMessage('ai', `🖼️ **Генерация изображения по запросу:** "${prompt}"\n\n*Идет процесс создания изображения...*`);
+            this.showNotification('Генерация изображения...', 'info');
             
-            const imageResult = await puter.ai.imagine(prompt, {
-                model: "dall-e-3",
-                size: "1024x1024"
+            const imageResult = await puter.ai.txt2img(prompt, { 
+                model: "gpt-image-1", 
+                quality: "low" 
             });
             
-            const messages = this.messagesContainer.querySelectorAll('.message-ai');
-            const lastMessage = messages[messages.length - 1];
-            if (lastMessage) {
-                lastMessage.querySelector('.message-content').innerHTML = 
-                    `🖼️ **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"\n\n` +
-                    `<img src="${imageResult.url}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">`;
-            }
+            this.addImageMessage(prompt, imageResult);
             
-            this.addToConversationHistory('assistant', `Сгенерировано изображение по запросу: ${prompt}`);
+            this.addToConversationHistory('user', `Сгенерировано изображение по запросу: ${prompt}`);
             this.saveCurrentSession();
             
         } catch (error) {
             this.handleError('Ошибка при генерации изображения', error);
         }
+    }
+
+    addImageMessage(prompt, imageResult) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message message-ai';
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        messageContent.innerHTML = `
+            🎨 **Сгенерированное изображение по запросу:** "${this.escapeHtml(prompt)}"
+            <div class="message-image" style="margin-top: 12px;">
+                <img src="${imageResult.src}" alt="Сгенерированное изображение" style="max-width: 100%; border-radius: 8px;">
+            </div>
+            <div class="message-actions" style="margin-top: 12px;">
+                <button class="action-btn-small download-image-btn">
+                    <i class="ti ti-download"></i> Скачать изображение
+                </button>
+            </div>
+        `;
+        
+        messageElement.appendChild(messageContent);
+        this.messagesContainer.appendChild(messageElement);
+        
+        // Add download functionality
+        const downloadBtn = messageContent.querySelector('.download-image-btn');
+        if (downloadBtn) {
+            this.addEventListener(downloadBtn, 'click', () => {
+                this.downloadImage(imageResult.src, prompt);
+            });
+        }
+        
+        this.scrollToBottom();
+    }
+
+    downloadImage(imageSrc, prompt) {
+        const link = document.createElement('a');
+        link.href = imageSrc;
+        link.download = `khai_image_${prompt.substring(0, 20).replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.png`;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        this.showNotification('Изображение скачано', 'success');
     }
 
     async generateVoice(text) {
@@ -2833,6 +2879,7 @@ ${fileContent}
 • **Умные ответы на вопросы** - используя различные модели ИИ
 • **Анализ изображений** - извлечение текста и решение задач по фото
 • **Анализ файлов** - чтение и анализ содержимого файлов (текст, код, XML, CSV, YAML и др.)
+• **Генерация изображений** - создание уникальных изображений по описанию
 • **Голосовой ввод** - говорите вместо того, чтобы печатать
 • **Генерация голоса** - преобразование текста в естественную речь
 • **Озвучивание ответов** - слушайте ответы ИИ в аудиоформате
@@ -2874,6 +2921,12 @@ ${fileContent}
 • **Файлы кода** - анализ кода на Python, Java, C++, C#, PHP, Ruby, Go, Swift, Kotlin, Scala, Rust
 • **Другие форматы** - XML, CSV, YAML, YML
 • **Максимум файлов** - можно прикрепить до 3 файлов за раз
+
+## 🎨 Генерация изображений:
+• **Включите режим изображений** - нажмите кнопку "Изображения"
+• **Опишите что создать** - напишите детальное описание желаемого изображения
+• **Нажмите отправить** - ИИ сгенерирует уникальное изображение
+• **Скачайте результат** - нажмите "Скачать изображение" под сгенерированным изображением
 
 ## 🔊 Аудио функции:
 • **Генерация голоса** - создает аудио из текста с помощью ИИ
