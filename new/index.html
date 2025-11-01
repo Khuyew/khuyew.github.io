@@ -331,9 +331,24 @@
 
             <div class="sidebar-links">
                 <div class="links-container">
-                    <a href="https://khai.by/docs" target="_blank">Документация</a>
-                    <a href="https://khai.by/support" target="_blank">Поддержка</a>
-                    <a href="mailto:khuyew@proton.me">Сотрудничество</a>
+                    <a href="https://khai.by/docs" target="_blank" class="link-with-icon">
+                        <i class="ti ti-book"></i> Документация
+                    </a>
+                    <a href="https://khai.by/blog" target="_blank" class="link-with-icon">
+                        <i class="ti ti-news"></i> Блог
+                    </a>
+                    <a href="https://khai.by/status" target="_blank" class="link-with-icon">
+                        <i class="ti ti-heartbeat"></i> Статус
+                    </a>
+                    <a href="https://khai.by/guide" target="_blank" class="link-with-icon">
+                        <i class="ti ti-bookmark"></i> Гайд
+                    </a>
+                    <a href="https://khai.by/support" target="_blank" class="link-with-icon">
+                        <i class="ti ti-lifebuoy"></i> Поддержка
+                    </a>
+                    <a href="mailto:khuyew@proton.me" class="link-with-icon">
+                        <i class="ti ti-briefcase"></i> Сотрудничество
+                    </a>
                 </div>
                 
                 <div class="counters">
@@ -354,6 +369,10 @@
                 <a href="https://khai.by/github" target="_blank" class="github-link">
                     <i class="ti ti-brand-github"></i>
                 </a>
+                
+                <div class="watermark">
+                    <p>Сделано с ❤️ в Беларуси</p>
+                </div>
                 
                 <p class="copyright">
                     © 2025 KHAI, Беларусь.<br>
@@ -416,55 +435,10 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="help-modal-content">
-                    <div class="help-section">
-                        <h4>🤖 Текущая модель: <span id="helpCurrentModel">GPT-5 Nano</span></h4>
-                        <p>Вы можете переключать модели в верхнем правом углу.</p>
-                    </div>
-
-                    <div class="help-section">
-                        <h4>💬 Система чатов</h4>
-                        <ul>
-                            <li><strong>Создание нового чата</strong> - нажмите "Новый чат" в меню</li>
-                            <li><strong>Редактирование названия</strong> - нажмите на иконку карандаша рядом с чатом</li>
-                            <li><strong>Скачать чат</strong> - нажмите на иконку загрузки для экспорта</li>
-                            <li><strong>Импорт чата</strong> - загрузите ранее сохраненный чат</li>
-                            <li><strong>Удалить все чаты</strong> - кнопка внизу меню (кроме основного)</li>
-                        </ul>
-                    </div>
-
-                    <div class="help-section">
-                        <h4>📁 Работа с файлами</h4>
-                        <ul>
-                            <li><strong>Изображения</strong> - прикрепите для анализа текста и содержимого</li>
-                            <li><strong>Текстовые файлы</strong> - прикрепите для анализа содержимого</li>
-                            <li><strong>Файлы кода</strong> - анализ кода на различных языках программирования</li>
-                            <li><strong>Максимум файлов</strong> - можно прикрепить до 3 файлов за раз</li>
-                        </ul>
-                    </div>
-
-                    <div class="help-section">
-                        <h4>🎨 Генерация изображений</h4>
-                        <ul>
-                            <li><strong>Включите режим изображений</strong> - нажмите кнопку "Изображения"</li>
-                            <li><strong>Опишите что создать</strong> - напишите детальное описание</li>
-                            <li><strong>Нажмите отправить</strong> - ИИ сгенерирует уникальное изображение</li>
-                        </ul>
-                    </div>
-
-                    <div class="help-section">
-                        <h4>🔊 Аудио функции</h4>
-                        <ul>
-                            <li><strong>Генерация голоса</strong> - создает аудио из текста с помощью ИИ</li>
-                            <li><strong>Озвучить ответ</strong> - воспроизводит ответ ИИ</li>
-                            <li><strong>Остановить озвучку</strong> - нажмите кнопку повторно для остановки</li>
-                        </ul>
-                    </div>
-
-                    <div class="help-tip">
-                        <p><strong>💡 Совет:</strong> Попробуйте отправить изображение или файл с вопросом!</p>
-                    </div>
-                </div>
+                <div class="help-content" id="helpContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="helpModalCloseBtn">Закрыть</button>
             </div>
         </div>
     </div>
