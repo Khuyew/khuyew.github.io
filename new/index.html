@@ -318,7 +318,7 @@
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>3.0.0</span>
+                        <span>3.1.0</span>
                     </div>
                     <div class="about-item">
                         <strong>Обновлено</strong>
@@ -441,6 +441,21 @@
         </div>
     </div>
 
+    <!-- Message Modal -->
+    <div class="modal-overlay" id="messageModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Сообщение</h3>
+                <button class="modal-close" id="messageModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="messageModalContent"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
@@ -450,7 +465,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./service-worker.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
                         console.log('ServiceWorker зарегистрирован: ', registration);
                     })
