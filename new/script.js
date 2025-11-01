@@ -62,7 +62,6 @@ class KHAIAssistant {
 
             // Model management
             this.modelSelectBtn = document.getElementById('modelSelectBtn');
-            this.themeMinimapToggle = document.getElementById('themeMinimapToggle');
             this.modelModalOverlay = document.getElementById('modelModalOverlay');
             this.modelModalClose = document.getElementById('modelModalClose');
             this.modelModalCancel = document.getElementById('modelModalCancel');
@@ -86,9 +85,11 @@ class KHAIAssistant {
             this.errorBackBtn = document.getElementById('errorBackBtn');
             this.sidebarSearchClear = document.getElementById('sidebarSearchClear');
 
-            // Help Modal
+            // Help modal
             this.helpModal = document.getElementById('helpModal');
             this.helpModalClose = document.getElementById('helpModalClose');
+            this.helpModalOk = document.getElementById('helpModalOk');
+            this.helpContent = document.getElementById('helpContent');
 
             // Validate critical elements
             this.validateRequiredElements();
@@ -202,6 +203,10 @@ class KHAIAssistant {
         // PWA state
         this.isPWAInstalled = false;
         this.deferredPrompt = null;
+
+        // Input state
+        this.isInputFocused = false;
+        this.originalInputHeight = 56;
     }
 
     detectSystemTheme() {
@@ -278,6 +283,7 @@ class KHAIAssistant {
             this.checkPWAInstallation();
             this.setup404Handling();
             this.setCurrentYear();
+            this.setupHelpContent();
             
             // Скрываем прелоадер после загрузки
             this.hidePreloader();
@@ -312,6 +318,8 @@ class KHAIAssistant {
             [this.sendBtn, 'click', () => this.handleSendButtonClick()],
             [this.userInput, 'keydown', (e) => this.handleInputKeydown(e)],
             [this.userInput, 'input', () => this.handleInputChange()],
+            [this.userInput, 'focus', () => this.handleInputFocus()],
+            [this.userInput, 'blur', () => this.handleInputBlur()],
             [this.clearInputBtn, 'click', () => this.clearInput()],
             [this.clearChatBtn, 'click', () => this.clearChat()],
             [this.helpBtn, 'click', () => this.showHelpModal()],
@@ -343,7 +351,6 @@ class KHAIAssistant {
             [this.headerSearchClear, 'click', () => this.clearSearch()],
             [this.normalModeBtn, 'click', () => this.setMode('normal')],
             [this.modelSelectBtn, 'click', () => this.openModelModal()],
-            [this.themeMinimapToggle, 'click', () => this.toggleTheme()],
             [this.modelModalClose, 'click', () => this.closeModelModal()],
             [this.modelModalCancel, 'click', () => this.closeModelModal()],
             [this.modelModalConfirm, 'click', () => this.confirmModelSelection()],
@@ -356,6 +363,10 @@ class KHAIAssistant {
             [this.downloadChatBtn, 'click', () => this.downloadCurrentChat()],
             [this.errorBackBtn, 'click', () => this.hide404Page()],
             [this.helpModalClose, 'click', () => this.closeHelpModal()],
+            [this.helpModalOk, 'click', () => this.closeHelpModal()],
+            [this.helpModal, 'click', (e) => {
+                if (e.target === this.helpModal) this.closeHelpModal();
+            }],
             [document, 'keydown', (e) => this.handleGlobalKeydown(e)],
             [window, 'online', () => this.handleOnlineStatus()],
             [window, 'offline', () => this.handleOfflineStatus()],
@@ -379,6 +390,113 @@ class KHAIAssistant {
                 this.sendMessage();
             });
         });
+    }
+
+    // Input focus/blur handlers
+    handleInputFocus() {
+        this.isInputFocused = true;
+        this.userInput.classList.add('dynamic-font');
+        this.updateInputSize();
+    }
+
+    handleInputBlur() {
+        this.isInputFocused = false;
+        this.userInput.classList.remove('dynamic-font');
+        this.resetInputSize();
+    }
+
+    updateInputSize() {
+        const text = this.userInput.value;
+        const lines = text.split('\n').length;
+        const maxHeight = window.innerHeight * 0.4; // 40% of viewport height
+        
+        if (text.length <= 24 && lines === 1) {
+            this.userInput.classList.add('dynamic-font');
+            this.userInput.classList.remove('small');
+        } else {
+            this.userInput.classList.add('small');
+        }
+        
+        // Auto-resize height
+        this.userInput.style.height = 'auto';
+        const newHeight = Math.min(this.userInput.scrollHeight, maxHeight);
+        this.userInput.style.height = newHeight + 'px';
+    }
+
+    resetInputSize() {
+        this.userInput.style.height = this.originalInputHeight + 'px';
+        this.userInput.classList.remove('dynamic-font', 'small');
+    }
+
+    // Help modal methods
+    setupHelpContent() {
+        const currentModelName = this.getModelDisplayName(this.currentModel);
+        
+        this.helpContent.innerHTML = `
+            <h1>🆘 Помощь по KHAI Assistant</h1>
+            
+            <h2>🤖 Текущая модель: ${currentModelName}</h2>
+            <p>Вы можете переключать модели в верхнем правом углу.</p>
+            
+            <h2>💬 Система чатов:</h2>
+            <ul>
+                <li><strong>Создание нового чата</strong> - нажмите "Новый чат" в меню</li>
+                <li><strong>Редактирование названия</strong> - нажмите на иконку карандаша рядом с чатом</li>
+                <li><strong>Скачать чат</strong> - нажмите на иконку загрузки для экспорта</li>
+                <li><strong>Импорт чата</strong> - загрузите ранее сохраненный чат</li>
+                <li><strong>Удалить все чаты</strong> - кнопка внизу меню (кроме основного)</li>
+                <li><strong>Переключение между чатами</strong> - выберите чат из списка в меню</li>
+                <li><strong>Удаление чатов</strong> - нажмите ❌ рядом с названием чата (кроме основного)</li>
+            </ul>
+            
+            <h2>📁 Работа с файлами:</h2>
+            <ul>
+                <li><strong>Изображения</strong> - прикрепите для анализа текста и содержимого (JPEG, PNG, GIF, WebP)</li>
+                <li><strong>Текстовые файлы</strong> - прикрепите для анализа содержимого (.txt, .md, .html, .css, .js, .json)</li>
+                <li><strong>Файлы кода</strong> - анализ кода на Python, Java, C++, C#, PHP, Ruby, Go, Swift, Kotlin, Scala, Rust</li>
+                <li><strong>Другие форматы</strong> - XML, CSV, YAML, YML</li>
+                <li><strong>Максимум файлов</strong> - можно прикрепить до 3 файлов за раз</li>
+            </ul>
+            
+            <h2>🎨 Генерация изображений:</h2>
+            <ul>
+                <li><strong>Включите режим изображений</strong> - нажмите кнопку "Изображения"</li>
+                <li><strong>Опишите что создать</strong> - напишите детальное описание желаемого изображения</li>
+                <li><strong>Нажмите отправить</strong> - ИИ сгенерирует уникальное изображение</li>
+                <li><strong>Скачайте результат</strong> - нажмите "Скачать изображение" под сгенерированным изображением</li>
+            </ul>
+            
+            <h2>🔊 Аудио функции:</h2>
+            <ul>
+                <li><strong>Генерация голоса</strong> - создает аудио из текста с помощью ИИ</li>
+                <li><strong>Озвучить ответ</strong> - воспроизводит ответ ИИ</li>
+                <li><strong>Остановить озвучку</strong> - нажмите кнопку повторно для остановки</li>
+            </ul>
+            
+            <h2>🖼️ Работа с изображениями:</h2>
+            <ol>
+                <li><strong>Нажмите кнопку ➕</strong> чтобы прикрепить изображение</li>
+                <li><strong>Напишите вопрос</strong> (опционально) - что вы хотите узнать о изображении</li>
+                <li><strong>Нажмите Отправить</strong> - ИИ проанализирует изображение и ответит</li>
+            </ol>
+            
+            <h2>📄 Работа с файлами:</h2>
+            <ol>
+                <li><strong>Нажмите кнопку ➕</strong> чтобы прикрепить файл</li>
+                <li><strong>Напишите вопрос</strong> (опционально) - что вы хотите узнать о содержимом</li>
+                <li><strong>Нажмите Отправить</strong> - ИИ проанализирует файл и ответит</li>
+            </ol>
+            
+            <p><strong>Попробуйте отправить изображение или файл с вопросом!</strong></p>
+        `;
+    }
+
+    showHelpModal() {
+        this.helpModal.classList.add('active');
+    }
+
+    closeHelpModal() {
+        this.helpModal.classList.remove('active');
     }
 
     // PWA Installation Handlers
@@ -523,9 +641,6 @@ class KHAIAssistant {
         if (this.themeToggle) {
             this.themeToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
         }
-        if (this.themeMinimapToggle) {
-            this.themeMinimapToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
-        }
         
         this.showNotification(
             this.currentTheme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена',
@@ -564,31 +679,12 @@ class KHAIAssistant {
             this.clearInputBtn.style.display = this.userInput.value ? 'flex' : 'none';
         }
 
-        // Dynamic font size based on input length
-        this.adjustInputFontSize();
-    }
-
-    adjustInputFontSize() {
-        const text = this.userInput.value;
-        const lines = text.split('\n').length;
-        const isSingleLine = lines === 1;
-        const isShortText = text.length <= 10 && isSingleLine;
-        
-        if (isShortText) {
-            this.userInput.style.fontSize = '18px';
-            this.userInput.style.fontWeight = '500';
-        } else {
-            this.userInput.style.fontSize = '16px';
-            this.userInput.style.fontWeight = '400';
-        }
+        this.updateInputSize();
     }
 
     setupAutoResize() {
-        this.addEventListener(this.userInput, 'input', () => {
-            this.userInput.style.height = 'auto';
-            this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
-            this.adjustInputFontSize();
-        });
+        // Initial height setup
+        this.originalInputHeight = this.userInput.offsetHeight;
     }
 
     startPlaceholderAnimation() {
@@ -765,12 +861,17 @@ class KHAIAssistant {
         this.addToConversationHistory('user', message, this.attachedImages);
         
         this.userInput.value = '';
-        this.userInput.style.height = 'auto';
-        this.adjustInputFontSize();
+        this.resetInputSize();
         const filesToProcess = [...this.attachedImages];
         this.attachedImages = [];
         this.renderAttachedFiles();
         this.handleInputChange();
+        
+        // Hide welcome message after first user message
+        const welcomeContent = this.messagesContainer.querySelector('.welcome-content');
+        if (welcomeContent) {
+            welcomeContent.classList.add('hidden');
+        }
         
         await this.getAIResponse(message, filesToProcess);
     }
@@ -1088,8 +1189,7 @@ ${fileContent}
             this.addMessage('user', `🎨 **Генерация изображения:** "${prompt}"`);
             
             this.userInput.value = '';
-            this.userInput.style.height = 'auto';
-            this.adjustInputFontSize();
+            this.resetInputSize();
             
             // Показываем индикатор генерации изображения
             const typingId = this.showImageGenerationIndicator();
@@ -1197,8 +1297,7 @@ ${fileContent}
             this.addMessage('user', `🔊 **Генерация голоса:** "${text}"`);
             
             this.userInput.value = '';
-            this.userInput.style.height = 'auto';
-            this.adjustInputFontSize();
+            this.resetInputSize();
             
             this.showNotification('Генерация голоса...', 'info');
             
@@ -1241,9 +1340,6 @@ ${fileContent}
     }
 
     addMessage(role, content, images = []) {
-        // Hide welcome message if it exists
-        this.hideWelcomeMessage();
-
         const messageElement = document.createElement('div');
         messageElement.className = `message message-${role}`;
         
@@ -2267,53 +2363,58 @@ ${fileContent}
     highlightSearchTerms(term) {
         if (!this.messagesContainer) return;
         
-        const messages = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
+        const messages = this.messagesContainer.querySelectorAll('.message');
         const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(escapedTerm, 'gi');
         
         let hasMatches = false;
         
         messages.forEach(message => {
-            const messageContent = message.querySelector('.message-content');
-            const originalContent = messageContent.dataset.originalContent || messageContent.innerHTML;
-            messageContent.dataset.originalContent = originalContent;
+            const messageText = message.textContent || '';
+            const hasMatch = regex.test(messageText);
             
-            const messageText = messageContent.textContent || '';
-            
-            if (regex.test(messageText)) {
+            if (hasMatch) {
+                message.classList.add('search-visible');
+                message.classList.remove('search-hidden');
                 hasMatches = true;
-                const highlightedContent = originalContent.replace(regex, match => 
-                    `<span class="search-highlight">${match}</span>`
-                );
-                messageContent.innerHTML = highlightedContent;
-                message.style.display = 'flex';
+                
+                // Highlight text in visible messages
+                const messageContent = message.querySelector('.message-content');
+                if (messageContent) {
+                    const originalContent = messageContent.dataset.originalContent || messageContent.innerHTML;
+                    messageContent.dataset.originalContent = originalContent;
+                    
+                    const highlightedContent = originalContent.replace(regex, match => 
+                        `<span class="search-highlight">${match}</span>`
+                    );
+                    
+                    messageContent.innerHTML = highlightedContent;
+                }
             } else {
-                message.style.display = 'none';
+                message.classList.add('search-hidden');
+                message.classList.remove('search-visible');
             }
         });
 
-        // Update minimap
+        // Update minimap highlights
         if (this.minimapContent) {
             const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
-            const messageElements = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
+            const messageElements = this.messagesContainer.querySelectorAll('.message');
             
             minimapMessages.forEach((msg, index) => {
                 const messageElement = messageElements[index];
                 if (messageElement) {
-                    const messageText = messageElement.textContent || '';
-                    if (regex.test(messageText)) {
+                    if (messageElement.classList.contains('search-visible')) {
                         msg.classList.add('search-highlighted');
-                        msg.style.display = 'block';
                     } else {
                         msg.classList.remove('search-highlighted');
-                        msg.style.display = 'none';
                     }
                 }
             });
         }
-
-        if (!hasMatches && term.length > 0) {
-            this.showNotification('Сообщения не найдены', 'info');
+        
+        if (!hasMatches && term) {
+            this.showNotification('Сообщения не найдены', 'warning');
         }
     }
 
@@ -2323,20 +2424,18 @@ ${fileContent}
         const messages = this.messagesContainer.querySelectorAll('.message');
         
         messages.forEach(message => {
+            message.classList.remove('search-hidden', 'search-visible');
+            
             const messageContent = message.querySelector('.message-content');
             if (messageContent && messageContent.dataset.originalContent) {
                 messageContent.innerHTML = messageContent.dataset.originalContent;
                 delete messageContent.dataset.originalContent;
             }
-            message.style.display = 'flex';
         });
 
         if (this.minimapContent) {
             const minimapMessages = this.minimapContent.querySelectorAll('.minimap-message');
-            minimapMessages.forEach(msg => {
-                msg.classList.remove('search-highlighted');
-                msg.style.display = 'block';
-            });
+            minimapMessages.forEach(msg => msg.classList.remove('search-highlighted'));
         }
     }
 
@@ -2428,6 +2527,7 @@ ${fileContent}
                 this.currentModel = newModel;
                 this.showNotification(`Модель изменена на: ${this.getModelDisplayName(newModel)}`, 'success');
                 this.updateModelInfo();
+                this.setupHelpContent();
             }
         }
         this.closeModelModal();
@@ -2752,10 +2852,11 @@ ${fileContent}
     handleResize() {
         this.updateMinimapViewport();
         this.setupResponsiveMinimap();
+        this.updateInputSize();
     }
 
     setupResponsiveMinimap() {
-        // Always show minimap and navigation buttons on mobile
+        // Миникарта теперь всегда отображается на мобильных устройствах
         if (this.chatMinimapContainer) {
             this.chatMinimapContainer.style.display = 'flex';
         }
@@ -2945,126 +3046,29 @@ ${fileContent}
             return;
         }
         
+        const currentModelName = this.getModelDisplayName(this.currentModel);
+        const currentModelDesc = this.getModelDescription(this.currentModel);
+        
         const welcomeContent = document.createElement('div');
-        welcomeContent.className = 'welcome-message';
+        welcomeContent.className = 'welcome-content';
         
         welcomeContent.innerHTML = `
-            <div class="welcome-content">
-                <h2>👋 Добро пожаловать в KHAI Assistant</h2>
-                <p>Ваш бесплатный ИИ-помощник с поддержкой различных моделей искусственного интеллекта.</p>
-                <div class="welcome-features">
-                    <div class="feature">
-                        <i class="ti ti-message"></i>
-                        <span>Умные ответы на вопросы</span>
-                    </div>
-                    <div class="feature">
-                        <i class="ti ti-photo"></i>
-                        <span>Анализ изображений</span>
-                    </div>
-                    <div class="feature">
-                        <i class="ti ti-file-text"></i>
-                        <span>Работа с файлами</span>
-                    </div>
-                    <div class="feature">
-                        <i class="ti ti-microphone"></i>
-                        <span>Голосовые функции</span>
-                    </div>
-                </div>
-                <p class="welcome-tip">Начните общение, отправив сообщение!</p>
-            </div>
+            <h1>👋 Добро пожаловать в KHAI — Первый белорусский чат с ИИ!</h1>
+            
+            <p>Я ваш бесплатный ИИ-помощник с использованием передовых моделей AI.</p>
+            
+            <p><strong>Текущая модель: ${currentModelName}</strong> - ${currentModelDesc}</p>
+            
+            <p><strong>Начните общение, отправив сообщение, изображение или файл!</strong></p>
         `;
         
         this.messagesContainer.appendChild(welcomeContent);
         this.scrollToBottom();
     }
 
-    hideWelcomeMessage() {
-        const welcomeMessage = this.messagesContainer.querySelector('.welcome-message');
-        if (welcomeMessage) {
-            welcomeMessage.remove();
-        }
-    }
-
-    showHelpModal() {
-        this.helpModal.classList.add('active');
-    }
-
-    closeHelpModal() {
-        this.helpModal.classList.remove('active');
-    }
-
-    showHelp() {
-        const currentModelName = this.getModelDisplayName(this.currentModel);
-        
-        const helpContent = document.createElement('div');
-        helpContent.className = 'help-content';
-        
-        helpContent.innerHTML = `
-            <h1>🆘 Помощь по KHAI Assistant</h1>
-            
-            <h2>🤖 Текущая модель: ${currentModelName}</h2>
-            <p>Вы можете переключать модели в верхнем правом углу.</p>
-            
-            <h2>💬 Система чатов:</h2>
-            <ul>
-                <li><strong>Создание нового чата</strong> - нажмите "Новый чат" в меню</li>
-                <li><strong>Редактирование названия</strong> - нажмите на иконку карандаша рядом с чатом</li>
-                <li><strong>Скачать чат</strong> - нажмите на иконку загрузки для экспорта</li>
-                <li><strong>Импорт чата</strong> - загрузите ранее сохраненный чат</li>
-                <li><strong>Удалить все чаты</strong> - кнопка внизу меню (кроме основного)</li>
-                <li><strong>Переключение между чатами</strong> - выберите чат из списка в меню</li>
-                <li><strong>Удаление чатов</strong> - нажмите ❌ рядом с названием чата (кроме основного)</li>
-            </ul>
-            
-            <h2>📁 Работа с файлами:</h2>
-            <ul>
-                <li><strong>Изображения</strong> - прикрепите для анализа текста и содержимого (JPEG, PNG, GIF, WebP)</li>
-                <li><strong>Текстовые файлы</strong> - прикрепите для анализа содержимого (.txt, .md, .html, .css, .js, .json)</li>
-                <li><strong>Файлы кода</strong> - анализ кода на Python, Java, C++, C#, PHP, Ruby, Go, Swift, Kotlin, Scala, Rust</li>
-                <li><strong>Другие форматы</strong> - XML, CSV, YAML, YML</li>
-                <li><strong>Максимум файлов</strong> - можно прикрепить до 3 файлов за раз</li>
-            </ul>
-            
-            <h2>🎨 Генерация изображений:</h2>
-            <ul>
-                <li><strong>Включите режим изображений</strong> - нажмите кнопку "Изображения"</li>
-                <li><strong>Опишите что создать</strong> - напишите детальное описание желаемого изображения</li>
-                <li><strong>Нажмите отправить</strong> - ИИ сгенерирует уникальное изображение</li>
-                <li><strong>Скачайте результат</strong> - нажмите "Скачать изображение" под сгенерированным изображением</li>
-            </ul>
-            
-            <h2>🔊 Аудио функции:</h2>
-            <ul>
-                <li><strong>Генерация голоса</strong> - создает аудио из текста с помощью ИИ</li>
-                <li><strong>Озвучить ответ</strong> - воспроизводит ответ ИИ</li>
-                <li><strong>Остановить озвучку</strong> - нажмите кнопку повторно для остановки</li>
-            </ul>
-            
-            <h2>🖼️ Работа с изображениями:</h2>
-            <ol>
-                <li><strong>Нажмите кнопку ➕</strong> чтобы прикрепить изображение</li>
-                <li><strong>Напишите вопрос</strong> (опционально) - что вы хотите узнать о изображении</li>
-                <li><strong>Нажмите Отправить</strong> - ИИ проанализирует изображение и ответит</li>
-            </ol>
-            
-            <h2>📄 Работа с файлами:</h2>
-            <ol>
-                <li><strong>Нажмите кнопку ➕</strong> чтобы прикрепить файл</li>
-                <li><strong>Напишите вопрос</strong> (опционально) - что вы хотите узнать о содержимом</li>
-                <li><strong>Нажмите Отправить</strong> - ИИ проанализирует файл и ответит</li>
-            </ol>
-            
-            <p><strong>Попробуйте отправить изображение или файл с вопросом!</strong></p>
-        `;
-        
-        this.messagesContainer.appendChild(helpContent);
-        this.scrollToBottom();
-    }
-
     clearInput() {
         this.userInput.value = '';
-        this.userInput.style.height = 'auto';
-        this.adjustInputFontSize();
+        this.resetInputSize();
         this.attachedImages = [];
         this.renderAttachedFiles();
         this.userInput.focus();
@@ -3082,8 +3086,8 @@ ${fileContent}
             this.conversationHistory = [];
             this.saveCurrentSession();
             this.updateMinimap();
-            this.showNotification('Чат очищен', 'success');
             this.showWelcomeMessage();
+            this.showNotification('Чат очищен', 'success');
         }
     }
 
