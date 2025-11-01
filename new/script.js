@@ -1,5 +1,5 @@
 // script.js
-// KHAI Assistant - Production Ready v3.0.0
+// KHAI Assistant - Production Ready v3.0.1
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -207,6 +207,11 @@ class KHAIAssistant {
         // Input state
         this.isInputFocused = false;
         this.originalInputHeight = 56;
+
+        // Parallax state
+        this.parallaxEnabled = false;
+        this.lastTiltX = 0;
+        this.lastTiltY = 0;
     }
 
     detectSystemTheme() {
@@ -284,6 +289,7 @@ class KHAIAssistant {
             this.setup404Handling();
             this.setCurrentYear();
             this.setupHelpContent();
+            this.setupParallax();
             
             // Скрываем прелоадер после загрузки
             this.hidePreloader();
@@ -373,7 +379,9 @@ class KHAIAssistant {
             [window, 'resize', () => this.debounce('resize', () => this.handleResize(), 250)],
             // PWA events
             [window, 'beforeinstallprompt', (e) => this.handleBeforeInstallPrompt(e)],
-            [window, 'appinstalled', () => this.handleAppInstalled()]
+            [window, 'appinstalled', () => this.handleAppInstalled()],
+            // Device orientation for parallax
+            [window, 'deviceorientation', (e) => this.handleDeviceOrientation(e)]
         ];
 
         events.forEach(([element, event, handler]) => {
@@ -390,6 +398,43 @@ class KHAIAssistant {
                 this.sendMessage();
             });
         });
+    }
+
+    // Parallax setup
+    setupParallax() {
+        if ('DeviceOrientationEvent' in window) {
+            this.parallaxEnabled = true;
+            this.debug('Parallax эффекты включены');
+        } else {
+            this.debug('Device orientation не поддерживается, parallax отключен');
+        }
+    }
+
+    handleDeviceOrientation(event) {
+        if (!this.parallaxEnabled || window.innerWidth > 768) return;
+
+        const tiltX = event.gamma / 45; // -1 to 1
+        const tiltY = event.beta / 45;  // -1 to 1
+
+        // Smooth the movement
+        this.lastTiltX = this.lastTiltX * 0.7 + tiltX * 0.3;
+        this.lastTiltY = this.lastTiltY * 0.7 + tiltY * 0.3;
+
+        // Apply parallax effect to main containers
+        const translateX = this.lastTiltX * 3;
+        const translateY = this.lastTiltY * 2;
+
+        if (this.appContainer) {
+            this.appContainer.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
+        }
+
+        if (this.messagesContainer) {
+            this.messagesContainer.style.transform = `translate3d(${-translateX * 0.5}px, ${-translateY * 0.3}px, 0)`;
+        }
+
+        if (this.inputSection) {
+            this.inputSection.style.transform = `translate3d(${translateX * 0.8}px, ${translateY * 0.5}px, 0)`;
+        }
     }
 
     // Input focus/blur handlers
@@ -433,65 +478,81 @@ class KHAIAssistant {
         const currentModelName = this.getModelDisplayName(this.currentModel);
         
         this.helpContent.innerHTML = `
-            <h1>🆘 Помощь по KHAI Assistant</h1>
+            <h1><i class="ti ti-help"></i> Помощь по KHAI Assistant</h1>
             
-            <h2>🤖 Текущая модель: ${currentModelName}</h2>
+            <div class="help-feature-grid">
+                <div class="help-feature">
+                    <i class="ti ti-message"></i>
+                    <span>Общение с ИИ</span>
+                </div>
+                <div class="help-feature">
+                    <i class="ti ti-photo"></i>
+                    <span>Генерация изображений</span>
+                </div>
+                <div class="help-feature">
+                    <i class="ti ti-microphone"></i>
+                    <span>Голосовые функции</span>
+                </div>
+                <div class="help-feature">
+                    <i class="ti ti-file-text"></i>
+                    <span>Работа с файлами</span>
+                </div>
+            </div>
+
+            <h2><i class="ti ti-brain"></i> Текущая модель: ${currentModelName}</h2>
             <p>Вы можете переключать модели в верхнем правом углу.</p>
             
-            <h2>💬 Система чатов:</h2>
+            <h2><i class="ti ti-messages"></i> Система чатов</h2>
             <ul>
                 <li><strong>Создание нового чата</strong> - нажмите "Новый чат" в меню</li>
                 <li><strong>Редактирование названия</strong> - нажмите на иконку карандаша рядом с чатом</li>
                 <li><strong>Скачать чат</strong> - нажмите на иконку загрузки для экспорта</li>
                 <li><strong>Импорт чата</strong> - загрузите ранее сохраненный чат</li>
                 <li><strong>Удалить все чаты</strong> - кнопка внизу меню (кроме основного)</li>
-                <li><strong>Переключение между чатами</strong> - выберите чат из списка в меню</li>
-                <li><strong>Удаление чатов</strong> - нажмите ❌ рядом с названием чата (кроме основного)</li>
             </ul>
             
-            <h2>📁 Работа с файлами:</h2>
+            <h2><i class="ti ti-file"></i> Работа с файлами</h2>
             <ul>
-                <li><strong>Изображения</strong> - прикрепите для анализа текста и содержимого (JPEG, PNG, GIF, WebP)</li>
-                <li><strong>Текстовые файлы</strong> - прикрепите для анализа содержимого (.txt, .md, .html, .css, .js, .json)</li>
-                <li><strong>Файлы кода</strong> - анализ кода на Python, Java, C++, C#, PHP, Ruby, Go, Swift, Kotlin, Scala, Rust</li>
-                <li><strong>Другие форматы</strong> - XML, CSV, YAML, YML</li>
+                <li><strong>Изображения</strong> - прикрепите для анализа текста и содержимого</li>
+                <li><strong>Текстовые файлы</strong> - прикрепите для анализа содержимого</li>
+                <li><strong>Файлы кода</strong> - анализ кода на различных языках программирования</li>
                 <li><strong>Максимум файлов</strong> - можно прикрепить до 3 файлов за раз</li>
             </ul>
             
-            <h2>🎨 Генерация изображений:</h2>
-            <ul>
-                <li><strong>Включите режим изображений</strong> - нажмите кнопку "Изображения"</li>
-                <li><strong>Опишите что создать</strong> - напишите детальное описание желаемого изображения</li>
-                <li><strong>Нажмите отправить</strong> - ИИ сгенерирует уникальное изображение</li>
-                <li><strong>Скачайте результат</strong> - нажмите "Скачать изображение" под сгенерированным изображением</li>
-            </ul>
+            <h2><i class="ti ti-photo"></i> Генерация изображений</h2>
+            <ol>
+                <li>Включите режим изображений</li>
+                <li>Опишите что создать</li>
+                <li>Нажмите отправить</li>
+                <li>Скачайте результат</li>
+            </ol>
             
-            <h2>🔊 Аудио функции:</h2>
+            <h2><i class="ti ti-microphone"></i> Аудио функции</h2>
             <ul>
                 <li><strong>Генерация голоса</strong> - создает аудио из текста с помощью ИИ</li>
                 <li><strong>Озвучить ответ</strong> - воспроизводит ответ ИИ</li>
                 <li><strong>Остановить озвучку</strong> - нажмите кнопку повторно для остановки</li>
             </ul>
-            
-            <h2>🖼️ Работа с изображениями:</h2>
-            <ol>
-                <li><strong>Нажмите кнопку ➕</strong> чтобы прикрепить изображение</li>
-                <li><strong>Напишите вопрос</strong> (опционально) - что вы хотите узнать о изображении</li>
-                <li><strong>Нажмите Отправить</strong> - ИИ проанализирует изображение и ответит</li>
-            </ol>
-            
-            <h2>📄 Работа с файлами:</h2>
-            <ol>
-                <li><strong>Нажмите кнопку ➕</strong> чтобы прикрепить файл</li>
-                <li><strong>Напишите вопрос</strong> (опционально) - что вы хотите узнать о содержимом</li>
-                <li><strong>Нажмите Отправить</strong> - ИИ проанализирует файл и ответит</li>
-            </ol>
-            
-            <p><strong>Попробуйте отправить изображение или файл с вопросом!</strong></p>
+
+            <div class="help-actions">
+                <button class="help-action-btn" onclick="khaiAssistant.focusInput()">
+                    <i class="ti ti-keyboard"></i> Попробовать сейчас
+                </button>
+                <button class="help-action-btn secondary" onclick="khaiAssistant.showWelcomeMessage()">
+                    <i class="ti ti-info-circle"></i> Показать приветствие
+                </button>
+            </div>
         `;
     }
 
+    focusInput() {
+        this.userInput.focus();
+        this.closeHelpModal();
+        this.showNotification('Поле ввода активировано!', 'success');
+    }
+
     showHelpModal() {
+        this.setupHelpContent();
         this.helpModal.classList.add('active');
     }
 
@@ -1925,7 +1986,7 @@ ${fileContent}
 
     deleteChat(chatId) {
         if (chatId === 'default') {
-            this.showNotification('Основной чат нельзя удалить', 'warning');
+            this.showNotification('Основный чат нельзя удалить', 'warning');
             return;
         }
 
@@ -2108,7 +2169,19 @@ ${fileContent}
     saveChatSessions() {
         try {
             const sessions = Array.from(this.chatSessions.entries());
-            localStorage.setItem('khai-assistant-chat-sessions', JSON.stringify(sessions));
+            const sessionsData = sessions.map(([id, session]) => [
+                id,
+                {
+                    ...session,
+                    // Ensure all required fields are present
+                    messages: session.messages || [],
+                    conversationHistory: session.conversationHistory || [],
+                    createdAt: session.createdAt || Date.now(),
+                    lastActivity: session.lastActivity || Date.now()
+                }
+            ]);
+            localStorage.setItem('khai-assistant-chat-sessions', JSON.stringify(sessionsData));
+            this.debug('Chat sessions saved:', sessionsData.length);
         } catch (error) {
             console.error('Error saving chat sessions:', error);
         }
@@ -2119,10 +2192,30 @@ ${fileContent}
             const saved = localStorage.getItem('khai-assistant-chat-sessions');
             if (saved) {
                 const sessions = JSON.parse(saved);
-                this.chatSessions = new Map(sessions);
+                // Validate and migrate old sessions
+                const validatedSessions = sessions.map(([id, session]) => {
+                    // Ensure session has all required fields
+                    return [
+                        id,
+                        {
+                            id: session.id || id,
+                            name: session.name || 'Безымянный чат',
+                            messages: session.messages || [],
+                            conversationHistory: session.conversationHistory || [],
+                            createdAt: session.createdAt || Date.now(),
+                            lastActivity: session.lastActivity || Date.now()
+                        }
+                    ];
+                });
+                this.chatSessions = new Map(validatedSessions);
+                this.debug('Chat sessions loaded:', this.chatSessions.size);
+            } else {
+                this.debug('No saved chat sessions found');
             }
         } catch (error) {
             console.error('Error loading chat sessions:', error);
+            // Create default session if loading fails
+            this.createDefaultChat();
         }
     }
 
@@ -2309,10 +2402,22 @@ ${fileContent}
         this.minimapContent.innerHTML = '';
         const messages = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
         
+        if (messages.length === 0) return;
+        
+        const containerHeight = this.messagesContainer.scrollHeight;
+        const messageHeight = containerHeight / messages.length;
+        
         messages.forEach((message, index) => {
             const block = document.createElement('div');
             block.className = `minimap-message ${message.classList.contains('message-user') ? 'user' : 'ai'}`;
             block.dataset.index = index;
+            
+            // Calculate relative height based on content
+            const messageScrollHeight = message.scrollHeight;
+            const relativeHeight = Math.max((messageScrollHeight / containerHeight) * 100, 2);
+            block.style.height = `${relativeHeight}%`;
+            block.style.margin = '1px 0';
+            
             block.addEventListener('click', () => this.scrollToMessage(index));
             this.minimapContent.appendChild(block);
         });
@@ -2330,11 +2435,11 @@ ${fileContent}
         
         if (containerHeight === 0) return;
         
-        const viewportHeight = (visibleHeight / containerHeight) * this.chatMinimap.offsetHeight;
-        const viewportTop = (scrollTop / containerHeight) * this.chatMinimap.offsetHeight;
+        const viewportHeight = (visibleHeight / containerHeight) * 100;
+        const viewportTop = (scrollTop / containerHeight) * 100;
         
-        this.minimapViewport.style.height = `${Math.max(viewportHeight, 10)}px`;
-        this.minimapViewport.style.top = `${viewportTop}px`;
+        this.minimapViewport.style.height = `${Math.max(viewportHeight, 5)}%`;
+        this.minimapViewport.style.top = `${viewportTop}%`;
     }
 
     scrollToMessage(index) {
@@ -2528,6 +2633,7 @@ ${fileContent}
                 this.showNotification(`Модель изменена на: ${this.getModelDisplayName(newModel)}`, 'success');
                 this.updateModelInfo();
                 this.setupHelpContent();
+                this.saveCurrentSession();
             }
         }
         this.closeModelModal();
@@ -2856,9 +2962,24 @@ ${fileContent}
     }
 
     setupResponsiveMinimap() {
-        // Миникарта теперь всегда отображается на мобильных устройствах
-        if (this.chatMinimapContainer) {
-            this.chatMinimapContainer.style.display = 'flex';
+        if (window.innerWidth <= 768) {
+            // На мобильных устройствах миникарта позиционируется над инпутсекцией
+            if (this.chatMinimapContainer) {
+                const inputSectionHeight = this.inputSection.offsetHeight;
+                const footerHeight = document.querySelector('.app-footer').offsetHeight;
+                const headerHeight = document.querySelector('.app-header').offsetHeight;
+                
+                const availableHeight = window.innerHeight - headerHeight - inputSectionHeight - footerHeight - 40;
+                
+                this.chatMinimapContainer.style.height = `${Math.max(availableHeight, 100)}px`;
+                this.chatMinimapContainer.style.bottom = `${inputSectionHeight + 20}px`;
+            }
+        } else {
+            // На десктопе обычное позиционирование
+            if (this.chatMinimapContainer) {
+                this.chatMinimapContainer.style.height = 'calc(100vh - 280px)';
+                this.chatMinimapContainer.style.bottom = '180px';
+            }
         }
     }
 
@@ -3042,8 +3163,10 @@ ${fileContent}
     }
 
     showWelcomeMessage() {
-        if (this.conversationHistory.length > 0) {
-            return;
+        // Remove existing welcome message
+        const existingWelcome = this.messagesContainer.querySelector('.welcome-content');
+        if (existingWelcome) {
+            existingWelcome.remove();
         }
         
         const currentModelName = this.getModelDisplayName(this.currentModel);
@@ -3053,13 +3176,41 @@ ${fileContent}
         welcomeContent.className = 'welcome-content';
         
         welcomeContent.innerHTML = `
-            <h1>👋 Добро пожаловать в KHAI — Первый белорусский чат с ИИ!</h1>
+            <h1><i class="ti ti-brain"></i> Добро пожаловать в KHAI — Первый белорусский чат с ИИ!</h1>
             
             <p>Я ваш бесплатный ИИ-помощник с использованием передовых моделей AI.</p>
             
             <p><strong>Текущая модель: ${currentModelName}</strong> - ${currentModelDesc}</p>
+
+            <div class="welcome-features">
+                <div class="welcome-feature">
+                    <i class="ti ti-message"></i>
+                    <span>Умные ответы</span>
+                </div>
+                <div class="welcome-feature">
+                    <i class="ti ti-photo"></i>
+                    <span>Генерация изображений</span>
+                </div>
+                <div class="welcome-feature">
+                    <i class="ti ti-microphone"></i>
+                    <span>Голосовые функции</span>
+                </div>
+                <div class="welcome-feature">
+                    <i class="ti ti-file-text"></i>
+                    <span>Анализ файлов</span>
+                </div>
+            </div>
             
             <p><strong>Начните общение, отправив сообщение, изображение или файл!</strong></p>
+
+            <div class="welcome-actions">
+                <button class="welcome-action-btn" onclick="khaiAssistant.focusInput()">
+                    <i class="ti ti-keyboard"></i> Начать общение
+                </button>
+                <button class="welcome-action-btn secondary" onclick="khaiAssistant.showHelpModal()">
+                    <i class="ti ti-help"></i> Открыть справку
+                </button>
+            </div>
         `;
         
         this.messagesContainer.appendChild(welcomeContent);
