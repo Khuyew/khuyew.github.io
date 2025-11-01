@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="ru" itemscope itemtype="https://schema.org/WebApplication">
 <head>
@@ -23,7 +24,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0f0f23">
+    <meta name="theme-color" content="#121212">
     
     <!-- SEO Meta Tags -->
     <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
@@ -75,7 +76,7 @@
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="./logo.svg">
     <link rel="apple-touch-icon" href="./logo.svg">
     
     <!-- Preload Critical Resources -->
@@ -98,7 +99,7 @@
                 <i class="ti ti-brain"></i>
             </div>
             <div class="preloader-spinner">
-                <i class="ti ti-brain"></i>
+                <i class="ti ti-refresh"></i>
             </div>
             <p class="preloader-text">Загрузка KHAI Assistant...</p>
         </div>
@@ -128,7 +129,7 @@
                 </div>
                 
                 <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
-                    <i class="ti ti-signal"></i>
+                    <i class="ti ti-cpu"></i>
                 </button>
                 
                 <div class="header-search-container">
@@ -155,39 +156,7 @@
         <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Welcome message -->
-                <div class="message ai-message">
-                    <div class="message-header">
-                        <div class="message-avatar">
-                            <i class="ti ti-robot"></i>
-                        </div>
-                        <div class="message-info">
-                            <span class="message-sender">KHAI Assistant</span>
-                            <span class="message-time" id="welcomeTime"></span>
-                        </div>
-                    </div>
-                    <div class="message-content">
-                        <p>Привет! Я KHAI — первый белорусский ИИ-помощник. Готов помочь вам с:</p>
-                        <ul>
-                            <li>Ответами на вопросы и решение задач</li>
-                            <li>Анализом изображений и файлов</li>
-                            <li>Генерацией текста и кода</li>
-                            <li>Объяснением сложных концепций</li>
-                        </ul>
-                        <p>Что вас интересует?</p>
-                    </div>
-                    <div class="message-actions">
-                        <button class="action-btn-small quick-action" data-prompt="Расскажи о возможностях искусственного интеллекта">
-                            <i class="ti ti-sparkles"></i> Возможности ИИ
-                        </button>
-                        <button class="action-btn-small quick-action" data-prompt="Напиши пример кода на Python для сортировки массива">
-                            <i class="ti ti-code"></i> Пример кода
-                        </button>
-                        <button class="action-btn-small quick-action" data-prompt="Объясни теорию относительности простыми словами">
-                            <i class="ti ti-school"></i> Объяснить концепцию
-                        </button>
-                    </div>
-                </div>
+                <!-- Messages will be dynamically added here -->
             </div>
 
             <!-- Minimap & Navigation -->
@@ -220,7 +189,7 @@
             
             <div class="input-wrapper">
                 <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
-                    <i class="ti ti-clip"></i>
+                    <i class="ti ti-paperclip"></i>
                     <input type="file" id="fileInput" accept="image/*,.txt,.md,.html,.css,.js,.json,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.swift,.kt,.scala,.rs,.xml,.csv,.yaml,.yml" multiple style="display: none;">
                 </button>
                 
@@ -360,21 +329,14 @@
                 </div>
             </div>
 
-            <div class="sidebar-links" style="margin-top: auto; padding: 20px 0; text-align: center;">
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                    <a href="https://khai.by/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
-                        Документация
-                    </a>
-                    <a href="https://khai.by/support" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
-                        Поддержка
-                    </a>
-                    <a href="mailto:khuyew@proton.me" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
-                        Сотрудничество
-                    </a>
+            <div class="sidebar-links">
+                <div class="links-container">
+                    <a href="https://khai.by/docs" target="_blank">Документация</a>
+                    <a href="https://khai.by/support" target="_blank">Поддержка</a>
+                    <a href="mailto:khuyew@proton.me">Сотрудничество</a>
                 </div>
                 
-                <!-- LiveInternet Counter -->
-                <div style="margin-bottom: 20px; display: flex; justify-content: center;">
+                <div class="counters">
                     <!--LiveInternet counter--><a href="https://www.liveinternet.ru/click"
                     target="_blank"><img id="licntB611" width="88" height="31" style="border:0" 
                     title="LiveInternet: показано число просмотров и посетителей за 24 часа"
@@ -386,15 +348,15 @@
                     ";h"+escape(d.title.substring(0,150))+";"+Math.random()})
                     (document,screen)</script><!--/LiveInternet-->
 
-                    <!-- Yandex.Metrika informer --> <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">     <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"          style="width:88px; height:31px; border:0;"          alt="Яндекс.Метрика"          title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"         class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/> </a> <!-- /Yandex.Metrika informer -->  <!-- Yandex.Metrika counter --> <script type="text/javascript">     (function(m,e,t,r,i,k,a){         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};         m[i].l=1*new Date();         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)     })(window, document,'script','https://mc.webvisor.org/metrika/tag_ww.js', 'ym');      ym(104843405, 'init', {webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true}); </script>  <!-- /Yandex.Metrika counter -->   
+                    <!-- Yandex.Metrika informer --> <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">     <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"          style="width:88px; height:31px; border:0;"          alt="Яндекс.Метрика"          title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"         class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/> </a> <!-- /Yandex.Metrika informer -->
                 </div>
                 
-                <a href="https://khai.by/github" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: var(--radius-md); transition: var(--transition); margin-bottom: 20px;">
-                    <i class="ti ti-brand-github" style="font-size: 20px; color: var(--text-secondary);"></i>
+                <a href="https://khai.by/github" target="_blank" class="github-link">
+                    <i class="ti ti-brand-github"></i>
                 </a>
                 
-                <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
-                    © 2024 KHAI, Беларусь.<br>
+                <p class="copyright">
+                    © 2025 KHAI, Беларусь.<br>
                     Все права защищены!
                 </p>
             </div>
@@ -402,7 +364,7 @@
     </div>
 
     <!-- Edit Chat Modal -->
-    <div class="modal-overlay" id="editChatModal" style="display: none;">
+    <div class="modal-overlay" id="editChatModal">
         <div class="modal">
             <div class="modal-header">
                 <h3>Редактировать название чата</h3>
@@ -426,7 +388,7 @@
     </div>
 
     <!-- Model Selection Modal -->
-    <div class="modal-overlay" id="modelModalOverlay" style="display: none;">
+    <div class="modal-overlay" id="modelModalOverlay">
         <div class="modal">
             <div class="modal-header">
                 <h3>Выберите модель ИИ</h3>
