@@ -162,9 +162,7 @@
             <!-- Minimap & Navigation -->
             <div class="chat-minimap-container">
                 <div class="minimap-header">
-                    <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
-                        <i class="ti ti-moon"></i>
-                    </button>
+                    <!-- Theme toggle removed from minimap -->
                 </div>
                 <div class="chat-minimap" id="chatMinimap">
                     <div class="minimap-content" id="minimapContent"></div>
@@ -331,23 +329,23 @@
 
             <div class="sidebar-links">
                 <div class="links-container">
-                    <a href="https://khai.by/docs" target="_blank" class="link-with-icon">
+                    <a href="https://khai.by/docs" target="_blank">
                         <i class="ti ti-book"></i> Документация
                     </a>
-                    <a href="https://khai.by/blog" target="_blank" class="link-with-icon">
+                    <a href="https://khai.by/support" target="_blank">
+                        <i class="ti ti-headset"></i> Поддержка
+                    </a>
+                    <a href="https://khai.by/blog" target="_blank">
                         <i class="ti ti-news"></i> Блог
                     </a>
-                    <a href="https://khai.by/status" target="_blank" class="link-with-icon">
+                    <a href="https://khai.by/status" target="_blank">
                         <i class="ti ti-heartbeat"></i> Статус
                     </a>
-                    <a href="https://khai.by/guide" target="_blank" class="link-with-icon">
+                    <a href="https://khai.by/guide" target="_blank">
                         <i class="ti ti-bookmark"></i> Гайд
                     </a>
-                    <a href="https://khai.by/support" target="_blank" class="link-with-icon">
-                        <i class="ti ti-lifebuoy"></i> Поддержка
-                    </a>
-                    <a href="mailto:khuyew@proton.me" class="link-with-icon">
-                        <i class="ti ti-briefcase"></i> Сотрудничество
+                    <a href="mailto:khuyew@proton.me">
+                        <i class="ti ti-mail"></i> Сотрудничество
                     </a>
                 </div>
                 
@@ -369,9 +367,9 @@
                 <a href="https://khai.by/github" target="_blank" class="github-link">
                     <i class="ti ti-brand-github"></i>
                 </a>
-                
+
                 <div class="watermark">
-                    <p>Сделано с ❤️ в Беларуси</p>
+                    Сделано с ❤️ в Беларуси
                 </div>
                 
                 <p class="copyright">
@@ -427,7 +425,7 @@
 
     <!-- Help Modal -->
     <div class="modal-overlay" id="helpModal">
-        <div class="modal help-modal">
+        <div class="modal">
             <div class="modal-header">
                 <h3>Помощь по KHAI Assistant</h3>
                 <button class="modal-close" id="helpModalClose">
@@ -438,7 +436,7 @@
                 <div class="help-content" id="helpContent"></div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn primary" id="helpModalCloseBtn">Закрыть</button>
+                <button class="modal-btn primary" id="helpModalOk">Понятно</button>
             </div>
         </div>
     </div>
