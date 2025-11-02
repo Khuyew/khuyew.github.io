@@ -159,6 +159,9 @@
                 <!-- Messages will be dynamically added here -->
             </div>
 
+            <!-- Floating Particles for Empty Chat -->
+            <div class="floating-particles" id="floatingParticles"></div>
+
             <!-- Minimap & Navigation -->
             <div class="chat-minimap-container">
                 <div class="minimap-header">
@@ -318,7 +321,7 @@
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>3.1.0</span>
+                        <span>3.0.0</span>
                     </div>
                     <div class="about-item">
                         <strong>Обновлено</strong>
@@ -443,15 +446,24 @@
 
     <!-- Message Modal -->
     <div class="modal-overlay" id="messageModal">
-        <div class="modal">
+        <div class="modal large-modal">
             <div class="modal-header">
-                <h3>Сообщение</h3>
+                <h3 id="messageModalTitle">Просмотр сообщения</h3>
                 <button class="modal-close" id="messageModalClose">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <div id="messageModalContent"></div>
+                <div class="message-modal-content" id="messageModalContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="messageModalCopy">
+                    <i class="ti ti-copy"></i> Копировать
+                </button>
+                <button class="modal-btn" id="messageModalSpeak">
+                    <i class="ti ti-speakerphone"></i> Озвучить
+                </button>
+                <button class="modal-btn primary" id="messageModalCloseBtn">Закрыть</button>
             </div>
         </div>
     </div>
@@ -465,7 +477,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./sw.js')
+                navigator.serviceWorker.register('./service-worker.js')
                     .then(registration => {
                         console.log('ServiceWorker зарегистрирован: ', registration);
                     })
