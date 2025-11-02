@@ -117,6 +117,60 @@
         </div>
     </div>
 
+    <!-- Tutorial Overlay -->
+    <div class="tutorial-overlay" id="tutorialOverlay" style="display: none;">
+        <div class="tutorial-content">
+            <div class="tutorial-step active" id="tutorialStep1">
+                <h3>Добро пожаловать в KHAI Assistant! 🚀</h3>
+                <p>Пройдите короткий тур по основным функциям приложения, чтобы начать эффективно использовать ИИ-помощника.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="skipTutorialBtn">Пропустить</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn1">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep2">
+                <h3>Основное меню</h3>
+                <p>Здесь вы можете управлять чатами, создавать новые, импортировать и экспортировать историю разговоров.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn2">Назад</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn2">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep3">
+                <h3>Выбор модели ИИ</h3>
+                <p>Выбирайте между разными моделями ИИ в зависимости от ваших задач. Каждая модель имеет свои особенности.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn3">Назад</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn3">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep4">
+                <h3>Режимы работы</h3>
+                <p>Используйте разные режимы: обычный чат, генерация изображений или создание голосовых сообщений.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn4">Назад</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn4">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep5">
+                <h3>Прикрепление файлов</h3>
+                <p>Загружайте изображения и текстовые файлы для анализа. ИИ поможет вам с их содержимым.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn5">Назад</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn5">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep6">
+                <h3>Готовы к использованию! 🎉</h3>
+                <p>Теперь вы знаете все основные функции KHAI Assistant. Начните общение с ИИ прямо сейчас!</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn6">Назад</button>
+                    <button class="tutorial-btn primary" id="finishTutorialBtn">Начать использовать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main App Container -->
     <div class="app-container" id="appContainer">
         <!-- Header -->
@@ -248,7 +302,7 @@
                 </div>
                 
                 <div class="footer-controls">
-                    <button class="footer-btn" id="helpBtn" title="Помощь">
+                    <button class="footer-btn" id="helpBtn" title="Помощь и обучение">
                         <i class="ti ti-help"></i>
                     </button>
                     <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
