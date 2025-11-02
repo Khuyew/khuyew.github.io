@@ -38,7 +38,7 @@
     <meta property="og:site_name" content="KHAI Assistant">
     <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
-    <meta property="og:image" content="./logo.svg">
+    <meta property="og:image" content="./icon.svg">
     <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
@@ -46,7 +46,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
     <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
-    <meta property="twitter:image" content="./logo.svg">
+    <meta property="twitter:image" content="./icon.svg">
     <meta name="twitter:site" content="@khai_assistant">
     
     <!-- Schema.org -->
@@ -75,8 +75,8 @@
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
-    <link rel="icon" type="image/svg+xml" href="./logo.svg">
-    <link rel="apple-touch-icon" href="./logo.svg">
+    <link rel="icon" type="image/svg+xml" href="./icon.svg">
+    <link rel="apple-touch-icon" href="./icon.svg">
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
@@ -331,6 +331,20 @@
         </div>
         
         <div class="sidebar-content">
+            <!-- PWA Install Button -->
+            <div class="pwa-install-section">
+                <button class="pwa-install-btn" id="pwaInstallBtn" style="display: none;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ti ti-download"></i>
+                        <span>Установить приложение</span>
+                        <span class="badge">НОВОЕ</span>
+                    </div>
+                    <button class="pwa-install-btn-close" id="pwaInstallBtnClose">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </button>
+            </div>
+
             <div class="sidebar-search-container">
                 <div class="search-wrapper">
                     <i class="ti ti-search"></i>
@@ -374,7 +388,7 @@
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>3.0.0</span>
+                        <span>3.0.3</span>
                     </div>
                     <div class="about-item">
                         <strong>Обновлено</strong>
