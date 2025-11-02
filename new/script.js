@@ -1,4 +1,4 @@
-// script.js - Production Ready v3.0.1 - Fixed
+// script.js - Production Ready v3.0.2
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -283,6 +283,11 @@ class KHAIAssistant {
                 action: () => this.handleContentCreationPreset()
             }
         ];
+
+        // Scroll hide state
+        this.scrollHideTimeout = null;
+        this.lastScrollTop = 0;
+        this.scrollThreshold = 10;
     }
 
     detectSystemTheme() {
@@ -480,54 +485,59 @@ class KHAIAssistant {
         // Tutorial event handlers
         this.setupTutorialEvents();
 
-        // Enhanced scroll events for zoom effects
+        // Enhanced scroll events for header/footer hiding
         this.setupEnhancedScroll();
     }
 
     setupEnhancedScroll() {
-        let scrollStartY = 0;
-        let isZooming = false;
+        let lastScrollTop = 0;
+        const scrollThreshold = 50;
 
-        this.addEventListener(this.messagesContainer, 'touchstart', (e) => {
-            if (e.touches.length === 2) {
-                scrollStartY = e.touches[0].pageY;
-                isZooming = true;
-            }
-        });
-
-        this.addEventListener(this.messagesContainer, 'touchmove', (e) => {
-            if (e.touches.length === 2 && isZooming) {
-                e.preventDefault();
-                const currentY = e.touches[0].pageY;
-                const deltaY = currentY - scrollStartY;
-                
-                if (Math.abs(deltaY) > 50) {
-                    this.scrollZoomLevel = deltaY > 0 ? 0.95 : 1.05;
-                    this.messagesContainer.style.transform = `scale(${this.scrollZoomLevel})`;
-                    scrollStartY = currentY;
+        this.addEventListener(this.messagesContainer, 'scroll', () => {
+            const scrollTop = this.messagesContainer.scrollTop;
+            const isScrollingDown = scrollTop > lastScrollTop;
+            const scrollDelta = Math.abs(scrollTop - lastScrollTop);
+            
+            if (scrollDelta > scrollThreshold) {
+                if (isScrollingDown && scrollTop > 100) {
+                    // Scrolling down - hide header and footer
+                    this.hideHeaderFooter();
+                } else {
+                    // Scrolling up - show header and footer
+                    this.showHeaderFooter();
                 }
+                lastScrollTop = scrollTop;
             }
+
+            // Clear existing timeout
+            if (this.scrollHideTimeout) {
+                clearTimeout(this.scrollHideTimeout);
+            }
+
+            // Set timeout to show header/footer when scrolling stops
+            this.scrollHideTimeout = setTimeout(() => {
+                this.showHeaderFooter();
+            }, 1500);
         });
 
-        this.addEventListener(this.messagesContainer, 'touchend', () => {
-            if (isZooming) {
-                isZooming = false;
-                // Возвращаем к исходному масштабу
-                this.messagesContainer.style.transform = 'scale(1)';
-                this.scrollZoomLevel = 1;
-            }
+        // Touch events for mobile
+        this.addEventListener(this.messagesContainer, 'touchstart', () => {
+            this.showHeaderFooter();
         });
+    }
 
-        // Mouse wheel zoom
-        this.addEventListener(this.messagesContainer, 'wheel', (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                this.scrollZoomLevel = Math.max(0.8, Math.min(1.2, this.scrollZoomLevel + delta));
-                this.messagesContainer.style.transform = `scale(${this.scrollZoomLevel})`;
-                this.messagesContainer.style.transformOrigin = 'center center';
-            }
-        }, { passive: false });
+    hideHeaderFooter() {
+        this.appHeader.classList.add('hidden');
+        this.appFooter.classList.add('hidden');
+        this.messagesContainer.classList.add('full-width');
+        this.isScrolling = true;
+    }
+
+    showHeaderFooter() {
+        this.appHeader.classList.remove('hidden');
+        this.appFooter.classList.remove('hidden');
+        this.messagesContainer.classList.remove('full-width');
+        this.isScrolling = false;
     }
 
     setupTutorialEvents() {
@@ -634,26 +644,23 @@ class KHAIAssistant {
         
         document.body.appendChild(highlight);
 
-        // Add text label - FIXED: Better positioning and visibility
+        // Add text label
         if (text) {
             const label = document.createElement('div');
             label.className = 'tutorial-element-highlight';
             label.textContent = text;
             label.style.position = 'fixed';
-            
-            // Position below the element with proper spacing
-            const viewportHeight = window.innerHeight;
-            const spaceBelow = viewportHeight - rect.bottom;
-            
-            if (spaceBelow > 60) {
-                // Enough space below - position below
-                label.style.left = `${Math.max(10, rect.left)}px`;
-                label.style.top = `${rect.bottom + 15}px`;
-            } else {
-                // Not enough space below - position above
-                label.style.left = `${Math.max(10, rect.left)}px`;
-                label.style.bottom = `${viewportHeight - rect.top + 15}px`;
-            }
+            label.style.left = `${rect.left}px`;
+            label.style.top = `${rect.top + rect.height + 15}px`;
+            label.style.background = 'var(--accent-primary)';
+            label.style.color = 'white';
+            label.style.padding = '8px 12px';
+            label.style.borderRadius = 'var(--radius-md)';
+            label.style.fontSize = '14px';
+            label.style.fontWeight = '500';
+            label.style.zIndex = '10013';
+            label.style.whiteSpace = 'nowrap';
+            label.style.boxShadow = 'var(--shadow-lg)';
             
             document.body.appendChild(label);
         }
@@ -784,53 +791,12 @@ class KHAIAssistant {
         }
     }
 
-    // Scroll effects - FIXED: Improved scroll behavior
+    // Scroll effects
     setupScrollEffects() {
-        let lastScrollTop = 0;
-        const scrollThreshold = 50;
-        let scrollTimeout;
-
-        this.addEventListener(this.messagesContainer, 'scroll', () => {
-            const scrollTop = this.messagesContainer.scrollTop;
-            const scrollHeight = this.messagesContainer.scrollHeight;
-            const clientHeight = this.messagesContainer.clientHeight;
-            
-            const isScrollingDown = scrollTop > lastScrollTop;
-            const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-            
-            // Clear existing timeout
-            if (scrollTimeout) {
-                clearTimeout(scrollTimeout);
-            }
-            
-            if (isScrollingDown && scrollTop > 100 && !isNearBottom) {
-                // Scrolling down and not near bottom - hide header and footer
-                this.appHeader.classList.add('hidden');
-                this.appFooter.classList.add('hidden');
-                this.messagesContainer.classList.add('full-width');
-            } else {
-                // Scrolling up or near bottom - show header and footer immediately
-                this.appHeader.classList.remove('hidden');
-                this.appFooter.classList.remove('hidden');
-                this.messagesContainer.classList.remove('full-width');
-            }
-            
-            lastScrollTop = scrollTop;
-            
-            // Set timeout to show header/footer when scrolling stops
-            scrollTimeout = setTimeout(() => {
-                this.appHeader.classList.remove('hidden');
-                this.appFooter.classList.remove('hidden');
-                this.messagesContainer.classList.remove('full-width');
-            }, 1500);
-        });
-
-        // Ensure headers are visible when touching input area
-        this.addEventListener(this.inputSection, 'touchstart', () => {
-            this.appHeader.classList.remove('hidden');
-            this.appFooter.classList.remove('hidden');
-            this.messagesContainer.classList.remove('full-width');
-        });
+        // Improved scroll handling with faster transitions
+        this.appHeader.style.transition = 'transform 0.2s ease-out';
+        this.appFooter.style.transition = 'transform 0.2s ease-out';
+        this.messagesContainer.style.transition = 'padding 0.2s ease-out';
     }
 
     // Welcome preset handlers
@@ -875,11 +841,6 @@ class KHAIAssistant {
         this.isInputFocused = true;
         this.userInput.classList.add('dynamic-font');
         this.updateInputSize();
-        
-        // Ensure headers are visible when focusing input
-        this.appHeader.classList.remove('hidden');
-        this.appFooter.classList.remove('hidden');
-        this.messagesContainer.classList.remove('full-width');
     }
 
     handleInputBlur() {
