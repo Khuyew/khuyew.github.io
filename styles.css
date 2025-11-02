@@ -1,4 +1,4 @@
-/* styles.css - Production Ready v3.0.1 */
+/* styles.css - Production Ready v3.0.3 */
 * {
     margin: 0;
     padding: 0;
@@ -275,13 +275,8 @@ body {
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
     height: 64px;
-    transform: translateY(0);
-    transition: var(--transition);
     z-index: 100;
-}
-
-.app-header.hidden {
-    transform: translateY(-100%);
+    position: relative;
 }
 
 .header-content {
@@ -473,17 +468,6 @@ body {
     scroll-behavior: smooth;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
     transition: var(--transition);
-}
-
-.messages-container.full-width {
-    max-width: 100%;
-    padding: 20px 16px;
-}
-
-.messages-container.full-width .message {
-    max-width: 95%;
-    font-size: 1.1em;
-    line-height: 1.6;
 }
 
 /* Custom scrollbar for messages */
@@ -702,10 +686,6 @@ body {
 .message:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
-}
-
-.messages-container.full-width .message {
-    max-width: 90%;
 }
 
 .message-user {
@@ -1158,12 +1138,7 @@ body {
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
     padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    transition: var(--transition);
-    transform: translateY(0);
-}
-
-.input-section.hidden {
-    transform: translateY(100%);
+    position: relative;
 }
 
 /* Mode indicator */
@@ -1477,12 +1452,7 @@ body {
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
     height: 56px;
-    transform: translateY(0);
-    transition: var(--transition);
-}
-
-.app-footer.hidden {
-    transform: translateY(100%);
+    position: relative;
 }
 
 .footer-content {
@@ -1651,6 +1621,64 @@ body {
     display: flex;
     flex-direction: column;
     gap: 24px;
+}
+
+/* PWA Install Button in Sidebar */
+.pwa-install-section {
+    margin-bottom: 16px;
+}
+
+.pwa-install-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: var(--transition);
+    text-decoration: none;
+    box-shadow: var(--shadow-md);
+    position: relative;
+}
+
+.pwa-install-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.pwa-install-btn .badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.pwa-install-btn-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.pwa-install-btn-close:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 /* Sidebar Search */
@@ -1906,11 +1934,13 @@ body {
     border-radius: var(--radius-md);
     transition: var(--transition);
     margin-bottom: 20px;
+    text-decoration: none;
 }
 
 .github-link:hover {
     background: var(--bg-hover);
     transform: translateY(-1px);
+    text-decoration: none;
 }
 
 .github-link i {
@@ -2455,69 +2485,6 @@ body {
     vertical-align: middle;
 }
 
-/* PWA Notification */
-.pwa-notification {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 16px;
-    box-shadow: var(--shadow-xl);
-    z-index: 10000;
-    max-width: 400px;
-    width: 90%;
-}
-
-.pwa-notification-content {
-    margin-bottom: 12px;
-}
-
-.pwa-notification-content strong {
-    display: block;
-    margin-bottom: 4px;
-    color: var(--text-primary);
-}
-
-.pwa-notification-content p {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin: 0;
-}
-
-.pwa-notification-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-}
-
-.pwa-notification-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    font-size: 14px;
-    transition: var(--transition);
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-}
-
-.pwa-notification-btn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-}
-
-.pwa-notification-btn.primary {
-    background: var(--accent-primary);
-    color: white;
-}
-
-.pwa-notification-btn.primary:hover {
-    background: var(--accent-secondary);
-}
-
 /* Tutorial overlay */
 .tutorial-overlay {
     position: fixed;
@@ -2526,7 +2493,7 @@ body {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.8);
-    z-index: 10000;
+    z-index: 10010;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2541,6 +2508,8 @@ body {
     max-height: 80vh;
     overflow-y: auto;
     text-align: center;
+    z-index: 10011;
+    position: relative;
 }
 
 .tutorial-step {
@@ -2569,8 +2538,24 @@ body {
     border-radius: var(--radius-md);
     background: rgba(100, 181, 246, 0.1);
     pointer-events: none;
-    z-index: 10001;
+    z-index: 10009;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    animation: tutorialPulse 2s ease-in-out infinite;
+}
+
+.tutorial-element-highlight {
+    position: fixed;
+    background: var(--accent-primary);
+    color: white;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10013;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: var(--shadow-lg);
+    animation: elementHighlight 2s ease-in-out infinite;
 }
 
 .tutorial-actions {
@@ -2607,6 +2592,16 @@ body {
 
 .tutorial-btn.primary:hover {
     background: var(--accent-secondary);
+}
+
+@keyframes tutorialPulse {
+    0%, 100% { border-color: var(--accent-primary); }
+    50% { border-color: var(--accent-secondary); }
+}
+
+@keyframes elementHighlight {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 
 /* Responsive styles */
@@ -2657,10 +2652,6 @@ body {
     .message {
         max-width: 90%;
         padding: 14px 16px;
-    }
-    
-    .messages-container.full-width .message {
-        max-width: 95%;
     }
     
     .chat-minimap-container {
@@ -2806,6 +2797,19 @@ body {
         max-width: 95%;
         width: 95%;
     }
+    
+    .tutorial-content {
+        padding: 20px;
+        margin: 20px;
+    }
+    
+    .tutorial-element-highlight {
+        font-size: 12px;
+        padding: 6px 10px;
+        max-width: 200px;
+        white-space: normal;
+        text-align: center;
+    }
 }
 
 @media (max-width: 480px) {
@@ -2825,10 +2829,6 @@ body {
     .message {
         max-width: 95%;
         padding: 12px 14px;
-    }
-    
-    .messages-container.full-width .message {
-        max-width: 98%;
     }
     
     .chat-minimap-container {
@@ -3073,14 +3073,6 @@ body {
     .app-container {
         transition: transform 0.1s ease-out;
     }
-    
-    .app-header {
-        transition: transform 0.1s ease-out;
-    }
-    
-    .input-section {
-        transition: transform 0.1s ease-out;
-    }
 }
 
 /* Mobile-specific minimap positioning */
@@ -3120,92 +3112,10 @@ body {
     }
 }
 
-/* Tutorial Highlight Improvements */
-.tutorial-highlight {
-    animation: tutorialPulse 2s ease-in-out infinite;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-primary);
-}
-
-@keyframes tutorialPulse {
-    0%, 100% { border-color: var(--accent-primary); }
-    50% { border-color: var(--accent-secondary); }
-}
-
-/* Minimap Scroll Improvements */
-.minimap-message {
-    transition: height 0.3s ease;
-}
-
-.minimap-viewport {
-    transition: top 0.1s ease, height 0.1s ease;
-}
-
-/* PWA Installation Improvements */
-.pwa-install-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: var(--accent-primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: var(--shadow-lg);
-    z-index: 1000;
-    transition: var(--transition);
-}
-
-.pwa-install-btn:hover {
-    background: var(--accent-secondary);
-    transform: scale(1.1);
-}
-
-/* Enhanced Scroll Effects */
-.messages-container {
-    scroll-behavior: smooth;
-}
-
-.messages-container.zoomed {
-    transform: scale(0.95);
-    transform-origin: center;
-    transition: transform 0.3s ease;
-}
-
-/* Improved Message Modal Responsiveness */
-@media (max-width: 768px) {
-    .message-modal .modal-footer {
-        position: sticky;
-        bottom: 0;
-        background: var(--bg-primary);
-        border-top: 1px solid var(--border-color);
-        padding: 16px 24px;
-    }
-    
-    .message-modal-content .message-content {
-        max-height: 60vh;
-    }
-}
-
 /* Enhanced Tutorial Experience */
 .tutorial-step {
     position: relative;
-    z-index: 10002;
-}
-
-.tutorial-element-highlight {
-    position: relative;
-    z-index: 10003;
-    animation: elementHighlight 2s ease-in-out infinite;
-}
-
-@keyframes elementHighlight {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    z-index: 10012;
 }
 
 /* Improved Minimap Accuracy */
@@ -3213,19 +3123,6 @@ body {
     height: auto;
     min-height: 4px;
     max-height: 20px;
-}
-
-/* Scroll Zoom Effects */
-.messages-container {
-    transition: transform 0.2s ease-out;
-}
-
-.messages-container.zoom-out {
-    transform: scale(0.98);
-}
-
-.messages-container.zoom-in {
-    transform: scale(1.02);
 }
 
 /* Enhanced Mobile Experience */
@@ -3253,4 +3150,41 @@ body {
 @keyframes errorPulse {
     0%, 100% { background-color: var(--error-bg); }
     50% { background-color: rgba(244, 67, 54, 0.2); }
+}
+
+/* Fix for tutorial text visibility */
+.tutorial-step p {
+    color: var(--text-primary) !important;
+    z-index: 10013;
+    position: relative;
+}
+
+.tutorial-content {
+    z-index: 10012 !important;
+}
+
+/* PWA Install Button Improvements */
+.pwa-install-section {
+    animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* GitHub Link Fix */
+.github-link {
+    text-decoration: none !important;
+}
+
+.github-link:focus,
+.github-link:active {
+    text-decoration: none !important;
 }
