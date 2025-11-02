@@ -1,4 +1,4 @@
-/* styles.css - Production Ready v3.0.1 - Fixed */
+/* styles.css - Production Ready v3.0.2 */
 * {
     margin: 0;
     padding: 0;
@@ -483,8 +483,37 @@ body {
 
 .messages-container.full-width .message {
     max-width: 95%;
+    font-size: 1.4em !important;
+    line-height: 1.7;
+}
+
+.messages-container.full-width .message-content {
     font-size: 1.1em;
-    line-height: 1.6;
+}
+
+.messages-container.full-width .message-content h1 {
+    font-size: 1.8em;
+}
+
+.messages-container.full-width .message-content h2 {
+    font-size: 1.6em;
+}
+
+.messages-container.full-width .message-content h3 {
+    font-size: 1.4em;
+}
+
+.messages-container.full-width .message-content p {
+    font-size: 1.1em;
+    line-height: 1.7;
+}
+
+.messages-container.full-width .message-content code {
+    font-size: 1em;
+}
+
+.messages-container.full-width .message-content pre {
+    font-size: 0.95em;
 }
 
 /* Custom scrollbar for messages */
@@ -707,8 +736,6 @@ body {
 
 .messages-container.full-width .message {
     max-width: 90%;
-    font-size: 1.1em;
-    line-height: 1.6;
 }
 
 .message-user {
@@ -2523,15 +2550,15 @@ body {
     background: var(--accent-secondary);
 }
 
-/* Tutorial overlay - FIXED */
+/* Tutorial overlay */
 .tutorial-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 10000;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10010;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2546,8 +2573,8 @@ body {
     max-height: 80vh;
     overflow-y: auto;
     text-align: center;
+    z-index: 10011;
     position: relative;
-    z-index: 10001;
 }
 
 .tutorial-step {
@@ -2576,7 +2603,7 @@ body {
     border-radius: var(--radius-md);
     background: rgba(100, 181, 246, 0.1);
     pointer-events: none;
-    z-index: 10002;
+    z-index: 10009;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
 }
 
@@ -2616,7 +2643,7 @@ body {
     background: var(--accent-secondary);
 }
 
-/* Tutorial element highlight - FIXED */
+/* Tutorial element highlight with text */
 .tutorial-element-highlight {
     position: fixed;
     background: var(--accent-primary);
@@ -2625,23 +2652,10 @@ body {
     border-radius: var(--radius-md);
     font-size: 14px;
     font-weight: 500;
-    z-index: 10003;
+    z-index: 10012;
     white-space: nowrap;
     pointer-events: none;
-    animation: tutorialPulse 2s ease-in-out infinite;
-    max-width: 200px;
-    text-align: center;
-}
-
-@keyframes tutorialPulse {
-    0%, 100% { 
-        transform: translateY(0) scale(1);
-        box-shadow: 0 4px 12px rgba(100, 181, 246, 0.3);
-    }
-    50% { 
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 6px 20px rgba(100, 181, 246, 0.5);
-    }
+    box-shadow: var(--shadow-lg);
 }
 
 /* Responsive styles */
@@ -2696,6 +2710,10 @@ body {
     
     .messages-container.full-width .message {
         max-width: 95%;
+        font-size: 1.3em !important;
+    }
+    
+    .messages-container.full-width .message-content {
         font-size: 1.05em;
     }
     
@@ -2843,7 +2861,6 @@ body {
         width: 95%;
     }
     
-    /* Mobile tutorial fixes */
     .tutorial-content {
         padding: 20px;
         margin: 20px;
@@ -2852,7 +2869,9 @@ body {
     .tutorial-element-highlight {
         font-size: 12px;
         padding: 6px 10px;
-        max-width: 160px;
+        max-width: 200px;
+        white-space: normal;
+        text-align: center;
     }
 }
 
@@ -2877,7 +2896,7 @@ body {
     
     .messages-container.full-width .message {
         max-width: 98%;
-        font-size: 1em;
+        font-size: 1.25em !important;
     }
     
     .chat-minimap-container {
@@ -3122,14 +3141,6 @@ body {
     .app-container {
         transition: transform 0.1s ease-out;
     }
-    
-    .app-header {
-        transition: transform 0.1s ease-out;
-    }
-    
-    .input-section {
-        transition: transform 0.1s ease-out;
-    }
 }
 
 /* Mobile-specific minimap positioning */
@@ -3171,11 +3182,11 @@ body {
 
 /* Tutorial Highlight Improvements */
 .tutorial-highlight {
-    animation: tutorialHighlightPulse 2s ease-in-out infinite;
+    animation: tutorialPulse 2s ease-in-out infinite;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-primary);
 }
 
-@keyframes tutorialHighlightPulse {
+@keyframes tutorialPulse {
     0%, 100% { border-color: var(--accent-primary); }
     50% { border-color: var(--accent-secondary); }
 }
@@ -3243,12 +3254,12 @@ body {
 /* Enhanced Tutorial Experience */
 .tutorial-step {
     position: relative;
-    z-index: 10002;
+    z-index: 10012;
 }
 
 .tutorial-element-highlight {
     position: relative;
-    z-index: 10003;
+    z-index: 10013;
     animation: elementHighlight 2s ease-in-out infinite;
 }
 
@@ -3304,22 +3315,28 @@ body {
     50% { background-color: rgba(244, 67, 54, 0.2); }
 }
 
-/* Fixed scroll behavior */
-.app-header,
-.app-footer,
-.input-section {
+/* Improved header and footer hiding */
+.app-header, .app-footer {
     transition: transform 0.2s ease-out !important;
 }
 
+.app-header.hidden, .app-footer.hidden {
+    transform: translateY(-100%) !important;
+}
+
+/* Ensure messages are properly visible when header/footer are hidden */
 .messages-container.full-width {
-    transition: all 0.2s ease-out !important;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-/* Ensure no empty spaces when headers are hidden */
-.app-header.hidden + .chat-main {
-    margin-top: 0;
+/* Fix for tutorial text visibility */
+.tutorial-step p {
+    color: var(--text-primary) !important;
+    z-index: 10013;
+    position: relative;
 }
 
-.app-footer.hidden {
-    margin-bottom: 0;
+.tutorial-content {
+    z-index: 10012 !important;
 }
