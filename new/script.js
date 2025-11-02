@@ -43,7 +43,6 @@ class KHAIAssistant {
             this.chatList = document.getElementById('chatList');
             this.newChatBtn = document.getElementById('newChatBtn');
             this.deleteAllChatsBtn = document.getElementById('deleteAllChatsBtn');
-            this.pwaInstallBtn = document.getElementById('pwaInstallBtn');
 
             // Search
             this.headerSearch = document.getElementById('headerSearch');
@@ -124,6 +123,10 @@ class KHAIAssistant {
             this.appHeader = document.querySelector('.app-header');
             this.appFooter = document.querySelector('.app-footer');
             this.chatMinimapContainer = document.querySelector('.chat-minimap-container');
+
+            // PWA Install button
+            this.pwaInstallBtn = document.getElementById('pwaInstallBtn');
+            this.pwaInstallBtnClose = document.getElementById('pwaInstallBtnClose');
 
             // Validate critical elements
             this.validateRequiredElements();
@@ -224,6 +227,12 @@ class KHAIAssistant {
                 description: 'Модель от xAI с уникальным характером и остроумными ответами',
                 available: true,
                 context: 128000
+            },
+            'khai-model': { 
+                name: 'KHAI Model', 
+                description: 'Наша собственная модель ИИ - в разработке',
+                available: false,
+                context: 128000
             }
         };
 
@@ -284,11 +293,6 @@ class KHAIAssistant {
                 action: () => this.handleContentCreationPreset()
             }
         ];
-
-        // Scroll hide state
-        this.scrollHideTimeout = null;
-        this.lastScrollTop = 0;
-        this.scrollThreshold = 10;
     }
 
     detectSystemTheme() {
@@ -367,10 +371,9 @@ class KHAIAssistant {
             this.setCurrentYear();
             this.setupHelpContent();
             this.setupMessageModal();
-            this.setupScrollEffects();
             this.setupTutorial();
             this.setupMinimapScroll();
-            this.updatePWAInstallButton();
+            this.setupPWAInstallButton();
             
             // Скрываем прелоадер после загрузки
             this.hidePreloader();
@@ -422,7 +425,6 @@ class KHAIAssistant {
             [this.sidebarOverlay, 'click', () => this.closeSidebar()],
             [this.newChatBtn, 'click', () => this.createNewChat()],
             [this.deleteAllChatsBtn, 'click', () => this.deleteAllChats()],
-            [this.pwaInstallBtn, 'click', () => this.installPWA()],
             [this.editChatModalClose, 'click', () => this.closeEditChatModal()],
             [this.editChatModalCancel, 'click', () => this.closeEditChatModal()],
             [this.editChatModalSave, 'click', () => this.saveChatName()],
@@ -469,6 +471,9 @@ class KHAIAssistant {
             // PWA events
             [window, 'beforeinstallprompt', (e) => this.handleBeforeInstallPrompt(e)],
             [window, 'appinstalled', () => this.handleAppInstalled()],
+            // PWA Install button
+            [this.pwaInstallBtn, 'click', () => this.installPWA()],
+            [this.pwaInstallBtnClose, 'click', () => this.hidePWAInstallButton()],
         ];
 
         events.forEach(([element, event, handler]) => {
@@ -487,62 +492,6 @@ class KHAIAssistant {
 
         // Tutorial event handlers
         this.setupTutorialEvents();
-
-        // Enhanced scroll events for header/footer hiding
-        this.setupEnhancedScroll();
-    }
-
-    setupEnhancedScroll() {
-        let lastScrollTop = 0;
-        const scrollThreshold = 50;
-
-        this.addEventListener(this.messagesContainer, 'scroll', () => {
-            const scrollTop = this.messagesContainer.scrollTop;
-            const isScrollingDown = scrollTop > lastScrollTop;
-            const scrollDelta = Math.abs(scrollTop - lastScrollTop);
-            
-            if (scrollDelta > scrollThreshold) {
-                if (isScrollingDown && scrollTop > 100) {
-                    // Scrolling down - hide header and footer
-                    this.hideHeaderFooter();
-                } else {
-                    // Scrolling up - show header and footer
-                    this.showHeaderFooter();
-                }
-                lastScrollTop = scrollTop;
-            }
-
-            // Clear existing timeout
-            if (this.scrollHideTimeout) {
-                clearTimeout(this.scrollHideTimeout);
-            }
-
-            // Set timeout to show header/footer when scrolling stops
-            this.scrollHideTimeout = setTimeout(() => {
-                this.showHeaderFooter();
-            }, 1500);
-        });
-
-        // Touch events for mobile
-        this.addEventListener(this.messagesContainer, 'touchstart', () => {
-            this.showHeaderFooter();
-        });
-    }
-
-    hideHeaderFooter() {
-        this.appHeader.classList.add('hidden');
-        this.appFooter.classList.add('hidden');
-        this.inputSection.classList.add('hidden');
-        this.messagesContainer.classList.add('full-width');
-        this.isScrolling = true;
-    }
-
-    showHeaderFooter() {
-        this.appHeader.classList.remove('hidden');
-        this.appFooter.classList.remove('hidden');
-        this.inputSection.classList.remove('hidden');
-        this.messagesContainer.classList.remove('full-width');
-        this.isScrolling = false;
     }
 
     setupTutorialEvents() {
@@ -655,9 +604,17 @@ class KHAIAssistant {
             label.className = 'tutorial-element-highlight';
             label.textContent = text;
             label.style.position = 'fixed';
-            label.style.left = `50%`;
+            label.style.left = `${rect.left}px`;
             label.style.top = `${rect.top + rect.height + 15}px`;
-            label.style.transform = 'translateX(-50%)';
+            label.style.background = 'var(--accent-primary)';
+            label.style.color = 'white';
+            label.style.padding = '8px 12px';
+            label.style.borderRadius = 'var(--radius-md)';
+            label.style.fontSize = '14px';
+            label.style.fontWeight = '500';
+            label.style.zIndex = '10013';
+            label.style.whiteSpace = 'nowrap';
+            label.style.boxShadow = 'var(--shadow-lg)';
             
             document.body.appendChild(label);
         }
@@ -786,15 +743,6 @@ class KHAIAssistant {
             
             particlesContainer.appendChild(particle);
         }
-    }
-
-    // Scroll effects
-    setupScrollEffects() {
-        // Improved scroll handling with faster transitions
-        this.appHeader.style.transition = 'transform 0.2s ease-out';
-        this.appFooter.style.transition = 'transform 0.2s ease-out';
-        this.inputSection.style.transition = 'transform 0.2s ease-out';
-        this.messagesContainer.style.transition = 'padding 0.2s ease-out';
     }
 
     // Welcome preset handlers
@@ -964,12 +912,8 @@ class KHAIAssistant {
         this.isPWAInstalled = false;
         this.debug('PWA installation available');
         
-        this.updatePWAInstallButton();
-        
-        // Show install notification after delay
-        this.setTimeout(() => {
-            this.showPWAInstallNotification();
-        }, 5000);
+        // Show install button in sidebar
+        this.showPWAInstallButton();
     }
 
     handleAppInstalled() {
@@ -977,28 +921,33 @@ class KHAIAssistant {
         this.isPWAInstalled = true;
         this.debug('PWA installed successfully');
         this.showNotification('Приложение успешно установлено!', 'success');
-        
-        this.updatePWAInstallButton();
+        this.hidePWAInstallButton();
         
         // Schedule welcome notification
         this.scheduleWelcomeNotification();
     }
 
-    updatePWAInstallButton() {
-        if (!this.pwaInstallBtn) return;
-        
+    setupPWAInstallButton() {
         if (this.isPWAInstalled) {
-            this.pwaInstallBtn.innerHTML = '<i class="ti ti-check"></i> Приложение установлено';
-            this.pwaInstallBtn.classList.add('installed');
-            this.pwaInstallBtn.disabled = true;
-        } else if (this.deferredPrompt) {
-            this.pwaInstallBtn.innerHTML = '<i class="ti ti-download"></i> Установить приложение';
-            this.pwaInstallBtn.classList.remove('installed');
-            this.pwaInstallBtn.disabled = false;
-        } else {
-            this.pwaInstallBtn.innerHTML = '<i class="ti ti-device-mobile"></i> Установить приложение';
-            this.pwaInstallBtn.classList.remove('installed');
-            this.pwaInstallBtn.disabled = false;
+            this.hidePWAInstallButton();
+            return;
+        }
+        
+        // Check if we can prompt for installation
+        if (this.deferredPrompt) {
+            this.showPWAInstallButton();
+        }
+    }
+
+    showPWAInstallButton() {
+        if (this.pwaInstallBtn) {
+            this.pwaInstallBtn.style.display = 'flex';
+        }
+    }
+
+    hidePWAInstallButton() {
+        if (this.pwaInstallBtn) {
+            this.pwaInstallBtn.style.display = 'none';
         }
     }
 
@@ -1470,7 +1419,8 @@ ${fileContent}
             'deepseek-chat': { model: 'deepseek-chat' },
             'deepseek-reasoner': { model: 'deepseek-reasoner' },
             'gemini-2.0-flash': { model: 'gemini-2.0-flash' },
-            'grok-beta': { model: 'grok-beta' }
+            'grok-beta': { model: 'grok-beta' },
+            'khai-model': { model: 'gpt-5-nano' } // Fallback for KHAI model
         };
         
         const options = {
@@ -2240,7 +2190,6 @@ ${fileContent}
             this.updateChatList();
             this.updateModelInfo();
             this.updateConnectionStatus();
-            this.updatePWAInstallButton();
         }
     }
 
@@ -2865,7 +2814,6 @@ ${fileContent}
 
     // Minimap
     setupMinimapScroll() {
-        // Improved minimap scroll handling
         this.addEventListener(this.messagesContainer, 'scroll', () => {
             this.updateMinimapViewport();
         });
@@ -3063,7 +3011,7 @@ ${fileContent}
                 <div class="model-item-header">
                     <span class="model-name">${config.name}</span>
                     <span class="model-status ${config.available ? 'available' : 'coming-soon'}">
-                        ${config.available ? 'Доступно' : 'В разработке'}
+                        ${config.available ? 'Доступно' : 'Ищем возможность'}
                     </span>
                 </div>
                 <div class="model-description">${config.description}</div>
@@ -3476,58 +3424,12 @@ ${fileContent}
         
         this.isPWAInstalled = isStandalone;
         
-        this.updatePWAInstallButton();
+        if (this.isPWAInstalled) {
+            this.hidePWAInstallButton();
+        }
         
         // Schedule inactivity notification
         this.scheduleInactivityNotification();
-    }
-
-    showPWAInstallNotification() {
-        // Проверяем, не было ли уже показано уведомление
-        if (document.querySelector('.pwa-notification') || localStorage.getItem('pwa-notification-dismissed')) {
-            return;
-        }
-
-        const notification = document.createElement('div');
-        notification.className = 'pwa-notification';
-        notification.innerHTML = `
-            <div class="pwa-notification-content">
-                <strong>Установите KHAI Assistant</strong>
-                <p>Для лучшего опыта установите приложение на ваше устройство</p>
-            </div>
-            <div class="pwa-notification-actions">
-                <button class="pwa-notification-btn" id="pwaDismissBtn">Позже</button>
-                <button class="pwa-notification-btn primary" id="pwaInstallBtn">Установить</button>
-            </div>
-        `;
-
-        document.body.appendChild(notification);
-
-        const dismissBtn = document.getElementById('pwaDismissBtn');
-        const installBtn = document.getElementById('pwaInstallBtn');
-
-        if (dismissBtn) {
-            this.addEventListener(dismissBtn, 'click', () => {
-                localStorage.setItem('pwa-notification-dismissed', 'true');
-                notification.remove();
-            });
-        }
-
-        if (installBtn) {
-            this.addEventListener(installBtn, 'click', () => {
-                this.installPWA();
-                localStorage.setItem('pwa-notification-dismissed', 'true');
-                notification.remove();
-            });
-        }
-
-        // Автоматическое скрытие через 10 секунд
-        this.setTimeout(() => {
-            if (notification.parentNode) {
-                localStorage.setItem('pwa-notification-dismissed', 'true');
-                notification.remove();
-            }
-        }, 10000);
     }
 
     async installPWA() {
@@ -3551,7 +3453,9 @@ ${fileContent}
                 if (outcome === 'accepted') {
                     this.showNotification('Приложение устанавливается...', 'success');
                     this.isPWAInstalled = true;
-                    this.updatePWAInstallButton();
+                    this.hidePWAInstallButton();
+                } else {
+                    this.showNotification('Установка отменена', 'info');
                 }
             } catch (error) {
                 console.error('Ошибка установки PWA:', error);
