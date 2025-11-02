@@ -1,4 +1,4 @@
-/* styles.css */
+/* styles.css - Production Ready v3.0.1 - Fixed */
 * {
     margin: 0;
     padding: 0;
@@ -276,8 +276,9 @@ body {
     flex-shrink: 0;
     height: 64px;
     transform: translateY(0);
-    transition: var(--transition);
+    transition: transform 0.2s ease-out;
     z-index: 100;
+    position: relative;
 }
 
 .app-header.hidden {
@@ -706,6 +707,8 @@ body {
 
 .messages-container.full-width .message {
     max-width: 90%;
+    font-size: 1.1em;
+    line-height: 1.6;
 }
 
 .message-user {
@@ -1158,8 +1161,9 @@ body {
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
     padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    transition: var(--transition);
+    transition: transform 0.2s ease-out;
     transform: translateY(0);
+    position: relative;
 }
 
 .input-section.hidden {
@@ -1478,7 +1482,8 @@ body {
     flex-shrink: 0;
     height: 56px;
     transform: translateY(0);
-    transition: var(--transition);
+    transition: transform 0.2s ease-out;
+    position: relative;
 }
 
 .app-footer.hidden {
@@ -2518,14 +2523,14 @@ body {
     background: var(--accent-secondary);
 }
 
-/* Tutorial overlay */
+/* Tutorial overlay - FIXED */
 .tutorial-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     z-index: 10000;
     display: flex;
     align-items: center;
@@ -2541,6 +2546,8 @@ body {
     max-height: 80vh;
     overflow-y: auto;
     text-align: center;
+    position: relative;
+    z-index: 10001;
 }
 
 .tutorial-step {
@@ -2569,7 +2576,7 @@ body {
     border-radius: var(--radius-md);
     background: rgba(100, 181, 246, 0.1);
     pointer-events: none;
-    z-index: 10001;
+    z-index: 10002;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
 }
 
@@ -2607,6 +2614,34 @@ body {
 
 .tutorial-btn.primary:hover {
     background: var(--accent-secondary);
+}
+
+/* Tutorial element highlight - FIXED */
+.tutorial-element-highlight {
+    position: fixed;
+    background: var(--accent-primary);
+    color: white;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10003;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: tutorialPulse 2s ease-in-out infinite;
+    max-width: 200px;
+    text-align: center;
+}
+
+@keyframes tutorialPulse {
+    0%, 100% { 
+        transform: translateY(0) scale(1);
+        box-shadow: 0 4px 12px rgba(100, 181, 246, 0.3);
+    }
+    50% { 
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(100, 181, 246, 0.5);
+    }
 }
 
 /* Responsive styles */
@@ -2661,6 +2696,7 @@ body {
     
     .messages-container.full-width .message {
         max-width: 95%;
+        font-size: 1.05em;
     }
     
     .chat-minimap-container {
@@ -2806,6 +2842,18 @@ body {
         max-width: 95%;
         width: 95%;
     }
+    
+    /* Mobile tutorial fixes */
+    .tutorial-content {
+        padding: 20px;
+        margin: 20px;
+    }
+    
+    .tutorial-element-highlight {
+        font-size: 12px;
+        padding: 6px 10px;
+        max-width: 160px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -2829,6 +2877,7 @@ body {
     
     .messages-container.full-width .message {
         max-width: 98%;
+        font-size: 1em;
     }
     
     .chat-minimap-container {
@@ -3096,4 +3145,181 @@ body {
         top: 60px;
         bottom: 120px;
     }
+}
+
+/* Message Modal Footer Responsive Fixes */
+.modal-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.modal-footer .modal-btn {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+}
+
+@media (max-width: 480px) {
+    .modal-footer {
+        flex-direction: column;
+    }
+    
+    .modal-footer .modal-btn {
+        width: 100%;
+    }
+}
+
+/* Tutorial Highlight Improvements */
+.tutorial-highlight {
+    animation: tutorialHighlightPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-primary);
+}
+
+@keyframes tutorialHighlightPulse {
+    0%, 100% { border-color: var(--accent-primary); }
+    50% { border-color: var(--accent-secondary); }
+}
+
+/* Minimap Scroll Improvements */
+.minimap-message {
+    transition: height 0.3s ease;
+}
+
+.minimap-viewport {
+    transition: top 0.1s ease, height 0.1s ease;
+}
+
+/* PWA Installation Improvements */
+.pwa-install-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    transition: var(--transition);
+}
+
+.pwa-install-btn:hover {
+    background: var(--accent-secondary);
+    transform: scale(1.1);
+}
+
+/* Enhanced Scroll Effects */
+.messages-container {
+    scroll-behavior: smooth;
+}
+
+.messages-container.zoomed {
+    transform: scale(0.95);
+    transform-origin: center;
+    transition: transform 0.3s ease;
+}
+
+/* Improved Message Modal Responsiveness */
+@media (max-width: 768px) {
+    .message-modal .modal-footer {
+        position: sticky;
+        bottom: 0;
+        background: var(--bg-primary);
+        border-top: 1px solid var(--border-color);
+        padding: 16px 24px;
+    }
+    
+    .message-modal-content .message-content {
+        max-height: 60vh;
+    }
+}
+
+/* Enhanced Tutorial Experience */
+.tutorial-step {
+    position: relative;
+    z-index: 10002;
+}
+
+.tutorial-element-highlight {
+    position: relative;
+    z-index: 10003;
+    animation: elementHighlight 2s ease-in-out infinite;
+}
+
+@keyframes elementHighlight {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Improved Minimap Accuracy */
+.minimap-message {
+    height: auto;
+    min-height: 4px;
+    max-height: 20px;
+}
+
+/* Scroll Zoom Effects */
+.messages-container {
+    transition: transform 0.2s ease-out;
+}
+
+.messages-container.zoom-out {
+    transform: scale(0.98);
+}
+
+.messages-container.zoom-in {
+    transform: scale(1.02);
+}
+
+/* Enhanced Mobile Experience */
+@media (max-width: 768px) {
+    .messages-container {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .chat-minimap-container {
+        touch-action: pan-y;
+    }
+}
+
+/* Loading State Improvements */
+.message.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Error State Visual Improvements */
+.message-error {
+    animation: errorPulse 2s ease-in-out;
+}
+
+@keyframes errorPulse {
+    0%, 100% { background-color: var(--error-bg); }
+    50% { background-color: rgba(244, 67, 54, 0.2); }
+}
+
+/* Fixed scroll behavior */
+.app-header,
+.app-footer,
+.input-section {
+    transition: transform 0.2s ease-out !important;
+}
+
+.messages-container.full-width {
+    transition: all 0.2s ease-out !important;
+}
+
+/* Ensure no empty spaces when headers are hidden */
+.app-header.hidden + .chat-main {
+    margin-top: 0;
+}
+
+.app-footer.hidden {
+    margin-bottom: 0;
 }
