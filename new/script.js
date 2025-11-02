@@ -1,5 +1,4 @@
-// script.js
-// KHAI Assistant - Production Ready v3.0.1
+// script.js - Production Ready v3.0.1 - Fixed
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -119,6 +118,11 @@ class KHAIAssistant {
             this.prevStepBtn4 = document.getElementById('prevStepBtn4');
             this.prevStepBtn5 = document.getElementById('prevStepBtn5');
             this.prevStepBtn6 = document.getElementById('prevStepBtn6');
+
+            // App header and footer for scroll effects
+            this.appHeader = document.querySelector('.app-header');
+            this.appFooter = document.querySelector('.app-footer');
+            this.chatMinimapContainer = document.querySelector('.chat-minimap-container');
 
             // Validate critical elements
             this.validateRequiredElements();
@@ -244,6 +248,7 @@ class KHAIAssistant {
         // Scroll state
         this.isScrolling = false;
         this.scrollTimeout = null;
+        this.scrollZoomLevel = 1;
 
         // Welcome presets
         this.welcomePresets = [
@@ -358,6 +363,7 @@ class KHAIAssistant {
             this.setupMessageModal();
             this.setupScrollEffects();
             this.setupTutorial();
+            this.setupMinimapScroll();
             
             // Скрываем прелоадер после загрузки
             this.hidePreloader();
@@ -473,6 +479,55 @@ class KHAIAssistant {
 
         // Tutorial event handlers
         this.setupTutorialEvents();
+
+        // Enhanced scroll events for zoom effects
+        this.setupEnhancedScroll();
+    }
+
+    setupEnhancedScroll() {
+        let scrollStartY = 0;
+        let isZooming = false;
+
+        this.addEventListener(this.messagesContainer, 'touchstart', (e) => {
+            if (e.touches.length === 2) {
+                scrollStartY = e.touches[0].pageY;
+                isZooming = true;
+            }
+        });
+
+        this.addEventListener(this.messagesContainer, 'touchmove', (e) => {
+            if (e.touches.length === 2 && isZooming) {
+                e.preventDefault();
+                const currentY = e.touches[0].pageY;
+                const deltaY = currentY - scrollStartY;
+                
+                if (Math.abs(deltaY) > 50) {
+                    this.scrollZoomLevel = deltaY > 0 ? 0.95 : 1.05;
+                    this.messagesContainer.style.transform = `scale(${this.scrollZoomLevel})`;
+                    scrollStartY = currentY;
+                }
+            }
+        });
+
+        this.addEventListener(this.messagesContainer, 'touchend', () => {
+            if (isZooming) {
+                isZooming = false;
+                // Возвращаем к исходному масштабу
+                this.messagesContainer.style.transform = 'scale(1)';
+                this.scrollZoomLevel = 1;
+            }
+        });
+
+        // Mouse wheel zoom
+        this.addEventListener(this.messagesContainer, 'wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                this.scrollZoomLevel = Math.max(0.8, Math.min(1.2, this.scrollZoomLevel + delta));
+                this.messagesContainer.style.transform = `scale(${this.scrollZoomLevel})`;
+                this.messagesContainer.style.transformOrigin = 'center center';
+            }
+        }, { passive: false });
     }
 
     setupTutorialEvents() {
@@ -526,7 +581,82 @@ class KHAIAssistant {
             currentStep.classList.add('active');
         }
         
+        // Highlight relevant UI elements
+        this.highlightTutorialElements(step);
+        
         this.currentTutorialStep = step;
+    }
+
+    highlightTutorialElements(step) {
+        // Remove previous highlights
+        const existingHighlights = document.querySelectorAll('.tutorial-highlight, .tutorial-element-highlight');
+        existingHighlights.forEach(el => el.remove());
+
+        let highlightElement = null;
+        let highlightText = '';
+
+        switch(step) {
+            case 2:
+                // Highlight sidebar menu
+                highlightElement = this.menuToggle;
+                highlightText = 'Основное меню для управления чатами';
+                break;
+            case 3:
+                // Highlight model selection
+                highlightElement = this.modelSelectBtn;
+                highlightText = 'Выбор модели ИИ для разных задач';
+                break;
+            case 4:
+                // Highlight mode buttons
+                highlightElement = document.querySelector('.action-buttons');
+                highlightText = 'Режимы работы: обычный, голос, изображения';
+                break;
+            case 5:
+                // Highlight file attachment
+                highlightElement = this.attachFileBtn;
+                highlightText = 'Прикрепление файлов для анализа';
+                break;
+        }
+
+        if (highlightElement) {
+            this.createTutorialHighlight(highlightElement, highlightText);
+        }
+    }
+
+    createTutorialHighlight(element, text) {
+        const rect = element.getBoundingClientRect();
+        const highlight = document.createElement('div');
+        highlight.className = 'tutorial-highlight';
+        highlight.style.width = `${rect.width + 20}px`;
+        highlight.style.height = `${rect.height + 20}px`;
+        highlight.style.left = `${rect.left - 10}px`;
+        highlight.style.top = `${rect.top - 10}px`;
+        
+        document.body.appendChild(highlight);
+
+        // Add text label - FIXED: Better positioning and visibility
+        if (text) {
+            const label = document.createElement('div');
+            label.className = 'tutorial-element-highlight';
+            label.textContent = text;
+            label.style.position = 'fixed';
+            
+            // Position below the element with proper spacing
+            const viewportHeight = window.innerHeight;
+            const spaceBelow = viewportHeight - rect.bottom;
+            
+            if (spaceBelow > 60) {
+                // Enough space below - position below
+                label.style.left = `${Math.max(10, rect.left)}px`;
+                label.style.top = `${rect.bottom + 15}px`;
+            } else {
+                // Not enough space below - position above
+                label.style.left = `${Math.max(10, rect.left)}px`;
+                label.style.bottom = `${viewportHeight - rect.top + 15}px`;
+            }
+            
+            document.body.appendChild(label);
+        }
     }
 
     nextTutorialStep() {
@@ -559,7 +689,7 @@ class KHAIAssistant {
 
     // Message Modal Methods
     setupMessageModal() {
-        // Already bound in bindEvents
+        // Уже привязано в bindEvents
     }
 
     openMessageModal(messageElement) {
@@ -576,6 +706,25 @@ class KHAIAssistant {
         this.currentModalMessage = this.extractPlainText(messageContent.innerHTML);
         
         this.messageModal.classList.add('active');
+        
+        // Адаптируем кнопки для мобильных устройств
+        this.adaptMessageModalButtons();
+    }
+
+    adaptMessageModalButtons() {
+        const modalFooter = this.messageModal.querySelector('.modal-footer');
+        if (window.innerWidth <= 768) {
+            modalFooter.classList.add('mobile-layout');
+            // Перестраиваем кнопки для мобильных
+            const buttons = modalFooter.querySelectorAll('.modal-btn');
+            buttons.forEach(btn => {
+                btn.style.flex = '1';
+                btn.style.minWidth = '0';
+                btn.style.margin = '2px';
+            });
+        } else {
+            modalFooter.classList.remove('mobile-layout');
+        }
     }
 
     closeMessageModal() {
@@ -590,8 +739,10 @@ class KHAIAssistant {
             .then(() => {
                 this.showNotification('Сообщение скопировано в буфер обмена', 'success');
                 this.messageModalCopy.innerHTML = '<i class="ti ti-check"></i> Скопировано!';
+                this.messageModalCopy.classList.add('copied');
                 this.setTimeout(() => {
                     this.messageModalCopy.innerHTML = '<i class="ti ti-copy"></i> Копировать';
+                    this.messageModalCopy.classList.remove('copied');
                 }, 2000);
             })
             .catch(() => {
@@ -633,41 +784,52 @@ class KHAIAssistant {
         }
     }
 
-    // Scroll effects
+    // Scroll effects - FIXED: Improved scroll behavior
     setupScrollEffects() {
         let lastScrollTop = 0;
-        const scrollThreshold = 100;
+        const scrollThreshold = 50;
+        let scrollTimeout;
 
         this.addEventListener(this.messagesContainer, 'scroll', () => {
             const scrollTop = this.messagesContainer.scrollTop;
-            const isScrollingDown = scrollTop > lastScrollTop;
+            const scrollHeight = this.messagesContainer.scrollHeight;
+            const clientHeight = this.messagesContainer.clientHeight;
             
-            if (Math.abs(scrollTop - lastScrollTop) > scrollThreshold) {
-                if (isScrollingDown && scrollTop > 200) {
-                    // Scrolling down - hide header and footer
-                    this.appHeader.classList.add('hidden');
-                    this.appFooter.classList.add('hidden');
-                    this.messagesContainer.classList.add('full-width');
-                } else {
-                    // Scrolling up - show header and footer
-                    this.appHeader.classList.remove('hidden');
-                    this.appFooter.classList.remove('hidden');
-                    this.messagesContainer.classList.remove('full-width');
-                }
-                lastScrollTop = scrollTop;
-            }
-
+            const isScrollingDown = scrollTop > lastScrollTop;
+            const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+            
             // Clear existing timeout
-            if (this.scrollTimeout) {
-                clearTimeout(this.scrollTimeout);
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
             }
-
+            
+            if (isScrollingDown && scrollTop > 100 && !isNearBottom) {
+                // Scrolling down and not near bottom - hide header and footer
+                this.appHeader.classList.add('hidden');
+                this.appFooter.classList.add('hidden');
+                this.messagesContainer.classList.add('full-width');
+            } else {
+                // Scrolling up or near bottom - show header and footer immediately
+                this.appHeader.classList.remove('hidden');
+                this.appFooter.classList.remove('hidden');
+                this.messagesContainer.classList.remove('full-width');
+            }
+            
+            lastScrollTop = scrollTop;
+            
             // Set timeout to show header/footer when scrolling stops
-            this.scrollTimeout = setTimeout(() => {
+            scrollTimeout = setTimeout(() => {
                 this.appHeader.classList.remove('hidden');
                 this.appFooter.classList.remove('hidden');
                 this.messagesContainer.classList.remove('full-width');
             }, 1500);
+        });
+
+        // Ensure headers are visible when touching input area
+        this.addEventListener(this.inputSection, 'touchstart', () => {
+            this.appHeader.classList.remove('hidden');
+            this.appFooter.classList.remove('hidden');
+            this.messagesContainer.classList.remove('full-width');
         });
     }
 
@@ -713,6 +875,11 @@ class KHAIAssistant {
         this.isInputFocused = true;
         this.userInput.classList.add('dynamic-font');
         this.updateInputSize();
+        
+        // Ensure headers are visible when focusing input
+        this.appHeader.classList.remove('hidden');
+        this.appFooter.classList.remove('hidden');
+        this.messagesContainer.classList.remove('full-width');
     }
 
     handleInputBlur() {
@@ -958,7 +1125,7 @@ class KHAIAssistant {
         this.debounceTimers.set(id, setTimeout(fn, delay));
     }
 
-    addEventListener(element, event, handler) {
+    addEventListener(element, event, handler, options) {
         if (!element) return;
         
         const wrappedHandler = (...args) => {
@@ -970,12 +1137,12 @@ class KHAIAssistant {
             }
         };
 
-        element.addEventListener(event, wrappedHandler);
+        element.addEventListener(event, wrappedHandler, options);
         
         if (!this.activeEventListeners.has(element)) {
             this.activeEventListeners.set(element, []);
         }
-        this.activeEventListeners.get(element).push({ event, handler: wrappedHandler });
+        this.activeEventListeners.get(element).push({ event, handler: wrappedHandler, options });
     }
 
     setTimeout(callback, delay) {
@@ -2715,6 +2882,13 @@ ${fileContent}
     }
 
     // Minimap
+    setupMinimapScroll() {
+        // Improved minimap scroll handling
+        this.addEventListener(this.messagesContainer, 'scroll', () => {
+            this.updateMinimapViewport();
+        });
+    }
+
     updateMinimap() {
         if (!this.minimapContent || !this.messagesContainer) return;
         
@@ -2724,15 +2898,17 @@ ${fileContent}
         if (messages.length === 0) return;
         
         const containerHeight = this.messagesContainer.scrollHeight;
+        const viewportHeight = this.messagesContainer.clientHeight;
         
+        // Calculate accurate heights for minimap
         messages.forEach((message, index) => {
             const block = document.createElement('div');
             block.className = `minimap-message ${message.classList.contains('message-user') ? 'user' : 'ai'}`;
             block.dataset.index = index;
             
-            // Calculate relative height based on content
-            const messageScrollHeight = message.scrollHeight;
-            const relativeHeight = Math.max((messageScrollHeight / containerHeight) * 100, 3);
+            // Calculate relative height based on actual content height
+            const messageHeight = message.offsetHeight;
+            const relativeHeight = Math.max((messageHeight / containerHeight) * 100, 2); // Minimum 2%
             block.style.height = `${relativeHeight}%`;
             
             block.addEventListener('click', () => this.scrollToMessage(index));
@@ -3282,6 +3458,11 @@ ${fileContent}
         if (this.messagesContainer.children.length <= 1) {
             this.createFloatingParticles();
         }
+        
+        // Adapt message modal buttons
+        if (this.messageModal.classList.contains('active')) {
+            this.adaptMessageModalButtons();
+        }
     }
 
     setupResponsiveMinimap() {
@@ -3600,8 +3781,8 @@ ${fileContent}
         }
 
         this.activeEventListeners.forEach((listeners, element) => {
-            listeners.forEach(({ event, handler }) => {
-                element.removeEventListener(event, handler);
+            listeners.forEach(({ event, handler, options }) => {
+                element.removeEventListener(event, handler, options);
             });
         });
         this.activeEventListeners.clear();
