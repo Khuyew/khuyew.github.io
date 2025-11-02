@@ -1,4 +1,27 @@
-/* styles.css - Production Ready v3.0.3 */
+/* styles.css - Production Ready v3.0.4 */
+/* Accessibility helpers */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+.skip-link { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+.skip-link:focus { position:fixed; left:16px; top:16px; width:auto; height:auto; padding:10px 14px; background: var(--accent-primary); color:#fff; border-radius:8px; z-index:20000; }
+
+:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* High contrast mode */
+[data-contrast="high"] {
+  --bg-primary: #000000;
+  --bg-secondary: #0d0d0d;
+  --bg-tertiary: #161616;
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-tertiary: #c0c0c0;
+  --border-color: #666;
+  --accent-primary: #00d0ff;
+  --accent-secondary: #00a0cc;
+}
 * {
     margin: 0;
     padding: 0;
@@ -57,6 +80,9 @@
     
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* font scaling */
+    --message-font-size: 14px;
 }
 
 [data-theme="light"] {
@@ -275,14 +301,8 @@ body {
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
     height: 64px;
-    transform: translateY(0);
-    transition: transform 0.2s ease-out;
     z-index: 100;
     position: relative;
-}
-
-.app-header.hidden {
-    transform: translateY(-100%);
 }
 
 .header-content {
@@ -474,46 +494,6 @@ body {
     scroll-behavior: smooth;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
     transition: var(--transition);
-}
-
-.messages-container.full-width {
-    max-width: 100%;
-    padding: 20px 16px;
-}
-
-.messages-container.full-width .message {
-    max-width: 95%;
-    font-size: 1.4em !important;
-    line-height: 1.7;
-}
-
-.messages-container.full-width .message-content {
-    font-size: 1.1em;
-}
-
-.messages-container.full-width .message-content h1 {
-    font-size: 1.8em;
-}
-
-.messages-container.full-width .message-content h2 {
-    font-size: 1.6em;
-}
-
-.messages-container.full-width .message-content h3 {
-    font-size: 1.4em;
-}
-
-.messages-container.full-width .message-content p {
-    font-size: 1.1em;
-    line-height: 1.7;
-}
-
-.messages-container.full-width .message-content code {
-    font-size: 1em;
-}
-
-.messages-container.full-width .message-content pre {
-    font-size: 0.95em;
 }
 
 /* Custom scrollbar for messages */
@@ -722,7 +702,7 @@ body {
     line-height: 1.6;
     animation: fadeIn 0.3s ease;
     position: relative;
-    font-size: 14px;
+    font-size: var(--message-font-size);
     word-wrap: break-word;
     box-shadow: var(--shadow-sm);
     cursor: pointer;
@@ -732,10 +712,6 @@ body {
 .message:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
-}
-
-.messages-container.full-width .message {
-    max-width: 90%;
 }
 
 .message-user {
@@ -884,6 +860,8 @@ body {
 .welcome-content.hidden {
     display: none;
 }
+
+kbd { background: var(--bg-tertiary); color: var(--text-primary); border:1px solid var(--border-color); border-bottom-width:2px; padding:2px 6px; border-radius:6px; font-size: 12px; }
 
 /* Markdown Styles */
 .message-content {
@@ -1188,13 +1166,15 @@ body {
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
     padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    transition: transform 0.2s ease-out;
-    transform: translateY(0);
     position: relative;
 }
 
-.input-section.hidden {
-    transform: translateY(100%);
+/* Drag & Drop highlight */
+.input-section.drag-over,
+.messages-container.drag-over {
+    outline: 2px dashed var(--accent-primary);
+    outline-offset: 8px;
+    background: linear-gradient(0deg, rgba(100,181,246,0.08), rgba(100,181,246,0.08)), var(--bg-primary);
 }
 
 /* Mode indicator */
@@ -1508,13 +1488,7 @@ body {
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
     height: 56px;
-    transform: translateY(0);
-    transition: transform 0.2s ease-out;
     position: relative;
-}
-
-.app-footer.hidden {
-    transform: translateY(100%);
 }
 
 .footer-content {
@@ -1575,6 +1549,33 @@ body {
     color: var(--text-primary);
     transform: translateY(-1px);
 }
+
+/* Floating Compose Button */
+.fab-compose {
+    position: fixed;
+    right: 16px;
+    bottom: 80px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    z-index: 1200;
+    transition: var(--transition);
+}
+.fab-compose:hover { transform: translateY(-2px); background: var(--accent-secondary); }
+
+/* Compact (reading) mode */
+.compact .app-header { transform: translateY(-100%); }
+.compact .app-footer { transform: translateY(100%); }
+.compact .input-section { transform: translateY(100%); }
+.compact .chat-minimap-container { opacity: 0; pointer-events: none; }
+.compact .fab-compose { display: flex; }
 
 /* Sidebar Menu */
 .sidebar-menu {
@@ -1683,6 +1684,64 @@ body {
     display: flex;
     flex-direction: column;
     gap: 24px;
+}
+
+/* PWA Install Button in Sidebar */
+.pwa-install-section {
+    margin-bottom: 16px;
+}
+
+.pwa-install-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: var(--transition);
+    text-decoration: none;
+    box-shadow: var(--shadow-md);
+    position: relative;
+}
+
+.pwa-install-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.pwa-install-btn .badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.pwa-install-btn-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.pwa-install-btn-close:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 /* Sidebar Search */
@@ -1860,18 +1919,6 @@ body {
     color: white;
 }
 
-/* PWA Install Button in Sidebar */
-.sidebar-btn.pwa-install {
-    background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
-    color: white;
-}
-
-.sidebar-btn.pwa-install:hover {
-    background: linear-gradient(135deg, var(--accent-secondary), var(--user-message-bg-end));
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
 /* About section */
 .about-content {
     display: flex;
@@ -1950,13 +1997,13 @@ body {
     border-radius: var(--radius-md);
     transition: var(--transition);
     margin-bottom: 20px;
-    text-decoration: none !important;
+    text-decoration: none;
 }
 
 .github-link:hover {
     background: var(--bg-hover);
     transform: translateY(-1px);
-    text-decoration: none !important;
+    text-decoration: none;
 }
 
 .github-link i {
@@ -2501,69 +2548,6 @@ body {
     vertical-align: middle;
 }
 
-/* PWA Notification */
-.pwa-notification {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 16px;
-    box-shadow: var(--shadow-xl);
-    z-index: 10000;
-    max-width: 400px;
-    width: 90%;
-}
-
-.pwa-notification-content {
-    margin-bottom: 12px;
-}
-
-.pwa-notification-content strong {
-    display: block;
-    margin-bottom: 4px;
-    color: var(--text-primary);
-}
-
-.pwa-notification-content p {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin: 0;
-}
-
-.pwa-notification-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-}
-
-.pwa-notification-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    font-size: 14px;
-    transition: var(--transition);
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-}
-
-.pwa-notification-btn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-}
-
-.pwa-notification-btn.primary {
-    background: var(--accent-primary);
-    color: white;
-}
-
-.pwa-notification-btn.primary:hover {
-    background: var(--accent-secondary);
-}
-
 /* Tutorial overlay */
 .tutorial-overlay {
     position: fixed;
@@ -2619,6 +2603,22 @@ body {
     pointer-events: none;
     z-index: 10009;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    animation: tutorialPulse 2s ease-in-out infinite;
+}
+
+.tutorial-element-highlight {
+    position: fixed;
+    background: var(--accent-primary);
+    color: white;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10013;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: var(--shadow-lg);
+    animation: elementHighlight 2s ease-in-out infinite;
 }
 
 .tutorial-actions {
@@ -2657,37 +2657,14 @@ body {
     background: var(--accent-secondary);
 }
 
-/* Tutorial element highlight with text */
-.tutorial-element-highlight {
-    position: fixed;
-    background: var(--accent-primary);
-    color: white;
-    padding: 8px 12px;
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 10012;
-    white-space: nowrap;
-    pointer-events: none;
-    box-shadow: var(--shadow-lg);
-    min-width: 200px;
-    text-align: center;
-    left: 50%;
-    transform: translateX(-50%);
+@keyframes tutorialPulse {
+    0%, 100% { border-color: var(--accent-primary); }
+    50% { border-color: var(--accent-secondary); }
 }
 
-/* Enhanced tutorial highlight */
-.tutorial-element-highlight::after {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 5px solid var(--accent-primary);
+@keyframes elementHighlight {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 
 /* Responsive styles */
@@ -2738,15 +2715,6 @@ body {
     .message {
         max-width: 90%;
         padding: 14px 16px;
-    }
-    
-    .messages-container.full-width .message {
-        max-width: 95%;
-        font-size: 1.3em !important;
-    }
-    
-    .messages-container.full-width .message-content {
-        font-size: 1.05em;
     }
     
     .chat-minimap-container {
@@ -2924,11 +2892,6 @@ body {
     .message {
         max-width: 95%;
         padding: 12px 14px;
-    }
-    
-    .messages-container.full-width .message {
-        max-width: 98%;
-        font-size: 1.25em !important;
     }
     
     .chat-minimap-container {
@@ -3212,99 +3175,10 @@ body {
     }
 }
 
-/* Tutorial Highlight Improvements */
-.tutorial-highlight {
-    animation: tutorialPulse 2s ease-in-out infinite;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-primary);
-    border: 3px solid var(--accent-primary);
-}
-
-@keyframes tutorialPulse {
-    0%, 100% { 
-        border-color: var(--accent-primary); 
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-primary);
-    }
-    50% { 
-        border-color: #90caf9; 
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 30px #90caf9;
-    }
-}
-
-/* Minimap Scroll Improvements */
-.minimap-message {
-    transition: height 0.3s ease;
-}
-
-.minimap-viewport {
-    transition: top 0.1s ease, height 0.1s ease;
-}
-
-/* PWA Installation Improvements */
-.pwa-install-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: var(--accent-primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: var(--shadow-lg);
-    z-index: 1000;
-    transition: var(--transition);
-}
-
-.pwa-install-btn:hover {
-    background: var(--accent-secondary);
-    transform: scale(1.1);
-}
-
-/* Enhanced Scroll Effects */
-.messages-container {
-    scroll-behavior: smooth;
-}
-
-.messages-container.zoomed {
-    transform: scale(0.95);
-    transform-origin: center;
-    transition: transform 0.3s ease;
-}
-
-/* Improved Message Modal Responsiveness */
-@media (max-width: 768px) {
-    .message-modal .modal-footer {
-        position: sticky;
-        bottom: 0;
-        background: var(--bg-primary);
-        border-top: 1px solid var(--border-color);
-        padding: 16px 24px;
-    }
-    
-    .message-modal-content .message-content {
-        max-height: 60vh;
-    }
-}
-
 /* Enhanced Tutorial Experience */
 .tutorial-step {
     position: relative;
     z-index: 10012;
-}
-
-.tutorial-element-highlight {
-    position: relative;
-    z-index: 10013;
-    animation: elementHighlight 2s ease-in-out infinite;
-}
-
-@keyframes elementHighlight {
-    0%, 100% { transform: translateX(-50%) scale(1); }
-    50% { transform: translateX(-50%) scale(1.05); }
 }
 
 /* Improved Minimap Accuracy */
@@ -3312,19 +3186,6 @@ body {
     height: auto;
     min-height: 4px;
     max-height: 20px;
-}
-
-/* Scroll Zoom Effects */
-.messages-container {
-    transition: transform 0.2s ease-out;
-}
-
-.messages-container.zoom-out {
-    transform: scale(0.98);
-}
-
-.messages-container.zoom-in {
-    transform: scale(1.02);
 }
 
 /* Enhanced Mobile Experience */
@@ -3354,29 +3215,6 @@ body {
     50% { background-color: rgba(244, 67, 54, 0.2); }
 }
 
-/* Improved header and footer hiding */
-.app-header, .app-footer, .input-section {
-    transition: transform 0.2s ease-out !important;
-}
-
-.app-header.hidden {
-    transform: translateY(-100%) !important;
-}
-
-.app-footer.hidden {
-    transform: translateY(100%) !important;
-}
-
-.input-section.hidden {
-    transform: translateY(100%) !important;
-}
-
-/* Ensure messages are properly visible when header/footer are hidden */
-.messages-container.full-width {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
 /* Fix for tutorial text visibility */
 .tutorial-step p {
     color: var(--text-primary) !important;
@@ -3388,55 +3226,28 @@ body {
     z-index: 10012 !important;
 }
 
-/* Fix for GitHub link underline */
+/* PWA Install Button Improvements */
+.pwa-install-section {
+    animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* GitHub Link Fix */
 .github-link {
     text-decoration: none !important;
 }
 
-.github-link:hover {
+.github-link:focus,
+.github-link:active {
     text-decoration: none !important;
-}
-
-/* PWA Install Button in Sidebar */
-.sidebar-btn.pwa-install {
-    background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
-    color: white;
-    margin-top: 8px;
-}
-
-.sidebar-btn.pwa-install:hover {
-    background: linear-gradient(135deg, var(--accent-secondary), var(--user-message-bg-end));
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-.sidebar-btn.pwa-install.installed {
-    background: var(--success-bg);
-    color: var(--success-text);
-}
-
-.sidebar-btn.pwa-install.installed:hover {
-    background: var(--success-text);
-    color: white;
-}
-
-/* Enhanced scroll hide/show with proper z-index */
-.app-header, .app-footer, .input-section {
-    z-index: 100;
-    background: var(--bg-primary);
-}
-
-.messages-container.full-width {
-    height: 100vh;
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
-/* Fix for tutorial highlight positioning */
-.tutorial-element-highlight {
-    z-index: 10014;
-}
-
-.tutorial-highlight {
-    z-index: 10013;
 }
