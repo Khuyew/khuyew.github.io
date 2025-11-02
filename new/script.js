@@ -1,4 +1,4 @@
-// script.js - Production Ready v3.0.3
+// script.js - Production Ready v3.0.4
 class KHAIAssistant {
     constructor() {
         this.DEBUG = false;
@@ -128,6 +128,13 @@ class KHAIAssistant {
             this.pwaInstallBtn = document.getElementById('pwaInstallBtn');
             this.pwaInstallBtnClose = document.getElementById('pwaInstallBtnClose');
 
+            // Settings elements
+            this.settingsLang = document.getElementById('settingsLang');
+            this.settingsTheme = document.getElementById('settingsTheme');
+            this.settingsContrast = document.getElementById('settingsContrast');
+            this.settingsTextSize = document.getElementById('settingsTextSize');
+            this.settingsCompact = document.getElementById('settingsCompact');
+
             // Validate critical elements
             this.validateRequiredElements();
             
@@ -183,6 +190,10 @@ class KHAIAssistant {
         this.activeEventListeners = new Map();
 
         // Configuration
+        // i18n
+        this.currentLang = this.detectLanguage();
+        this.i18n = this.buildI18n();
+
         this.placeholderExamples = [
             "Расскажи о возможностях искусственного интеллекта...",
             "Напиши код для сортировки массива на Python...",
@@ -259,6 +270,9 @@ class KHAIAssistant {
         this.isScrolling = false;
         this.scrollTimeout = null;
         this.scrollZoomLevel = 1;
+        this.lastScrollTop = 0;
+        this.compactMode = false;
+        this.compactEnabled = true;
 
         // Welcome presets
         this.welcomePresets = [
@@ -364,7 +378,7 @@ class KHAIAssistant {
             this.setupResponsiveMinimap();
             this.updateModelInfo();
             this.updateModelList();
-            this.updateDocumentTitle();
+            this.applyLanguage();
             this.updateConnectionStatus();
             this.checkPWAInstallation();
             this.setup404Handling();
@@ -379,7 +393,7 @@ class KHAIAssistant {
             this.hidePreloader();
             
             this.debug('KHAI Assistant успешно загружен');
-            this.showNotification('KHAI Assistant загружен и готов к работе!', 'success');
+            this.showNotification(this.tr('notify.loaded'), 'success');
             
             // Setup cleanup on page unload
             this.setupCleanup();
@@ -408,6 +422,7 @@ class KHAIAssistant {
             [this.sendBtn, 'click', () => this.handleSendButtonClick()],
             [this.userInput, 'keydown', (e) => this.handleInputKeydown(e)],
             [this.userInput, 'input', () => this.handleInputChange()],
+            [this.userInput, 'paste', (e) => this.handlePaste(e)],
             [this.userInput, 'focus', () => this.handleInputFocus()],
             [this.userInput, 'blur', () => this.handleInputBlur()],
             [this.clearInputBtn, 'click', () => this.clearInput()],
@@ -450,7 +465,7 @@ class KHAIAssistant {
             [this.sidebarSearch, 'input', () => this.debounce('sidebarSearch', () => this.handleSidebarSearchInput(), 300)],
             [this.sidebarSearchClear, 'click', () => this.clearSidebarSearch()],
             [this.importChatBtn, 'click', () => this.importChatHistory()],
-            [this.downloadChatBtn, 'click', () => this.downloadCurrentChat()],
+            [this.downloadChatBtn, 'click', (e) => this.downloadCurrentChat(e)],
             [this.errorBackBtn, 'click', () => this.hide404Page()],
             [this.helpModalClose, 'click', () => this.closeHelpModal()],
             [this.helpModalOk, 'click', () => this.closeHelpModal()],
@@ -474,7 +489,21 @@ class KHAIAssistant {
             // PWA Install button
             [this.pwaInstallBtn, 'click', () => this.installPWA()],
             [this.pwaInstallBtnClose, 'click', () => this.hidePWAInstallButton()],
+            // Settings in sidebar
+            [this.settingsLang, 'change', (e) => this.setLanguage(e.target.value)],
+            [this.settingsTheme, 'click', () => this.toggleTheme()],
+            [this.settingsContrast, 'change', (e) => this.setContrastEnabled(e.target.checked)],
+            [this.settingsTextSize, 'input', (e) => this.applyTextZoom(parseInt(e.target.value))],
+            [this.settingsCompact, 'change', (e) => this.setCompactEnabled(e.target.checked)],
         ];
+
+        // Drag & Drop attachments (on input area and messages container)
+        this.addEventListener(this.inputSection, 'dragover', (e) => this.handleDragOver(e));
+        this.addEventListener(this.inputSection, 'dragleave', (e) => this.handleDragLeave(e));
+        this.addEventListener(this.inputSection, 'drop', (e) => this.handleDrop(e));
+        this.addEventListener(this.messagesContainer, 'dragover', (e) => this.handleDragOver(e));
+        this.addEventListener(this.messagesContainer, 'dragleave', (e) => this.handleDragLeave(e));
+        this.addEventListener(this.messagesContainer, 'drop', (e) => this.handleDrop(e));
 
         events.forEach(([element, event, handler]) => {
             if (element) {
@@ -849,19 +878,20 @@ class KHAIAssistant {
             
             <h2><i class="ti ti-messages"></i> Система чатов</h2>
             <ul>
-                <li><strong>Создание нового чата</strong> - нажмите "Новый чат" в меню</li>
-                <li><strong>Редактирование названия</strong> - нажмите на иконку карандаша рядом с чатом</li>
-                <li><strong>Скачать чат</strong> - нажмите на иконку загрузки для экспорта</li>
-                <li><strong>Импорт чата</strong> - загрузите ранее сохраненный чат</li>
-                <li><strong>Удалить все чаты</strong> - кнопка внизу меню (кроме основного)</li>
+                <li><strong>Создание нового чата</strong> — нажмите «Новый чат» в меню</li>
+                <li><strong>Редактирование названия</strong> — нажмите на иконку карандаша рядом с чатом</li>
+                <li><strong>Скачать чат</strong> — клик по иконке сохранит JSON, удерживайте <kbd>Shift</kbd> для экспорта в Markdown</li>
+                <li><strong>Импорт чата</strong> — загрузите ранее сохраненный чат</li>
+                <li><strong>Удалить все чаты</strong> — кнопка внизу меню (кроме основного)</li>
             </ul>
             
             <h2><i class="ti ti-file"></i> Работа с файлами</h2>
             <ul>
-                <li><strong>Изображения</strong> - прикрепите для анализа текста и содержимого</li>
-                <li><strong>Текстовые файлы</strong> - прикрепите для анализа содержимого</li>
-                <li><strong>Файлы кода</strong> - анализ кода на различных языках программирования</li>
-                <li><strong>Максимум файлов</strong> - можно прикрепить до 3 файлов за раз</li>
+                <li><strong>Изображения</strong> — прикрепите для анализа текста и содержимого</li>
+                <li><strong>Текстовые файлы</strong> — прикрепите для анализа содержимого</li>
+                <li><strong>Файлы кода</strong> — анализ кода на различных языках программирования</li>
+                <li><strong>Перетаскивание/вставка</strong> — просто перетащите файлы в окно или вставьте из буфера обмена</li>
+                <li><strong>Максимум файлов</strong> — можно прикрепить до 3 файлов за раз</li>
             </ul>
             
             <h2><i class="ti ti-photo"></i> Генерация изображений</h2>
@@ -1020,7 +1050,10 @@ class KHAIAssistant {
     hide404Page() {
         if (this.page404) this.page404.style.display = 'none';
         if (this.appContainer) this.appContainer.style.display = 'flex';
-        window.history.replaceState(null, '', '/');
+        // Ensure correct base path on GitHub Pages (project pages)
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        const base = parts.length ? `/${parts[0]}/` : '/';
+        window.history.replaceState(null, '', base);
     }
 
     // Set current year in sidebar
@@ -1088,6 +1121,7 @@ class KHAIAssistant {
     toggleTheme() {
         this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
         document.body.setAttribute('data-theme', this.currentTheme);
+        this.updateThemeColorMeta();
         
         try {
             localStorage.setItem('khai-assistant-theme', this.currentTheme);
@@ -1097,7 +1131,7 @@ class KHAIAssistant {
         
         const themeIcon = this.currentTheme === 'dark' ? 'ti-sun' : 'ti-moon';
         if (this.themeToggle) {
-            this.themeToggle.innerHTML = `<i class="ti ${themeIcon}"></i>`;
+            this.themeToggle.innerHTML = `<i class=\"ti ${themeIcon}\"></i>`;
         }
         
         this.showNotification(
@@ -1107,6 +1141,10 @@ class KHAIAssistant {
     }
 
     loadThemePreference() {
+        try {
+            const savedContrast = localStorage.getItem('khai-contrast');
+            if (savedContrast === 'high') document.body.setAttribute('data-contrast', 'high');
+        } catch {}
         try {
             const savedTheme = localStorage.getItem('khai-assistant-theme');
             if (savedTheme === 'light' || savedTheme === 'dark') {
@@ -1164,13 +1202,15 @@ class KHAIAssistant {
 
             if (!isDeleting && charIndex === currentExample.length) {
                 isDeleting = true;
-                this.setTimeout(() => {}, 2000);
+                // Пауза перед удалением
+                this.setTimeout(type, 1200);
+                return;
             } else if (isDeleting && charIndex === 0) {
                 isDeleting = false;
                 index = (index + 1) % this.placeholderExamples.length;
             }
 
-            const typeSpeed = isDeleting ? 50 : 100;
+            const typeSpeed = isDeleting ? 45 : 95;
             this.setTimeout(type, typeSpeed);
         };
 
@@ -1272,11 +1312,11 @@ class KHAIAssistant {
             this.userInput.disabled = false;
             
             if (this.isVoiceMode) {
-                this.userInput.placeholder = 'Введите текст для генерации голоса...';
+            this.userInput.placeholder = this.tr('placeholder.voice');
             } else if (this.isImageMode) {
-                this.userInput.placeholder = 'Опишите изображение для генерации...';
+            this.userInput.placeholder = this.tr('placeholder.image');
             } else {
-                this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+            this.userInput.placeholder = this.tr('placeholder.normal');
             }
         }
     }
@@ -1304,7 +1344,7 @@ class KHAIAssistant {
                 }
             }
             
-            this.showNotification('Генерация остановлена', 'info');
+            this.showNotification(this.tr('notify.generationStopped'), 'info');
             this.currentStreamController = null;
         }
     }
@@ -1893,6 +1933,15 @@ ${fileContent}
                 <pre><code class="${lang}">`;
         });
         
+        // Sanitize resulting HTML if DOMPurify is available
+        if (typeof DOMPurify !== 'undefined') {
+            try {
+                html = DOMPurify.sanitize(html);
+            } catch (e) {
+                this.debug('Sanitize failed', e);
+            }
+        }
+        
         return html;
     }
 
@@ -2286,37 +2335,50 @@ ${fileContent}
         return 'Нет сообщений';
     }
 
-    downloadChat(chatId) {
+    downloadChat(chatId, format = 'json') {
         const session = this.chatSessions.get(chatId);
         if (!session || session.messages.length === 0) {
             this.showNotification('Нет данных для скачивания', 'warning');
             return;
         }
 
-        const chatData = {
-            version: '1.0',
-            name: session.name,
-            exportedAt: new Date().toISOString(),
-            model: this.currentModel,
-            messages: session.messages,
-            conversationHistory: session.conversationHistory
-        };
-
-        const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `khai-chat-${session.name}-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        if (format === 'markdown') {
+            const md = this.exportChatAsMarkdown(session);
+            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `khai-chat-${session.name}-${new Date().toISOString().split('T')[0]}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } else {
+            const chatData = {
+                version: '1.0',
+                name: session.name,
+                exportedAt: new Date().toISOString(),
+                model: this.currentModel,
+                messages: session.messages,
+                conversationHistory: session.conversationHistory
+            };
+            const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `khai-chat-${session.name}-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
         
         this.showNotification('Чат скачан', 'success');
     }
 
-    downloadCurrentChat() {
-        this.downloadChat(this.currentChatId);
+    downloadCurrentChat(e) {
+        const format = e && e.shiftKey ? 'markdown' : 'json';
+        this.downloadChat(this.currentChatId, format);
     }
 
     deleteAllChats() {
@@ -2400,7 +2462,7 @@ ${fileContent}
 
     deleteChat(chatId) {
         if (chatId === 'default') {
-            this.showNotification('Основный чат нельзя удалить', 'warning');
+            this.showNotification('Основной чат нельзя удалить', 'warning');
             return;
         }
 
@@ -2575,7 +2637,7 @@ ${fileContent}
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
-        messageContent.innerHTML = content;
+        messageContent.innerHTML = (typeof DOMPurify !== 'undefined') ? DOMPurify.sanitize(content) : content;
         
         messageElement.appendChild(messageContent);
         this.messagesContainer.appendChild(messageElement);
@@ -2634,6 +2696,69 @@ ${fileContent}
             // Create default session if loading fails
             this.createDefaultChat();
         }
+    }
+
+    // Export helpers
+    exportChatAsMarkdown(session) {
+        const lines = [];
+        lines.push(`# Чат: ${session.name}`);
+        lines.push(`Экспорт: ${new Date().toLocaleString()}`);
+        lines.push(`Модель: ${this.getModelDisplayName(this.currentModel)}`);
+        lines.push('');
+        (session.messages || []).forEach(({ role, content }) => {
+            const title = role === 'user' ? 'Пользователь' : (role === 'ai' ? 'Ассистент' : 'Система');
+            lines.push(`## ${title}`);
+            // Удаляем служебные элементы (панель кода, индикаторы модели)
+            const tmp = document.createElement('div');
+            tmp.innerHTML = content;
+            tmp.querySelectorAll('.code-header,.model-indicator').forEach(el => el.remove());
+            lines.push(tmp.textContent.trim() || '');
+            lines.push('');
+        });
+        return lines.join('\n');
+    }
+
+    // File Management
+
+    async handlePaste(event) {
+        try {
+            const items = (event.clipboardData || window.clipboardData).items || [];
+            const files = [];
+            for (const item of items) {
+                if (item.kind === 'file') {
+                    const file = item.getAsFile();
+                    if (file) files.push(file);
+                }
+            }
+            if (files.length) {
+                event.preventDefault();
+                const fileInputLikeEvent = { target: { files } };
+                await this.handleFileSelect(fileInputLikeEvent);
+            }
+        } catch (e) {
+            this.debug('Paste handling failed', e);
+        }
+    }
+
+    // Drag & Drop support
+    handleDragOver(event) {
+        event.preventDefault();
+        if (this.inputSection) this.inputSection.classList.add('drag-over');
+        if (this.messagesContainer) this.messagesContainer.classList.add('drag-over');
+    }
+
+    handleDragLeave(event) {
+        event.preventDefault();
+        if (this.inputSection) this.inputSection.classList.remove('drag-over');
+        if (this.messagesContainer) this.messagesContainer.classList.remove('drag-over');
+    }
+
+    async handleDrop(event) {
+        event.preventDefault();
+        this.handleDragLeave(event);
+        const dt = event.dataTransfer;
+        if (!dt || !dt.files || dt.files.length === 0) return;
+        await this.handleFileSelect({ target: { files: dt.files } });
     }
 
     // File Management
@@ -2814,12 +2939,36 @@ ${fileContent}
 
     // Minimap
     setupMinimapScroll() {
+        // Drag minimap viewport to scroll
+        const startDrag = (clientY) => {
+            const rect = this.chatMinimap.getBoundingClientRect();
+            const relY = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+            this.scrollToRatio(relY);
+            this.isDraggingMinimap = true;
+        };
+        const moveDrag = (clientY) => {
+            if (!this.isDraggingMinimap) return;
+            const rect = this.chatMinimap.getBoundingClientRect();
+            const relY = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+            this.scrollToRatio(relY);
+        };
+        const endDrag = () => { this.isDraggingMinimap = false; };
+        if (this.chatMinimap) {
+            this.addEventListener(this.chatMinimap, 'mousedown', (e)=> startDrag(e.clientY));
+            this.addEventListener(document, 'mousemove', (e)=> moveDrag(e.clientY));
+            this.addEventListener(document, 'mouseup', endDrag);
+            this.addEventListener(this.chatMinimap, 'touchstart', (e)=> startDrag(e.touches[0].clientY), { passive: true });
+            this.addEventListener(document, 'touchmove', (e)=> moveDrag(e.touches[0].clientY), { passive: true });
+            this.addEventListener(document, 'touchend', endDrag);
+        }
         this.addEventListener(this.messagesContainer, 'scroll', () => {
             this.updateMinimapViewport();
         });
     }
 
     updateMinimap() {
+        // Limit number of blocks for huge threads to keep readability
+        // Already relative heights; no change in content logic
         if (!this.minimapContent || !this.messagesContainer) return;
         
         this.minimapContent.innerHTML = '';
@@ -2849,8 +2998,9 @@ ${fileContent}
     }
 
     updateMinimapViewport() {
+        // ensure viewport is draggable indicator of current scroll
         if (!this.minimapViewport || !this.chatMinimap || !this.messagesContainer) return;
-        
+
         const container = this.messagesContainer;
         const containerHeight = container.scrollHeight;
         const visibleHeight = container.clientHeight;
@@ -2866,6 +3016,7 @@ ${fileContent}
     }
 
     scrollToMessage(index) {
+        this.exitCompactMode();
         const messages = this.messagesContainer.querySelectorAll('.message:not(.typing-indicator):not(.streaming-message)');
         if (messages[index]) {
             messages[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2889,6 +3040,7 @@ ${fileContent}
     }
 
     highlightSearchTerms(term) {
+        this.exitCompactMode();
         if (!this.messagesContainer) return;
         
         const messages = this.messagesContainer.querySelectorAll('.message');
@@ -2947,6 +3099,7 @@ ${fileContent}
     }
 
     clearSearchHighlights() {
+        this.exitCompactMode();
         if (!this.messagesContainer) return;
         
         const messages = this.messagesContainer.querySelectorAll('.message');
@@ -3120,11 +3273,44 @@ ${fileContent}
 
     // Navigation
     setupScrollTracking() {
+        // apply persisted text zoom and settings
+        try {
+            const savedZoom = parseInt(localStorage.getItem('khai-text-zoom') || '14', 10);
+            if (!isNaN(savedZoom)) this.applyTextZoom(savedZoom);
+        } catch {}
+        try {
+            const savedCompact = localStorage.getItem('khai-compact');
+            if (savedCompact === 'true') this.compactEnabled = true;
+            if (savedCompact === 'false') this.compactEnabled = false;
+            const compactCheckbox = document.getElementById('settingsCompact');
+            if (compactCheckbox) compactCheckbox.checked = this.compactEnabled;
+            const sizeInput = document.getElementById('settingsTextSize');
+            if (sizeInput) sizeInput.value = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--message-font-size')) || 14;
+            const langSelect = document.getElementById('settingsLang');
+            if (langSelect) langSelect.value = this.currentLang;
+            const contrastInput = document.getElementById('settingsContrast');
+            if (contrastInput) contrastInput.checked = (document.body.getAttribute('data-contrast') === 'high');
+        } catch {}
         this.updateNavigationButtons();
         this.handleScroll();
     }
 
     handleScroll() {
+        // compact mode on scroll direction (mobile-first)
+        const container = this.messagesContainer;
+        const st = container.scrollTop;
+        const delta = st - this.lastScrollTop;
+        const down = delta > 10; const up = delta < -10;
+        const nearBottom = (container.scrollHeight - st - container.clientHeight) < 60;
+        if (this.compactEnabled) {
+            if (down && !this.compactMode && st > 100) {
+                this.enterCompactMode();
+            }
+            if ((up || nearBottom) && this.compactMode) {
+                this.exitCompactMode();
+            }
+        }
+        this.lastScrollTop = st <= 0 ? 0 : st;
         if (!this.messagesContainer) return;
         
         const container = this.messagesContainer;
@@ -3142,6 +3328,7 @@ ${fileContent}
     }
 
     updateNavigationButtons() {
+        document.body.classList.toggle('compact', this.compactMode);
         const aiMessages = this.messagesContainer.querySelectorAll('.message-ai:not(.typing-indicator)');
         const hasAIMessages = aiMessages.length > 0;
         
@@ -3166,6 +3353,7 @@ ${fileContent}
     }
 
     scrollToBottom(force = false) {
+        if (force) this.exitCompactMode();
         if (force) {
             this.autoScrollEnabled = true;
         }
@@ -3190,6 +3378,7 @@ ${fileContent}
     }
 
     setMode(mode) {
+        const t = (k)=>this.tr(k);
         this.isImageMode = false;
         this.isVoiceMode = false;
         
@@ -3207,25 +3396,25 @@ ${fileContent}
             let modeIcon = '';
             
             if (mode === 'normal') {
-                modeText = 'Обычный режим';
+                modeText = t('mode.normal');
                 modeIcon = 'ti-message';
                 this.normalModeBtn.classList.add('active');
-                this.userInput.placeholder = 'Задайте вопрос или опишите изображение...';
+                this.userInput.placeholder = t('placeholder.normal');
                 this.inputSection.classList.remove('voice-mode-active', 'image-mode-active');
             } else if (mode === 'voice') {
-                modeText = 'Режим генерации голоса';
+                modeText = t('mode.voice');
                 modeIcon = 'ti-microphone';
                 this.generateVoiceBtn.classList.add('active');
                 this.isVoiceMode = true;
-                this.userInput.placeholder = 'Введите текст для генерации голоса...';
+                this.userInput.placeholder = t('placeholder.voice');
                 this.inputSection.classList.add('voice-mode-active');
                 this.inputSection.classList.remove('image-mode-active');
             } else if (mode === 'image') {
-                modeText = 'Режим генерации изображений';
+                modeText = t('mode.image');
                 modeIcon = 'ti-photo';
                 this.generateImageBtn.classList.add('active');
                 this.isImageMode = true;
-                this.userInput.placeholder = 'Опишите изображение для генерации...';
+                this.userInput.placeholder = t('placeholder.image');
                 this.inputSection.classList.add('image-mode-active');
                 this.inputSection.classList.remove('voice-mode-active');
             }
@@ -3351,7 +3540,9 @@ ${fileContent}
         this.updateConnectionStatus(false);
     }
 
-    updateConnectionStatus(online = true) {
+    updateConnectionStatus(online) {
+        // auto-detect if not provided
+        if (typeof online === 'undefined') online = navigator.onLine;
         if (this.connectionStatus) {
             if (online) {
                 this.connectionStatus.textContent = '✅ Онлайн';
@@ -3364,13 +3555,13 @@ ${fileContent}
         
         if (this.connectionStatusText) {
             if (online) {
-                this.connectionStatusText.textContent = 'Подключено';
+                this.connectionStatusText.textContent = this.tr('connection.online');
                 const statusIcon = this.connectionStatusText.previousElementSibling;
                 if (statusIcon) {
                     statusIcon.style.color = 'var(--success-text)';
                 }
             } else {
-                this.connectionStatusText.textContent = 'Офлайн';
+                this.connectionStatusText.textContent = this.tr('connection.offline');
                 const statusIcon = this.connectionStatusText.previousElementSibling;
                 if (statusIcon) {
                     statusIcon.style.color = 'var(--error-text)';
@@ -3415,6 +3606,39 @@ ${fileContent}
                 this.chatMinimapContainer.style.bottom = '180px';
             }
         }
+    }
+
+    // Compose helpers
+    setCompactEnabled(on) {
+        this.compactEnabled = !!on;
+        try { localStorage.setItem('khai-compact', String(this.compactEnabled)); } catch {}
+        const input = document.getElementById('settingsCompact');
+        if (input) input.checked = this.compactEnabled;
+        if (!this.compactEnabled) this.exitCompactMode();
+    }
+    enterCompactMode() { this.compactMode = true; this.updateNavigationButtons(); }
+    exitCompactMode() { this.compactMode = false; this.updateNavigationButtons(); }
+    exitCompactAndFocus() { this.exitCompactMode(); this.userInput?.focus(); }
+
+    // Text zoom helpers
+    applyTextZoom(px) {
+        const clamped = Math.max(12, Math.min(20, px));
+        document.documentElement.style.setProperty('--message-font-size', clamped + 'px');
+        try { localStorage.setItem('khai-text-zoom', String(clamped)); } catch {}
+    }
+    cycleTextZoom() {
+        // kept for compatibility; prefer settings slider
+        const current = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--message-font-size')) || 14;
+        const next = current >= 18 ? 14 : current + 2;
+        this.applyTextZoom(next);
+        this.showNotification(`Размер текста: ${next}px`, 'info');
+    }
+
+    scrollToRatio(ratio) {
+        const container = this.messagesContainer;
+        const target = (container.scrollHeight - container.clientHeight) * ratio;
+        container.scrollTo({ top: target, behavior: 'auto' });
+        this.updateMinimapViewport();
     }
 
     // PWA
@@ -3520,6 +3744,11 @@ ${fileContent}
 
     handleCriticalError(message, error) {
         console.error(message, error);
+        // Ensure preloader is hidden even on critical failures
+        try {
+            const pre = document.getElementById('preloader');
+            if (pre) { pre.classList.add('fade-out'); pre.style.display = 'none'; }
+        } catch {}
         
         const errorDiv = document.createElement('div');
         errorDiv.style.cssText = `
@@ -3633,12 +3862,121 @@ ${fileContent}
     }
 
     updateDocumentTitle() {
-        document.title = 'KHAI — Первый белорусский чат с ИИ';
+        const t = (k)=>this.tr(k);
+        document.title = t('app.title');
         
         const sidebarTitle = document.querySelector('.sidebar-header h3');
         if (sidebarTitle) {
-            sidebarTitle.innerHTML = 'KHAI <span class="beta-badge">BETA</span>';
+            sidebarTitle.innerHTML = t('brand.sidebar');
         }
+    }
+
+    // i18n helpers
+    detectLanguage() {
+        try {
+            const url = new URL(window.location.href);
+            const urlLang = url.searchParams.get('lang');
+            if (urlLang && ['ru','be'].includes(urlLang)) return urlLang;
+        } catch {}
+        try {
+            const saved = localStorage.getItem('khai-lang');
+            if (saved) return saved;
+            const nav = navigator.language || 'ru';
+            return nav.startsWith('be') ? 'be' : 'ru';
+        } catch { return 'ru'; }
+    }
+
+    buildI18n() {
+        return {
+            ru: {
+                'app.title': 'Кхай ИИ — Первый белорусский ИИ‑помощник | Бесплатный AI‑чат',
+                'brand.sidebar': 'Кхай ИИ <span class="beta-badge">BETA</span>',
+                'mode.normal': 'Обычный режим',
+                'mode.voice': 'Режим генерации голоса',
+                'mode.image': 'Режим генерации изображений',
+                'placeholder.normal': 'Задайте вопрос или опишите изображение...',
+                'placeholder.voice': 'Введите текст для генерации голоса...',
+                'placeholder.image': 'Опишите изображение для генерации...',
+                'notify.loaded': 'Кхай ИИ загружен и готов к работе!',
+                'notify.generationStopped': 'Генерация остановлена',
+                'connection.online': 'Подключено',
+                'connection.offline': 'Офлайн',
+            },
+            be: {
+                'app.title': 'Кхай ІІ — Першы беларускі ІІ‑памочнік | Бясплатны AI‑чат',
+                'brand.sidebar': 'Кхай ІІ <span class="beta-бadge">BETA</span>',
+                'mode.normal': 'Звычайны рэжым',
+                'mode.voice': 'Рэжым генерацыі голасу',
+                'mode.image': 'Рэжым генерацыі выяў',
+                'placeholder.normal': 'Задайце пытанне або апішыце выяву...',
+                'placeholder.voice': 'Увядзіце тэкст для генерацыі голасу...',
+                'placeholder.image': 'Апішыце выяву для генерацыі...',
+                'notify.loaded': 'Кхай ІІ загружаны і гатовы да працы!',
+                'notify.generationStopped': 'Генерацыя спынена',
+                'connection.online': 'Падлучана',
+                'connection.offline': 'Афлайн',
+            }
+        };
+    }
+
+    tr(key) {
+        return (this.i18n[this.currentLang] && this.i18n[this.currentLang][key]) || (this.i18n['ru'][key]) || key;
+    }
+
+    applyLanguage() {
+        document.documentElement.lang = this.currentLang;
+        // og:locale
+        const ogLocale = document.querySelector('meta[property="og:locale"]');
+        if (ogLocale) ogLocale.setAttribute('content', this.currentLang === 'be' ? 'be_BY' : 'ru_RU');
+        // og/twitter image
+        const ogImage = document.querySelector('meta[property="og:image"]');
+        if (ogImage) ogImage.setAttribute('content', this.currentLang === 'be' ? './og-be.png' : './og-ru.png');
+        const twImage = document.querySelector('meta[property="twitter:image"]');
+        if (twImage) twImage.setAttribute('content', this.currentLang === 'be' ? './og-be.png' : './og-ru.png');
+
+        // Placeholders
+        if (this.isVoiceMode) this.userInput.placeholder = this.tr('placeholder.voice');
+        else if (this.isImageMode) this.userInput.placeholder = this.tr('placeholder.image');
+        else this.userInput.placeholder = this.tr('placeholder.normal');
+
+        this.updateDocumentTitle();
+    }
+
+    toggleLanguage() {
+        // kept for backward-compat; now use setLanguage
+        this.setLanguage(this.currentLang === 'ru' ? 'be' : 'ru');
+    }
+
+    setLanguage(lang) {
+        if (!['ru','be'].includes(lang)) return;
+        this.currentLang = lang;
+        try { localStorage.setItem('khai-lang', this.currentLang); } catch {}
+        this.applyLanguage();
+        this.showNotification(this.tr('notify.loaded'), 'success');
+    }
+
+    toggleContrast() {
+        this.setContrastEnabled(!(document.body.getAttribute('data-contrast') === 'high'));
+    }
+
+    setContrastEnabled(on) {
+        this.updateThemeColorMeta();
+        document.body.setAttribute('data-contrast', on ? 'high' : 'normal');
+        try { localStorage.setItem('khai-contrast', on ? 'high' : 'normal'); } catch {}
+        const input = document.getElementById('settingsContrast');
+        if (input) input.checked = on;
+    }
+
+    updateThemeColorMeta() {
+        // Sync meta theme-color with current theme/contrast for better UA integration
+        let color = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim() || '#121212';
+        let meta = document.querySelector('meta[name="theme-color"]');
+        if (!meta) {
+            meta = document.createElement('meta');
+            meta.setAttribute('name', 'theme-color');
+            document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', color);
     }
 
     cleanup() {
@@ -3694,6 +4032,12 @@ ${fileContent}
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
+    const hidePreloaderSafely = () => {
+        try {
+            const pre = document.getElementById('preloader');
+            if (pre) { pre.classList.add('fade-out'); pre.style.display = 'none'; }
+        } catch {}
+    };
     try {
         // Check for required dependencies
         const missingDeps = [];
@@ -3717,6 +4061,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Initialize app
         window.khaiAssistant = new KHAIAssistant();
+        // Fallback hide in case something blocked the normal flow
+        setTimeout(hidePreloaderSafely, 2000);
 
     } catch (error) {
         console.error('Failed to initialize application:', error);
@@ -3742,6 +4088,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         document.body.appendChild(errorNotification);
+        hidePreloaderSafely();
     }
 });
 
