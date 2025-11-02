@@ -26,27 +26,32 @@
     <meta name="theme-color" content="#121212">
     
     <!-- SEO Meta Tags -->
-    <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
-    <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
-    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь">
-    <meta name="author" content="KHAI Team">
+    <title>Кхай ИИ — Первый белорусский ИИ‑помощник | Бесплатный AI‑чат</title>
+    <meta name="description" content="Кхай ИИ — первый белорусский ИИ‑ассистент: чат, генерация изображений и голоса, анализ файлов, мультиязычный интерфейс.">
+    <meta name="keywords" content="Кхай, Кхай ИИ, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, Беларусь">
+    <meta name="author" content="Команда Кхай ИИ">
+    <meta name="application-name" content="Кхай ИИ">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="googlebot" content="index, follow">
+    <meta name="color-scheme" content="dark light">
+    <link rel="canonical" href="./">
+    <link rel="alternate" hreflang="ru" href="./">
+    <link rel="alternate" hreflang="be" href="./?lang=be">
     
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="KHAI Assistant">
-    <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
-    <meta property="og:image" content="./logo.svg">
+    <meta property="og:site_name" content="Кхай ИИ">
+    <meta property="og:title" content="Кхай ИИ — Первый белорусский ИИ‑помощник">
+    <meta property="og:description" content="Бесплатный ИИ‑ассистент: чат, изображения, голос, файлы, мультиязычный интерфейс">
+    <meta property="og:image" content="./og-ru.png">
     <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
-    <meta property="twitter:image" content="./logo.svg">
+    <meta name="twitter:title" content="Кхай ИИ — Первый белорусский ИИ‑помощник">
+    <meta name="twitter:description" content="Бесплатный ИИ‑ассистент: чат, изображения, голос">
+    <meta property="twitter:image" content="./og-ru.png">
     <meta name="twitter:site" content="@khai_assistant">
     
     <!-- Schema.org -->
@@ -54,9 +59,9 @@
     {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": "KHAI Assistant",
+        "name": "Кхай ИИ",
         "url": "./",
-        "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
+        "description": "Первый белорусский ИИ‑помощник с генерацией изображений и голоса",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
         "permissions": "microphone",
@@ -67,7 +72,7 @@
         },
         "author": {
             "@type": "Organization",
-            "name": "KHAI",
+            "name": "Кхай ИИ",
             "url": "./"
         }
     }
@@ -76,7 +81,12 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
     <link rel="icon" type="image/svg+xml" href="./logo.svg">
-    <link rel="apple-touch-icon" href="./logo.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-180.png">
+    
+    <!-- Resource Hints for GH Pages -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://js.puter.com" crossorigin>
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
@@ -85,6 +95,8 @@
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">
     <link rel="stylesheet" href="./styles.css">
     
     <!-- Puter AI SDK -->
@@ -103,6 +115,18 @@
             <p class="preloader-text">Загрузка KHAI Assistant...</p>
         </div>
     </div>
+
+    <script>
+      // Ultra-early fallback: hide preloader even if main scripts fail
+      setTimeout(function(){
+        try {
+          var pre = document.getElementById('preloader');
+          if (pre) { pre.classList.add('fade-out'); pre.style.display = 'none'; }
+          var app = document.getElementById('appContainer');
+          if (app) app.style.display = 'flex';
+        } catch(e) {}
+      }, 2000);
+    </script>
 
     <!-- 404 Page (hidden by default) -->
     <div class="page-404" id="page404" style="display: none;">
@@ -171,6 +195,7 @@
     </div>
 
     <!-- Main App Container -->
+    <a href="#messagesContainer" class="skip-link">Пропустить к содержимому</a>
     <div class="app-container" id="appContainer">
         <!-- Header -->
         <header class="app-header">
@@ -304,7 +329,7 @@
                     <button class="footer-btn" id="helpBtn" title="Помощь и обучение">
                         <i class="ti ti-help"></i>
                     </button>
-                    <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
+                    <button class="footer-btn" id="downloadChatBtn" title="Скачать чат (JSON). Shift — Markdown">
                         <i class="ti ti-download"></i>
                     </button>
                     <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
@@ -323,7 +348,7 @@
                 <div class="sidebar-logo">
                     <i class="ti ti-brain"></i>
                 </div>
-                <h3>KHAI <span class="beta-badge">BETA</span></h3>
+                <h3>Кхай ИИ <span class="beta-badge">BETA</span></h3>
             </div>
             <button class="sidebar-close" id="sidebarClose">
                 <i class="ti ti-x"></i>
@@ -331,6 +356,20 @@
         </div>
         
         <div class="sidebar-content">
+            <!-- PWA Install Button -->
+            <div class="pwa-install-section">
+                <div class="pwa-install-btn" id="pwaInstallBtn" style="display: none;" role="button" tabindex="0">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ti ti-download"></i>
+                        <span>Установить приложение</span>
+                        <span class="badge">НОВОЕ</span>
+                    </div>
+                    <span class="pwa-install-btn-close" id="pwaInstallBtnClose" role="button" tabindex="0">
+                        <i class="ti ti-x"></i>
+                    </span>
+                </div>
+            </div>
+
             <div class="sidebar-search-container">
                 <div class="search-wrapper">
                     <i class="ti ti-search"></i>
@@ -351,9 +390,6 @@
                     <button class="sidebar-btn" id="importChatBtn">
                         <i class="ti ti-upload"></i> Импорт чата
                     </button>
-                    <button class="sidebar-btn pwa-install" id="pwaInstallBtn">
-                        <i class="ti ti-download"></i> Установить приложение
-                    </button>
                     <button class="sidebar-btn danger" id="deleteAllChatsBtn">
                         <i class="ti ti-trash"></i> Удалить все
                     </button>
@@ -368,16 +404,49 @@
                 </div>
             </div>
 
+            <div class="sidebar-section" id="settingsSection">
+                <h4><i class="ti ti-settings"></i> Настройки</h4>
+                <div class="about-content">
+                    <div class="about-item">
+                        <strong>Язык интерфейса</strong>
+                        <select id="settingsLang" class="modal-input" style="margin-top:6px;">
+                            <option value="ru">Русский</option>
+                            <option value="be">Беларуская</option>
+                        </select>
+                    </div>
+                    <div class="about-item">
+                        <strong>Тема</strong>
+                        <button class="sidebar-btn" id="settingsTheme"><i class="ti ti-moon"></i> Светлая/Тёмная</button>
+                    </div>
+                    <div class="about-item">
+                        <strong>Высокая контрастность</strong>
+                        <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                            <input type="checkbox" id="settingsContrast"> Включить
+                        </label>
+                    </div>
+                    <div class="about-item">
+                        <strong>Размер текста сообщений</strong>
+                        <input type="range" id="settingsTextSize" min="12" max="20" step="1" value="14" style="width:100%;margin-top:6px;">
+                    </div>
+                    <div class="about-item">
+                        <strong>Режим чтения (автоскрытие UI)</strong>
+                        <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                            <input type="checkbox" id="settingsCompact"> Включить
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="sidebar-section">
                 <h4><i class="ti ti-info-circle"></i> О приложении</h4>
                 <div class="about-content">
                     <div class="about-item">
-                        <strong>KHAI Assistant</strong>
-                        <span>Первый белорусский ИИ-помощник</span>
+                        <strong>Кхай ИИ</strong>
+                        <span>Первый белорусский ИИ‑помощник</span>
                     </div>
                     <div class="about-item">
                         <strong>Версия</strong>
-                        <span>3.0.3</span>
+                        <span>3.0.4</span>
                     </div>
                     <div class="about-item">
                         <strong>Обновлено</strong>
@@ -525,9 +594,24 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script src="./script.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+    <script defer src="./script.js"></script>
+
+    <!-- Safety fallback to hide preloader if main script fails to init -->
+    <script>
+      window.addEventListener('DOMContentLoaded', function(){
+        setTimeout(function(){
+          try {
+            var pre = document.getElementById('preloader');
+            if (pre) { pre.classList.add('fade-out'); pre.style.display = 'none'; }
+            var app = document.getElementById('appContainer');
+            if (app) app.style.display = 'flex';
+          } catch(e) {}
+        }, 1500);
+      });
+    </script>
 
     <!-- PWA Service Worker -->
     <script>
