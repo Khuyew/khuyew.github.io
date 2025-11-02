@@ -23,7 +23,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0f0f23">
+    <meta name="theme-color" content="#121212">
     
     <!-- SEO Meta Tags -->
     <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
@@ -95,10 +95,10 @@
     <div class="preloader" id="preloader">
         <div class="preloader-content">
             <div class="preloader-logo">
-                <i class="ti ti-brain" style="font-size: 48px; color: var(--accent-primary);"></i>
+                <i class="ti ti-brain"></i>
             </div>
             <div class="preloader-spinner">
-                <i class="ti ti-refresh" style="font-size: 24px; color: var(--accent-primary);"></i>
+                <i class="ti ti-refresh"></i>
             </div>
             <p class="preloader-text">Загрузка KHAI Assistant...</p>
         </div>
@@ -108,11 +108,65 @@
     <div class="page-404" id="page404" style="display: none;">
         <div class="error-container">
             <div class="error-logo">
-                <i class="ti ti-brain" style="font-size: 64px; color: var(--accent-primary);"></i>
+                <i class="ti ti-brain"></i>
             </div>
             <h1>404 - Страница не найдена</h1>
             <p>Запрошенная страница не существует или была перемещена.</p>
             <button class="error-btn" id="errorBackBtn">Вернуться в приложение</button>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div class="tutorial-overlay" id="tutorialOverlay" style="display: none;">
+        <div class="tutorial-content">
+            <div class="tutorial-step active" id="tutorialStep1">
+                <h3>Добро пожаловать в KHAI Assistant! 🚀</h3>
+                <p>Пройдите короткий тур по основным функциям приложения, чтобы начать эффективно использовать ИИ-помощника.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="skipTutorialBtn">Пропустить</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn1">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep2">
+                <h3>Основное меню</h3>
+                <p>Здесь вы можете управлять чатами, создавать новые, импортировать и экспортировать историю разговоров.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn2">Назад</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn2">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep3">
+                <h3>Выбор модели ИИ</h3>
+                <p>Выбирайте между разными моделями ИИ в зависимости от ваших задач. Каждая модель имеет свои особенности.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn3">Назад</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn3">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep4">
+                <h3>Режимы работы</h3>
+                <p>Используйте разные режимы: обычный чат, генерация изображений или создание голосовых сообщений.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn4">Назад</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn4">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep5">
+                <h3>Прикрепление файлов</h3>
+                <p>Загружайте изображения и текстовые файлы для анализа. ИИ поможет вам с их содержимым.</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn5">Назад</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn5">Далее</button>
+                </div>
+            </div>
+            <div class="tutorial-step" id="tutorialStep6">
+                <h3>Готовы к использованию! 🎉</h3>
+                <p>Теперь вы знаете все основные функции KHAI Assistant. Начните общение с ИИ прямо сейчас!</p>
+                <div class="tutorial-actions">
+                    <button class="tutorial-btn secondary" id="prevStepBtn6">Назад</button>
+                    <button class="tutorial-btn primary" id="finishTutorialBtn">Начать использовать</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -123,7 +177,7 @@
             <div class="header-content">
                 <div class="logo-container">
                     <div class="logo" id="logoBtn">
-                        <i class="ti ti-brain" style="font-size: 20px; color: var(--accent-primary);"></i>
+                        <i class="ti ti-brain"></i>
                     </div>
                 </div>
                 
@@ -155,48 +209,16 @@
         <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="messages-container" id="messagesContainer" aria-live="polite">
-                <!-- Welcome message -->
-                <div class="message ai-message">
-                    <div class="message-header">
-                        <div class="message-avatar">
-                            <i class="ti ti-robot"></i>
-                        </div>
-                        <div class="message-info">
-                            <span class="message-sender">KHAI Assistant</span>
-                            <span class="message-time" id="welcomeTime"></span>
-                        </div>
-                    </div>
-                    <div class="message-content">
-                        <p>Привет! Я KHAI — первый белорусский ИИ-помощник. Готов помочь вам с:</p>
-                        <ul>
-                            <li>Ответами на вопросы и решение задач</li>
-                            <li>Анализом изображений и файлов</li>
-                            <li>Генерацией текста и кода</li>
-                            <li>Генерацией изображений по описанию</li>
-                            <li>Объяснением сложных концепций</li>
-                        </ul>
-                        <p>Что вас интересует?</p>
-                    </div>
-                    <div class="message-actions">
-                        <button class="action-btn-small quick-action" data-prompt="Расскажи о возможностях искусственного интеллекта">
-                            <i class="ti ti-sparkles"></i> Возможности ИИ
-                        </button>
-                        <button class="action-btn-small quick-action" data-prompt="Напиши пример кода на Python для сортировки массива">
-                            <i class="ti ti-code"></i> Пример кода
-                        </button>
-                        <button class="action-btn-small quick-action" data-prompt="Сгенерируй изображение космического корабля">
-                            <i class="ti ti-photo"></i> Генерация изображения
-                        </button>
-                    </div>
-                </div>
+                <!-- Messages will be dynamically added here -->
             </div>
+
+            <!-- Floating Particles for Empty Chat -->
+            <div class="floating-particles" id="floatingParticles"></div>
 
             <!-- Minimap & Navigation -->
             <div class="chat-minimap-container">
                 <div class="minimap-header">
-                    <button class="nav-btn theme-minimap-btn" id="themeMinimapToggle" title="Переключить тему">
-                        <i class="ti ti-moon"></i>
-                    </button>
+                    <!-- Theme toggle removed from minimap -->
                 </div>
                 <div class="chat-minimap" id="chatMinimap">
                     <div class="minimap-content" id="minimapContent"></div>
@@ -279,14 +301,14 @@
                 </div>
                 
                 <div class="footer-controls">
-                    <button class="footer-btn" id="helpBtn" title="Помощь">
+                    <button class="footer-btn" id="helpBtn" title="Помощь и обучение">
                         <i class="ti ti-help"></i>
                     </button>
                     <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
                         <i class="ti ti-download"></i>
                     </button>
                     <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
-                        <i class="ti ti-trash"></i>
+                        <i class="ti ti-eraser"></i>
                     </button>
                 </div>
             </div>
@@ -299,7 +321,7 @@
         <div class="sidebar-header">
             <div class="sidebar-header-content">
                 <div class="sidebar-logo">
-                    <i class="ti ti-brain" style="font-size: 24px; color: var(--accent-primary);"></i>
+                    <i class="ti ti-brain"></i>
                 </div>
                 <h3>KHAI <span class="beta-badge">BETA</span></h3>
             </div>
@@ -356,26 +378,34 @@
                     </div>
                     <div class="about-item">
                         <strong>Обновлено</strong>
-                        <span id="appVersionDate">2024</span>
+                        <span id="appVersionDate">2025</span>
                     </div>
                 </div>
             </div>
 
-            <div class="sidebar-links" style="margin-top: auto; padding: 20px 0; text-align: center;">
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                    <a href="https://khai.by/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
-                        Документация
+            <div class="sidebar-links">
+                <div class="links-grid">
+                    <a href="https://khai.by/docs" target="_blank" class="link-item">
+                        <i class="ti ti-book"></i> Документация
                     </a>
-                    <a href="https://khai.by/support" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
-                        Поддержка
+                    <a href="https://khai.by/support" target="_blank" class="link-item">
+                        <i class="ti ti-headset"></i> Поддержка
                     </a>
-                    <a href="mailto:khuyew@proton.me" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: var(--transition);">
-                        Сотрудничество
+                    <a href="https://khai.by/guide" target="_blank" class="link-item">
+                        <i class="ti ti-bookmark"></i> Гайд
+                    </a>
+                    <a href="https://khai.by/status" target="_blank" class="link-item">
+                        <i class="ti ti-heartbeat"></i> Статус
+                    </a>
+                    <a href="https://khai.by/blog" target="_blank" class="link-item">
+                        <i class="ti ti-news"></i> Блог
+                    </a>
+                    <a href="mailto:khuyew@proton.me" class="link-item">
+                        <i class="ti ti-mail"></i> Сотрудничество
                     </a>
                 </div>
                 
-                <!-- LiveInternet Counter -->
-                <div style="margin-bottom: 20px; display: flex; justify-content: center;">
+                <div class="counters">
                     <!--LiveInternet counter--><a href="https://www.liveinternet.ru/click"
                     target="_blank"><img id="licntB611" width="88" height="31" style="border:0" 
                     title="LiveInternet: показано число просмотров и посетителей за 24 часа"
@@ -387,14 +417,18 @@
                     ";h"+escape(d.title.substring(0,150))+";"+Math.random()})
                     (document,screen)</script><!--/LiveInternet-->
 
-                    <!-- Yandex.Metrika informer --> <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">     <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"          style="width:88px; height:31px; border:0;"          alt="Яндекс.Метрика"          title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"         class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/> </a> <!-- /Yandex.Metrika informer -->  <!-- Yandex.Metrika counter --> <script type="text/javascript">     (function(m,e,t,r,i,k,a){         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};         m[i].l=1*new Date();         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)     })(window, document,'script','https://mc.webvisor.org/metrika/tag_ww.js', 'ym');      ym(104843405, 'init', {webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true}); </script>  <!-- /Yandex.Metrika counter -->   
+                    <!-- Yandex.Metrika informer --> <a href="https://metrika.yandex.ru/stat/?id=104843405&amp;from=informer" target="_blank" rel="nofollow">     <img src="https://metrika-informer.com/informer/104843405/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"          style="width:88px; height:31px; border:0;"          alt="Яндекс.Метрика"          title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"         class="ym-advanced-informer" data-cid="104843405" data-lang="ru"/> </a> <!-- /Yandex.Metrika informer -->
                 </div>
                 
-                <a href="https://khai.by/github" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: var(--radius-md); transition: var(--transition); margin-bottom: 20px;">
-                    <i class="ti ti-brand-github" style="font-size: 20px; color: var(--text-secondary);"></i>
+                <a href="https://khai.by/github" target="_blank" class="github-link">
+                    <i class="ti ti-brand-github"></i>
                 </a>
+
+                <div class="watermark">
+                    Сделано с ❤️ в Беларуси
+                </div>
                 
-                <p style="color: var(--text-tertiary); font-size: 12px; margin: 0; line-height: 1.4;">
+                <p class="copyright">
                     © 2025 KHAI, Беларусь.<br>
                     Все права защищены!
                 </p>
@@ -403,7 +437,7 @@
     </div>
 
     <!-- Edit Chat Modal -->
-    <div class="modal-overlay" id="editChatModal" style="display: none;">
+    <div class="modal-overlay" id="editChatModal">
         <div class="modal">
             <div class="modal-header">
                 <h3>Редактировать название чата</h3>
@@ -427,7 +461,7 @@
     </div>
 
     <!-- Model Selection Modal -->
-    <div class="modal-overlay" id="modelModalOverlay" style="display: none;">
+    <div class="modal-overlay" id="modelModalOverlay">
         <div class="modal">
             <div class="modal-header">
                 <h3>Выберите модель ИИ</h3>
@@ -441,6 +475,48 @@
             <div class="modal-footer">
                 <button class="modal-btn" id="modelModalCancel">Отмена</button>
                 <button class="modal-btn primary" id="modelModalConfirm">Выбрать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Помощь по KHAI Assistant</h3>
+                <button class="modal-close" id="helpModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="help-content" id="helpContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="helpModalOk">Понятно</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div class="modal-overlay" id="messageModal">
+        <div class="modal large-modal">
+            <div class="modal-header">
+                <h3 id="messageModalTitle">Просмотр сообщения</h3>
+                <button class="modal-close" id="messageModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="message-modal-content" id="messageModalContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="messageModalCopy">
+                    <i class="ti ti-copy"></i> Копировать
+                </button>
+                <button class="modal-btn" id="messageModalSpeak">
+                    <i class="ti ti-speakerphone"></i> Озвучить
+                </button>
+                <button class="modal-btn primary" id="messageModalCloseBtn">Закрыть</button>
             </div>
         </div>
     </div>
