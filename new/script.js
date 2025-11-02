@@ -103,6 +103,23 @@ class KHAIAssistant {
             // Floating particles
             this.floatingParticles = document.getElementById('floatingParticles');
 
+            // Tutorial elements
+            this.tutorialOverlay = document.getElementById('tutorialOverlay');
+            this.skipTutorialBtn = document.getElementById('skipTutorialBtn');
+            this.finishTutorialBtn = document.getElementById('finishTutorialBtn');
+
+            // Tutorial navigation buttons
+            this.nextStepBtn1 = document.getElementById('nextStepBtn1');
+            this.nextStepBtn2 = document.getElementById('nextStepBtn2');
+            this.nextStepBtn3 = document.getElementById('nextStepBtn3');
+            this.nextStepBtn4 = document.getElementById('nextStepBtn4');
+            this.nextStepBtn5 = document.getElementById('nextStepBtn5');
+            this.prevStepBtn2 = document.getElementById('prevStepBtn2');
+            this.prevStepBtn3 = document.getElementById('prevStepBtn3');
+            this.prevStepBtn4 = document.getElementById('prevStepBtn4');
+            this.prevStepBtn5 = document.getElementById('prevStepBtn5');
+            this.prevStepBtn6 = document.getElementById('prevStepBtn6');
+
             // Validate critical elements
             this.validateRequiredElements();
             
@@ -220,10 +237,9 @@ class KHAIAssistant {
         this.isInputFocused = false;
         this.originalInputHeight = 56;
 
-        // Parallax state
-        this.parallaxEnabled = false;
-        this.lastTiltX = 0;
-        this.lastTiltY = 0;
+        // Tutorial state
+        this.currentTutorialStep = 1;
+        this.tutorialCompleted = false;
 
         // Scroll state
         this.isScrolling = false;
@@ -339,9 +355,9 @@ class KHAIAssistant {
             this.setup404Handling();
             this.setCurrentYear();
             this.setupHelpContent();
-            this.setupParallax();
             this.setupMessageModal();
             this.setupScrollEffects();
+            this.setupTutorial();
             
             // Скрываем прелоадер после загрузки
             this.hidePreloader();
@@ -439,8 +455,6 @@ class KHAIAssistant {
             // PWA events
             [window, 'beforeinstallprompt', (e) => this.handleBeforeInstallPrompt(e)],
             [window, 'appinstalled', () => this.handleAppInstalled()],
-            // Device orientation for parallax
-            [window, 'deviceorientation', (e) => this.handleDeviceOrientation(e)]
         ];
 
         events.forEach(([element, event, handler]) => {
@@ -456,6 +470,91 @@ class KHAIAssistant {
                 this.openMessageModal(message);
             }
         });
+
+        // Tutorial event handlers
+        this.setupTutorialEvents();
+    }
+
+    setupTutorialEvents() {
+        const tutorialEvents = [
+            [this.skipTutorialBtn, 'click', () => this.skipTutorial()],
+            [this.finishTutorialBtn, 'click', () => this.finishTutorial()],
+            [this.nextStepBtn1, 'click', () => this.nextTutorialStep()],
+            [this.nextStepBtn2, 'click', () => this.nextTutorialStep()],
+            [this.nextStepBtn3, 'click', () => this.nextTutorialStep()],
+            [this.nextStepBtn4, 'click', () => this.nextTutorialStep()],
+            [this.nextStepBtn5, 'click', () => this.nextTutorialStep()],
+            [this.prevStepBtn2, 'click', () => this.prevTutorialStep()],
+            [this.prevStepBtn3, 'click', () => this.prevTutorialStep()],
+            [this.prevStepBtn4, 'click', () => this.prevTutorialStep()],
+            [this.prevStepBtn5, 'click', () => this.prevTutorialStep()],
+            [this.prevStepBtn6, 'click', () => this.prevTutorialStep()],
+        ];
+
+        tutorialEvents.forEach(([element, event, handler]) => {
+            if (element) {
+                this.addEventListener(element, event, handler);
+            }
+        });
+    }
+
+    setupTutorial() {
+        // Check if user has completed tutorial before
+        const tutorialCompleted = localStorage.getItem('khai-tutorial-completed');
+        if (!tutorialCompleted) {
+            // Show tutorial after a short delay
+            this.setTimeout(() => {
+                this.startTutorial();
+            }, 1000);
+        }
+    }
+
+    startTutorial() {
+        this.tutorialOverlay.style.display = 'flex';
+        this.currentTutorialStep = 1;
+        this.showTutorialStep(1);
+    }
+
+    showTutorialStep(step) {
+        // Hide all steps
+        const steps = this.tutorialOverlay.querySelectorAll('.tutorial-step');
+        steps.forEach(step => step.classList.remove('active'));
+        
+        // Show current step
+        const currentStep = this.tutorialOverlay.querySelector(`#tutorialStep${step}`);
+        if (currentStep) {
+            currentStep.classList.add('active');
+        }
+        
+        this.currentTutorialStep = step;
+    }
+
+    nextTutorialStep() {
+        if (this.currentTutorialStep < 6) {
+            this.showTutorialStep(this.currentTutorialStep + 1);
+        } else {
+            this.finishTutorial();
+        }
+    }
+
+    prevTutorialStep() {
+        if (this.currentTutorialStep > 1) {
+            this.showTutorialStep(this.currentTutorialStep - 1);
+        }
+    }
+
+    skipTutorial() {
+        this.tutorialOverlay.style.display = 'none';
+        localStorage.setItem('khai-tutorial-completed', 'true');
+        this.showNotification('Тур пропущен. Вы всегда можете открыть обучение через меню помощи.', 'info');
+    }
+
+    finishTutorial() {
+        this.tutorialOverlay.style.display = 'none';
+        localStorage.setItem('khai-tutorial-completed', 'true');
+        this.tutorialCompleted = true;
+        this.showNotification('Обучение завершено! Начните общение с ИИ.', 'success');
+        this.userInput.focus();
     }
 
     // Message Modal Methods
@@ -505,46 +604,6 @@ class KHAIAssistant {
         this.toggleTextToSpeech(this.currentModalMessage, this.messageModalSpeak);
     }
 
-    // Parallax setup
-    setupParallax() {
-        if ('DeviceOrientationEvent' in window) {
-            this.parallaxEnabled = true;
-            this.debug('Parallax эффекты включены');
-        } else {
-            this.debug('Device orientation не поддерживается, parallax отключен');
-        }
-    }
-
-    handleDeviceOrientation(event) {
-        if (!this.parallaxEnabled || window.innerWidth > 768) return;
-
-        const tiltX = event.gamma / 45; // -1 to 1
-        const tiltY = event.beta / 45;  // -1 to 1
-
-        // Smooth the movement
-        this.lastTiltX = this.lastTiltX * 0.7 + tiltX * 0.3;
-        this.lastTiltY = this.lastTiltY * 0.7 + tiltY * 0.3;
-
-        // Apply parallax effect to main containers
-        const translateX = this.lastTiltX * 3;
-        const translateY = this.lastTiltY * 2;
-
-        if (this.appContainer) {
-            this.appContainer.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
-        }
-
-        if (this.messagesContainer) {
-            this.messagesContainer.style.transform = `translate3d(${-translateX * 0.5}px, ${-translateY * 0.3}px, 0)`;
-        }
-
-        if (this.inputSection) {
-            this.inputSection.style.transform = `translate3d(${translateX * 0.8}px, ${translateY * 0.5}px, 0)`;
-        }
-
-        // Update floating particles
-        this.updateFloatingParticles(tiltX, tiltY);
-    }
-
     // Floating particles for empty chat
     createFloatingParticles() {
         if (!this.floatingParticles) return;
@@ -572,15 +631,6 @@ class KHAIAssistant {
             
             particlesContainer.appendChild(particle);
         }
-    }
-
-    updateFloatingParticles(tiltX, tiltY) {
-        const particles = this.floatingParticles.querySelectorAll('.floating-particle');
-        particles.forEach(particle => {
-            const translateX = tiltX * 10;
-            const translateY = tiltY * 10;
-            particle.style.transform = `translate(${translateX}px, ${translateY}px)`;
-        });
     }
 
     // Scroll effects
@@ -756,11 +806,11 @@ class KHAIAssistant {
             </ul>
 
             <div class="help-actions">
-                <button class="help-action-btn" onclick="khaiAssistant.focusInput()">
-                    <i class="ti ti-keyboard"></i> Попробовать сейчас
+                <button class="help-action-btn" onclick="khaiAssistant.startTutorial()">
+                    <i class="ti ti-tournament"></i> Пройти обучение
                 </button>
-                <button class="help-action-btn secondary" onclick="khaiAssistant.showWelcomeMessage()">
-                    <i class="ti ti-info-circle"></i> Показать приветствие
+                <button class="help-action-btn secondary" onclick="khaiAssistant.focusInput()">
+                    <i class="ti ti-keyboard"></i> Попробовать сейчас
                 </button>
             </div>
         `;
