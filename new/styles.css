@@ -1,4 +1,4 @@
-/* styles.css - Production Ready v3.0.2 */
+/* styles.css - Production Ready v3.0.3 */
 * {
     margin: 0;
     padding: 0;
@@ -1860,6 +1860,18 @@ body {
     color: white;
 }
 
+/* PWA Install Button in Sidebar */
+.sidebar-btn.pwa-install {
+    background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
+    color: white;
+}
+
+.sidebar-btn.pwa-install:hover {
+    background: linear-gradient(135deg, var(--accent-secondary), var(--user-message-bg-end));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
 /* About section */
 .about-content {
     display: flex;
@@ -1938,11 +1950,13 @@ body {
     border-radius: var(--radius-md);
     transition: var(--transition);
     margin-bottom: 20px;
+    text-decoration: none !important;
 }
 
 .github-link:hover {
     background: var(--bg-hover);
     transform: translateY(-1px);
+    text-decoration: none !important;
 }
 
 .github-link i {
@@ -2656,6 +2670,24 @@ body {
     white-space: nowrap;
     pointer-events: none;
     box-shadow: var(--shadow-lg);
+    min-width: 200px;
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Enhanced tutorial highlight */
+.tutorial-element-highlight::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid var(--accent-primary);
 }
 
 /* Responsive styles */
@@ -3184,11 +3216,18 @@ body {
 .tutorial-highlight {
     animation: tutorialPulse 2s ease-in-out infinite;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-primary);
+    border: 3px solid var(--accent-primary);
 }
 
 @keyframes tutorialPulse {
-    0%, 100% { border-color: var(--accent-primary); }
-    50% { border-color: var(--accent-secondary); }
+    0%, 100% { 
+        border-color: var(--accent-primary); 
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-primary);
+    }
+    50% { 
+        border-color: #90caf9; 
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 30px #90caf9;
+    }
 }
 
 /* Minimap Scroll Improvements */
@@ -3264,8 +3303,8 @@ body {
 }
 
 @keyframes elementHighlight {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.05); }
 }
 
 /* Improved Minimap Accuracy */
@@ -3316,12 +3355,20 @@ body {
 }
 
 /* Improved header and footer hiding */
-.app-header, .app-footer {
+.app-header, .app-footer, .input-section {
     transition: transform 0.2s ease-out !important;
 }
 
-.app-header.hidden, .app-footer.hidden {
+.app-header.hidden {
     transform: translateY(-100%) !important;
+}
+
+.app-footer.hidden {
+    transform: translateY(100%) !important;
+}
+
+.input-section.hidden {
+    transform: translateY(100%) !important;
 }
 
 /* Ensure messages are properly visible when header/footer are hidden */
@@ -3339,4 +3386,57 @@ body {
 
 .tutorial-content {
     z-index: 10012 !important;
+}
+
+/* Fix for GitHub link underline */
+.github-link {
+    text-decoration: none !important;
+}
+
+.github-link:hover {
+    text-decoration: none !important;
+}
+
+/* PWA Install Button in Sidebar */
+.sidebar-btn.pwa-install {
+    background: linear-gradient(135deg, var(--user-message-bg-start), var(--user-message-bg-end));
+    color: white;
+    margin-top: 8px;
+}
+
+.sidebar-btn.pwa-install:hover {
+    background: linear-gradient(135deg, var(--accent-secondary), var(--user-message-bg-end));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.sidebar-btn.pwa-install.installed {
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+
+.sidebar-btn.pwa-install.installed:hover {
+    background: var(--success-text);
+    color: white;
+}
+
+/* Enhanced scroll hide/show with proper z-index */
+.app-header, .app-footer, .input-section {
+    z-index: 100;
+    background: var(--bg-primary);
+}
+
+.messages-container.full-width {
+    height: 100vh;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Fix for tutorial highlight positioning */
+.tutorial-element-highlight {
+    z-index: 10014;
+}
+
+.tutorial-highlight {
+    z-index: 10013;
 }
