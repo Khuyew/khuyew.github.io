@@ -495,15 +495,15 @@ class KHAIAssistant {
         });
     }
 
-    setupMobileDetection() {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        if (isMobile && !window.location.hostname.startsWith('m.')) {
+//    setupMobileDetection() {
+//        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+//        if (isMobile && !window.location.hostname.startsWith('m.')) {
             // Перенаправляем на мобильную версию
-            const currentUrl = new URL(window.location.href);
-            currentUrl.hostname = 'm.' + currentUrl.hostname;
-            window.location.href = currentUrl.toString();
-        }
-    }
+ //           const currentUrl = new URL(window.location.href);
+ //           currentUrl.hostname = 'm.' + currentUrl.hostname;
+ //           window.location.href = currentUrl.toString();
+//        }
+//    }
 
     setupContextCounter() {
         this.updateContextCounter();
