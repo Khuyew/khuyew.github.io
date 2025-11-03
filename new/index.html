@@ -26,32 +26,27 @@
     <meta name="theme-color" content="#121212">
     
     <!-- SEO Meta Tags -->
-    <title>Кхай ИИ — Первый белорусский ИИ‑помощник | Бесплатный AI‑чат</title>
-    <meta name="description" content="Кхай ИИ — первый белорусский ИИ‑ассистент: чат, генерация изображений и голоса, анализ файлов, мультиязычный интерфейс.">
-    <meta name="keywords" content="Кхай, Кхай ИИ, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, Беларусь">
-    <meta name="author" content="Команда Кхай ИИ">
-    <meta name="application-name" content="Кхай ИИ">
+    <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
+    <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
+    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь">
+    <meta name="author" content="KHAI Team">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="googlebot" content="index, follow">
-    <meta name="color-scheme" content="dark light">
-    <link rel="canonical" href="./">
-    <link rel="alternate" hreflang="ru" href="./">
-    <link rel="alternate" hreflang="be" href="./?lang=be">
     
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Кхай ИИ">
-    <meta property="og:title" content="Кхай ИИ — Первый белорусский ИИ‑помощник">
-    <meta property="og:description" content="Бесплатный ИИ‑ассистент: чат, изображения, голос, файлы, мультиязычный интерфейс">
-    <meta property="og:image" content="./og-ru.png">
+    <meta property="og:site_name" content="KHAI Assistant">
+    <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
+    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
+    <meta property="og:image" content="./icon.svg">
     <meta property="og:url" content="./">
     <meta property="og:locale" content="ru_RU">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Кхай ИИ — Первый белорусский ИИ‑помощник">
-    <meta name="twitter:description" content="Бесплатный ИИ‑ассистент: чат, изображения, голос">
-    <meta property="twitter:image" content="./og-ru.png">
+    <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
+    <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
+    <meta property="twitter:image" content="./icon.svg">
     <meta name="twitter:site" content="@khai_assistant">
     
     <!-- Schema.org -->
@@ -59,9 +54,9 @@
     {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": "Кхай ИИ",
+        "name": "KHAI Assistant",
         "url": "./",
-        "description": "Первый белорусский ИИ‑помощник с генерацией изображений и голоса",
+        "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
         "permissions": "microphone",
@@ -72,7 +67,7 @@
         },
         "author": {
             "@type": "Organization",
-            "name": "Кхай ИИ",
+            "name": "KHAI",
             "url": "./"
         }
     }
@@ -80,13 +75,8 @@
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
-    <link rel="icon" type="image/svg+xml" href="./logo.svg">
-    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-180.png">
-    
-    <!-- Resource Hints for GH Pages -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preconnect" href="https://js.puter.com" crossorigin>
+    <link rel="icon" type="image/svg+xml" href="./icon.svg">
+    <link rel="apple-touch-icon" href="./icon.svg">
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
@@ -95,8 +85,6 @@
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" media="(prefers-color-scheme: light)">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">
     <link rel="stylesheet" href="./styles.css">
     
     <!-- Puter AI SDK -->
@@ -112,21 +100,9 @@
             <div class="preloader-spinner">
                 <i class="ti ti-refresh"></i>
             </div>
-            <p class="preloader-text">Загрузка KHAI Assistant...</p>
+            <p class="preloader-text" data-i18n="loading">Загрузка KHAI Assistant...</p>
         </div>
     </div>
-
-    <script>
-      // Ultra-early fallback: hide preloader even if main scripts fail
-      setTimeout(function(){
-        try {
-          var pre = document.getElementById('preloader');
-          if (pre) { pre.classList.add('fade-out'); pre.style.display = 'none'; }
-          var app = document.getElementById('appContainer');
-          if (app) app.style.display = 'flex';
-        } catch(e) {}
-      }, 2000);
-    </script>
 
     <!-- 404 Page (hidden by default) -->
     <div class="page-404" id="page404" style="display: none;">
@@ -195,7 +171,6 @@
     </div>
 
     <!-- Main App Container -->
-    <a href="#messagesContainer" class="skip-link">Пропустить к содержимому</a>
     <div class="app-container" id="appContainer">
         <!-- Header -->
         <header class="app-header">
@@ -294,20 +269,29 @@
                 </div>
             </div>
 
+            <!-- Context Counter -->
+            <div class="context-counter" id="contextCounter">
+                <span data-i18n="contextUsed">Использовано контекста</span>: <strong>0</strong>/120K
+                <div class="context-counter-info" id="contextCounterInfo">
+                    <i class="ti ti-help"></i>
+                    <div class="tooltip" data-i18n="contextTooltip">Контекстное окно показывает, сколько информации ИИ помнит из текущего разговора. При достижении лимита рекомендуется начать новый чат.</div>
+                </div>
+            </div>
+
             <div class="attached-files" id="attachedFiles"></div>
 
             <div class="action-buttons">
                 <button class="action-btn mode-btn active" id="normalModeBtn">
                     <i class="ti ti-message"></i>
-                    <span class="btn-text">Обычный</span>
+                    <span class="btn-text" data-i18n="normal">Обычный</span>
                 </button>
                 <button class="action-btn mode-btn" id="generateVoiceBtn">
                     <i class="ti ti-microphone"></i>
-                    <span class="btn-text">Голос</span>
+                    <span class="btn-text" data-i18n="voice">Голос</span>
                 </button>
                 <button class="action-btn mode-btn" id="generateImageBtn">
                     <i class="ti ti-photo"></i>
-                    <span class="btn-text">Изображения</span>
+                    <span class="btn-text" data-i18n="images">Изображения</span>
                 </button>
             </div>
         </div>
@@ -317,19 +301,19 @@
             <div class="footer-content">
                 <div class="current-chat-info">
                     <i class="ti ti-message"></i>
-                    <span id="currentChatName">Основной чат</span>
+                    <span id="currentChatName" data-i18n="mainChat">Основной чат</span>
                 </div>
                 
                 <div class="connection-status">
                     <i class="ti ti-circle" id="connectionStatusIcon"></i>
-                    <span id="connectionStatusText">Подключение...</span>
+                    <span id="connectionStatusText" data-i18n="connected">Подключение...</span>
                 </div>
                 
                 <div class="footer-controls">
                     <button class="footer-btn" id="helpBtn" title="Помощь и обучение">
                         <i class="ti ti-help"></i>
                     </button>
-                    <button class="footer-btn" id="downloadChatBtn" title="Скачать чат (JSON). Shift — Markdown">
+                    <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
                         <i class="ti ti-download"></i>
                     </button>
                     <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
@@ -348,26 +332,31 @@
                 <div class="sidebar-logo">
                     <i class="ti ti-brain"></i>
                 </div>
-                <h3>Кхай ИИ <span class="beta-badge">BETA</span></h3>
+                <h3>KHAI <span class="beta-badge" data-i18n="beta">BETA</span></h3>
             </div>
-            <button class="sidebar-close" id="sidebarClose">
-                <i class="ti ti-x"></i>
-            </button>
+            <div class="sidebar-actions">
+                <a href="/blog" class="blog-btn" id="blogBtn" title="Блог">
+                    <i class="ti ti-news"></i>
+                </a>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
         </div>
         
         <div class="sidebar-content">
             <!-- PWA Install Button -->
             <div class="pwa-install-section">
-                <div class="pwa-install-btn" id="pwaInstallBtn" style="display: none;" role="button" tabindex="0">
+                <button class="pwa-install-btn" id="pwaInstallBtn" style="display: none;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <i class="ti ti-download"></i>
                         <span>Установить приложение</span>
                         <span class="badge">НОВОЕ</span>
                     </div>
-                    <span class="pwa-install-btn-close" id="pwaInstallBtnClose" role="button" tabindex="0">
+                    <button class="pwa-install-btn-close" id="pwaInstallBtnClose">
                         <i class="ti ti-x"></i>
-                    </span>
-                </div>
+                    </button>
+                </button>
             </div>
 
             <div class="sidebar-search-container">
@@ -381,99 +370,80 @@
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-messages"></i> Мои чаты</h4>
+                <h4><i class="ti ti-messages"></i> <span data-i18n="myChats">Мои чаты</span></h4>
                 <div class="chat-list" id="chatList"></div>
                 <div class="chat-management-buttons">
                     <button class="sidebar-btn primary" id="newChatBtn">
-                        <i class="ti ti-plus"></i> Новый чат
+                        <i class="ti ti-plus"></i> <span data-i18n="newChat">Новый чат</span>
                     </button>
                     <button class="sidebar-btn" id="importChatBtn">
-                        <i class="ti ti-upload"></i> Импорт чата
+                        <i class="ti ti-upload"></i> <span data-i18n="importChat">Импорт чата</span>
                     </button>
                     <button class="sidebar-btn danger" id="deleteAllChatsBtn">
-                        <i class="ti ti-trash"></i> Удалить все
+                        <i class="ti ti-trash"></i> <span data-i18n="deleteAll">Удалить все</span>
                     </button>
                 </div>
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-brain"></i> Модель ИИ</h4>
+                <h4><i class="ti ti-brain"></i> <span data-i18n="aiModel">Модель ИИ</span></h4>
                 <div class="current-model-info">
                     <span id="currentModelInfo">GPT-5 Nano</span>
                     <span class="connection-status" id="connectionStatus">🔄 Проверка...</span>
                 </div>
             </div>
 
-            <div class="sidebar-section" id="settingsSection">
-                <h4><i class="ti ti-settings"></i> Настройки</h4>
+            <div class="sidebar-section">
+                <h4><i class="ti ti-info-circle"></i> <span data-i18n="aboutApp">О приложении</span></h4>
                 <div class="about-content">
                     <div class="about-item">
-                        <strong>Язык интерфейса</strong>
-                        <select id="settingsLang" class="modal-input" style="margin-top:6px;">
-                            <option value="ru">Русский</option>
-                            <option value="be">Беларуская</option>
-                        </select>
+                        <strong>KHAI Assistant</strong>
+                        <span>Первый белорусский ИИ-помощник</span>
                     </div>
                     <div class="about-item">
-                        <strong>Тема</strong>
-                        <button class="sidebar-btn" id="settingsTheme"><i class="ti ti-moon"></i> Светлая/Тёмная</button>
+                        <strong data-i18n="version">Версия</strong>
+                        <span>3.1.0</span>
                     </div>
                     <div class="about-item">
-                        <strong>Высокая контрастность</strong>
-                        <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-                            <input type="checkbox" id="settingsContrast"> Включить
-                        </label>
-                    </div>
-                    <div class="about-item">
-                        <strong>Размер текста сообщений</strong>
-                        <input type="range" id="settingsTextSize" min="12" max="20" step="1" value="14" style="width:100%;margin-top:6px;">
-                    </div>
-                    <div class="about-item">
-                        <strong>Режим чтения (автоскрытие UI)</strong>
-                        <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-                            <input type="checkbox" id="settingsCompact"> Включить
-                        </label>
+                        <strong data-i18n="updated">Обновлено</strong>
+                        <span id="appVersionDate">2025</span>
                     </div>
                 </div>
             </div>
 
-            <div class="sidebar-section">
-                <h4><i class="ti ti-info-circle"></i> О приложении</h4>
-                <div class="about-content">
-                    <div class="about-item">
-                        <strong>Кхай ИИ</strong>
-                        <span>Первый белорусский ИИ‑помощник</span>
-                    </div>
-                    <div class="about-item">
-                        <strong>Версия</strong>
-                        <span>3.0.4</span>
-                    </div>
-                    <div class="about-item">
-                        <strong>Обновлено</strong>
-                        <span id="appVersionDate">2025</span>
-                    </div>
+            <!-- Language Selector -->
+            <div class="language-selector">
+                <h4><i class="ti ti-language"></i> <span data-i18n="language">Язык</span></h4>
+                <div class="language-buttons">
+                    <button class="language-btn active" data-lang="ru">
+                        <i class="ti ti-check"></i>
+                        <span data-i18n="russian">Русский</span>
+                    </button>
+                    <button class="language-btn" data-lang="by">
+                        <span data-i18n="belarusian">Беларускі</span>
+                    </button>
                 </div>
             </div>
 
             <div class="sidebar-links">
                 <div class="links-grid">
                     <a href="https://khai.by/docs" target="_blank" class="link-item">
-                        <i class="ti ti-book"></i> Документация
+                        <i class="ti ti-book"></i> <span data-i18n="documentation">Документация</span>
                     </a>
                     <a href="https://khai.by/support" target="_blank" class="link-item">
-                        <i class="ti ti-headset"></i> Поддержка
+                        <i class="ti ti-headset"></i> <span data-i18n="support">Поддержка</span>
                     </a>
                     <a href="https://khai.by/guide" target="_blank" class="link-item">
-                        <i class="ti ti-bookmark"></i> Гайд
+                        <i class="ti ti-bookmark"></i> <span data-i18n="guide">Гайд</span>
                     </a>
                     <a href="https://khai.by/status" target="_blank" class="link-item">
-                        <i class="ti ti-heartbeat"></i> Статус
+                        <i class="ti ti-heartbeat"></i> <span data-i18n="status">Статус</span>
                     </a>
-                    <a href="https://khai.by/blog" target="_blank" class="link-item">
-                        <i class="ti ti-news"></i> Блог
+                    <a href="/blog" class="link-item">
+                        <i class="ti ti-news"></i> <span data-i18n="blog">Блог</span>
                     </a>
                     <a href="mailto:khuyew@proton.me" class="link-item">
-                        <i class="ti ti-mail"></i> Сотрудничество
+                        <i class="ti ti-mail"></i> <span data-i18n="collaboration">Сотрудничество</span>
                     </a>
                 </div>
                 
@@ -497,12 +467,12 @@
                 </a>
 
                 <div class="watermark">
-                    Сделано с ❤️ в Беларуси
+                    <span data-i18n="madeWithLove">Сделано с ❤️ в Беларуси</span>
                 </div>
                 
                 <p class="copyright">
                     © 2025 KHAI, Беларусь.<br>
-                    Все права защищены!
+                    <span data-i18n="allRightsReserved">Все права защищены!</span>
                 </p>
             </div>
         </div>
@@ -512,22 +482,22 @@
     <div class="modal-overlay" id="editChatModal">
         <div class="modal">
             <div class="modal-header">
-                <h3>Редактировать название чата</h3>
+                <h3 data-i18n="editChatTitle">Редактировать название чата</h3>
                 <button class="modal-close" id="editChatModalClose">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="modal-input-wrapper">
-                    <input type="text" id="editChatNameInput" placeholder="Введите название чата..." maxlength="16" class="modal-input">
+                    <input type="text" id="editChatNameInput" placeholder="Введите название чата..." maxlength="16" class="modal-input" data-i18n-placeholder="chatNamePlaceholder">
                     <button class="modal-clear-input" id="modalClearInput" style="display: none;">
                         <i class="ti ti-x"></i>
                     </button>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn" id="editChatModalCancel">Отмена</button>
-                <button class="modal-btn primary" id="editChatModalSave">Сохранить</button>
+                <button class="modal-btn" id="editChatModalCancel" data-i18n="cancel">Отмена</button>
+                <button class="modal-btn primary" id="editChatModalSave" data-i18n="save">Сохранить</button>
             </div>
         </div>
     </div>
@@ -536,7 +506,7 @@
     <div class="modal-overlay" id="modelModalOverlay">
         <div class="modal">
             <div class="modal-header">
-                <h3>Выберите модель ИИ</h3>
+                <h3 data-i18n="selectAIModel">Выберите модель ИИ</h3>
                 <button class="modal-close" id="modelModalClose">
                     <i class="ti ti-x"></i>
                 </button>
@@ -545,8 +515,8 @@
                 <div class="model-list" id="modelList"></div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn" id="modelModalCancel">Отмена</button>
-                <button class="modal-btn primary" id="modelModalConfirm">Выбрать</button>
+                <button class="modal-btn" id="modelModalCancel" data-i18n="cancel">Отмена</button>
+                <button class="modal-btn primary" id="modelModalConfirm" data-i18n="save">Выбрать</button>
             </div>
         </div>
     </div>
@@ -555,7 +525,7 @@
     <div class="modal-overlay" id="helpModal">
         <div class="modal">
             <div class="modal-header">
-                <h3>Помощь по KHAI Assistant</h3>
+                <h3 data-i18n="helpTitle">Помощь по KHAI Assistant</h3>
                 <button class="modal-close" id="helpModalClose">
                     <i class="ti ti-x"></i>
                 </button>
@@ -564,7 +534,7 @@
                 <div class="help-content" id="helpContent"></div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn primary" id="helpModalOk">Понятно</button>
+                <button class="modal-btn primary" id="helpModalOk" data-i18n="close">Понятно</button>
             </div>
         </div>
     </div>
@@ -573,7 +543,7 @@
     <div class="modal-overlay" id="messageModal">
         <div class="modal large-modal">
             <div class="modal-header">
-                <h3 id="messageModalTitle">Просмотр сообщения</h3>
+                <h3 id="messageModalTitle" data-i18n="viewMessage">Просмотр сообщения</h3>
                 <button class="modal-close" id="messageModalClose">
                     <i class="ti ti-x"></i>
                 </button>
@@ -583,35 +553,37 @@
             </div>
             <div class="modal-footer">
                 <button class="modal-btn" id="messageModalCopy">
-                    <i class="ti ti-copy"></i> Копировать
+                    <i class="ti ti-copy"></i> <span data-i18n="copy">Копировать</span>
                 </button>
                 <button class="modal-btn" id="messageModalSpeak">
-                    <i class="ti ti-speakerphone"></i> Озвучить
+                    <i class="ti ti-speakerphone"></i> <span data-i18n="speak">Озвучить</span>
                 </button>
-                <button class="modal-btn primary" id="messageModalCloseBtn">Закрыть</button>
+                <button class="modal-btn primary" id="messageModalCloseBtn" data-i18n="close">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Limit Modal -->
+    <div class="modal-overlay" id="contextLimitModal">
+        <div class="modal context-limit-modal">
+            <div class="modal-body">
+                <div class="modal-icon">
+                    <i class="ti ti-alert-triangle"></i>
+                </div>
+                <h4 data-i18n="contextLimitReached">Лимит контекста почти достигнут</h4>
+                <p data-i18n="contextLimitMessage">Вы использовали почти весь доступный контекст. Для лучшей работы ИИ рекомендуется начать новый чат.</p>
+                <div class="context-limit-actions">
+                    <button class="modal-btn" id="contextLimitContinue" data-i18n="continueCurrent">Продолжить в текущем чате</button>
+                    <button class="modal-btn primary" id="contextLimitNewChat" data-i18n="startNewChat">Начать новый чат</button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
-    <script defer src="./script.js"></script>
-
-    <!-- Safety fallback to hide preloader if main script fails to init -->
-    <script>
-      window.addEventListener('DOMContentLoaded', function(){
-        setTimeout(function(){
-          try {
-            var pre = document.getElementById('preloader');
-            if (pre) { pre.classList.add('fade-out'); pre.style.display = 'none'; }
-            var app = document.getElementById('appContainer');
-            if (app) app.style.display = 'flex';
-          } catch(e) {}
-        }, 1500);
-      });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="./script.js"></script>
 
     <!-- PWA Service Worker -->
     <script>
