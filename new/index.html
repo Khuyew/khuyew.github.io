@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" itemscope itemtype="https://schema.org/WebApplication">
+<html lang="be" itemscope itemtype="https://schema.org/WebApplication">
 <head>
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
@@ -26,9 +26,9 @@
     <meta name="theme-color" content="#121212">
     
     <!-- SEO Meta Tags -->
-    <title>KHAI — Первый белорусский ИИ-помощник | Бесплатный AI чат</title>
-    <meta name="description" content="KHAI — первый белорусский ИИ-ассистент с генерацией изображений и голоса. Бесплатный AI-чат с поддержкой файлов и мультиязычным интерфейсом">
-    <meta name="keywords" content="KHAI, белорусский ИИ, искусственный интеллект, AI помощник, чат с ИИ, генерация изображений, голосовой ИИ, ИИ Беларусь">
+    <title>KHAI — Першы беларускі ІІ-памочнік | Бясплатны AI чат</title>
+    <meta name="description" content="KHAI — першы беларускі ІІ-асістэнт з генерацыяй выяваў і голасу. Бясплатны AI-чат з падтрымкай файлаў і шматмоўным інтэрфейсам">
+    <meta name="keywords" content="KHAI, беларускі ІІ, штучны інтэлект, AI памочнік, чат з ІІ, генерацыя выяваў, галасавы ІІ, ІІ Беларусь">
     <meta name="author" content="KHAI Team">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="googlebot" content="index, follow">
@@ -36,16 +36,16 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="KHAI Assistant">
-    <meta property="og:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta property="og:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса. Анализ файлов, написание кода, мультиязычная поддержка">
+    <meta property="og:title" content="KHAI — Першы беларускі ІІ-памочнік">
+    <meta property="og:description" content="Бясплатны ІІ-асістэнт з генерацыяй выяваў і голасу. Аналіз файлаў, напісанне кода, шматмоўная падтрымка">
     <meta property="og:image" content="./icon.svg">
     <meta property="og:url" content="./">
-    <meta property="og:locale" content="ru_RU">
+    <meta property="og:locale" content="be_BY">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="KHAI — Первый белорусский ИИ-помощник">
-    <meta name="twitter:description" content="Бесплатный ИИ-ассистент с генерацией изображений и голоса">
+    <meta name="twitter:title" content="KHAI — Першы беларускі ІІ-памочнік">
+    <meta name="twitter:description" content="Бясплатны ІІ-асістэнт з генерацыяй выяваў і голасу">
     <meta property="twitter:image" content="./icon.svg">
     <meta name="twitter:site" content="@khai_assistant">
     
@@ -56,7 +56,7 @@
         "@type": "WebApplication",
         "name": "KHAI Assistant",
         "url": "./",
-        "description": "Первый белорусский ИИ-помощник с генерацией изображений и голоса",
+        "description": "Першы беларускі ІІ-памочнік з генерацыяй выяваў і голасу",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
         "permissions": "microphone",
@@ -82,6 +82,7 @@
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" as="style">
     <link rel="preload" href="./styles.css" as="style">
     <link rel="preload" href="./script.js" as="script">
+    <link rel="preload" href="./i18n.js" as="script">
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
@@ -100,7 +101,7 @@
             <div class="preloader-spinner">
                 <i class="ti ti-refresh"></i>
             </div>
-            <p class="preloader-text" data-i18n="loading">Загрузка KHAI Assistant...</p>
+            <p class="preloader-text">Загрузка KHAI Assistant...</p>
         </div>
     </div>
 
@@ -110,9 +111,9 @@
             <div class="error-logo">
                 <i class="ti ti-brain"></i>
             </div>
-            <h1>404 - Страница не найдена</h1>
-            <p>Запрошенная страница не существует или была перемещена.</p>
-            <button class="error-btn" id="errorBackBtn">Вернуться в приложение</button>
+            <h1>404 - Старонка не знойдзена</h1>
+            <p>Запытаная старонка не існуе ці была перамешчана.</p>
+            <button class="error-btn" id="errorBackBtn">Вярнуцца ў прыкладанне</button>
         </div>
     </div>
 
@@ -120,52 +121,77 @@
     <div class="tutorial-overlay" id="tutorialOverlay" style="display: none;">
         <div class="tutorial-content">
             <div class="tutorial-step active" id="tutorialStep1">
-                <h3>Добро пожаловать в KHAI Assistant! 🚀</h3>
-                <p>Пройдите короткий тур по основным функциям приложения, чтобы начать эффективно использовать ИИ-помощника.</p>
+                <h3>Сардэчна запрашаем у KHAI Assistant! 🚀</h3>
+                <p>Прайдзіце кароткі тур па асноўных функцыях прыкладання, каб пачаць эфектыўна выкарыстоўваць ІІ-памочніка.</p>
                 <div class="tutorial-actions">
-                    <button class="tutorial-btn secondary" id="skipTutorialBtn">Пропустить</button>
-                    <button class="tutorial-btn primary" id="nextStepBtn1">Далее</button>
+                    <button class="tutorial-btn secondary" id="skipTutorialBtn">Прапусціць</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn1">Далей</button>
                 </div>
             </div>
             <div class="tutorial-step" id="tutorialStep2">
-                <h3>Основное меню</h3>
-                <p>Здесь вы можете управлять чатами, создавать новые, импортировать и экспортировать историю разговоров.</p>
+                <h3>Асноўнае меню</h3>
+                <p>Тут вы можаце кіраваць чатамі, ствараць новыя, імпартаваць і экспартаваць гісторыю размоў.</p>
                 <div class="tutorial-actions">
                     <button class="tutorial-btn secondary" id="prevStepBtn2">Назад</button>
-                    <button class="tutorial-btn primary" id="nextStepBtn2">Далее</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn2">Далей</button>
                 </div>
             </div>
             <div class="tutorial-step" id="tutorialStep3">
-                <h3>Выбор модели ИИ</h3>
-                <p>Выбирайте между разными моделями ИИ в зависимости от ваших задач. Каждая модель имеет свои особенности.</p>
+                <h3>Выбар мадэлі ІІ</h3>
+                <p>Выбірайце паміж рознымі мадэлямі ІІ у залежнасці ад вашых задач. Кожная мадэль мае свае асаблівасці.</p>
                 <div class="tutorial-actions">
                     <button class="tutorial-btn secondary" id="prevStepBtn3">Назад</button>
-                    <button class="tutorial-btn primary" id="nextStepBtn3">Далее</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn3">Далей</button>
                 </div>
             </div>
             <div class="tutorial-step" id="tutorialStep4">
-                <h3>Режимы работы</h3>
-                <p>Используйте разные режимы: обычный чат, генерация изображений или создание голосовых сообщений.</p>
+                <h3>Рэжымы працы</h3>
+                <p>Выкарыстоўвайце розныя рэжымы: звычайны чат, генерацыя выяваў ці стварэнне галасавых паведамленняў.</p>
                 <div class="tutorial-actions">
                     <button class="tutorial-btn secondary" id="prevStepBtn4">Назад</button>
-                    <button class="tutorial-btn primary" id="nextStepBtn4">Далее</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn4">Далей</button>
                 </div>
             </div>
             <div class="tutorial-step" id="tutorialStep5">
-                <h3>Прикрепление файлов</h3>
-                <p>Загружайте изображения и текстовые файлы для анализа. ИИ поможет вам с их содержимым.</p>
+                <h3>Прымацаванне файлаў</h3>
+                <p>Загружайце выявы і тэкставыя файлы для аналізу. ІІ дапаможа вам з іх зместам.</p>
                 <div class="tutorial-actions">
                     <button class="tutorial-btn secondary" id="prevStepBtn5">Назад</button>
-                    <button class="tutorial-btn primary" id="nextStepBtn5">Далее</button>
+                    <button class="tutorial-btn primary" id="nextStepBtn5">Далей</button>
                 </div>
             </div>
             <div class="tutorial-step" id="tutorialStep6">
-                <h3>Готовы к использованию! 🎉</h3>
-                <p>Теперь вы знаете все основные функции KHAI Assistant. Начните общение с ИИ прямо сейчас!</p>
+                <h3>Гатовыя да выкарыстання! 🎉</h3>
+                <p>Цяпер вы ведаеце ўсе асноўныя функцыі KHAI Assistant. Пачніце абмен паведамленнямі з ІІ прама зараз!</p>
                 <div class="tutorial-actions">
                     <button class="tutorial-btn secondary" id="prevStepBtn6">Назад</button>
-                    <button class="tutorial-btn primary" id="finishTutorialBtn">Начать использовать</button>
+                    <button class="tutorial-btn primary" id="finishTutorialBtn">Пачаць выкарыстоўваць</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Warning Modal -->
+    <div class="modal-overlay" id="contextWarningModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Кантэкст амаль запаўнены</h3>
+                <button class="modal-close" id="contextWarningModalClose">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="context-warning-content">
+                    <div class="context-warning-icon">
+                        <i class="ti ti-alert-triangle"></i>
+                    </div>
+                    <h4>Кантэкст амаль запаўнены</h4>
+                    <p>Вы выкарысталі <span id="contextWarningPercentage">80</span>% даступнага кантэксту. Для лепшай працы ІІ рэкамендуецца пачаць новы чат.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="contextWarningContinue">Працягнуць у бягучым</button>
+                <button class="modal-btn primary" id="contextWarningNewChat">Стварыць новы чат</button>
             </div>
         </div>
     </div>
@@ -181,25 +207,25 @@
                     </div>
                 </div>
                 
-                <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбрать модель ИИ">
+                <button class="control-btn model-select-btn" id="modelSelectBtn" title="Выбраць мадэль ІІ">
                     <i class="ti ti-cpu"></i>
                 </button>
                 
                 <div class="header-search-container">
                     <div class="search-wrapper">
                         <i class="ti ti-search"></i>
-                        <input type="text" id="headerSearch" placeholder="Поиск по чату..." aria-label="Поиск по истории чата">
-                        <button class="search-clear" id="headerSearchClear" style="display: none;" aria-label="Очистить поиск">
+                        <input type="text" id="headerSearch" placeholder="Пошук па чаце..." aria-label="Пошук па гісторыі чата">
+                        <button class="search-clear" id="headerSearchClear" style="display: none;" aria-label="Ачысціць пошук">
                             <i class="ti ti-x"></i>
                         </button>
                     </div>
                 </div>
                 
                 <div class="header-controls">
-                    <button class="control-btn" id="themeToggle" aria-label="Переключить тему">
+                    <button class="control-btn" id="themeToggle" aria-label="Пераключыць тэму">
                         <i class="ti ti-moon"></i>
                     </button>
-                    <button class="control-btn menu-toggle" id="menuToggle" aria-label="Открыть меню">
+                    <button class="control-btn menu-toggle" id="menuToggle" aria-label="Адкрыць меню">
                         <i class="ti ti-menu-2"></i>
                     </button>
                 </div>
@@ -225,10 +251,10 @@
                     <div class="minimap-viewport" id="minimapViewport"></div>
                 </div>
                 <div class="minimap-navigation">
-                    <button class="nav-btn" id="scrollToLastAI" title="К последнему ответу ИИ">
+                    <button class="nav-btn" id="scrollToLastAI" title="Да апошняга адказу ІІ">
                         <i class="ti ti-arrow-up"></i>
                     </button>
-                    <button class="nav-btn" id="scrollToBottom" title="К низу чата">
+                    <button class="nav-btn" id="scrollToBottom" title="Да нізу чата">
                         <i class="ti ti-arrow-down"></i>
                     </button>
                 </div>
@@ -238,43 +264,42 @@
         <!-- Input Section -->
         <div class="input-section" id="inputSection">
             <div class="mode-indicator">
-                <i class="ti ti-message"></i> Обычный режим
+                <i class="ti ti-message"></i> Звычайны рэжым
+            </div>
+            
+            <!-- Context Counter -->
+            <div class="context-counter" id="contextCounter">
+                <span id="contextCounterText">Кантэкст: 0/128000 токенаў</span>
+                <div class="context-counter-tooltip" id="contextCounterTooltip" data-tooltip="Токены - гэта адзінкі тэксту, якія ІІ выкарыстоўвае для разумення кантэксту. Пры набліжэнні да ліміту ркамендуецца пачаць новы чат.">
+                    <i class="ti ti-help"></i>
+                </div>
             </div>
             
             <div class="input-wrapper">
-                <button class="attach-btn" id="attachFileBtn" title="Прикрепить файл">
+                <button class="attach-btn" id="attachFileBtn" title="Прымацаваць файл">
                     <i class="ti ti-paperclip"></i>
                     <input type="file" id="fileInput" accept="image/*,.txt,.md,.html,.css,.js,.json,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.swift,.kt,.scala,.rs,.xml,.csv,.yaml,.yml" multiple style="display: none;">
                 </button>
                 
                 <textarea 
                     id="userInput" 
-                    placeholder="Задайте вопрос или опишите изображение..." 
+                    placeholder="Задайце пытанне ці апішыце выяву..." 
                     autocomplete="off" 
                     rows="1"
                     maxlength="4000"
-                    aria-label="Поле ввода сообщения"
+                    aria-label="Поле ўводу паведамлення"
                 ></textarea>
                 
                 <div class="input-controls">
-                    <button class="input-btn" id="clearInputBtn" title="Очистить ввод" style="display: none;">
+                    <button class="input-btn" id="clearInputBtn" title="Ачысціць увод" style="display: none;">
                         <i class="ti ti-x"></i>
                     </button>
-                    <button class="input-btn" id="voiceInputBtn" title="Голосовой ввод">
+                    <button class="input-btn" id="voiceInputBtn" title="Галасавы ўвод">
                         <i class="ti ti-microphone"></i>
                     </button>
-                    <button class="send-btn" id="sendBtn" title="Отправить сообщение">
+                    <button class="send-btn" id="sendBtn" title="Адправіць паведамленне">
                         <i class="ti ti-send"></i>
                     </button>
-                </div>
-            </div>
-
-            <!-- Context Counter -->
-            <div class="context-counter" id="contextCounter">
-                <span data-i18n="contextUsed">Использовано контекста</span>: <strong>0</strong>/120K
-                <div class="context-counter-info" id="contextCounterInfo">
-                    <i class="ti ti-help"></i>
-                    <div class="tooltip" data-i18n="contextTooltip">Контекстное окно показывает, сколько информации ИИ помнит из текущего разговора. При достижении лимита рекомендуется начать новый чат.</div>
                 </div>
             </div>
 
@@ -283,15 +308,15 @@
             <div class="action-buttons">
                 <button class="action-btn mode-btn active" id="normalModeBtn">
                     <i class="ti ti-message"></i>
-                    <span class="btn-text" data-i18n="normal">Обычный</span>
+                    <span class="btn-text">Звычайны</span>
                 </button>
                 <button class="action-btn mode-btn" id="generateVoiceBtn">
                     <i class="ti ti-microphone"></i>
-                    <span class="btn-text" data-i18n="voice">Голос</span>
+                    <span class="btn-text">Голас</span>
                 </button>
                 <button class="action-btn mode-btn" id="generateImageBtn">
                     <i class="ti ti-photo"></i>
-                    <span class="btn-text" data-i18n="images">Изображения</span>
+                    <span class="btn-text">Выявы</span>
                 </button>
             </div>
         </div>
@@ -301,22 +326,22 @@
             <div class="footer-content">
                 <div class="current-chat-info">
                     <i class="ti ti-message"></i>
-                    <span id="currentChatName" data-i18n="mainChat">Основной чат</span>
+                    <span id="currentChatName">Асноўны чат</span>
                 </div>
                 
                 <div class="connection-status">
                     <i class="ti ti-circle" id="connectionStatusIcon"></i>
-                    <span id="connectionStatusText" data-i18n="connected">Подключение...</span>
+                    <span id="connectionStatusText">Падключэнне...</span>
                 </div>
                 
                 <div class="footer-controls">
-                    <button class="footer-btn" id="helpBtn" title="Помощь и обучение">
+                    <button class="footer-btn" id="helpBtn" title="Дапамога і навучанне">
                         <i class="ti ti-help"></i>
                     </button>
-                    <button class="footer-btn" id="downloadChatBtn" title="Скачать чат">
+                    <button class="footer-btn" id="downloadChatBtn" title="Спампаваць чат">
                         <i class="ti ti-download"></i>
                     </button>
-                    <button class="footer-btn" id="clearChatBtn" title="Очистить чат">
+                    <button class="footer-btn" id="clearChatBtn" title="Ачысціць чат">
                         <i class="ti ti-eraser"></i>
                     </button>
                 </div>
@@ -332,12 +357,12 @@
                 <div class="sidebar-logo">
                     <i class="ti ti-brain"></i>
                 </div>
-                <h3>KHAI <span class="beta-badge" data-i18n="beta">BETA</span></h3>
+                <h3>KHAI <span class="beta-badge">BETA</span></h3>
             </div>
-            <div class="sidebar-actions">
-                <a href="/blog" class="blog-btn" id="blogBtn" title="Блог">
+            <div class="sidebar-header-controls">
+                <button class="sidebar-blog-btn" id="sidebarBlogBtn" title="Блог">
                     <i class="ti ti-news"></i>
-                </a>
+                </button>
                 <button class="sidebar-close" id="sidebarClose">
                     <i class="ti ti-x"></i>
                 </button>
@@ -345,13 +370,21 @@
         </div>
         
         <div class="sidebar-content">
+            <!-- Language Selector -->
+            <div class="language-selector">
+                <select id="languageSelect">
+                    <option value="be">Беларускі</option>
+                    <option value="ru">Русский</option>
+                </select>
+            </div>
+
             <!-- PWA Install Button -->
             <div class="pwa-install-section">
                 <button class="pwa-install-btn" id="pwaInstallBtn" style="display: none;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <i class="ti ti-download"></i>
-                        <span>Установить приложение</span>
-                        <span class="badge">НОВОЕ</span>
+                        <span>Усталяваць прыкладанне</span>
+                        <span class="badge">НОВАЕ</span>
                     </div>
                     <button class="pwa-install-btn-close" id="pwaInstallBtnClose">
                         <i class="ti ti-x"></i>
@@ -362,88 +395,74 @@
             <div class="sidebar-search-container">
                 <div class="search-wrapper">
                     <i class="ti ti-search"></i>
-                    <input type="text" id="sidebarSearch" placeholder="Поиск по чатам..." aria-label="Поиск по чатам">
-                    <button class="search-clear" id="sidebarSearchClear" style="display: none;" aria-label="Очистить поиск">
+                    <input type="text" id="sidebarSearch" placeholder="Пошук па чатах..." aria-label="Пошук па чатах">
+                    <button class="search-clear" id="sidebarSearchClear" style="display: none;" aria-label="Ачысціць пошук">
                         <i class="ti ti-x"></i>
                     </button>
                 </div>
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-messages"></i> <span data-i18n="myChats">Мои чаты</span></h4>
+                <h4><i class="ti ti-messages"></i> Мае чаты</h4>
                 <div class="chat-list" id="chatList"></div>
                 <div class="chat-management-buttons">
                     <button class="sidebar-btn primary" id="newChatBtn">
-                        <i class="ti ti-plus"></i> <span data-i18n="newChat">Новый чат</span>
+                        <i class="ti ti-plus"></i> Новы чат
                     </button>
                     <button class="sidebar-btn" id="importChatBtn">
-                        <i class="ti ti-upload"></i> <span data-i18n="importChat">Импорт чата</span>
+                        <i class="ti ti-upload"></i> Імпарт чата
                     </button>
                     <button class="sidebar-btn danger" id="deleteAllChatsBtn">
-                        <i class="ti ti-trash"></i> <span data-i18n="deleteAll">Удалить все</span>
+                        <i class="ti ti-trash"></i> Выдаліць усе
                     </button>
                 </div>
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-brain"></i> <span data-i18n="aiModel">Модель ИИ</span></h4>
+                <h4><i class="ti ti-brain"></i> Мадэль ІІ</h4>
                 <div class="current-model-info">
                     <span id="currentModelInfo">GPT-5 Nano</span>
-                    <span class="connection-status" id="connectionStatus">🔄 Проверка...</span>
+                    <span class="connection-status" id="connectionStatus">🔄 Праверка...</span>
                 </div>
             </div>
 
             <div class="sidebar-section">
-                <h4><i class="ti ti-info-circle"></i> <span data-i18n="aboutApp">О приложении</span></h4>
+                <h4><i class="ti ti-info-circle"></i> Аб прыкладанні</h4>
                 <div class="about-content">
                     <div class="about-item">
                         <strong>KHAI Assistant</strong>
-                        <span>Первый белорусский ИИ-помощник</span>
+                        <span>Першы беларускі ІІ-памочнік</span>
                     </div>
                     <div class="about-item">
-                        <strong data-i18n="version">Версия</strong>
-                        <span>3.1.0</span>
+                        <strong>Версія</strong>
+                        <span>3.0.4</span>
                     </div>
                     <div class="about-item">
-                        <strong data-i18n="updated">Обновлено</strong>
+                        <strong>Абноўлена</strong>
                         <span id="appVersionDate">2025</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- Language Selector -->
-            <div class="language-selector">
-                <h4><i class="ti ti-language"></i> <span data-i18n="language">Язык</span></h4>
-                <div class="language-buttons">
-                    <button class="language-btn active" data-lang="ru">
-                        <i class="ti ti-check"></i>
-                        <span data-i18n="russian">Русский</span>
-                    </button>
-                    <button class="language-btn" data-lang="by">
-                        <span data-i18n="belarusian">Беларускі</span>
-                    </button>
                 </div>
             </div>
 
             <div class="sidebar-links">
                 <div class="links-grid">
                     <a href="https://khai.by/docs" target="_blank" class="link-item">
-                        <i class="ti ti-book"></i> <span data-i18n="documentation">Документация</span>
+                        <i class="ti ti-book"></i> Дакументацыя
                     </a>
                     <a href="https://khai.by/support" target="_blank" class="link-item">
-                        <i class="ti ti-headset"></i> <span data-i18n="support">Поддержка</span>
+                        <i class="ti ti-headset"></i> Падтрымка
                     </a>
                     <a href="https://khai.by/guide" target="_blank" class="link-item">
-                        <i class="ti ti-bookmark"></i> <span data-i18n="guide">Гайд</span>
+                        <i class="ti ti-bookmark"></i> Даведка
                     </a>
                     <a href="https://khai.by/status" target="_blank" class="link-item">
-                        <i class="ti ti-heartbeat"></i> <span data-i18n="status">Статус</span>
+                        <i class="ti ti-heartbeat"></i> Статус
                     </a>
-                    <a href="/blog" class="link-item">
-                        <i class="ti ti-news"></i> <span data-i18n="blog">Блог</span>
+                    <a href="https://khai.by/blog" target="_blank" class="link-item">
+                        <i class="ti ti-news"></i> Блог
                     </a>
                     <a href="mailto:khuyew@proton.me" class="link-item">
-                        <i class="ti ti-mail"></i> <span data-i18n="collaboration">Сотрудничество</span>
+                        <i class="ti ti-mail"></i> Супрацоўніцтва
                     </a>
                 </div>
                 
@@ -467,12 +486,12 @@
                 </a>
 
                 <div class="watermark">
-                    <span data-i18n="madeWithLove">Сделано с ❤️ в Беларуси</span>
+                    Зроблена з ❤️ у Беларусі
                 </div>
                 
                 <p class="copyright">
                     © 2025 KHAI, Беларусь.<br>
-                    <span data-i18n="allRightsReserved">Все права защищены!</span>
+                    Усе правы абаронены!
                 </p>
             </div>
         </div>
@@ -482,22 +501,22 @@
     <div class="modal-overlay" id="editChatModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 data-i18n="editChatTitle">Редактировать название чата</h3>
+                <h3>Рэдагаваць назву чата</h3>
                 <button class="modal-close" id="editChatModalClose">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="modal-input-wrapper">
-                    <input type="text" id="editChatNameInput" placeholder="Введите название чата..." maxlength="16" class="modal-input" data-i18n-placeholder="chatNamePlaceholder">
+                    <input type="text" id="editChatNameInput" placeholder="Увядзіце назву чата..." maxlength="16" class="modal-input">
                     <button class="modal-clear-input" id="modalClearInput" style="display: none;">
                         <i class="ti ti-x"></i>
                     </button>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn" id="editChatModalCancel" data-i18n="cancel">Отмена</button>
-                <button class="modal-btn primary" id="editChatModalSave" data-i18n="save">Сохранить</button>
+                <button class="modal-btn" id="editChatModalCancel">Адмена</button>
+                <button class="modal-btn primary" id="editChatModalSave">Захаваць</button>
             </div>
         </div>
     </div>
@@ -506,7 +525,7 @@
     <div class="modal-overlay" id="modelModalOverlay">
         <div class="modal">
             <div class="modal-header">
-                <h3 data-i18n="selectAIModel">Выберите модель ИИ</h3>
+                <h3>Выберыце мадэль ІІ</h3>
                 <button class="modal-close" id="modelModalClose">
                     <i class="ti ti-x"></i>
                 </button>
@@ -515,8 +534,8 @@
                 <div class="model-list" id="modelList"></div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn" id="modelModalCancel" data-i18n="cancel">Отмена</button>
-                <button class="modal-btn primary" id="modelModalConfirm" data-i18n="save">Выбрать</button>
+                <button class="modal-btn" id="modelModalCancel">Адмена</button>
+                <button class="modal-btn primary" id="modelModalConfirm">Выбраць</button>
             </div>
         </div>
     </div>
@@ -525,7 +544,7 @@
     <div class="modal-overlay" id="helpModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 data-i18n="helpTitle">Помощь по KHAI Assistant</h3>
+                <h3>Дапамога па KHAI Assistant</h3>
                 <button class="modal-close" id="helpModalClose">
                     <i class="ti ti-x"></i>
                 </button>
@@ -534,7 +553,7 @@
                 <div class="help-content" id="helpContent"></div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn primary" id="helpModalOk" data-i18n="close">Понятно</button>
+                <button class="modal-btn primary" id="helpModalOk">Зразумела</button>
             </div>
         </div>
     </div>
@@ -543,7 +562,7 @@
     <div class="modal-overlay" id="messageModal">
         <div class="modal large-modal">
             <div class="modal-header">
-                <h3 id="messageModalTitle" data-i18n="viewMessage">Просмотр сообщения</h3>
+                <h3 id="messageModalTitle">Прагляд паведамлення</h3>
                 <button class="modal-close" id="messageModalClose">
                     <i class="ti ti-x"></i>
                 </button>
@@ -553,29 +572,12 @@
             </div>
             <div class="modal-footer">
                 <button class="modal-btn" id="messageModalCopy">
-                    <i class="ti ti-copy"></i> <span data-i18n="copy">Копировать</span>
+                    <i class="ti ti-copy"></i> Капіяваць
                 </button>
                 <button class="modal-btn" id="messageModalSpeak">
-                    <i class="ti ti-speakerphone"></i> <span data-i18n="speak">Озвучить</span>
+                    <i class="ti ti-speakerphone"></i> Агучыць
                 </button>
-                <button class="modal-btn primary" id="messageModalCloseBtn" data-i18n="close">Закрыть</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Context Limit Modal -->
-    <div class="modal-overlay" id="contextLimitModal">
-        <div class="modal context-limit-modal">
-            <div class="modal-body">
-                <div class="modal-icon">
-                    <i class="ti ti-alert-triangle"></i>
-                </div>
-                <h4 data-i18n="contextLimitReached">Лимит контекста почти достигнут</h4>
-                <p data-i18n="contextLimitMessage">Вы использовали почти весь доступный контекст. Для лучшей работы ИИ рекомендуется начать новый чат.</p>
-                <div class="context-limit-actions">
-                    <button class="modal-btn" id="contextLimitContinue" data-i18n="continueCurrent">Продолжить в текущем чате</button>
-                    <button class="modal-btn primary" id="contextLimitNewChat" data-i18n="startNewChat">Начать новый чат</button>
-                </div>
+                <button class="modal-btn primary" id="messageModalCloseBtn">Закрыць</button>
             </div>
         </div>
     </div>
@@ -583,6 +585,7 @@
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="./i18n.js"></script>
     <script src="./script.js"></script>
 
     <!-- PWA Service Worker -->
@@ -591,10 +594,10 @@
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('./service-worker.js')
                     .then(registration => {
-                        console.log('ServiceWorker зарегистрирован: ', registration);
+                        console.log('ServiceWorker зарэгістраваны: ', registration);
                     })
                     .catch(error => {
-                        console.log('Ошибка регистрации ServiceWorker: ', error);
+                        console.log('Памылка рэгістрацыі ServiceWorker: ', error);
                     });
             });
         }
